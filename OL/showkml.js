@@ -1,0 +1,281 @@
+function init(path, kmlName, assignmentId) {
+
+// Create the map using the specified DOM element
+var map = new OpenLayers.Map("kml_display");
+
+var satellite = new OpenLayers.Layer.Google(
+    "Google Satellite", 
+    {
+        type: google.maps.MapTypeId.SATELLITE, 
+        minZoomLevel: 14,
+        maxZoomLevel: 18
+    }
+);
+var hybrid = new OpenLayers.Layer.Google(
+    "Google Hybrid", 
+    {
+        type: google.maps.MapTypeId.HYBRID,
+        minZoomLevel: 14,
+        maxZoomLevel: 18
+    }
+);
+var streets = new OpenLayers.Layer.Google(
+    "Google Streets", 
+    {
+        minZoomLevel: 14,
+        maxZoomLevel: 18
+    }
+);
+map.addLayers([satellite, hybrid, streets]);
+
+var sty = new OpenLayers.Style({
+    strokeColor: "white", 
+    strokeOpacity: 1.0, 
+    strokeWidth: 2, 
+    fillOpacity: 0.0
+});
+var stymap = new OpenLayers.StyleMap({ 'default': sty });
+kmlLayer = new OpenLayers.Layer.Vector(
+    "One Square Km in South Africa", 
+    {
+        styleMap: stymap,
+        protocol: new OpenLayers.Protocol.HTTP({
+                url: path + '/' + kmlName + '.kml',
+                format: new OpenLayers.Format.KML()
+        }),
+        strategies: [new OpenLayers.Strategy.Fixed()],
+        displayInLayerSwitcher: false
+    }
+)
+map.addLayer(kmlLayer);
+
+saveStrategy = new OpenLayers.Strategy.Save();
+saveStrategy.events.register('success', null, function() {saveSuccess(kmlName, assignmentId);});
+saveStrategy.events.register('fail', null, function() {saveFail(kmlName, assignmentId);});
+saveStrategyFailed = false;
+// If this is an MTurk accepted HIT, let user save changes, and add assignment ID to kml name.
+if (assignmentId.length > 0 && assignmentId != 'ASSIGNMENT_ID_NOT_AVAILABLE') {
+    saveStrategyActive = true;
+    foldersName = kmlName + '_' + assignmentId;
+} else {
+    // Else, if this is an MTurk preview, don't let user save changes.
+    if (assignmentId.length > 0) {
+        saveStrategyActive = false;
+    // Else, if this is not an MTurk invocation, let user save changes.
+    } else {
+        saveStrategyActive = true;
+    }
+    // No assignment ID in either case.
+    foldersName = kmlName;
+}
+
+fieldsLayer = new OpenLayers.Layer.Vector(
+    "Mapped Fields",
+    {
+        protocol: new OpenLayers.Protocol.HTTP({
+            url: "/afmap/api/postkml",
+            format: new OpenLayers.Format.KML({
+                foldersName: foldersName
+            })
+        }),
+        strategies: [saveStrategy],
+        displayInLayerSwitcher: false
+    }
+);
+// Special callback to catch completions after each POST to send a new polygon
+// to the server. There will be only one POST in our case. This is necessary
+// (instead of registering a 'fail' handler with saveStrategy) so that we can
+// retrieve the HTTP status code and string.
+// fieldsLayer.protocol.options.create = { callback: saveKMLFail, scope: this };
+map.addLayer(fieldsLayer);
+
+var layerSwitcher = new OpenLayers.Control.LayerSwitcher({ roundedCorner:true });
+map.addControl(new OpenLayers.Control.LayerSwitcher());
+var panZoomBar = new OpenLayers.Control.PanZoomBar();
+var mousePosition = new OpenLayers.Control.MousePosition({
+    'displayProjection': 'EPSG:4326',
+    'numDigits': 3
+});
+var scaleline = new OpenLayers.Control.ScaleLine();
+map.addControls([layerSwitcher, panZoomBar, mousePosition, scaleline]);
+
+var DeleteFeature = OpenLayers.Class(OpenLayers.Control, {
+    initialize: function(layer, options) {
+        OpenLayers.Control.prototype.initialize.apply(this, [options]);
+        this.layer = layer;
+        this.handler = new OpenLayers.Handler.Feature(
+            this, layer, {click: this.clickFeature}
+        );
+    },
+    clickFeature: function(feature) {
+        // if feature doesn't have a fid, destroy it
+        if(feature.fid == undefined) {
+            this.layer.destroyFeatures([feature]);
+        } else {
+            feature.state = OpenLayers.State.DELETE;
+            this.layer.events.triggerEvent("afterfeaturemodified", {feature: feature});
+            feature.renderIntent = "select";
+            this.layer.drawFeature(feature);
+        }
+    },
+    setMap: function(map) {
+        this.handler.setMap(map);
+        OpenLayers.Control.prototype.setMap.apply(this, arguments);
+    },
+    CLASS_NAME: "OpenLayers.Control.DeleteFeature"
+});
+panelControls = [
+    new OpenLayers.Control.Navigation({ title: 'Navigate' }),
+    new DeleteFeature(
+        fieldsLayer,
+        {
+            displayClass: 'olControlDeleteFeature',
+            title: 'Delete mapped field: Click on tool. Click on mapped field to delete.'
+        }
+    ),
+    new OpenLayers.Control.ModifyFeature(
+        fieldsLayer,
+        {
+            displayClass: 'olControlDrawFeaturePoint',
+            title: 'Edit mapped field: Click on tool. Click on mapped field to select. Drag any circle to reshape mapped field. Hover over a circled corner and press the Delete key to remove it. Click anywhere when done.'
+        }
+    ),
+    new OpenLayers.Control.DrawFeature(
+        fieldsLayer,
+        OpenLayers.Handler.Polygon,
+        {
+            displayClass: 'olControlDrawFeaturePolygon',
+            title: 'Create mapped field: Click on tool. Click on map at each corner to be created. Double-click when done.'
+        }
+    ),
+    new OpenLayers.Control.Button({
+        displayClass: 'saveButton',
+        trigger: function() {checkSaveStrategy(kmlName, assignmentId);},
+        title: 'Save changes: Click on this button only ONCE when all mapped fields have been created, and you are satisfied with your work. Click when done even if there are NO fields to draw on this map.'
+    })
+];
+var editingToolbarControl = new OpenLayers.Control.Panel({
+    displayClass: 'olControlEditingToolbar',
+    defaultControl: panelControls[0]
+});
+editingToolbarControl.addControls(panelControls);
+map.addControl(editingToolbarControl);
+
+kmlLayer.events.register("loadend", kmlLayer, function() {
+    map.zoomToExtent(kmlLayer.getDataExtent());
+});
+
+}
+
+function checkSaveStrategy(kmlName, assignmentId) {
+    var msg;
+    if (!saveStrategyActive) {
+        return;
+    }
+    if (fieldsLayer.features != '') {
+        msg = 'You can only save your mapped fields ONCE!\nPlease confirm that you\'re COMPLETELY done mapping fields.\nIf not done, click Cancel.';
+    } else {
+        msg = 'You have not mapped any fields!\nYou can only save your mapped fields ONCE!\nPlease confirm that you\'re COMPLETELY done mapping fields.\nIf not done, click Cancel.'
+    }
+    if (!confirm(msg)) {
+        return;
+    }
+    // Save the current polygons if there are any.
+    if (fieldsLayer.features != '') {
+        var i = 1;
+        for (var feature in fieldsLayer.features) {
+            fieldsLayer.features[feature].attributes.name = kmlName + '_' + i;
+            i = i + 1;
+        }
+        saveStrategy.save();
+    } else {
+        if (assignmentId.length > 0) {
+            var request = OpenLayers.Request.PUT({
+                url: "/afmap/api/putkml",
+                params: {
+                    kmlName: kmlName,
+                    assignmentId: assignmentId
+                },
+                success: function() {notificationSuccess(kmlName, assignmentId);},
+                failure: function() {notificationFail(kmlName, assignmentId);}
+            });
+        } else {
+            var request = OpenLayers.Request.PUT({
+                url: "/afmap/api/putkml",
+                params: { kmlName: kmlName },
+                success: function() {notificationSuccess(kmlName, assignmentId);},
+                failure: function() {notificationFail(kmlName, assignmentId);}
+            });
+        }
+    }
+    // Don't allow Save button to be used again.
+    saveStrategyActive = false
+    // Set the active control to be Navigation.
+    for(var i=1, len=panelControls.length; i<len; i++) {
+        panelControls[i].deactivate();
+    }
+    panelControls[0].activate();
+}
+
+// Report to the worker that the save was successful, and that they should complete the HIT.
+function saveSuccess(kmlName, assignmentId) {
+    if (assignmentId.length > 0) {
+        document.mturkform.save_status.value = true;
+        document.mturkform.submit();
+    }
+}
+
+// Report to the worker that the notification was successful, and that they should complete the HIT.
+function notificationSuccess(kmlName, assignmentId) {
+    if (assignmentId.length > 0) {
+        document.mturkform.save_status.value = true;
+        document.mturkform.submit();
+    }
+}
+
+function saveFail(kmlName, assignmentId) {
+    alert('Error! Your mapped fields could not be saved, but we will pay you for your effort.');
+    
+    if (assignmentId.length > 0) {
+        document.mturkform.save_status.value = false;
+        document.mturkform.submit();
+    }
+}
+
+function notificationFail(kmlName, assignmentId) {
+    alert('Error! Your notification could not be saved, but we will pay you for your effort.');
+    
+    if (assignmentId.length > 0) {
+        document.mturkform.save_status.value = false;
+        document.mturkform.submit();
+    }
+}
+
+// Report error to the worker. If it's a bad KML error, let him try to remap once more time.
+// *** Not currently used, since we no longer need to examine each http request's details. ***
+function saveKMLFail(response) {
+    // If no error, let the Save Strategy's 'success' callback deal with this.
+    if (response.code == OpenLayers.Protocol.Response.SUCCESS) {
+        return;
+    }
+    errCode = response.priv.status;
+    errText = response.priv.statusText;
+    if (errText == 'Bad KML' && ! saveStrategyFailed) {
+        alert('We\'re sorry, but through no fault of your own, we were unable to save the maps you drew.\nWe will now erase these maps and ask that to draw them again.\nWe apologize for the inconvenience!');
+        saveStrategyFailed = true
+        fieldsLayer.removeAllFeatures();
+        saveStrategyActive = true;
+        
+    } else {
+        alert('Error! Your changes could not be saved, but we will pay you for your effort.');
+    
+        var request = OpenLayers.Request.GET({
+            url: "https://www.mturk.com/mturk/externalSubmit",
+            params: {
+                kmlName: kmlName,
+                success: false,
+                assignmentId: assignmentId
+                }
+        });
+    }
+}

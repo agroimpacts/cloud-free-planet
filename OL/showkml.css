@@ -1,0 +1,34 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+.instructions {
+    font-size:10pt;
+    font-family:arial;
+    font-weight:bold;
+    #font-style:italic;
+    #color:#23238e;
+    text-align:center;
+}
+.comments {
+    font-size:10pt;
+    font-family:arial;
+    #font-weight:bold;
+    #font-style:italic;
+    #color:#23238e;
+    #text-align:center;
+}
+.olControlEditingToolbar .olControlDeleteFeatureItemActive {
+    background-image: url("img/delete_feature_active.png");
+}
+.olControlEditingToolbar .olControlDeleteFeatureItemInactive {
+    background-image: url("img/delete_feature_inactive.png");
+}
+.olControlEditingToolbar .saveButtonItemActive {
+    background-image: url("img/save_layer_active.png");
+}
+.olControlEditingToolbar .saveButtonItemInactive {
+    background-image: url("img/save_layer_inactive.png");
+}
