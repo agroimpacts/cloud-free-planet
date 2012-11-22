@@ -18,28 +18,40 @@ def application(environ, start_response):
     kmlUrl = cur.fetchone()[0]
     cur.execute("select value from configuration where key = 'KMLParameter'")
     kmlName = cur.fetchone()[0]
+    cur.execute("select value from configuration where key = 'MTurkFrameHeight'")
+    mturkFrameHeight = int(cur.fetchone()[0])
+    headerHeight = 70
+    mapHeight = mturkFrameHeight - headerHeight
 
     k = open(logFilePath + "/OL.log", "a")
     k.write("\ngetkml: datetime = %s\n" % now)
     try:
         kmlValue = req.params[kmlName]
+        # MTurk cases.
         try:
             hitId = req.params['hitId']
             assignmentId = req.params['assignmentId']
+            # MTurk accept case.
             if assignmentId != 'ASSIGNMENT_ID_NOT_AVAILABLE':
                 workerId = req.params['workerId']
                 turkSubmitTo = req.params['turkSubmitTo']
                 preview = ''
+                readonly = ''
+            # MTurk preview case.
             else:
                 workerId = ''
                 turkSubmitTo = ''
-                preview = '*** PREVIEW ***<br/>'
+                preview = '*** PREVIEW ***'
+                readonly = "readonly='readonly'"
+        # Non-MTurk case.
         except:
             hitId = ''
             assignmentId = ''
             workerId = ''
             turkSubmitTo = ''
             preview = ''
+            readonly = ''
+
         mainText = '''
             <!DOCTYPE html>
             <html>
@@ -47,29 +59,39 @@ def application(environ, start_response):
                     <title>One Square Km in South Africa</title>
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                     <script type="text/javascript" src="/afmap/OL/OpenLayers-2.12/OpenLayers.js"></script>
-                    <script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3.7&sensor=false"></script>
+                    <script type="text/javascript" src="https://maps.google.com/maps/api/js?v=3.7&sensor=false"></script>
                     <script type="text/javascript" src="/afmap/OL/showkml.js"></script>
                     <link rel="stylesheet" href="/afmap/OL/showkml.css" type="text/css">
+                    <style>
+                        html, body {
+                            height: %(mturkFrameHeight)spx;
+                        }
+                    </style>
                 </head>
                 <body onload="init('%(path)s', '%(kmlValue)s', '%(assignmentId)s')">
-                    <form name='mturkform' action='%(turkSubmitTo)s/mturk/externalSubmit'>
+                    <form style='width: 100%%; height: %(headerHeight)spx;' name='mturkform' action='%(turkSubmitTo)s/mturk/externalSubmit'>
                         <div class='instructions'>
                             %(preview)s
                             Please use the toolbar below to map all crop fields that are wholly or partially inside the white square outline (map the entire field, <br/>even the part that falls outside the box). Then save your changes by clicking on the disk icon to complete the HIT.
+                            %(preview)s
                         </div>
                         <table class='comments'><tr>
                         <th>
-                            Please use this space to send comments, <br/>problems, or questions to the Requester:
+                            For comments, problems, or questions:
                         </th>
                         <td>
-                            <textarea class='comments' name='comment' cols=80 rows=2></textarea>
+                            <input type='text'  class='comments' name='comment' size=80 maxlength=2048 %(readonly)s></input>
                         </td>
+                        <th>
+                            &nbsp;&nbsp;&nbsp;
+                            <i>Hover over the icons in the toolbar below for usage instructions.</i>
+                        </th>
                         </tr></table>
                         <input type='hidden' name='assignmentId' value='%(assignmentId)s' />
                         <input type='hidden' name='kmlName' value='%(kmlValue)s' />
                         <input type='hidden' name='save_status' />
                     </form>
-                    <div id="kml_display" style="width: 100%%; height: 100%%;"></div>
+                    <div id="kml_display" style="width: 100%%; height: %(mapHeight)spx;"></div>
                 </body>
             </html>
         ''' % {
@@ -77,7 +99,11 @@ def application(environ, start_response):
             'kmlValue': kmlValue,
             'assignmentId': assignmentId,
             'turkSubmitTo': turkSubmitTo,
-            'preview': preview
+            'preview': preview,
+            'readonly': readonly,
+            'mturkFrameHeight': mturkFrameHeight,
+            'headerHeight': headerHeight,
+            'mapHeight': mapHeight
         }
         res.text = mainText
         # If we are running under MTurk,
