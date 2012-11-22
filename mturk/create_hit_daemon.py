@@ -39,10 +39,12 @@ while True:
         where kml_type = '%s' 
             and (hit_id is not null and delete_time is  null)
         """ % kmlType)
-    numReqdQaqcHits = max(numAvailQaqcHits - int(mtma.cur.fetchone()[0]), 0)
+    numMturkQaqcHits = int(mtma.cur.fetchone()[0])
+    numReqdQaqcHits = max(numAvailQaqcHits - numMturkQaqcHits, 0)
     if numReqdQaqcHits > 0:
         k.write("\ncreateHit: datetime = %s\n" % now)
-        k.write("createHit: createHIT needs to create %s HITs\n" % numReqdQaqcHits)
+        k.write("createHit: createHIT sees %s HITs, and needs to create %s HITs\n" % 
+            (numMturkQaqcHits, numReqdQaqcHits))
 
     for i in xrange(numReqdQaqcHits):
 
