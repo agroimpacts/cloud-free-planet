@@ -104,7 +104,7 @@ def AssignmentSubmitted(mtma, k, hitId, assignmentId, eventTime):
     # Compute the worker's score on this KML.
     mtma.cur.execute("select value from configuration where key = 'ProjectRoot'")
     projectRoot = mtma.cur.fetchone()[0]
-    scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.1.1.R" % projectRoot, kmlName, assignmentId], 
+    scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % projectRoot, kmlName, assignmentId], 
         stdout=subprocess.PIPE).communicate()[0]
     try:
         score = float(scoreString)
