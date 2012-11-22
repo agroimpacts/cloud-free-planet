@@ -1,6 +1,5 @@
 html, body {
     width: 100%;
-    height: 100%;
     margin: 0;
     padding: 0;
 }
@@ -8,17 +7,21 @@ html, body {
     font-size:10pt;
     font-family:arial;
     font-weight:bold;
-    #font-style:italic;
-    #color:#23238e;
+/*
+    font-style:italic;
+    color:#23238e;
+*/
     text-align:center;
 }
 .comments {
     font-size:10pt;
     font-family:arial;
-    #font-weight:bold;
-    #font-style:italic;
-    #color:#23238e;
-    #text-align:center;
+/*
+    font-weight:bold;
+    font-style:italic;
+    color:#23238e;
+    text-align:center;
+*/
 }
 .olControlEditingToolbar .olControlDeleteFeatureItemActive {
     background-image: url("img/delete_feature_active.png");
