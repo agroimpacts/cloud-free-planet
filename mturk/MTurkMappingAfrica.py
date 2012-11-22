@@ -30,7 +30,7 @@ class MTurkMappingAfrica(object):
     HITSubmitted = 'Submitted'
     HITUnsaved = 'Unsaved'
 
-    def __init__(self):
+    def __init__(self, debug=0):
         self.dbcon = psycopg2.connect("dbname=%s user=%s password=%s" % 
             (db_name, db_user, db_password))
         self.cur = self.dbcon.cursor()
@@ -39,16 +39,14 @@ class MTurkMappingAfrica(object):
         self.sandbox = (self.cur.fetchone()[0] == 'true')
         if self.sandbox:
             self.host = mt_sandbox_host
-            self.debug = 3
         else:
             self.host = mt_public_host
-            self.debug = 0
         self.mtcon = MTurkConnection(
             aws_access_key_id = aws_access_key_id,
             aws_secret_access_key = aws_secret_access_key,
             host = self.host,
             is_secure = True,
-            debug = self.debug
+            debug = debug
             )
 
     def close(self):
@@ -212,9 +210,11 @@ class MTurkMappingAfrica(object):
         self.mturkUrlPrefix = self.cur.fetchone()[0]
         self.cur.execute("select value from configuration where key = 'KMLParameter'")
         self.kmlParameter = self.cur.fetchone()[0]
+        self.cur.execute("select value from configuration where key = 'MTurkFrameHeight'")
+        self.mturkFrameHeight = self.cur.fetchone()[0]
         self.url = "%s?%s=%s" % (self.mturkUrlPrefix, self.kmlParameter, kml)
         self.extQuestion = ExternalQuestion(
             external_url=self.url, 
-            frame_height=800
+            frame_height=self.mturkFrameHeight
         )
         return self.extQuestion
