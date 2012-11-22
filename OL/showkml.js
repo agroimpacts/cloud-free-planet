@@ -57,13 +57,16 @@ saveStrategyFailed = false;
 if (assignmentId.length > 0 && assignmentId != 'ASSIGNMENT_ID_NOT_AVAILABLE') {
     saveStrategyActive = true;
     foldersName = kmlName + '_' + assignmentId;
+    preview = false;
 } else {
     // Else, if this is an MTurk preview, don't let user save changes.
     if (assignmentId.length > 0) {
         saveStrategyActive = false;
+        preview = true;
     // Else, if this is not an MTurk invocation, let user save changes.
     } else {
         saveStrategyActive = true;
+        preview = false;
     }
     // No assignment ID in either case.
     foldersName = kmlName;
@@ -124,35 +127,65 @@ var DeleteFeature = OpenLayers.Class(OpenLayers.Control, {
     },
     CLASS_NAME: "OpenLayers.Control.DeleteFeature"
 });
-panelControls = [
-    new OpenLayers.Control.Navigation({ title: 'Navigate' }),
-    new DeleteFeature(
+var panelControl1, panelControl2, panelControl3;
+if (preview) {
+    panelControl1 = new OpenLayers.Control.Button({
+        displayClass: 'olControlDeleteFeature',
+        title: '*** Disabled in preview mode *** Delete mapped field: Click on tool. Click on mapped field to delete.'
+    });
+    panelControl2 = new OpenLayers.Control.Button({
+        displayClass: 'olControlDrawFeaturePoint',
+        title: '*** Disabled in preview mode *** Edit mapped field: Click on tool. Click on mapped field to select. Drag any circle to reshape mapped field. Hover over a circled corner and press the \'d\' key to remove it. Click anywhere when done.'
+    });
+    panelControl3 = new OpenLayers.Control.Button({
+        displayClass: 'olControlDrawFeaturePolygon',
+        title: '*** Disabled in preview mode *** Create mapped field: Click on tool. Click on map at each corner to be created. Double-click when done.'
+    });
+    panelControl4 = new OpenLayers.Control.Button({
+        displayClass: 'saveButton',
+        title: '*** Disabled in preview mode *** Save changes: Click on this button only ONCE when all mapped fields have been created, and you are satisfied with your work. Click when done even if there are NO fields to draw on this map.'
+    });
+} else {
+    panelControl1 = new DeleteFeature(
         fieldsLayer,
         {
             displayClass: 'olControlDeleteFeature',
             title: 'Delete mapped field: Click on tool. Click on mapped field to delete.'
         }
-    ),
-    new OpenLayers.Control.ModifyFeature(
+    );
+    panelControl2 = new OpenLayers.Control.ModifyFeature(
         fieldsLayer,
         {
+            // Consider 'd'  and the PC delete key (46) as the only delete codes.
+            // Ideally, we'd like to consider the backspace (8) key as well, 
+            // since the delete key on the Mac is the keycode for backspace. But trapping 
+            // backspace deletes the vertex *and* still triggers the browser Back button.
+            // So better to avoid it unless we can disable its action as a Back button.
+            deleteCodes: [68, 46],
             displayClass: 'olControlDrawFeaturePoint',
-            title: 'Edit mapped field: Click on tool. Click on mapped field to select. Drag any circle to reshape mapped field. Hover over a circled corner and press the Delete key to remove it. Click anywhere when done.'
+            title: 'Edit mapped field: Click on tool. Click on mapped field to select. Drag any circle to reshape mapped field. Hover over a circled corner and press the \'d\' key to remove it. Click anywhere when done.'
         }
-    ),
-    new OpenLayers.Control.DrawFeature(
+    );
+    panelControl3 = new OpenLayers.Control.DrawFeature(
         fieldsLayer,
         OpenLayers.Handler.Polygon,
         {
             displayClass: 'olControlDrawFeaturePolygon',
             title: 'Create mapped field: Click on tool. Click on map at each corner to be created. Double-click when done.'
         }
-    ),
-    new OpenLayers.Control.Button({
+    );
+    panelControl4 = new OpenLayers.Control.Button({
         displayClass: 'saveButton',
         trigger: function() {checkSaveStrategy(kmlName, assignmentId);},
         title: 'Save changes: Click on this button only ONCE when all mapped fields have been created, and you are satisfied with your work. Click when done even if there are NO fields to draw on this map.'
-    })
+    });
+}
+panelControls = [
+    new OpenLayers.Control.Navigation({ title: 'Navigate' }),
+    panelControl1,
+    panelControl2,
+    panelControl3,
+    panelControl4
 ];
 var editingToolbarControl = new OpenLayers.Control.Panel({
     displayClass: 'olControlEditingToolbar',
