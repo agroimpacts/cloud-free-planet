@@ -36,13 +36,13 @@ def application(environ, start_response):
                 workerId = req.params['workerId']
                 turkSubmitTo = req.params['turkSubmitTo']
                 preview = ''
-                readonly = ''
+                disabled = ''
             # MTurk preview case.
             else:
                 workerId = ''
                 turkSubmitTo = ''
                 preview = '*** PREVIEW ***'
-                readonly = "readonly='readonly'"
+                disabled = 'disabled'
         # Non-MTurk case.
         except:
             hitId = ''
@@ -50,7 +50,7 @@ def application(environ, start_response):
             workerId = ''
             turkSubmitTo = ''
             preview = ''
-            readonly = ''
+            disabled = ''
 
         mainText = '''
             <!DOCTYPE html>
@@ -80,7 +80,7 @@ def application(environ, start_response):
                             For comments, problems, or questions:
                         </th>
                         <td>
-                            <input type='text'  class='comments' name='comment' size=80 maxlength=2048 %(readonly)s></input>
+                            <input type='text'  class='comments' name='comment' size=80 maxlength=2048 %(disabled)s></input>
                         </td>
                         <th>
                             &nbsp;&nbsp;&nbsp;
@@ -100,7 +100,7 @@ def application(environ, start_response):
             'assignmentId': assignmentId,
             'turkSubmitTo': turkSubmitTo,
             'preview': preview,
-            'readonly': readonly,
+            'disabled': disabled,
             'mturkFrameHeight': mturkFrameHeight,
             'headerHeight': headerHeight,
             'mapHeight': mapHeight
