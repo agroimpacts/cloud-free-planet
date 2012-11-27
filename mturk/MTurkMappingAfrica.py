@@ -27,7 +27,8 @@ class MTurkMappingAfrica(object):
     HITAccepted = 'Accepted'
     HITAbandoned = 'Abandoned'
     HITReturned = 'Returned'
-    HITSubmitted = 'Submitted'
+    HITAccepted = 'Accepted'
+    HITRejected = 'Rejected'
     HITUnsaved = 'Unsaved'
 
     def __init__(self, debug=0):

@@ -89,40 +89,36 @@ def AssignmentSubmitted(mtma, k, hitId, assignmentId, eventTime):
     # Get the submission status, kml name, and worker comment.
     try:
         kmlName = params['kmlName']
-        save_status = (params['save_status'] == 'true')
+        results_saved = (params['save_status'] == 'true')
         comment = params['comment'].strip()
     except:
         k.write("getnotifications: Missing getAssignment parameter(s) for assignment ID %s:\n" % assignmentId)
         return
-    if save_status:
-        completion_status = MTurkMappingAfrica.HITSubmitted
-    else:
-        completion_status = MTurkMappingAfrica.HITUnsaved
     if len(comment) > 2048:
         comment = comment[:2048]
 
-    # Compute the worker's score on this KML.
-    mtma.cur.execute("select value from configuration where key = 'ProjectRoot'")
-    projectRoot = mtma.cur.fetchone()[0]
-    scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % projectRoot, kmlName, assignmentId], 
-        stdout=subprocess.PIPE).communicate()[0]
-    try:
-        score = float(scoreString)
-    except:
-        score = 0.
-        k.write("getnotifications: Invalid value '%s' returned from R scoring script; assigning a score of 0.\n" % 
-            scoreString)
-
-    # Record the HIT submission time and status, and user comment.
-    mtma.cur.execute("""update assignment_data set completion_time = '%s', completion_status = '%s', 
-        comment = %s, score = '%s' where assignment_id = '%s'""" % 
-        (submitTime, completion_status, adapt(comment), score, assignmentId))
-    k.write("getnotifications: assignmentId %s has been marked as %s\n" % (assignmentId, completion_status.lower()))
-
-    # Check whether score meets acceptance threshold, and notify worker accordingly.
+    # If the worker's results were saved, compute the worker's score on this KML.
+    if results_saved:
+        mtma.cur.execute("select value from configuration where key = 'ProjectRoot'")
+        projectRoot = mtma.cur.fetchone()[0]
+        scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % projectRoot, kmlName, assignmentId], 
+            stdout=subprocess.PIPE).communicate()[0]
+        try:
+            score = float(scoreString)
+        except:
+            score = 0.
+            k.write("getnotifications: Invalid value '%s' returned from R scoring script; assigning a score of 0.\n" % 
+                scoreString)
+    else:
+        score = 1.
+        k.write("getnotifications: Unable to save worker's results; assigning a score of %.2f\n" %
+            score)
     mtma.cur.execute("select value from configuration where key = 'HitAcceptThreshold'")
     hitAcceptThreshold = float(mtma.cur.fetchone()[0])
-    if score >= hitAcceptThreshold:
+
+    # If the worker's results could not be saved or if their score meets the acceptance threshold, 
+    # notify worker that his HIT was accepted.
+    if not results_saved or score >= hitAcceptThreshold:
         try:
             mtma.approveAssignment(assignmentId)
         except MTurkRequestError as e:
@@ -132,13 +128,17 @@ def AssignmentSubmitted(mtma, k, hitId, assignmentId, eventTime):
         except AssertionError:
             k.write("getnotifications: Bad approveAssignment status for assignment ID %s:\n" % assignmentId)
             return
-        k.write("getnotifications: assignmentId %s has been approved: %.2f/%.2f\n" % 
-            (assignmentId, score, hitAcceptThreshold))
+        if results_saved:
+            completion_status = MTurkMappingAfrica.HITAccepted
+        else:
+            completion_status = MTurkMappingAfrica.HITUnsaved
+    # Only if the worker's results were saved and their score did not meet the threshold
+    # do we reject the HIT.
     else:
         try:
             # TODO: *** Put reject feedback into configuration table, or have more sophisticated code
             #       to guide what the text should say: e.g., were they close or far? Use different feedback. ***
-            mtma.rejectAssignment(assignmentId, 'Sorry, but your scrore was too low.')
+            mtma.rejectAssignment(assignmentId, "We're sorry, but your score was too low to accept your results.")
         except MTurkRequestError as e:
             k.write("getnotifications: rejectAssignment failed for assignment ID %s:\n%s\n%s\n" % 
                 (assignmentId, e.error_code, e.error_message))
@@ -146,8 +146,13 @@ def AssignmentSubmitted(mtma, k, hitId, assignmentId, eventTime):
         except AssertionError:
             k.write("getnotifications: Bad rejectAssignment status for assignment ID %s:\n" % assignmentId)
             return
-        k.write("getnotifications: assignmentId %s has been rejected: %.2f/%.2f\n" %
-            (assignmentId, score, hitAcceptThreshold))
+        completion_status = MTurkMappingAfrica.HITRejected
+    # Record the HIT submission time and status, and user comment.
+    mtma.cur.execute("""update assignment_data set completion_time = '%s', completion_status = '%s', 
+        comment = %s, score = '%s' where assignment_id = '%s'""" % 
+        (submitTime, completion_status, adapt(comment), score, assignmentId))
+    k.write("getnotifications: assignmentId %s has been marked as %s: %.2f/%.2f\n" % 
+        (assignmentId, completion_status.lower(), score, hitAcceptThreshold))
 
     # TODO: *** If this is a QAQC HIT, set non-QAQC HIT scores since last QAQC HIT to this QAQC HIT's score ***
     # TODO: *** To determine bonus or disqualification, compute cumulative score.
