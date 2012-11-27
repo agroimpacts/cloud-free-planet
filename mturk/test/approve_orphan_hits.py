@@ -9,6 +9,7 @@ for hit in hits:
         print hit.HITId, hit.HITStatus, hit.Title
         asmts = mtma.mtcon.get_assignments(hit_id=hit.HITId, status='Submitted')
         for asmt in asmts:
-            print asmt.AssignmentId
             mtma.approveAssignment(asmt.AssignmentId)
-        mtma.disposeHit(hit.HITId)
+            print "Approved AssignmentId %s" % asmt.AssignmentId
+        mtma.mtcon.expire_hit(hit.HITId)
+        print "Expired HITId %s" % hit.HITId
