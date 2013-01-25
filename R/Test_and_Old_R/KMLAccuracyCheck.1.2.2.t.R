@@ -1,0 +1,540 @@
+#! /usr/bin/R -f
+##############################################################################################################
+# Title      : KMLAccuracyCheck_1.2.2.R
+# Purpose    : Development of QAQC accuracy assessment side of Google Earth/Maps Africa field mapping project
+# Author     : Lyndon Estes
+# Draws from : GMap.grid.R, GMap.server.[1|1.1].R; GMap.acc.check.1.R; GMap.QAQC.check.1.1.R
+#              KMLAccuracyCheck_1.X.R
+# Used by    : 
+# Notes      : Created 19/11/2012 (version 1.2.1)
+#              Note on the True Skill Statistic: This has been replaced by the overall accuracy score from 
+#              Version *1.2.X.R onwards because it is more forgiving and gives more credit for TRUE negative
+#              errors. 
+#              Changes: 
+#                 * Installed numerous testing switches and routines (retrieve assignment id, test from 
+#                   mac off-server, write accuracy measures to text file, map error components)
+#                 * Projected coordinate system now read in EPSG id from ***REMOVED*** database
+#                 * Counting user fields as error component
+#                 * Mapping accuracy in grid box now assessed with overall accuracy, but switch allows TSS
+#                   to be used 
+#                 * Checking input polygons (qaqc and user) for overlaps, and unioning any that are found
+#                 * Reduced code lines by moving up polygon read in functions to beginning of section 
+#                   codes. Introduced polygons cleaning function here, and created two new variables to 
+#                   record number of rows in user and qaqc fields before unioning (user_nfields, qaqc_nfields)
+#                     ** Changed countError function to take vectors rather than spatial objects to deal with
+#                        this change
+#                  20/11/12:
+#                  * Fixed missing user_nfields in err.out vectors for Cases 2-4
+#                  * Removed line feeds in cat commands, suppressed dev.off() messages
+#                  28/11/12: Version update to 1.2.2. Changes tested in 1.2.1.test.R in /Test_and_Old_R 
+#                    to prevent conflict with active use of system
+#                    Fixes:
+#                    * Fixed bug throwing null results in mapError: set null tp,fp,fn,tn values to 0 before 
+#                      passing to function calling gArea: fixes lines 155-156
+#                    * Fixed incorrect accuracy statistic as found with assignment id 
+#                      286PLSP75KLMCLHI0Z8QHQVJRSKZTB. Result too generous. Fix by making sure correct names
+#                      are being referenced in call to accStatsSum. Lines 157-178
+#                    Additions:
+#                    * Added time stamp to output plots so that multiple results of assignment can be kept
+#                      Lines 386-388
+#                    * Added statements to pass error components to error_data table: Lines 346-349
+#                    * Conditional statements put into lines 94-109 to allow testing with either kmlid or 
+#                      assignmentid entered singly
+#                  29/11/12: 
+#                    Fixes
+#                    * Intersection bug caused in case 3 with fields intersection issues. Updated all by 
+#                      setting all gIntersection and gDifference operations to byid = T
+#                    * Plotting option did not draw portion of QAQC outside of grid. Added qaqc.poly.out
+#                      routine to case use (line 306)
+#                    * After first fix, still found error caused in case 4 with geometries being contained by
+#                      other geometries at qaqc.poly.out call under case 4. Fixed by turning off function
+#                      cleanPolyByUnion and replacing with straight gUnaryUnion function. Seems to work
+#                    * Error thrown by null tpo/tno error under case 4 where both user and qaqc fields outside
+#                      of grid didn't intersect: transported in same fix from mapError function
+#                    * Bug for plotting function caused by null tpo/fno results also fixed by adding check for
+#                      is.object to conditional statement
+#                    Additions
+#                    * Added conditional statement and switch to toggle writing to error_data on and off
+#                    
+
+##############################################################################################################
+# Hardcoded values placed here for easy changing 
+prjsrid       <- 97490  # EPSG identifier for equal area project
+count.err.wt  <- 0.1  # Weighting given to error in number of fields identified 
+in.err.wt     <- 0.7  # Weighting for in grid map discrepancy
+out.err.wt    <- 0.2  # Weighting for out of grid map discrepancy
+err.switch    <- 1  # Selects which area error metric used for in grid accuracy: 1 = overall accuracy; 2 = TSS
+comments      <- "T"  # For testing, one can turn on print statements to see what is happening
+consel        <- "mac"  # postgres connection switch: "africa" when run on server, "mac" for off server
+write.err.log <- "T"  # Option to write text log containing error metrics (anything besides "T" turns off)
+write.err.db <- "F"  # Option to write error metrics into error_data table in postgres (off if not "T") 
+draw.maps     <- "T"  # Option to draw maps showing output error components (where maps possible, off w/o "T")
+test          <- "Y"  # For manual testing, one can give a single kmlid, and the code will pull the entire 
+                      # assignment_data and hit_data tables to find the right assignment ids to test, "Y" for 
+                      # this option, else "N" for normal production runs
+##############################################################################################################
+
+# Libraries
+suppressMessages(library(RPostgreSQL))
+suppressMessages(library(rgdal))
+suppressMessages(library(rgeos))
+
+# Paths and connections
+drv <- dbDriver("PostgreSQL")
+if(consel == "africa") {
+  con <- dbConnect(drv, dbname = "SouthAfrica", user = "***REMOVED***", password = "***REMOVED***")
+} 
+if(consel == "mac") {
+  con <- dbConnect(drv, host = "africa.princeton.edu", port = 5432, dbname = "SouthAfrica", user = "***REMOVED***", 
+                   password = "***REMOVED***")
+}
+  
+# Input args
+if(test == "N") {
+  args <- commandArgs(TRUE)
+  kmlid <- args[1]  # ID of grid cell 
+  assignmentid <- args[2]  # Job identifier
+  if(comments == "T") print(kmlid)
+  if(comments == "T") print(assignmentid)
+}
+
+#########################
+# Testing variables for remote off Africa access
+if(test == "Y") {
+  hit.sql <- "select hit_id, name from hit_data"
+  hits <- dbGetQuery(con, hit.sql)
+  ass.sql <- "select assignment_id, hit_id, worker_id, score from assignment_data"
+  asses <- dbGetQuery(con, ass.sql)
+  #userall.sql <- "select name, assignment_id, ST_AsEWKT(geom) from user_maps order by name"
+  #userallmaps <- dbGetQuery(con, userall.sql)
+
+  # If you have the kmlid 
+  if(exists("kmid") & !exists("assignmentid")) {
+    print("Using HIT ID to find assignment ID")
+    hid <- hits[hits$name == kmlid, "hit_id"]
+    assignmentid <- asses[asses$hit_id == hid, "assignment_id"]
+    if(length(assignmentid) > 1) { 
+      print("More than one assignment has been completed for this kml, selecting the first 1")
+      assignmentid <- assignmentid[1]
+    }
+  }
+  # If you have the assigment id
+  if(exists("assignmentid") & !exists("kmlid")) {
+    print("Using assignment ID to find HIT ID")
+    hid <- asses[ asses$assignment_id == assignmentid, "hit_id"]
+    kmlid <- hits[hits$hit_id == hid, "name"]
+  }
+}
+########################
+
+# Projections 
+prj.sql <- paste("select proj4text from spatial_ref_sys where srid=", prjsrid, sep = "")
+prjstr <- dbGetQuery(con, prj.sql)$proj4text
+gcs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"  # Always this one
+
+##############################################################################################################
+# Functions: 
+accStatsSum <- function(tp, fp, tn, fn) {
+  # Calculate error statistics for two class contingency table
+  agree <- tp / sum(tp, fn)  # Simple agreement class 1
+  if(is.na(agree)) agree <- 0  # Set to 0 if NA
+  accuracy <- sum(tp, tn) / sum(tp, tn, fp, fn)
+  TSS <- agree + (tn / (fp + tn)) - 1  # Sens + specificity - 1
+  #r1 <- round(accuracy * 100, 1)
+  r1 <- round(accuracy, 2)
+  r2 <- round(TSS, 2)
+  out <- c(r1, r2)
+  names(out) <- c("accuracy", "TSS")          
+  return(out)
+}
+
+mapError <- function(maps, truth, region) {
+# Calculates mapping accuracy for polygons relative to a "true" set of polygons
+# Args: 
+#   maps: The input polygons to check - can be null in case where QAQC fields exist but user maps none
+#   truth: The polygons against which which accuracy will be assessed - can be NULL in case where user maps
+#     exist but "truth" maps do not
+#   region: A polygon defining the region in which accuracy is assessed
+ 
+  if(is.null(truth)) {
+    null <- region  # Actual null area is whole region
+    tp <- 0  # True positive area is 0
+    fp <- maps  # False positive area is all of maps
+    fn <- 0  # No false negative area because there are no fields
+    tn <- gDifference(spgeom1 = null, spgeom2 = maps, byid = F)  # false negative area (maps no, truth yes)
+  } 
+  if(is.null(maps)) {
+    null <- gDifference(spgeom1 = region, spgeom2 = truth, byid = F)  # Actual null area in mapping region 
+    tp <- 0  # No user maps, no true positive
+    fp <- 0  # No user maps, no false positives
+    fn <- truth  # False negative area is all of truth
+    tn <- null  # True negative area is null - user gets credit for this area, even if missed fields
+  }
+  if(!is.null(truth) & !is.null(maps)) {
+    null <- gDifference(spgeom1 = region, spgeom2 = truth, byid = T)  # Actual null area in mapping region 
+    tp <- gIntersection(spgeom1 = truth, spgeom2 = maps, byid = T)  # true positives (overlap of maps & truth)
+    fp <- gDifference(spgeom1 = maps, spgeom2 = truth, byid = T)  # false positive area (maps yes, truth no)
+    fn <- gDifference(spgeom1 = truth, spgeom2 = maps, byid = T)  # false negative area (maps no, truth yes)
+    tn <- gDifference(spgeom1 = null, spgeom2 = maps, byid = T)  # false negative area (maps no, truth yes)
+  }
+  tflist <- c("tp", "fp", "fn", "tn")  # 28/11/12: Bug fix for crash in areas caused by null fp results
+  areas <- sapply(tflist, function(x) ifelse(!is.null(get(x)) & is.object(get(x)), gArea(get(x)), 0))
+  names(areas) <- tflist  # Added 28/11/12 to have specific names from areas to pass to accStatsSum
+  #areas <- sapply(list(tp, fp, tn, fn), function(x) ifelse(is.object(x), gArea(x), x))
+  # 28/11/12: Specific names referenced in call to accStatsSum
+  list(accStatsSum(tp = areas["tp"], fp = areas["fp"], fn = areas["fn"], tn = areas["tn"]), tp, fp, fn, tn)  
+}
+
+createSPPolyfromWKT <- function(geom.tab, crs) {
+# Function for reading in and creating SpatialPolygonsDataFrame from PostGIS
+# Args: 
+#   geom.tab: Dataframe with geometry and identifiers in it. Identifier must be 1st column, geometries 2nd col  
+#   crs: Coordinate reference system
+# Returns: 
+#   A SpatialPolygonsDataFrame
+  polys <- tst <- sapply(1:nrow(geom.tab), function(x) {
+    poly <- as(readWKT(geom.tab[x, 2], p4s = crs), "SpatialPolygonsDataFrame")
+    poly@data$ID <- geom.tab[x, 1]
+    newid <- paste(x)
+    poly <- spChFIDs(poly, newid)
+    return(poly)
+  })
+  polyspdf <- do.call("rbind", polys)
+}
+
+countError <- function(qaqc_rows, user_rows) {
+# Calculates percent agreement between number of fields in qaqc and user kmls
+# Args: 
+#  qaqc_rows: vector containing number of QAQC rows, or NULL if one doesn't exist
+#  kml: User mapped fields, or NULL if they don't exist
+# Returns: Score between 0-1
+# Notes: Rearranges numerator and denominator of equation according to whether user mapped fields are more 
+# or less than QAQC fields
+  #qaqc.row <- ifelse(is.null(qaqc), 0, nrow(qaqc))
+  #kml.row <- ifelse(is.null(kml), 0, nrow(kml))
+  cden <- ifelse(qaqc_rows >= user_rows, qaqc_rows, user_rows)
+  cnu1 <- ifelse(qaqc_rows >= user_rows, qaqc_rows, user_rows)
+  cnu2 <- ifelse(qaqc_rows >= user_rows, user_rows, qaqc_rows)
+  cnterr <- 1 - (cnu1 - cnu2) / cden  # Percent agreement
+  return(cnterr)
+}
+
+# cleanPolybyUnion <- function(poly.in) {
+# # To prevent rgeos errors caused by overlapping polygons, this function checks input polygons for overlaps 
+# # and performs a gUnaryUnion on any overlapping polygons
+# # Args: 
+# #  poly.in:  Input polygons
+# # Returns: 
+# #  Polygons with overlaps returned, if any
+# 
+#   o <- gOverlaps(poly.in, byid = T)
+#   if(any(o)) {
+#     poly.out <- gUnaryUnion(poly.in) 
+#   } else {
+#     poly.out <- poly.in
+#   }
+#   return(poly.out)
+# }
+
+removeOverlaps <- function(x) {
+  #newpoly <- SpatialPolygons(lapply(1:length(x), function(z) Polygons(x@polygons[[1]]@Polygons, z)))
+  outpoly <- x
+  newpoly2 <- lapply(1:length(outpoly), function(j) outpoly[j, ])
+  itab <- gOverlaps(outpoly, byid = T)
+  itab[which(itab)] <- 1
+  itab1 <- rowSums(itab)
+  i <- which(itab1 > 0)[1]
+
+  while(i <= length(outpoly)) {
+    a <- outpoly[i, ]
+    b <- outpoly[-i, ]
+    d <- b[which(gOverlaps(a, b, byid = T)), ]
+    plot(newpoly2[[i]], add = T, col = "green")
+    plot(b)
+    plot(e, add = T, border = "maroon")
+    plot(d, add = T, col = "red")
+    plot(a, add = T, border = "green")
+    d <- gUnaryUnion(d)
+    plot(gDifference(outpoly, outpoly2, byid = T))
+    newpoly2[[i]] <- gDifference(spgeom1 = a, spgeom2 = d, byid = T)
+    outpoly2 <- SpatialPolygons(lapply(1:length(newpoly2), function(j) {
+      Polygons(newpoly2[[j]]@polygons[[1]]@Polygons, j)
+    }))
+    itab <- gOverlaps(outpoly, byid = T)
+    itab[which(itab)] <- 1
+    itab1 <- rowSums(itab)
+    ct <- which(itab1 > 0)[1]
+    i <- unname(ifelse(is.na(ct), length(outpoly) + 1, ct)) 
+    print(i)
+  } 
+}
+
+library(spgrass6)
+SG <- Sobj_SpatialGrid(qaqc.poly)$SG
+loc <- initGRASS("/Applications/GRASS-6.4.app/Contents/MacOS/", home=tempdir(), SG, override = TRUE)
+tf <- tempfile()
+mapset <- execGRASS("g.gisenv", parameters=list(get="MAPSET"), intern=TRUE)
+execGRASS("g.gisenv", parameters=list(set=shQuote('MAPSET=PERMANENT')))
+prj <- showWKT(proj4string(qaqc.poly), tf)
+execGRASS("g.proj", flags="c", parameters=list(wkt=tf))
+execGRASS("g.proj", flags="p")
+execGRASS("g.gisenv", parameters=list(set=paste("'MAPSET=", mapset, "'", sep="")))
+execGRASS("g.region", flags="d")
+writeVECT6(qaqc.poly, "qaqc")
+o <- readVECT6("qaqc", with_c=FALSE, remove.duplicates = F)
+polylist <- lapply(1:length(unique(o@data$cat)), function(x) gUnaryUnion(o[o@data$cat == x, ]))
+newpoly <- SpatialPolygons(lapply(1:length(unique(o@data$cat)), function(x) {
+  Polygons(polylist[[x]]@polygons[[1]]@Polygons, x)
+}))
+
+outpoly <- newpoly
+newpoly2 <- lapply(1:length(newpoly), function(j) newpoLy[j, ])
+itab <- gOverlaps(outpoly, byid = T)
+itab[which(itab)] <- 1
+itab1 <- rowSums(itab)
+i <- which(itab1 > 0)[1]
+
+while(i <= length(newploy)) {
+  a <- outpoly[i, ]
+  b <- outpoly[-i, ]
+  d <- b[which(gOverlaps(a, b, byid = T)), ]
+  d <- gUnaryUnion(d)
+  newpoly2[[i]] <- gDifference(spgeom1 = a, spgeom2 = gUnaryUnion(d), byid = T)
+  outpoly <- SpatialPolygons(lapply(1:length(newpoly2), function(x) {
+    Polygons(newpoly2[[x]]@polygons[[1]]@Polygons, x)
+  }))
+  itab <- gOverlaps(outpoly, byid = T)
+  itab[which(itab)] <- 1
+  itab1 <- rowSums(itab)
+  ct <- which(itab1 > 0)[1]
+  i <- unname(ifelse(is.na(ct), length(newploy) + 1, ct)) 
+  print(i)
+}  
+plot(outpoly)
+gOverlaps(outpoly, byid = T)
+plot(newpoly2[[i]])
+
+
+##############################################################################################################
+
+# First check if the QAQC site is null or not
+qaqc.sql <- paste("select fields from newqaqc_sites where name=", "'", kmlid, "'", sep = "")
+qaqc.hasfields <- dbGetQuery(con, qaqc.sql)$fields  # Check fields column in master qaqcs sites database
+if(qaqc.hasfields == "Y") {
+  qaqc.fields.sql <- paste("select id,ST_AsEWKT(geom) from qaqcfields where name=", "'", kmlid, "'", sep = "")
+#   qaqc.fields.sql <- paste("select id,ST_AsEWKT(ST_MakeValid(geom)) from qaqcfields where name=", "'", kmlid, 
+#                            "'", sep = "")
+  qaqc.geom.tab <- dbGetQuery(con, qaqc.fields.sql)
+  qaqc.geom.tab[, 2] <- gsub("^SRID=*.*;", "", qaqc.geom.tab[, 2])
+  qaqc.poly <- createSPPolyfromWKT(geom.tab = qaqc.geom.tab, crs = prjstr)
+  qaqc.nfields <- nrow(qaqc.poly)  # Collect number of unique fields before cleaning
+  #qaqc.poly <- cleanPolybyUnion(qaqc.poly)  # Clean up any overlaps
+  qaqc.poly <- gUnaryUnion(qaqc.poly)  # Clean up any overlaps
+  #qaqc.poly <- gUnaryUnion(gBuffer(qaqc.poly, byid = TRUE, width = 0)) # 30/11/12 Bug fix for self-int
+}
+
+# Read in user data
+user.sql <- paste("select name,ST_AsEWKT(geom) from user_maps where assignment_id=", "'", 
+                 assignmentid, "'", " order by name", sep = "")
+# user.sql <- paste("select name,ST_AsEWKT(ST_MakeValid(geom)) from user_maps where assignment_id=", "'", 
+#                   assignmentid, "'", " order by name", sep = "")
+user.geom.tab <- dbGetQuery(con, user.sql)  # Collect user data and fields geometries
+user.hasfields <- ifelse(nrow(user.geom.tab) > 0, "Y", "N")  # Need to get this right
+if(user.hasfields == "Y") {  # Read in user fields if there are any
+  user.geom.tab[, 2] <- gsub("^SRID=*.*;", "", user.geom.tab[, 2])
+  user.poly.gcs <- createSPPolyfromWKT(geom.tab = user.geom.tab, crs = gcs)
+  user.poly <- spTransform(user.poly.gcs, CRSobj = CRS(prjstr))  # Transform to Albers
+  user.nfields <- nrow(user.poly)  #  Record number of distinct fields observed by user
+  #user.poly <- cleanPolybyUnion(user.poly)  # Clean up any overlaps in user polygons
+  user.poly <- gUnaryUnion(user.poly)  # Clean up any overlaps in user polygons
+  #user.poly <- gUnaryUnion(gBuffer(user.poly, byid = TRUE, width = 0))  # 30/11/12 Bug fix with self-int
+}
+
+# Error checks begin
+#  Where no QAQC site is recorded
+# Case 1: A null qaqc site recorded as null by the observer; score set to 1
+if((qaqc.hasfields == "N") & (user.hasfields == "N")) {
+  if(comments == "T") print("No QAQC or User fields")
+  err <- 1  
+  err.out <- c("total_error" = err, "count_error" = 1, "out_error" = 1, "in_error" = 1, "user_fldcount" = 0)
+} else {
+  # Pick up grid cell from qaqc table, for background location, as it will be needed for the other three cases
+  grid.sql <- paste("SELECT id,ST_AsEWKT(geom) from newqaqc_sites where name=", "'", kmlid, "'", sep = "")
+  grid.geom.tab <- dbGetQuery(con, grid.sql)
+  grid.geom.tab[, 2] <- gsub("^SRID=*.*;", "", grid.geom.tab[, 2])
+  grid.poly <- createSPPolyfromWKT(geom.tab = grid.geom.tab, crs = prjstr)
+}
+
+# Case 2: A null qaqc site with fields mapped by user
+if((qaqc.hasfields == "N") & (user.hasfields == "Y")) {
+  if(comments == "T") print("No QAQC fields, but there are User fields") 
+ 
+  # Accuracy measures
+  count.error <- 0  # Count accuracy is zero if QAQC has no fields but user maps even 1 field
+    
+  # Mapped area differences inside the target grid cell
+  user.poly.in <- gIntersection(spgeom1 = grid.poly, spgeom2 = user.poly, byid = T)  ### Turker maps in grid
+  inres <- mapError(maps = user.poly.in, truth = NULL, region = grid.poly)  # Main error metric - TSS
+    
+  # Secondary metric - Sensitivity of results outside of kml grid
+  user.poly.out <- gDifference(spgeom1 = user.poly, spgeom2 = grid.poly, byid = T)  ### Turker maps out 
+  if(is.null(user.poly.out)) {  # 16/11/12: If user finds no fields outside of box, gets credit
+    out.error <- 1  
+  } else {  
+    out.error <- 0  # If user maps outside of box when no fields exist, sensitivity is 0
+  }
+
+  # Combine error metric
+  err <- count.error * count.err.wt + unname(inres[[1]][err.switch]) * in.err.wt + out.error * out.err.wt  
+  err.out <- c("total_error" = err, "count_error" = count.error, "out_error" = out.error, 
+               "in_error" = unname(inres[[1]][err.switch]), "user_fldcount" = user.nfields)
+}
+
+# Cases 3 & 4
+if(qaqc.hasfields == "Y") {
+  
+  #  Case 3. QAQC has fields, User has no fields
+  if(user.hasfields == "N") {
+    if(comments == "T") print("QAQC fields but no User fields")
+    # Accuracy measures
+    count.error <- 0  # Count accuracy is zero if QAQC has fields but user maps none
+   
+    # Mapped area differences inside the target grid cell
+    qaqc.poly.in <- gIntersection(spgeom1 = grid.poly, spgeom2 = qaqc.poly, byid = T)  # QAQC inside grid cell
+    qaqc.poly.out <- gDifference(spgeom1 = qaqc.poly, spgeom2 = grid.poly, byid = T)  # QAQC outside grid cell
+    inres <- mapError(maps = NULL, truth = qaqc.poly.in, region = grid.poly)  # Main error metric - TSS
+   
+    # Secondary metric - Sensitivity of results outside of kml grid
+    out.error <- 0  # reduces to 0, because there is neither true positive nor false negative
+   
+    # Combine error metric
+    err <- count.error * count.err.wt + unname(inres[[1]][err.switch]) * in.err.wt + out.error * out.err.wt  
+    err.out <- c("total_error" = err, "count_error" = count.error, "out_error" = out.error, 
+                 "in_error" = unname(inres[[1]][err.switch]), "user_fldcount" = 0)
+  
+  # Case 4. QAQC has fields, User has fields
+  } else if(user.hasfields == "Y") {
+    if(comments == "T") print("QAQC fields and User fields")
+   
+    # Accuracy measures
+    count.error <- countError(qaqc_rows = qaqc.nfields, user_rows = user.nfields)  # Count accuracy
+
+    # Mapped area differences inside the target grid cell
+    user.poly.in <- gIntersection(spgeom1 = grid.poly, spgeom2 = user.poly, byid = T) # Turker maps in grid
+    #qaqc.poly.in <- gIntersection(spgeom1 = grid.poly, spgeom2 = gBuffer(qaqc.poly, byid = T, width = 0), byid = T) # QAQC inside grid cell
+    qaqc.poly.in <- gIntersection(spgeom1 = grid.poly, spgeom2 = qaqc.poly, byid = T) # QAQC inside grid cell
+    user.poly.out <- gDifference(spgeom1 = user.poly, spgeom2 = grid.poly, byid = T)  # Turker maps out 
+    qaqc.poly.out <- gDifference(spgeom1 = qaqc.poly, spgeom2 = grid.poly, byid = T)  # QAQC outside grid cell
+    inres <- mapError(maps = user.poly.in, truth = qaqc.poly.in, region = grid.poly)  # Error metric - TSS
+    
+    # Secondary metric - Sensitivity of results outside of kml grid
+    if(is.null(user.poly.out) & is.null(qaqc.poly.out)) {
+      if(comments == "T") print("No QAQC or User fields outside of grid")
+      out.error <- 1  
+    } else if(!is.null(user.poly.out) & !is.null(qaqc.poly.out)) {
+      if(comments == "T") print("Both QAQC and User fields outside of grid")
+      tpo <- gIntersection(spgeom1 = qaqc.poly.out, spgeom2 = user.poly.out)  # true positives (overlap)
+      fno <- gDifference(spgeom1 = qaqc.poly.out, spgeom2 = user.poly.out)  # true positives (overlap)
+      tflisto <- c("tpo", "fno")  # 29/11/12: Bug fix for crash in areas caused by null intersect
+      areaso <- sapply(tflisto, function(x) ifelse(!is.null(get(x)) & is.object(get(x)), gArea(get(x)), 0))
+      #areaso <- sapply(list(tpo, fno), function(x) gArea(x))
+      out.error <- areaso[1] / sum(areaso)
+    } else {
+      if(comments == "T") print("Either QAQC or User fields outside of grid, but not both")
+      out.error <- 0
+    }
+    
+    # Combine error metric
+    err <- count.error * count.err.wt + unname(inres[[1]][err.switch]) * in.err.wt + out.error * out.err.wt  
+    err.out <- c("total_error" = err, "count_error" = count.error, "out_error" = out.error, 
+                 "in_error" = unname(inres[[1]][err.switch]), "user_fldcount" = user.nfields)
+  }
+} 
+
+# Insert error component statistics into the database
+if(write.err.db == "T") {
+  error.sql <- paste("insert into error_data (assignment_id, score, error1, error2, error3, error4) values ('", 
+                     assignmentid, "', ", paste(err.out, collapse = ", "), ")", sep = "")
+  ret <- dbSendQuery(con, error.sql)
+}
+
+# Note: I want to keep some of the additional error metrics, if possible.  I can write them from here into 
+# the database, or pass them all out to python, and have the python code handle that.  
+# For now, I am just passing out the primary error metric, which I am setting to zero if is is negative
+#score <- ifelse(err.out[1] < 0, 0, err.out[1])
+if(comments == "T") {
+  cat(err.out)
+} else {
+  cat(err.out[1])
+}
+
+# Write error metrics to log file
+if(write.err.log == "T") {
+  prj.file.path <- dbGetQuery(con, "select value from configuration where key = 'ProjectRoot'")$value
+  err.fname <- paste(prj.file.path, "/R/Error_records/error_metrics.Rout", sep = "")
+  err.strng <- paste(kmlid, assignmentid, paste(round(err.out, 4), collapse = "  "), sep = "   ")
+  if(file.exists(err.fname)) {
+    write(err.strng, file = err.fname, append = T) 
+  } else {
+    write(err.strng, file = err.fname)
+  } 
+}
+
+# Map results according to error class
+if(draw.maps == "T") {
+ 
+  if(exists("grid.poly")) bbr1 <- bbox(grid.poly)
+  if(exists("qaqc.poly")) bbr2 <- bbox(qaqc.poly)
+  if(exists("user.poly")) bbr3 <- bbox(user.poly)
+
+  cx <- 1.5 
+  lbbrls <- ls(pattern = "^bbr")
+  if(length(lbbrls) > 0) {
+    xr <- range(sapply(1:length(lbbrls), function(x) get(lbbrls[x])[1, ]))
+    yr <- range(sapply(1:length(lbbrls), function(x) get(lbbrls[x])[2, ]))
+    vals <- rbind(xr, yr)
+    
+    if(exists("grid.poly")) {
+      prj.file.path <- dbGetQuery(con, "select value from configuration where key = 'ProjectRoot'")$value
+      tm <- format(Sys.time(), "%Y%m%d%H%M%OS2")  # Added 28/11/12 to time stamp output plots
+      pngname <- paste(prj.file.path, "/R/Error_records/", kmlid, "_", assignmentid, "_", tm, ".png", 
+                       sep = "")
+      png(pngname, height = 700, width = 700, antialias = "none")
+      plot(grid.poly, xlim = vals[1, ], ylim = vals[2, ])
+      objchk <- sapply(2:5, function(x) is.object(inres[[x]]))
+      mpi <- names(err.out)
+      plotpos <- c(0.15, 0.4, 0.65, 0.90)
+      cols <- c("green4", "red4", "blue4", "grey30")
+      for(i in 1:4) {
+        if(objchk[i] == "TRUE") plot(inres[[i + 1]], add = T, col = cols[i])
+        mtext(round(err.out[i], 3), side = 3, line = -1, adj = plotpos[i], cex = cx)
+        mtext(mpi[i], side = 3, line = 0.5, adj = plotpos[i], cex = cx)
+        if(exists("user.poly.out")) {
+          if(!is.null(user.poly.out)) plot(user.poly.out, add = T, col = "grey")
+        }
+        if(exists("qaqc.poly.out")) {
+          if(!is.null(qaqc.poly.out)) plot(qaqc.poly.out, add = T, col = "pink")
+        }
+        if(exists("tpo")) if(is.object(tpo)) plot(tpo, col = "green1", add = T)  # 29/11 added fix for nulls
+        if(exists("fno")) if(is.object(tpo)) plot(fno, col = "blue1", add = T)   # 29/11 added fix for nulls
+      }
+      mtext(paste(kmlid, "_", assignmentid, sep = ""), side = 1, cex = cx)
+      legend(x = "right", legend = c("TP", "FP", "FN", "TN"), pch = 15, bty = "n", col = cols, pt.cex = 3, 
+             cex = cx)
+      garbage <- dev.off()  # Suppress dev.off message
+    }  
+  }
+}
+
+# Clean up a bit (aids with running tests)
+rmnames <- ls(pattern = "qaqc|err|user|count\\.|tpo|fpo|grid\\.|bbr|ass|kmlid")
+user.sql <- paste("select name,ST_AsEWKT(geom) from user_maps where assignment_id=", "'", 
+                  assignmentid, "'", " order by name", sep = "")
+user.sql <- paste("select name,ST_AsEWKT(geom) from user_maps where assignment_id=", "'", 
+                  assignmentid, "'", " order by name", sep = "")
+rm(list = rmnames)
+
+# Close connection to prevent too many from being open
+garbage <- dbDisconnect(con)
+
+
