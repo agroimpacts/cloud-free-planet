@@ -27,7 +27,7 @@ class MTurkMappingAfrica(object):
     HITAccepted = 'Accepted'
     HITAbandoned = 'Abandoned'
     HITReturned = 'Returned'
-    HITAccepted = 'Accepted'
+    HITApproved = 'Approved'
     HITRejected = 'Rejected'
     HITUnsaved = 'Unsaved'
 

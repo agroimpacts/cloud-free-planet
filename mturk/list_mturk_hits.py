@@ -3,11 +3,14 @@ from MTurkMappingAfrica import MTurkMappingAfrica
 
 mtma = MTurkMappingAfrica()
 
+#hits = mtma.mtcon.get_all_hits(response_groups='HITDetail, Minimal, HITAssignmentSummary')
 hits = mtma.mtcon.get_all_hits()
 nh = 0
 for hit in hits:
         nh = nh + 1
-        print hit.HITId, hit.HITStatus, hit.Title
+        print hit.HITId, hit.HITStatus, hit.NumberOfAssignmentsAvailable, \
+            hit.NumberOfAssignmentsCompleted, hit.NumberOfAssignmentsPending, \
+            hit.Title
         asmts = mtma.mtcon.get_assignments(hit_id=hit.HITId)
         for asmt in asmts:
             print asmt.AssignmentId
