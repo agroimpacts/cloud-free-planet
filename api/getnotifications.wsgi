@@ -30,8 +30,9 @@ def application(environ, start_response):
     k.write("\ngetnotifications: datetime = %s\n" % now)
 
     notifMsg = NotificationMessage(req.params)
-    msgOK = notifMsg.verify(aws_secret_access_key)
-    k.write("getnotifications: Message verified: %s\n" % msgOK)
+    #msgOK = notifMsg.verify(aws_secret_access_key)
+    msgOK = True
+    k.write("getnotifications: Message (no longer) verified: %s\n" % msgOK)
 
     if msgOK:
         numMsgs = len(notifMsg.events)
@@ -67,13 +68,13 @@ def AssignmentAbandoned(mtma, k, hitId, assignmentId, eventTime):
     # Mark the assignment as abandoned.
     mtma.cur.execute("""update assignment_data set completion_time = '%s', completion_status = '%s'
         where assignment_id = '%s'""" % (eventTime, MTurkMappingAfrica.HITAbandoned, assignmentId))
-    k.write("getnotifications: assignmentId %s has been marked as abandoned\n" % assignmentId)
+    k.write("getnotifications: assignment has been marked as abandoned\n")
 
 def AssignmentReturned(mtma, k, hitId, assignmentId, eventTime):
     # Mark the assignment as returned.
     mtma.cur.execute("""update assignment_data set completion_time = '%s', completion_status = '%s'
         where assignment_id = '%s'""" % (eventTime, MTurkMappingAfrica.HITReturned, assignmentId))
-    k.write("getnotifications: assignmentId %s has been marked as returned\n" % assignmentId)
+    k.write("getnotifications: assignment has been marked as returned\n")
 
 def AssignmentSubmitted(mtma, k, hitId, assignmentId, eventTime):
     # Get the assignment and HIT data we need.
@@ -105,10 +106,12 @@ def AssignmentSubmitted(mtma, k, hitId, assignmentId, eventTime):
             stdout=subprocess.PIPE).communicate()[0]
         try:
             score = float(scoreString)
+        # Pay the worker if we couldn't score his work properly.
         except:
-            score = 0.
-            k.write("getnotifications: Invalid value '%s' returned from R scoring script; assigning a score of 0.\n" % 
-                scoreString)
+            score = 1.
+            k.write("getnotifications: Invalid value '%s' returned from R scoring script; assigning a score of %.2f\n" % 
+                (scoreString, score))
+    # Pay the worker if we couldn't save his work.
     else:
         score = 1.
         k.write("getnotifications: Unable to save worker's results; assigning a score of %.2f\n" %
@@ -129,7 +132,7 @@ def AssignmentSubmitted(mtma, k, hitId, assignmentId, eventTime):
             k.write("getnotifications: Bad approveAssignment status for assignment ID %s:\n" % assignmentId)
             return
         if results_saved:
-            completion_status = MTurkMappingAfrica.HITAccepted
+            completion_status = MTurkMappingAfrica.HITApproved
         else:
             completion_status = MTurkMappingAfrica.HITUnsaved
     # Only if the worker's results were saved and their score did not meet the threshold
@@ -151,8 +154,8 @@ def AssignmentSubmitted(mtma, k, hitId, assignmentId, eventTime):
     mtma.cur.execute("""update assignment_data set completion_time = '%s', completion_status = '%s', 
         comment = %s, score = '%s' where assignment_id = '%s'""" % 
         (submitTime, completion_status, adapt(comment), score, assignmentId))
-    k.write("getnotifications: assignmentId %s has been marked as %s: %.2f/%.2f\n" % 
-        (assignmentId, completion_status.lower(), score, hitAcceptThreshold))
+    k.write("getnotifications: assignment has been marked as %s: %.2f/%.2f\n" % 
+        (completion_status.lower(), score, hitAcceptThreshold))
 
     # TODO: *** If this is a QAQC HIT, set non-QAQC HIT scores since last QAQC HIT to this QAQC HIT's score ***
     # TODO: *** To determine bonus or disqualification, compute cumulative score.
@@ -175,9 +178,9 @@ def AssignmentSubmitted(mtma, k, hitId, assignmentId, eventTime):
             return
         # Record the HIT deletion time.
         mtma.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % (eventTime, hitId))
-        k.write("getnotifications: hitId %s has no remaining assignments and has been deleted\n" % hitId)
+        k.write("getnotifications: hit has no remaining assignments and has been deleted\n")
     else:
-        k.write("getnotifications: hitId %s still has remaining assignments and cannot be deleted\n" % hitId)
+        k.write("getnotifications: hit still has remaining assignments and cannot be deleted\n")
 
     # TODO: *** Select next KML to create (of same type) and create it ***
 
@@ -195,7 +198,7 @@ def HITExpired(mtma, k, hitId, assignmentId, eventTime):
     # Record the HIT deletion time and expiration status.
     mtma.cur.execute("""update hit_data set delete_time = '%s', hit_expired = %s where hit_id = '%s'""" % 
         (eventTime, 'true', hitId))
-    k.write("getnotifications: hitId %s has expired and has been deleted\n" % hitId)
+    k.write("getnotifications: hit has expired and has been deleted\n")
 
 def HITReviewable(mtma, k, hitId, assignmentId, eventTime):
     pass
