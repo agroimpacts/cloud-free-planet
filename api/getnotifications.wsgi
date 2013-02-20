@@ -30,8 +30,7 @@ def application(environ, start_response):
     k.write("\ngetnotifications: datetime = %s\n" % now)
 
     notifMsg = NotificationMessage(req.params)
-    #msgOK = notifMsg.verify(aws_secret_access_key)
-    msgOK = True
+    msgOK = notifMsg.verify(aws_secret_access_key)
     k.write("getnotifications: Message (no longer) verified: %s\n" % msgOK)
 
     if msgOK:
