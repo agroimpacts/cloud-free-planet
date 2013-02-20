@@ -1,5 +1,6 @@
 #! /usr/bin/python
 
+import os
 import time
 from datetime import datetime
 from boto.mturk.connection import MTurkRequestError
@@ -10,8 +11,14 @@ mtma = MTurkMappingAfrica()
 mtma.cur.execute("select value from configuration where key = 'ProjectRoot'")
 logFilePath = mtma.cur.fetchone()[0] + "/log"
 k = open(logFilePath + "/createHit.log", "a")
+
+pid = os.getpid()
+pf = open(logFilePath + "/create_hit_daemon.pid", 'wb')
+pf.write(repr(pid))
+pf.close()
+
 now = str(datetime.today())
-k.write("\ncreateHit: Daemon starting up at %s\n" % now)
+k.write("\ncreateHit: Daemon starting up at %s (pid %d)\n" % (now, pid))
 k.close()
 
 # Execute loop based on polling interval
@@ -43,7 +50,7 @@ while True:
     numReqdQaqcHits = max(numAvailQaqcHits - numMturkQaqcHits, 0)
     if numReqdQaqcHits > 0:
         k.write("\ncreateHit: datetime = %s\n" % now)
-        k.write("createHit: createHIT sees %s HITs, and needs to create %s HITs\n" % 
+        k.write("createHit: createHit sees %s HITs, and needs to create %s HITs\n" % 
             (numMturkQaqcHits, numReqdQaqcHits))
 
     for i in xrange(numReqdQaqcHits):
@@ -89,11 +96,11 @@ while True:
         try:
             hitId = mtma.createHit(kml=nextKml, hitType=kmlType)
         except MTurkRequestError as e:
-            k.write("createHit: createHIT failed for KML %s:\n%s\n%s\n" %
+            k.write("createHit: createHit failed for KML %s:\n%s\n%s\n" %
                 (nextKml, e.error_code, e.error_message))
             exit(-1)
         except AssertionError:
-            k.write("createHit: Bad createHIT status for KML %s:\n" % nextKml)
+            k.write("createHit: Bad createHit status for KML %s:\n" % nextKml)
             exit(-2)
 
         # Record the HIT ID.
