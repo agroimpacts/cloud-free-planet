@@ -6,6 +6,8 @@ mtma = MTurkMappingAfrica()
 #hits = mtma.mtcon.get_all_hits(response_groups='HITDetail, Minimal, HITAssignmentSummary')
 hits = mtma.mtcon.get_all_hits()
 nh = 0
+print "HIT Id, status, #assign rem, #assign compl, #assign pend, title"
+print "Assign Ids"
 for hit in hits:
         nh = nh + 1
         print hit.HITId, hit.HITStatus, hit.NumberOfAssignmentsAvailable, \
