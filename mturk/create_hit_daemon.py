@@ -9,7 +9,7 @@ from MTurkMappingAfrica import MTurkMappingAfrica
 
 # Row class used in HIT validation logic.
 class Row:
-    def __init__(self, status=None, create_time=None, delete_time=None, kml_type = None):
+    def __init__(self, status=None, create_time=None, delete_time=None, kml_type=None):
         self.status = status
         self.create_time = create_time
         self.delete_time = delete_time
