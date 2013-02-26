@@ -11,3 +11,9 @@ b) add the following lines to /etc/sysconfig/httpd:
 umask 007
 PYTHONPATH="/var/www/html/afmap/mturk"
 export PYTHONPATH
+
+3) To easily access pgadmin3 v9.1, create /etc/profile.d/postgresql.[c]sh containing:
+tcsh:
+setenv PATH "/usr/pgsql-9.1/bin:$PATH"
+bash:
+export PATH="/usr/pgsql-9.1/bin:$PATH"
