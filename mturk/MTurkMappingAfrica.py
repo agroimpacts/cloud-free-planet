@@ -98,6 +98,19 @@ class MTurkMappingAfrica(object):
         )
         assert self.sendTestEventNotificationRS.status
 
+    def getAllHits(self, response_groups=None):
+        return self.mtcon.get_all_hits(response_groups)
+
+    def getHitStatus(self, hitId):
+        self.getHitRS = self.mtcon.get_hit(hitId)
+        assert self.getHitRS.status
+        # Loop through the ResultSet looking for an Hit object.
+        for r in self.getHitRS:
+            if hasattr(r,'HIT'):
+                # Get the associated HIT's status.
+                self.hitStatus = r.HITStatus
+        return self.hitStatus
+
     def getAssignment(self, assignmentId):
         # Add HITDetail ResponseGroup so as to get back the HITStatus parameter.
         self.getAssignmentRS = self.mtcon.get_assignment(assignmentId, response_groups='Minimal, HITDetail')
