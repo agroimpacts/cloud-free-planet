@@ -1,0 +1,37 @@
+To restore the entire SouthAfrica database:
+
+1) As root, copy the local pg_hba.conf to /var/lib/pgsql/9.1/data. 
+   Comment all 'all postgres md5' lines and uncomment all 'all all trust' lines.
+2) As root, run 'service postgresql-9.1 start'.
+3) Change the PostgreSQL postgres password, and create the ***REMOVED*** role as superuser:
+    psql -U postgres
+    \i role.sql
+
+4) Gunzip the database schema dump you wish to load.
+5) As superuser ***REMOVED***, create the SouthAfrica database and schema 
+   (using ***REMOVED*** to do this ensures that all ***REMOVED*** extension 
+    objects are owned by ***REMOVED***):
+    psql -U ***REMOVED*** postgres
+    \o SouthAfrica_schema.sql.out
+    \i SouthAfrica_schema.sql
+    (*** Ignore the 3 geometry_columns duplicate rule creation errors.)
+
+6) As root, edit /var/lib/pgsql/9.1/data/pg_hba.conf, and uncomment all 
+   'all postgres md5' lines and comment all 'all all trust' lines.
+7) As root, run 'service postgresql-9.1 restart'.
+
+8) As superuser postgres, remove superuser privileges from ***REMOVED*** role:
+    psql -U postgres
+    \i role_normal.sql
+
+9)  Gunzip the database data dump you wish to load.
+10) Load the database data dump:
+    psql -U ***REMOVED*** SouthAfrica
+    \o SouthAfrica_data.sql.out
+    \i SouthAfrica_data.sql
+    (*** ignore error re duplicate key value in spatial_ref_sys)
+
+To configure daily database backups:
+
+1) Execute:
+crontab /var/www/html/afmap/mturk/crontabSetup
