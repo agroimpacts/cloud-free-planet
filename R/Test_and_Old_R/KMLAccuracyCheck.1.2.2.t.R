@@ -65,7 +65,7 @@ in.err.wt     <- 0.7  # Weighting for in grid map discrepancy
 out.err.wt    <- 0.2  # Weighting for out of grid map discrepancy
 err.switch    <- 1  # Selects which area error metric used for in grid accuracy: 1 = overall accuracy; 2 = TSS
 comments      <- "T"  # For testing, one can turn on print statements to see what is happening
-consel        <- "mac"  # postgres connection switch: "africa" when run on server, "mac" for off server
+consel        <- "africa"  # postgres connection switch: "africa" when run on server, "mac" for off server
 write.err.log <- "T"  # Option to write text log containing error metrics (anything besides "T" turns off)
 write.err.db <- "F"  # Option to write error metrics into error_data table in postgres (off if not "T") 
 draw.maps     <- "T"  # Option to draw maps showing output error components (where maps possible, off w/o "T")
@@ -313,6 +313,41 @@ while(i <= length(newploy)) {
 plot(outpoly)
 gOverlaps(outpoly, byid = T)
 plot(newpoly2[[i]])
+
+
+createTempPolyfromWKT <- function(geom.tab, crs) {
+# Function for reading in a spatial geometry from PostGIS and creating a temporary shapefile out of it
+# Args: 
+#   geom.tab: Dataframe with geometry and identifiers in it. Identifier must be 1st column, geometries 2nd col  
+#   crs: Coordinate reference system
+# Returns: 
+#   A SpatialPolygonsDataFrame
+  polys <- tst <- sapply(1:nrow(geom.tab), function(x) {
+    poly <- as(readWKT(geom.tab[x, 2], p4s = crs), "SpatialPolygonsDataFrame")
+    poly@data$ID <- geom.tab[x, 1]
+    newid <- paste(x)
+    poly <- spChFIDs(poly, newid)
+    return(poly)
+  })
+  polyspdf <- do.call("rbind", polys)
+  td <- tempdir()
+  tmpnm <- tempfile("poly", tmpdir = tempdir(), ext = "shp")
+  writeOGR(polyspdf, dsn = , layer =   
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ##############################################################################################################
