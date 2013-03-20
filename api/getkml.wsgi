@@ -20,6 +20,14 @@ def application(environ, start_response):
     kmlName = cur.fetchone()[0]
     cur.execute("select value from configuration where key = 'MTurkFrameHeight'")
     mturkFrameHeight = int(cur.fetchone()[0])
+    cur.execute("select value from configuration where key = 'APIUrl'")
+    apiUrl = cur.fetchone()[0]
+    cur.execute("select value from configuration where key = 'MTurkPostPolygonScript'")
+    mturkPostPolygonScript = cur.fetchone()[0]
+    cur.execute("select value from configuration where key = 'MTurkNoPolygonScript'")
+    mturkNoPolygonScript = cur.fetchone()[0]
+    polygonUrl = apiUrl + '/' + mturkPostPolygonScript
+    noPolygonUrl = apiUrl + '/' + mturkNoPolygonScript
     headerHeight = 70
     mapHeight = mturkFrameHeight - headerHeight
 
@@ -68,7 +76,7 @@ def application(environ, start_response):
                         }
                     </style>
                 </head>
-                <body onload="init('%(path)s', '%(kmlValue)s', '%(assignmentId)s')">
+                <body onload="init('%(kmlPath)s', '%(polygonPath)s', '%(noPolygonPath)s', '%(kmlValue)s', '%(assignmentId)s')">
                     <form style='width: 100%%; height: %(headerHeight)spx;' name='mturkform' action='%(turkSubmitTo)s/mturk/externalSubmit'>
                         <div class='instructions'>
                             %(preview)s
@@ -95,7 +103,9 @@ def application(environ, start_response):
                 </body>
             </html>
         ''' % {
-            'path': kmlUrl,
+            'kmlPath': kmlUrl,
+            'polygonPath': polygonUrl,
+            'noPolygonPath': noPolygonUrl,
             'kmlValue': kmlValue,
             'assignmentId': assignmentId,
             'turkSubmitTo': turkSubmitTo,
@@ -125,7 +135,7 @@ def application(environ, start_response):
                             WHERE worker_id = '%s'""" % (now, workerId))
                     # Insert the assignment data.
                     cur.execute("""INSERT INTO assignment_data 
-                        (assignment_id, hit_id, worker_id, accept_time, completion_status) 
+                        (assignment_id, hit_id, worker_id, accept_time, status) 
                         VALUES ('%s' , '%s', '%s', '%s', '%s')""" % (assignmentId, hitId, workerId, now, MTurkMappingAfrica.HITAccepted))
                     k.write("getkml: MTurk ACCEPT request fetched kmlValue = %s\n" % kmlValue)
                     con.commit()

@@ -1,4 +1,4 @@
-function init(path, kmlName, assignmentId) {
+function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId) {
 
 // Create the map using the specified DOM element
 var map = new OpenLayers.Map("kml_display");
@@ -40,7 +40,7 @@ kmlLayer = new OpenLayers.Layer.Vector(
     {
         styleMap: stymap,
         protocol: new OpenLayers.Protocol.HTTP({
-                url: path + '/' + kmlName + '.kml',
+                url: kmlPath + '/' + kmlName + '.kml',
                 format: new OpenLayers.Format.KML()
         }),
         strategies: [new OpenLayers.Strategy.Fixed()],
@@ -76,7 +76,7 @@ fieldsLayer = new OpenLayers.Layer.Vector(
     "Mapped Fields",
     {
         protocol: new OpenLayers.Protocol.HTTP({
-            url: "/afmap/api/postkml",
+            url: polygonPath,
             format: new OpenLayers.Format.KML({
                 foldersName: foldersName
             })
@@ -176,7 +176,7 @@ if (preview) {
     );
     panelControl4 = new OpenLayers.Control.Button({
         displayClass: 'saveButton',
-        trigger: function() {checkSaveStrategy(kmlName, assignmentId);},
+        trigger: function() {checkSaveStrategy(kmlName, noPolygonPath, assignmentId);},
         title: 'Save changes: Click on this button only ONCE when all mapped fields have been created, and you are satisfied with your work. Click when done even if there are NO fields to draw on this map.'
     });
 }
@@ -200,7 +200,7 @@ kmlLayer.events.register("loadend", kmlLayer, function() {
 
 }
 
-function checkSaveStrategy(kmlName, assignmentId) {
+function checkSaveStrategy(kmlName, noPolygonPath, assignmentId) {
     var msg;
     if (!saveStrategyActive) {
         return;
@@ -224,7 +224,7 @@ function checkSaveStrategy(kmlName, assignmentId) {
     } else {
         if (assignmentId.length > 0) {
             var request = OpenLayers.Request.PUT({
-                url: "/afmap/api/putkml",
+                url: noPolygonPath,
                 params: {
                     kmlName: kmlName,
                     assignmentId: assignmentId
@@ -234,7 +234,7 @@ function checkSaveStrategy(kmlName, assignmentId) {
             });
         } else {
             var request = OpenLayers.Request.PUT({
-                url: "/afmap/api/putkml",
+                url: noPolygonPath,
                 params: { kmlName: kmlName },
                 success: function() {notificationSuccess(kmlName, assignmentId);},
                 failure: function() {notificationFail(kmlName, assignmentId);}
@@ -294,21 +294,16 @@ function saveKMLFail(response) {
     errCode = response.priv.status;
     errText = response.priv.statusText;
     if (errText == 'Bad KML' && ! saveStrategyFailed) {
-        alert('We\'re sorry, but through no fault of your own, we were unable to save the maps you drew.\nWe will now erase these maps and ask that to draw them again.\nWe apologize for the inconvenience!');
+        alert('We\'re sorry, but through no fault of your own, we were unable to save the maps you drew.\nWe now have to erase these maps and ask that to draw them again.\nWe apologize for the inconvenience!');
         saveStrategyFailed = true
         fieldsLayer.removeAllFeatures();
         saveStrategyActive = true;
         
     } else {
         alert('Error! Your changes could not be saved, but we will pay you for your effort.');
-    
-        var request = OpenLayers.Request.GET({
-            url: "https://www.mturk.com/mturk/externalSubmit",
-            params: {
-                kmlName: kmlName,
-                success: false,
-                assignmentId: assignmentId
-                }
-        });
+        if (assignmentId.length > 0) {
+            document.mturkform.save_status.value = false;
+            document.mturkform.submit();
+        }
     }
 }
