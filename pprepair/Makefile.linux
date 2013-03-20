@@ -1,0 +1,31 @@
+# Options
+CC=c++
+IPATH=/usr/include/gdal
+LPATH=/usr/pgsql-9.1/lib
+
+CFLAGS=-Wall -O3 -frounding-math -fno-strict-aliasing -I$(IPATH) -L$(LPATH)
+
+LDFLAGS=-g -O3  -D_REENTRANT -frounding-math -Wl,-Bsymbolic-functions -L$(LPATH) -lCGAL_Core -lCGAL -lgmpxx -lmpfr -lgmp -lboost_thread-mt -lCGAL_Core -lCGAL -lgmpxx -lmpfr -lgmp -lboost_thread-mt -lgdal
+
+all: pprepair
+
+PolygonHandle.o: PolygonHandle.cpp
+	$(CC) $(CFLAGS) -c $^
+
+FaceInfo.o: FaceInfo.cpp
+	$(CC) $(CFLAGS) -c $^
+    
+IOWorker.o: IOWorker.cpp
+	$(CC) $(CFLAGS) -c $^
+
+PlanarPartition.o: PlanarPartition.cpp
+	$(CC) $(CFLAGS) -c $^
+
+pprepair.o: pprepair.cpp
+	$(CC) $(CFLAGS) -c $^
+
+pprepair: PolygonHandle.o FaceInfo.o IOWorker.o PlanarPartition.o pprepair.o 
+	$(CC) $(LDFLAGS) $^ -o pprepair
+
+clean:
+	rm -rf *.o pprepair
