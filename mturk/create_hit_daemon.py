@@ -17,7 +17,7 @@ class Row:
 
 # Email function used when there are validation failures.
 def email(msg = None):
-    sender = 'lestes@princeton.edu'
+    sender = 'mapper@princeton.edu'
     receiver = 'dmcr@princeton.edu'
     message = """From: %s
 To: %s
@@ -101,7 +101,7 @@ while True:
 
         # If HIT on Mturk but not in DB: should never happen.
         if row.status and not row.create_time:
-            k.write("createHit: Error: Mturk HIT '%s' not in database!" % hitId)
+            k.write("createHit: Error: Mturk HIT '%s' not in database!\n" % hitId)
             email("Error: Mturk HIT '%s' not in database!" % hitId)
         # if HIT in DB but not on Mturk,
         elif not row.status and row.create_time:
@@ -110,7 +110,7 @@ while True:
                 # Record the HIT deletion time.
                 mtma.cur.execute("""update hit_data set hit_verified = True, delete_time = '%s' 
                     where hit_id = '%s'""" % (now, hitId))
-                k.write("createHit: Error: Active DB HIT '%s' not found on Mturk!\nNow Marked as deleted in DB." % hitId)
+                k.write("createHit: Error: Active DB HIT '%s' not found on Mturk!\ncreateHit: Now marked as deleted in DB.\n" % hitId)
                 email("Error: Active DB HIT '%s' not found on Mturk!\r\nNow marked as deleted in DB." % hitId)
             # If DB says HIT has been deleted, then mark it as verified.
             else:
@@ -121,19 +121,19 @@ while True:
         elif row.status and row.create_time:
             # if DB says HIT no longer exists: should never happen.
             if row.delete_time:
-                k.write("createHit: Error: Deleted DB HIT '%s' still exists on Mturk!" % hitId)
+                k.write("createHit: Error: Deleted DB HIT '%s' still exists on Mturk!\n" % hitId)
                 email("Error: Deleted DB HIT '%s' still exists on Mturk!" % hitId)
             else:
                 # Calculate the current number of assignable QAQC and non-QAQC HITs 
                 # currently active on the MTurk server.
                 if row.status == 'Assignable':
-                    if row.kml_type == 'Q':
+                    if row.kml_type == MTurkMappingAfrica.KmlQAQC:
                         numMturkQaqcHits = numMturkQaqcHits + 1
-                    elif row.kml_type == 'N':
+                    elif row.kml_type == MTurkMappingAfrica.KmlNormal:
                         numMturkNonQaqcHits = numMturkNonQaqcHits + 1
 
     # Create any needed QAQC HITs.
-    kmlType = 'Q'
+    kmlType = MTurkMappingAfrica.KmlQAQC
     numReqdQaqcHits = max(numAvailQaqcHits - numMturkQaqcHits, 0)
     if numReqdQaqcHits > 0:
         k.write("\ncreateHit: datetime = %s\n" % now)
@@ -196,7 +196,7 @@ while True:
         k.write("createHit: Created HIT ID %s for QAQC KML %s\n" % (hitId, nextKml))
 
     # Create any needed non-QAQC HITs.
-    kmlType = 'N'
+    kmlType = MTurkMappingAfrica.KmlNormal
     numReqdNonQaqcHits = max(numAvailNonQaqcHits - numMturkNonQaqcHits, 0)
     if numReqdNonQaqcHits > 0:
         k.write("\ncreateHit: datetime = %s\n" % now)
@@ -218,7 +218,7 @@ while True:
                 (select true from hit_data h 
                 left outer join assignment_data a using (hit_id)
                 where h.name = k.name 
-                and (h.delete_time is null or a.completion_status = 'Approved'))
+                and (h.delete_time is null or a.status = 'Approved'))
             and  kml_type = '%s' 
             and gid > %s 
             order by gid 
