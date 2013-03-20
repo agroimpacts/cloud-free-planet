@@ -1,9 +1,9 @@
-import uuid
 from datetime import datetime
 from dateutil import tz
 import psycopg2
+from psycopg2.extensions import adapt
 
-from boto.mturk.connection import MTurkConnection
+from boto.mturk.connection import MTurkConnection, MTurkRequestError
 from boto.mturk.qualification import (
     Qualifications, NumberHitsApprovedRequirement, PercentAssignmentsApprovedRequirement, 
     PercentAssignmentsReturnedRequirement,PercentAssignmentsAbandonedRequirement, 
@@ -23,13 +23,32 @@ aws_secret_access_key = 'M3lDaoR4qMd8WuQVgjtXCRRccDcaGYwDTO7BM+jS'
 
 class MTurkMappingAfrica(object):
 
-    # HIT assignment status constants
-    HITAccepted = 'Accepted'
-    HITAbandoned = 'Abandoned'
-    HITReturned = 'Returned'
-    HITApproved = 'Approved'
-    HITRejected = 'Rejected'
-    HITUnsaved = 'Unsaved'
+    #
+    # HIT assignment_data.status constants
+    #
+    HITAccepted = 'Accepted'                    # HIT accepted by worker
+    HITAbandoned = 'Abandoned'                  # HIT abandoned by worker
+    HITReturned = 'Returned'                    # HIT returned by worker
+    HITApproved = 'Approved'                    # HIT scored and approved
+    HITRejected = 'Rejected'                    # HIT scored and rejected
+    HITUnsaved = 'Unsaved'                      # HIT unsaved, hence approved & non-QAQC reused
+
+    # QAQC status only
+    HITUnscored = 'Unscored'                    # HIT not scorable, hence approved
+
+    # non-QAQC statuses only
+    HITPending = 'Pending'                      # Approved/Rejected/UnsavedQAQC/UnscoredQAQC status 
+                                                #   pending next QAQC score
+    HITPendingUnsaved = 'PendingUnsaved'        # HITUnsaved status pending next QAQC score
+    HITUnsavedQAQC = 'UnsavedQAQC'              # QAQC HIT unsaved, hence non-QAQC HIT approved & reused
+    HITUnscoredQAQC = 'UnscoredQAQC'            # QAQC HIT unscored, hence non-QAQC HIT approved & reused
+
+    #
+    # KML kml_data.kml_type constants
+    #
+    KmlNormal = 'N'                             # Normal (non-QAQC) KML
+    KmlQAQC = 'Q'                               # QAQC KML
+    KmlInitial = 'I'                            # Initial training KML
 
     def __init__(self, debug=0):
         self.dbcon = psycopg2.connect("dbname=%s user=%s password=%s" % 
@@ -54,10 +73,10 @@ class MTurkMappingAfrica(object):
         self.mtcon.close()
         self.dbcon.close()
 
-    def createHit(self, kml=None, hitType='N'):
+    def createHit(self, kml=None, hitType=KmlNormal):
         self.cur.execute("select value from configuration where key = 'Hit_Lifetime'")
         self.hitLifetime = self.cur.fetchone()[0]
-        if hitType == 'N':
+        if hitType == MTurkMappingAfrica.KmlNormal:
             self.cur.execute("select value from configuration where key = 'Hit_MaxAssignmentsN'")
         else:
             self.cur.execute("select value from configuration where key = 'Hit_MaxAssignmentsQ'")
@@ -77,26 +96,46 @@ class MTurkMappingAfrica(object):
         return self.hitId
 
     def setNotification(self, hitType):
-        self.cur.execute("select value from configuration where key = 'MTurkNotificationURL'")
-        self.mturkNotificationUrl = self.cur.fetchone()[0]
+        self.cur.execute("select value from configuration where key = 'ServerName'")
+        self.serverName = self.cur.fetchone()[0]
+        self.cur.execute("select value from configuration where key = 'APIUrl'")
+        self.apiUrl = self.cur.fetchone()[0]
+        self.cur.execute("select value from configuration where key = 'MTurkNotificationScript'")
+        self.mturkNotificationScript = self.cur.fetchone()[0]
+        self.url = "https://%s%s/%s" % \
+            (self.serverName, self.apiUrl, self.mturkNotificationScript)
         self.setNotificationRS = self.mtcon.set_rest_notification(
             hit_type = hitType,
-            url = self.mturkNotificationUrl,
+            url = self.url,
             event_types = "AssignmentSubmitted,AssignmentAbandoned,AssignmentReturned,HITExpired"
         )
         assert self.setNotificationRS.status
 
-    def sendTestEventNotification(self, testEventType):
-        self.cur.execute("select value from configuration where key = 'MTurkNotificationURL'")
-        self.mturkNotificationUrl = self.cur.fetchone()[0]
-        self.sendTestEventNotificationRS = self.mtcon.send_test_event_notification(
-            hit_type = self.registerHitType(),
-            url = self.mturkNotificationUrl,
-            #url = "https://africa.princeton.edu/afmap/api/notif3",
+    def sendEmailTestEventNotification(self, testEventType):
+        self.cur.execute("select value from configuration where key = 'MTurkNotificationEmail'")
+        self.mturkNotificationEmail = self.cur.fetchone()[0]
+        self.sendEmailTestEventNotificationRS = self.mtcon.send_email_test_event_notification(
+            email = self.mturkNotificationEmail,
             event_types = "AssignmentSubmitted,AssignmentAbandoned,AssignmentReturned,HITReviewable,HITExpired,Ping",
             test_event_type = testEventType
         )
-        assert self.sendTestEventNotificationRS.status
+        assert self.sendEmailTestEventNotificationRS.status
+
+    def sendRestTestEventNotification(self, testEventType):
+        self.cur.execute("select value from configuration where key = 'ServerName'")
+        self.serverName = self.cur.fetchone()[0]
+        self.cur.execute("select value from configuration where key = 'APIUrl'")
+        self.apiUrl = self.cur.fetchone()[0]
+        self.cur.execute("select value from configuration where key = 'MTurkNotificationScript'")
+        self.mturkNotificationScript = self.cur.fetchone()[0]
+        self.url = "https://%s%s/%s" % \
+            (self.serverName, self.apiUrl, self.mturkNotificationScript)
+        self.sendRestTestEventNotificationRS = self.mtcon.send_rest_test_event_notification(
+            url = self.url,
+            event_types = "AssignmentSubmitted,AssignmentAbandoned,AssignmentReturned,HITReviewable,HITExpired,Ping",
+            test_event_type = testEventType
+        )
+        assert self.sendRestTestEventNotificationRS.status
 
     def getAllHits(self, response_groups=None):
         return self.mtcon.get_all_hits(response_groups)
@@ -220,13 +259,18 @@ class MTurkMappingAfrica(object):
         return self.quals
 
     def externalQuestion(self, kml=None):
-        self.cur.execute("select value from configuration where key = 'MTurkURLPrefix'")
-        self.mturkUrlPrefix = self.cur.fetchone()[0]
+        self.cur.execute("select value from configuration where key = 'ServerName'")
+        self.serverName = self.cur.fetchone()[0]
+        self.cur.execute("select value from configuration where key = 'APIUrl'")
+        self.apiUrl = self.cur.fetchone()[0]
+        self.cur.execute("select value from configuration where key = 'MTurkExtQuestionScript'")
+        self.mturkExtQuestionScript = self.cur.fetchone()[0]
         self.cur.execute("select value from configuration where key = 'KMLParameter'")
         self.kmlParameter = self.cur.fetchone()[0]
         self.cur.execute("select value from configuration where key = 'MTurkFrameHeight'")
         self.mturkFrameHeight = self.cur.fetchone()[0]
-        self.url = "%s?%s=%s" % (self.mturkUrlPrefix, self.kmlParameter, kml)
+        self.url = "https://%s%s/%s?%s=%s" % \
+            (self.serverName, self.apiUrl, self.mturkExtQuestionScript, self.kmlParameter, kml)
         self.extQuestion = ExternalQuestion(
             external_url=self.url, 
             frame_height=self.mturkFrameHeight
