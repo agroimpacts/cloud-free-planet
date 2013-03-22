@@ -96,17 +96,11 @@ class MTurkMappingAfrica(object):
         return self.hitId
 
     def setNotification(self, hitType):
-        self.cur.execute("select value from configuration where key = 'ServerName'")
-        self.serverName = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'APIUrl'")
-        self.apiUrl = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'MTurkNotificationScript'")
-        self.mturkNotificationScript = self.cur.fetchone()[0]
-        self.url = "https://%s%s/%s" % \
-            (self.serverName, self.apiUrl, self.mturkNotificationScript)
-        self.setNotificationRS = self.mtcon.set_rest_notification(
+        self.cur.execute("select value from configuration where key = 'MTurkNotificationEmail'")
+        self.mturkNotificationEmail = self.cur.fetchone()[0]
+        self.setNotificationRS = self.mtcon.set_email_notification(
             hit_type = hitType,
-            url = self.url,
+            email = self.mturkNotificationEmail,
             event_types = "AssignmentSubmitted,AssignmentAbandoned,AssignmentReturned,HITExpired"
         )
         assert self.setNotificationRS.status
