@@ -1,6 +1,6 @@
 #! /usr/bin/R -f
 ##############################################################################################################
-# Title      : KMLAccuracyCheck_1.2.2.R
+# Title      : KMLAccuracyCheck_1.2.2.t.R
 # Purpose    : Development of QAQC accuracy assessment side of Google Earth/Maps Africa field mapping project
 # Author     : Lyndon Estes
 # Draws from : GMap.grid.R, GMap.server.[1|1.1].R; GMap.acc.check.1.R; GMap.QAQC.check.1.1.R
@@ -55,8 +55,18 @@
 #                      is.object to conditional statement
 #                    Additions
 #                    * Added conditional statement and switch to toggle writing to error_data on and off
+#                  5/4/2013: 
+#                    Beginning point for code version update to KMLAccuracyCheck.1.2.3.R
+#                    Fixes: 
+#                    * Major modification: Polygon cleaning installed via pprepair to fix unclean topologies
+#                      This means that user and qaqc polygons are read in, polygon numbers counted, written to
+#                      temporary ESRI shapefiles, cleaned via pprepair to new temporary shapefiles, then read
+#                      back in for error checking operations. This is achieved via two new functions: 
+#                      ** callPprepair, which is used by createCleanTempPolyfromWKT
+#                      ** These replace cleanPolyByUnions and createPolyfromWKT
+#                    * gUnaryUnion is still performed on the cleaned polygon sets to facilitate easier merges
+#                      and intersects
 #                    
-
 ##############################################################################################################
 # Hardcoded values placed here for easy changing 
 prjsrid       <- 97490  # EPSG identifier for equal area project
@@ -78,6 +88,7 @@ test          <- "Y"  # For manual testing, one can give a single kmlid, and the
 suppressMessages(library(RPostgreSQL))
 suppressMessages(library(rgdal))
 suppressMessages(library(rgeos))
+#suppressMessages(library(maptools))
 
 # Paths and connections
 drv <- dbDriver("PostgreSQL")
@@ -109,7 +120,7 @@ if(test == "Y") {
   #userallmaps <- dbGetQuery(con, userall.sql)
 
   # If you have the kmlid 
-  if(exists("kmid") & !exists("assignmentid")) {
+  if(exists("kmlid") & !exists("assignmentid")) {
     print("Using HIT ID to find assignment ID")
     hid <- hits[hits$name == kmlid, "hit_id"]
     assignmentid <- asses[asses$hit_id == hid, "assignment_id"]
@@ -121,7 +132,7 @@ if(test == "Y") {
   # If you have the assigment id
   if(exists("assignmentid") & !exists("kmlid")) {
     print("Using assignment ID to find HIT ID")
-    hid <- asses[ asses$assignment_id == assignmentid, "hit_id"]
+    hid <- asses[asses$assignment_id == assignmentid, "hit_id"]
     kmlid <- hits[hits$hit_id == hid, "name"]
   }
 }
@@ -185,22 +196,22 @@ mapError <- function(maps, truth, region) {
   list(accStatsSum(tp = areas["tp"], fp = areas["fp"], fn = areas["fn"], tn = areas["tn"]), tp, fp, fn, tn)  
 }
 
-createSPPolyfromWKT <- function(geom.tab, crs) {
-# Function for reading in and creating SpatialPolygonsDataFrame from PostGIS
-# Args: 
-#   geom.tab: Dataframe with geometry and identifiers in it. Identifier must be 1st column, geometries 2nd col  
-#   crs: Coordinate reference system
-# Returns: 
-#   A SpatialPolygonsDataFrame
-  polys <- tst <- sapply(1:nrow(geom.tab), function(x) {
-    poly <- as(readWKT(geom.tab[x, 2], p4s = crs), "SpatialPolygonsDataFrame")
-    poly@data$ID <- geom.tab[x, 1]
-    newid <- paste(x)
-    poly <- spChFIDs(poly, newid)
-    return(poly)
-  })
-  polyspdf <- do.call("rbind", polys)
-}
+# createSPPolyfromWKT <- function(geom.tab, crs) {
+# # Function for reading in and creating SpatialPolygonsDataFrame from PostGIS
+# # Args: 
+# #   geom.tab: Dataframe with geometry and identifiers in it. Identifier must be 1st column, geometries 2nd col  
+# #   crs: Coordinate reference system
+# # Returns: 
+# #   A SpatialPolygonsDataFrame
+#   polys <- tst <- sapply(1:nrow(geom.tab), function(x) {
+#     poly <- as(readWKT(geom.tab[x, 2], p4s = crs), "SpatialPolygonsDataFrame")
+#     poly@data$ID <- geom.tab[x, 1]
+#     newid <- paste(x)
+#     poly <- spChFIDs(poly, newid)
+#     return(poly)
+#   })
+#   polyspdf <- do.call("rbind", polys)
+# }
 
 countError <- function(qaqc_rows, user_rows) {
 # Calculates percent agreement between number of fields in qaqc and user kmls
@@ -236,92 +247,114 @@ countError <- function(qaqc_rows, user_rows) {
 #   return(poly.out)
 # }
 
-removeOverlaps <- function(x) {
-  #newpoly <- SpatialPolygons(lapply(1:length(x), function(z) Polygons(x@polygons[[1]]@Polygons, z)))
-  outpoly <- x
-  newpoly2 <- lapply(1:length(outpoly), function(j) outpoly[j, ])
-  itab <- gOverlaps(outpoly, byid = T)
-  itab[which(itab)] <- 1
-  itab1 <- rowSums(itab)
-  i <- which(itab1 > 0)[1]
+# removeOverlaps <- function(x) {
+#   #newpoly <- SpatialPolygons(lapply(1:length(x), function(z) Polygons(x@polygons[[1]]@Polygons, z)))
+#   outpoly <- x
+#   newpoly2 <- lapply(1:length(outpoly), function(j) outpoly[j, ])
+#   itab <- gOverlaps(outpoly, byid = T)
+#   itab[which(itab)] <- 1
+#   itab1 <- rowSums(itab)
+#   i <- which(itab1 > 0)[1]
+# 
+#   while(i <= length(outpoly)) {
+#     a <- outpoly[i, ]
+#     b <- outpoly[-i, ]
+#     d <- b[which(gOverlaps(a, b, byid = T)), ]
+#     plot(newpoly2[[i]], add = T, col = "green")
+#     plot(b)
+#     plot(e, add = T, border = "maroon")
+#     plot(d, add = T, col = "red")
+#     plot(a, add = T, border = "green")
+#     d <- gUnaryUnion(d)
+#     plot(gDifference(outpoly, outpoly2, byid = T))
+#     newpoly2[[i]] <- gDifference(spgeom1 = a, spgeom2 = d, byid = T)
+#     outpoly2 <- SpatialPolygons(lapply(1:length(newpoly2), function(j) {
+#       Polygons(newpoly2[[j]]@polygons[[1]]@Polygons, j)
+#     }))
+#     itab <- gOverlaps(outpoly, byid = T)
+#     itab[which(itab)] <- 1
+#     itab1 <- rowSums(itab)
+#     ct <- which(itab1 > 0)[1]
+#     i <- unname(ifelse(is.na(ct), length(outpoly) + 1, ct)) 
+#     print(i)
+#   } 
+# }  # Commented out 4/4/13
 
-  while(i <= length(outpoly)) {
-    a <- outpoly[i, ]
-    b <- outpoly[-i, ]
-    d <- b[which(gOverlaps(a, b, byid = T)), ]
-    plot(newpoly2[[i]], add = T, col = "green")
-    plot(b)
-    plot(e, add = T, border = "maroon")
-    plot(d, add = T, col = "red")
-    plot(a, add = T, border = "green")
-    d <- gUnaryUnion(d)
-    plot(gDifference(outpoly, outpoly2, byid = T))
-    newpoly2[[i]] <- gDifference(spgeom1 = a, spgeom2 = d, byid = T)
-    outpoly2 <- SpatialPolygons(lapply(1:length(newpoly2), function(j) {
-      Polygons(newpoly2[[j]]@polygons[[1]]@Polygons, j)
-    }))
-    itab <- gOverlaps(outpoly, byid = T)
-    itab[which(itab)] <- 1
-    itab1 <- rowSums(itab)
-    ct <- which(itab1 > 0)[1]
-    i <- unname(ifelse(is.na(ct), length(outpoly) + 1, ct)) 
-    print(i)
-  } 
+# Swtiching off grass cleaning 4/4/13
+# library(spgrass6)
+# SG <- Sobj_SpatialGrid(qaqc.poly)$SG
+# loc <- initGRASS("/Applications/GRASS-6.4.app/Contents/MacOS/", home=tempdir(), SG, override = TRUE)
+# tf <- tempfile()
+# mapset <- execGRASS("g.gisenv", parameters=list(get="MAPSET"), intern=TRUE)
+# execGRASS("g.gisenv", parameters=list(set=shQuote('MAPSET=PERMANENT')))
+# prj <- showWKT(proj4string(qaqc.poly), tf)
+# execGRASS("g.proj", flags="c", parameters=list(wkt=tf))
+# execGRASS("g.proj", flags="p")
+# execGRASS("g.gisenv", parameters=list(set=paste("'MAPSET=", mapset, "'", sep="")))
+# execGRASS("g.region", flags="d")
+# writeVECT6(qaqc.poly, "qaqc")
+# o <- readVECT6("qaqc", with_c=FALSE, remove.duplicates = F)
+# polylist <- lapply(1:length(unique(o@data$cat)), function(x) gUnaryUnion(o[o@data$cat == x, ]))
+# newpoly <- SpatialPolygons(lapply(1:length(unique(o@data$cat)), function(x) {
+#   Polygons(polylist[[x]]@polygons[[1]]@Polygons, x)
+# }))
+# 
+# outpoly <- newpoly
+# newpoly2 <- lapply(1:length(newpoly), function(j) newpoLy[j, ])
+# itab <- gOverlaps(outpoly, byid = T)
+# itab[which(itab)] <- 1
+# itab1 <- rowSums(itab)
+# i <- which(itab1 > 0)[1]
+# 
+# while(i <= length(newploy)) {
+#   a <- outpoly[i, ]
+#   b <- outpoly[-i, ]
+#   d <- b[which(gOverlaps(a, b, byid = T)), ]
+#   d <- gUnaryUnion(d)
+#   newpoly2[[i]] <- gDifference(spgeom1 = a, spgeom2 = gUnaryUnion(d), byid = T)
+#   outpoly <- SpatialPolygons(lapply(1:length(newpoly2), function(x) {
+#     Polygons(newpoly2[[x]]@polygons[[1]]@Polygons, x)
+#   }))
+#   itab <- gOverlaps(outpoly, byid = T)
+#   itab[which(itab)] <- 1
+#   itab1 <- rowSums(itab)
+#   ct <- which(itab1 > 0)[1]
+#   i <- unname(ifelse(is.na(ct), length(newploy) + 1, ct)) 
+#   print(i)
+# }  
+# plot(outpoly)
+# gOverlaps(outpoly, byid = T)
+# plot(newpoly2[[i]])
+
+callPprepair <- function(dirnm, spdfinname, spdfoutname, crs = crs) {
+# Function to make system call to polygon cleaning program pprepair
+# Args: 
+#   dirnm: directory where the shapefiles will go
+#   spdfinname: Name of the ESRI shapefile written to disk that needs cleaning, without the .shp extension
+#   spdfoutname: Name of shapefile that pprepair should write to, without the .shp extension
+# Returns: 
+#   spdf of cleaned polygons, pointing to a temporary shapefile written to disk
+  
+  #crs = prjstr
+  #dirnm = td; spdfinname = tmpnmin; spdfoutname = tmpnmout
+  inname <- paste(dirnm, "/", spdfinname, ".shp", sep = "")
+  outname <- paste(dirnm, "/", spdfoutname, ".shp", sep = "")
+  ppcall <- paste("/usr/local/bin/pprepair -i", inname, "-o", outname, "-fix")
+  ctch <- system(ppcall, intern = TRUE)
+  polyfixed <- readOGR(dsn = dirnm, layer = spdfoutname, verbose = FALSE)
+  polyfixed@proj4string <- crs
+  return(polyfixed)
 }
 
-library(spgrass6)
-SG <- Sobj_SpatialGrid(qaqc.poly)$SG
-loc <- initGRASS("/Applications/GRASS-6.4.app/Contents/MacOS/", home=tempdir(), SG, override = TRUE)
-tf <- tempfile()
-mapset <- execGRASS("g.gisenv", parameters=list(get="MAPSET"), intern=TRUE)
-execGRASS("g.gisenv", parameters=list(set=shQuote('MAPSET=PERMANENT')))
-prj <- showWKT(proj4string(qaqc.poly), tf)
-execGRASS("g.proj", flags="c", parameters=list(wkt=tf))
-execGRASS("g.proj", flags="p")
-execGRASS("g.gisenv", parameters=list(set=paste("'MAPSET=", mapset, "'", sep="")))
-execGRASS("g.region", flags="d")
-writeVECT6(qaqc.poly, "qaqc")
-o <- readVECT6("qaqc", with_c=FALSE, remove.duplicates = F)
-polylist <- lapply(1:length(unique(o@data$cat)), function(x) gUnaryUnion(o[o@data$cat == x, ]))
-newpoly <- SpatialPolygons(lapply(1:length(unique(o@data$cat)), function(x) {
-  Polygons(polylist[[x]]@polygons[[1]]@Polygons, x)
-}))
-
-outpoly <- newpoly
-newpoly2 <- lapply(1:length(newpoly), function(j) newpoLy[j, ])
-itab <- gOverlaps(outpoly, byid = T)
-itab[which(itab)] <- 1
-itab1 <- rowSums(itab)
-i <- which(itab1 > 0)[1]
-
-while(i <= length(newploy)) {
-  a <- outpoly[i, ]
-  b <- outpoly[-i, ]
-  d <- b[which(gOverlaps(a, b, byid = T)), ]
-  d <- gUnaryUnion(d)
-  newpoly2[[i]] <- gDifference(spgeom1 = a, spgeom2 = gUnaryUnion(d), byid = T)
-  outpoly <- SpatialPolygons(lapply(1:length(newpoly2), function(x) {
-    Polygons(newpoly2[[x]]@polygons[[1]]@Polygons, x)
-  }))
-  itab <- gOverlaps(outpoly, byid = T)
-  itab[which(itab)] <- 1
-  itab1 <- rowSums(itab)
-  ct <- which(itab1 > 0)[1]
-  i <- unname(ifelse(is.na(ct), length(newploy) + 1, ct)) 
-  print(i)
-}  
-plot(outpoly)
-gOverlaps(outpoly, byid = T)
-plot(newpoly2[[i]])
-
-
-createTempPolyfromWKT <- function(geom.tab, crs) {
-# Function for reading in a spatial geometry from PostGIS and creating a temporary shapefile out of it
+createCleanTempPolyfromWKT <- function(geom.tab, crs) {
+# Function for reading in a spatial geometry from PostGIS and creating a temporary shapefile out of it  
 # Args: 
 #   geom.tab: Dataframe with geometry and identifiers in it. Identifier must be 1st column, geometries 2nd col  
 #   crs: Coordinate reference system
 # Returns: 
 #   A SpatialPolygonsDataFrame
+# Notes: 
+#   Uses callPprepair function to clean up read in polygons and write them to a temporary location
   polys <- tst <- sapply(1:nrow(geom.tab), function(x) {
     poly <- as(readWKT(geom.tab[x, 2], p4s = crs), "SpatialPolygonsDataFrame")
     poly@data$ID <- geom.tab[x, 1]
@@ -330,25 +363,16 @@ createTempPolyfromWKT <- function(geom.tab, crs) {
     return(poly)
   })
   polyspdf <- do.call("rbind", polys)
+  polys.count <- nrow(polyspdf)
+  #td <- "/var/www/html/afmap/R/tmp/"
   td <- tempdir()
-  tmpnm <- tempfile("poly", tmpdir = tempdir(), ext = "shp")
-  writeOGR(polyspdf, dsn = , layer =   
+  tmpnmin <- strsplit(tempfile("poly", tmpdir = ""), "/")[[1]][2]
+  tmpnmout <- strsplit(tempfile("poly", tmpdir = ""), "/")[[1]][2]
+  writeOGR(polyspdf, dsn = td, layer = tmpnmin, driver = "ESRI Shapefile")
+  polyfixed <- callPprepair(td, spdfinname = tmpnmin, spdfoutname = tmpnmout, crs = polyspdf@proj4string)
+  valid.string <- as.character(gIsValid(polyfixed))
+  return(list("polygons" = polyfixed, "polygoncount" = polys.count, "validity" = valid.string))
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ##############################################################################################################
 
@@ -357,15 +381,16 @@ qaqc.sql <- paste("select fields from newqaqc_sites where name=", "'", kmlid, "'
 qaqc.hasfields <- dbGetQuery(con, qaqc.sql)$fields  # Check fields column in master qaqcs sites database
 if(qaqc.hasfields == "Y") {
   qaqc.fields.sql <- paste("select id,ST_AsEWKT(geom) from qaqcfields where name=", "'", kmlid, "'", sep = "")
-#   qaqc.fields.sql <- paste("select id,ST_AsEWKT(ST_MakeValid(geom)) from qaqcfields where name=", "'", kmlid, 
-#                            "'", sep = "")
   qaqc.geom.tab <- dbGetQuery(con, qaqc.fields.sql)
   qaqc.geom.tab[, 2] <- gsub("^SRID=*.*;", "", qaqc.geom.tab[, 2])
-  qaqc.poly <- createSPPolyfromWKT(geom.tab = qaqc.geom.tab, crs = prjstr)
-  qaqc.nfields <- nrow(qaqc.poly)  # Collect number of unique fields before cleaning
+  #qaqc.poly <- createSPPolyfromWKT(geom.tab = qaqc.geom.tab, crs = prjstr)
+  #qaqc.nfields <- nrow(qaqc.poly)  # Collect number of unique fields before cleaning
   #qaqc.poly <- cleanPolybyUnion(qaqc.poly)  # Clean up any overlaps
-  qaqc.poly <- gUnaryUnion(qaqc.poly)  # Clean up any overlaps
+  #qaqc.poly <- gUnaryUnion(qaqc.poly)  # Clean up any overlaps
   #qaqc.poly <- gUnaryUnion(gBuffer(qaqc.poly, byid = TRUE, width = 0)) # 30/11/12 Bug fix for self-int
+  qaqc.poly.list <- createCleanTempPolyfromWKT(geom.tab = qaqc.geom.tab, crs = prjstr)
+  qaqc.poly <- gUnaryUnion(qaqc.poly.list[[1]])
+  qaqc.nfields <- qaqc.poly.list[[2]]
 }
 
 # Read in user data
@@ -377,11 +402,12 @@ user.geom.tab <- dbGetQuery(con, user.sql)  # Collect user data and fields geome
 user.hasfields <- ifelse(nrow(user.geom.tab) > 0, "Y", "N")  # Need to get this right
 if(user.hasfields == "Y") {  # Read in user fields if there are any
   user.geom.tab[, 2] <- gsub("^SRID=*.*;", "", user.geom.tab[, 2])
-  user.poly.gcs <- createSPPolyfromWKT(geom.tab = user.geom.tab, crs = gcs)
-  user.poly <- spTransform(user.poly.gcs, CRSobj = CRS(prjstr))  # Transform to Albers
-  user.nfields <- nrow(user.poly)  #  Record number of distinct fields observed by user
+  #user.poly.gcs <- createSPPolyfromWKT(geom.tab = user.geom.tab, crs = gcs)
+  user.poly.list <- createCleanTempPolyfromWKT(geom.tab = user.geom.tab, crs = gcs)
+  user.poly <- gUnaryUnion(spTransform(user.poly.list[[1]], CRSobj = CRS(prjstr)))  # Transform to Albers
+  user.nfields <- user.poly.list[[2]]  #  Record number of distinct fields observed by user
   #user.poly <- cleanPolybyUnion(user.poly)  # Clean up any overlaps in user polygons
-  user.poly <- gUnaryUnion(user.poly)  # Clean up any overlaps in user polygons
+  #user.poly <- gUnaryUnion(user.poly)  # Clean up any overlaps in user polygons
   #user.poly <- gUnaryUnion(gBuffer(user.poly, byid = TRUE, width = 0))  # 30/11/12 Bug fix with self-int
 }
 
@@ -397,7 +423,8 @@ if((qaqc.hasfields == "N") & (user.hasfields == "N")) {
   grid.sql <- paste("SELECT id,ST_AsEWKT(geom) from newqaqc_sites where name=", "'", kmlid, "'", sep = "")
   grid.geom.tab <- dbGetQuery(con, grid.sql)
   grid.geom.tab[, 2] <- gsub("^SRID=*.*;", "", grid.geom.tab[, 2])
-  grid.poly <- createSPPolyfromWKT(geom.tab = grid.geom.tab, crs = prjstr)
+  #grid.poly <- createSPPolyfromWKT(geom.tab = grid.geom.tab, crs = prjstr)
+  grid.poly <- createCleanTempPolyfromWKT(geom.tab = grid.geom.tab, crs = prjstr)[[1]]
 }
 
 # Case 2: A null qaqc site with fields mapped by user
@@ -410,7 +437,7 @@ if((qaqc.hasfields == "N") & (user.hasfields == "Y")) {
   # Mapped area differences inside the target grid cell
   user.poly.in <- gIntersection(spgeom1 = grid.poly, spgeom2 = user.poly, byid = T)  ### Turker maps in grid
   inres <- mapError(maps = user.poly.in, truth = NULL, region = grid.poly)  # Main error metric - TSS
-    
+  
   # Secondary metric - Sensitivity of results outside of kml grid
   user.poly.out <- gDifference(spgeom1 = user.poly, spgeom2 = grid.poly, byid = T)  ### Turker maps out 
   if(is.null(user.poly.out)) {  # 16/11/12: If user finds no fields outside of box, gets credit
@@ -453,7 +480,7 @@ if(qaqc.hasfields == "Y") {
    
     # Accuracy measures
     count.error <- countError(qaqc_rows = qaqc.nfields, user_rows = user.nfields)  # Count accuracy
-
+    
     # Mapped area differences inside the target grid cell
     user.poly.in <- gIntersection(spgeom1 = grid.poly, spgeom2 = user.poly, byid = T) # Turker maps in grid
     #qaqc.poly.in <- gIntersection(spgeom1 = grid.poly, spgeom2 = gBuffer(qaqc.poly, byid = T, width = 0), byid = T) # QAQC inside grid cell
@@ -562,12 +589,13 @@ if(draw.maps == "T") {
 }
 
 # Clean up a bit (aids with running tests)
-rmnames <- ls(pattern = "qaqc|err|user|count\\.|tpo|fpo|grid\\.|bbr|ass|kmlid")
+#rmnames <- ls(pattern = "qaqc|err|user|count\\.|tpo|fpo|grid\\.|bbr|ass|kmlid")
+rmnames <- ls()
 user.sql <- paste("select name,ST_AsEWKT(geom) from user_maps where assignment_id=", "'", 
                   assignmentid, "'", " order by name", sep = "")
 user.sql <- paste("select name,ST_AsEWKT(geom) from user_maps where assignment_id=", "'", 
                   assignmentid, "'", " order by name", sep = "")
-rm(list = rmnames)
+rm(list = rmnames[!rmnames %in% c("tab", "con")])  # remove but for var nms for test & con 
 
 # Close connection to prevent too many from being open
 garbage <- dbDisconnect(con)

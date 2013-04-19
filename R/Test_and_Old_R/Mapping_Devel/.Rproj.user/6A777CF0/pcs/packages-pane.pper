@@ -1,0 +1,7 @@
+{
+    "installOptions" : {
+        "installDependencies" : true,
+        "installFromRepository" : true,
+        "libraryPath" : "/var/local/as/home/lestes/R/x86_64-redhat-linux-gnu-library/2.15"
+    }
+}
