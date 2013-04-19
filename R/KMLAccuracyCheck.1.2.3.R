@@ -1,6 +1,6 @@
 #! /usr/bin/R -f
 ##############################################################################################################
-# Title      : KMLAccuracyCheck_1.2.2.t.R
+# Title      : KMLAccuracyCheck_1.2.3.R
 # Purpose    : Development of QAQC accuracy assessment side of Google Earth/Maps Africa field mapping project
 # Author     : Lyndon Estes
 # Draws from : GMap.grid.R, GMap.server.[1|1.1].R; GMap.acc.check.1.R; GMap.QAQC.check.1.1.R
@@ -76,12 +76,12 @@ count.err.wt  <- 0.1  # Weighting given to error in number of fields identified
 in.err.wt     <- 0.7  # Weighting for in grid map discrepancy
 out.err.wt    <- 0.2  # Weighting for out of grid map discrepancy
 err.switch    <- 1  # Selects which area error metric used for in grid accuracy: 1 = overall accuracy; 2 = TSS
-comments      <- "T"  # For testing, one can turn on print statements to see what is happening
+comments      <- "F"  # For testing, one can turn on print statements to see what is happening
 consel        <- "africa"  # postgres connection switch: "africa" when run on server, "mac" for off server
 write.err.log <- "T"  # Option to write text log containing error metrics (anything besides "T" turns off)
-write.err.db <- "F"  # Option to write error metrics into error_data table in postgres (off if not "T") 
+write.err.db  <- "T"  # Option to write error metrics into error_data table in postgres (off if not "T") 
 draw.maps     <- "T"  # Option to draw maps showing output error components (where maps possible, off w/o "T")
-test          <- "Y"  # For manual testing, one can give a single kmlid, and the code will pull the entire 
+test          <- "F"  # For manual testing, one can give a single kmlid, and the code will pull the entire 
                       # assignment_data and hit_data tables to find the right assignment ids to test, "Y" for 
                       # this option, else "N" for normal production runs
 ##############################################################################################################
