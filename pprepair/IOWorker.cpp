@@ -1,29 +1,22 @@
 /*
- Copyright (c) 2009-2012, 
- Gustavo Adolfo Ken Arroyo Ohori    g.a.k.arroyoohori@tudelft.nl
- Hugo Ledoux                        h.ledoux@tudelft.nl
- Martijn Meijers                    b.m.meijers@tudelft.nl
+ Copyright (c) 2009-2013,
+ Ken Arroyo Ohori    g.a.k.arroyoohori@tudelft.nl
+ Hugo Ledoux         h.ledoux@tudelft.nl
+ Martijn Meijers     b.m.meijers@tudelft.nl
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions are met: 
+ This file is part of pprepair: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
  
- 1. Redistributions of source code must retain the above copyright notice, this
- list of conditions and the following disclaimer. 
- 2. Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the documentation
- and/or other materials provided with the distribution. 
+ Licensees holding a valid commercial license may use this file in
+ accordance with the commercial license agreement provided with
+ the software.
  
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ This file is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 #include "IOWorker.h"
@@ -1537,10 +1530,12 @@ std::vector<Ring *> IOWorker::splitRing(Ring &ring) {
         // Remove identical degenerate edges
 		if (ringTriangulation.is_edge(source, target, correspondingFace, correspondingVertex)) {
 			if (ringTriangulation.is_constrained(std::pair<Triangulation::Face_handle, int>(correspondingFace, correspondingVertex))) {
-				ringTriangulation.remove_constrained_edge(correspondingFace, correspondingVertex);
+                //std::cout << "Removing duplicate constraint <" << *source << ", " << *target << ">" << std::endl;
+				ringTriangulation.remove_constraint(source, target);
 				continue;
 			}
-		} ringTriangulation.insert_constraint(source, target);
+		} //std::cout << "Inserting constraint <" << *source << ", " << *target << ">" << std::endl;
+        ringTriangulation.insert_constraint(source, target);
         startingSearchFaceInRing = ringTriangulation.incident_faces(target);
 	}
 	
@@ -1551,12 +1546,19 @@ std::vector<Ring *> IOWorker::splitRing(Ring &ring) {
 	for (Triangulation::Subconstraint_iterator currentEdge = ringTriangulation.subconstraints_begin();
 		 currentEdge != ringTriangulation.subconstraints_end();
 		 ++currentEdge) {
+        //std::cout << "Checking subconstraint: <" << *(currentEdge->first.first) << ", " << *(currentEdge->first.second) << ">: " << ringTriangulation.number_of_enclosing_constraints(currentEdge->first.first, currentEdge->first.second) << " enclosing constraints." << std::endl;
 		// Subconstraint_iterator has a weird return value...
 		if (ringTriangulation.number_of_enclosing_constraints(currentEdge->first.first, currentEdge->first.second) % 2 == 0) {
 			Triangulation::Face_handle f;
 			int i;
 			ringTriangulation.is_edge(currentEdge->first.first, currentEdge->first.second, f, i);
-			ringTriangulation.remove_constrained_edge(f, i);
+            if (ringTriangulation.is_constrained(std::pair<Triangulation::Face_handle, int>(f, i))) {
+                //std::cout << "Removing constraint..." << std::endl;
+                ringTriangulation.remove_constraint(currentEdge->first.first, currentEdge->first.second);
+            } else {
+                //std::cout << "Adding constraint..." << std::endl;
+                ringTriangulation.insert_constraint(currentEdge->first.first, currentEdge->first.second);
+            }
 		}
 	}
 	
@@ -1790,9 +1792,12 @@ void IOWorker::copyFields(OGRFeature *ogrfeature, PolygonHandle *handle) {
 }
 
 void IOWorker::tagStack(std::stack<Triangulation::Face_handle> &positiveStack, std::stack<Triangulation::Face_handle> &negativeStack, PolygonHandle *positiveHandle, PolygonHandle *negativeHandle) {
+    //std::cout << "tagStack() Infinite vertex at: "  << std::endl;
 	while (!positiveStack.empty() || !negativeStack.empty()) {
+        //std::cout << "positiveStack: " << positiveStack.size() << " negativeStack: " << negativeStack.size() << std::endl;
 		if (positiveStack.empty()) {
 			Triangulation::Face_handle currentFace = negativeStack.top();
+            //std::cout << "Triangle: <" << *(currentFace->vertex(0)) << ", " << *(currentFace->vertex(1)) << ", " << *(currentFace->vertex(2)) << ">" << std::endl;
 			negativeStack.pop();
 			currentFace->info().setTags(negativeHandle);
 			if (currentFace->is_constrained(0)) {
@@ -1828,6 +1833,7 @@ void IOWorker::tagStack(std::stack<Triangulation::Face_handle> &positiveStack, s
 			}
 		} else {
 			Triangulation::Face_handle currentFace = positiveStack.top();
+            //std::cout << "Triangle: <" << *(currentFace->vertex(0)) << ", " << *(currentFace->vertex(1)) << ", " << *(currentFace->vertex(2)) << ">" << std::endl;
 			positiveStack.pop();
 			currentFace->info().setTags(positiveHandle);
 			if (currentFace->is_constrained(0)) {

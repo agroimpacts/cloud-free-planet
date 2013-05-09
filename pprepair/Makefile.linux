@@ -3,9 +3,12 @@ CC=c++
 IPATH=/usr/include/gdal
 LPATH=/usr/pgsql-9.1/lib
 
-CFLAGS=-Wall -O3 -frounding-math -fno-strict-aliasing -I$(IPATH) -L$(LPATH)
+OPTFLAGS=-O3
+CFLAGS=$(OPTFLAGS) -Wall -frounding-math -fno-strict-aliasing -I$(IPATH) -L$(LPATH)
+#CFLAGS=-g -O0 -Wall -frounding-math -fno-strict-aliasing -I$(IPATH) -L$(LPATH)
 
-LDFLAGS=-g -O3  -D_REENTRANT -frounding-math -Wl,-Bsymbolic-functions -L$(LPATH) -lCGAL_Core -lCGAL -lgmpxx -lmpfr -lgmp -lboost_thread-mt -lCGAL_Core -lCGAL -lgmpxx -lmpfr -lgmp -lboost_thread-mt -lgdal
+LDFLAGS=$(OPTFLAGS) -D_REENTRANT -frounding-math -Wl,-Bsymbolic-functions -L$(LPATH) -lCGAL_Core -lCGAL -lgmpxx -lmpfr -lgmp -lboost_thread-mt -lCGAL_Core -lCGAL -lgmpxx -lmpfr -lgmp -lboost_thread-mt -lgdal
+#LDFLAGS=-g -O0 -D_REENTRANT -frounding-math -Wl,-Bsymbolic-functions -L$(LPATH) -lCGAL_Core -lCGAL -lgmpxx -lmpfr -lgmp -lboost_thread-mt -lCGAL_Core -lCGAL -lgmpxx -lmpfr -lgmp -lboost_thread-mt -lgdal
 
 all: pprepair
 
