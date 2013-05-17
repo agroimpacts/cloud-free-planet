@@ -106,7 +106,7 @@ repeat {
     }
         
     # Update afmap with filename and kml_type
-		  ret <- dbSendQuery(con, paste("insert into kml_data (filename, kml_type) values ", 
+	  ret <- dbSendQuery(con, paste("insert into kml_data (filename, kml_type) values ", 
                                   paste("('", kmlnames, "', ", "'", kml.type, "')", sep = "", collapse = ","), 
                                   sep = ""))
      # Update SouthAfrica to show grid is no longer available for selecting/writing
@@ -114,19 +114,19 @@ repeat {
                                     "(", paste(geom.tab[, 1], collapse = ","), ")", sep = ""))
     
     # Database error handling
-		  exception <- dbGetException(con)  # update exceptions
+		exception <- dbGetException(con)  # update exceptions
     # NOTE: I am not quite sure about more formal logging methods, so I have mocked up a text file log 
     # I found some links that might point to something more elegant.
     # http://r.789695.n4.nabble.com/Application-logging-in-R-td896477.html
     # http://stackoverflow.com/questions/1928332/is-there-any-standard-logging-package-for-r
     # Crude solution built into your original code:
-		  if (exception$errorNum != 0) {
-			   print("Error updating SouthAfrica")
+	  if (exception$errorNum != 0) {
+			print("Error updating SouthAfrica")
       errors <- paste(gsub("EDT", "", Sys.time()), "  ", paste(exception, collapse = "    "))
       write(errors, file = "KMLGenerate_dbase_error.log", append = T)
-			   quit(status=exception$errorNum, save="no")
-		  }
-	 }
+			quit(status=exception$errorNum, save="no")
+		}
+	}
   end.time <- Sys.time()
   
   # Write out kmlID log
@@ -142,7 +142,7 @@ repeat {
   write(format(end.time, "%a %b %d %X %Y %Z"), file = "KMLGenerate_kmlID.log", append = T)
   write("**************************************", file = "KMLGenerate_kmlID.log", append = T)
   write("", file = "KMLGenerate_kmlID.log", append = T)
-	 Sys.sleep(kmlPollingInterval)
+	Sys.sleep(kmlPollingInterval)
 }
 
 # After testing, reset changes to the following database fields: 

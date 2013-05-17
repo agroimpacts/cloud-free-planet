@@ -72,16 +72,16 @@ repeat {
   #avail.kml.count < 400
   if(avail.kml.count < min.avail.kml) {  # Set pretty high in case HITs are drawn down at rapid rate
 
-	   # Step 1. Poll the database (SouthAfrica) to see which grid IDs are still available
+	  # Step 1. Poll the database (SouthAfrica) to see which grid IDs are still available
     grid.IDs <- dbGetQuery(con, "select id, fwts from sa1kgrid where avail = 'T'")
 
     # Step 2. Draw weighted random sample = min.kml.batch
-	   set.seed(234)
+	  set.seed(234)
     id.rand <- sample(grid.IDs$id, size = kml.batch.size, replace = F, prob = grid.IDs$fwts)  # Random draw
     #table(grid.IDs[grid.IDs$id %in% id.rand, "fwts"])
     sql <- paste("SELECT ST_AsEWKT(geom) from sa1kgrid where id in", " (", paste(id.rand, collapse = ","), 
                  ")", sep = "")
-	   id.geom <- dbGetQuery(con, sql)  # Get the coordinates for the random grid
+	  id.geom <- dbGetQuery(con, sql)  # Get the coordinates for the random grid
     geom.tab <- cbind(id.rand, id.geom)  # IDs and geometries in table
     kmlnames <- rep(NA, nrow(geom.tab))  # set up vector of kml names
     
@@ -92,14 +92,14 @@ repeat {
       colnames(geom.poly@data)[1] <- "ID"  # Rename ID field
     
       # Step 3. Create a file name for the kml
-	     geom.poly@data$ID <- geom.tab[i, 1]
+	    geom.poly@data$ID <- geom.tab[i, 1]
       geom.poly@data$kmlname <- paste(country.ID, geom.poly@data$ID, sep = "")  # 19/10/2012
       kmlnames[i] <- geom.poly@data$kmlname  # 19/10/2012
    
       # Step 4. Write out the kml
-	     geom.poly.gcs <- spTransform(x = geom.poly, CRSobj = CRS(gcs))  # First convert to geographic coords
+	    geom.poly.gcs <- spTransform(x = geom.poly, CRSobj = CRS(gcs))  # First convert to geographic coords
       setwd(kml.file.path)  # Change into kml directory
-  	   writeOGR(geom.poly.gcs, dsn = paste(geom.poly.gcs@data$kmlname, "kml", sep = "."), 
+  	  writeOGR(geom.poly.gcs, dsn = paste(geom.poly.gcs@data$kmlname, "kml", sep = "."), 
                layer = geom.poly.gcs@data$kmlname, driver = "KML", dataset_options = c("NameField = name"), 
                overwrite = T)  # Write it
       #print(paste("kml for", geom.poly.gcs@data$kmlname, "written"))
@@ -120,13 +120,13 @@ repeat {
     # http://r.789695.n4.nabble.com/Application-logging-in-R-td896477.html
     # http://stackoverflow.com/questions/1928332/is-there-any-standard-logging-package-for-r
     # Crude solution built into your original code:
-		  if (exception$errorNum != 0) {
-			   print("Error updating SouthAfrica")
+	  if (exception$errorNum != 0) {
+			print("Error updating SouthAfrica")
       errors <- paste(gsub("EDT", "", Sys.time()), "  ", paste(exception, collapse = "    "))
       write(errors, file = "KMLGenerate_dbase_error.log", append = T)
-			   quit(status=exception$errorNum, save="no")
-		  }
-	 }
+			quit(status=exception$errorNum, save="no")
+		}
+	}
   end.time <- Sys.time()
   
   # Write out kmlID log
@@ -142,7 +142,7 @@ repeat {
   write(format(end.time, "%a %b %d %X %Y %Z"), file = "KMLGenerate_kmlID.log", append = T)
   write("**************************************", file = "KMLGenerate_kmlID.log", append = T)
   write("", file = "KMLGenerate_kmlID.log", append = T)
-	 Sys.sleep(kmlPollingInterval)
+	Sys.sleep(kmlPollingInterval)
 }
 
 # After testing, reset changes to the following database fields: 

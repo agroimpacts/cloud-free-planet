@@ -14,7 +14,7 @@ library(rgdal)
 library(rgeos)
 
 drv <- dbDriver("PostgreSQL")
-con <- dbConnect(drv, dbname = "afmap", user = "afmap", password = "AfM@p")
+#con <- dbConnect(drv, dbname = "afmap", user = "afmap", password = "AfM@p")
 con2 <- dbConnect(drv, dbname = "SouthAfrica", user = "***REMOVED***", password = "***REMOVED***")
 
 # Hardcoded data
@@ -58,7 +58,7 @@ for(i in 1:nrow(geom.tab)) {
     colnames(geom.poly@data)[1] <- "ID"  # Rename ID field
     
     # Step 3. Create a file name for the kml
-	   geom.poly@data$ID <- geom.tab[i, 1]
+	  geom.poly@data$ID <- geom.tab[i, 1]
     geom.poly@data$kmlname <- paste(country.ID, geom.poly@data$ID, sep = "")
     kmlnames[i] <- geom.poly@data$kmlname 
     
