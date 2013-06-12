@@ -8,7 +8,7 @@ if [ -z "$PROGRAM" ]; then
     echo "`date`: Usage: $0 <daemon_name>"
     exit 1
 fi
-AFMAP_HOME=/var/www/html/afmap
+AFMAP_HOME=`dirname $0`/..
 PIDFILE=${AFMAP_HOME}/log/${PROGRAM}.pid
 COMMAND=${AFMAP_HOME}/mturk/${PROGRAM}.py
 LOGFILE=${AFMAP_HOME}/log/${PROGRAM}.log
