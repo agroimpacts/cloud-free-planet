@@ -38,8 +38,7 @@ Subject: create_hit_daemon validation problem
 #
 mtma = MTurkMappingAfrica()
 
-mtma.cur.execute("select value from configuration where key = 'ProjectRoot'")
-logFilePath = mtma.cur.fetchone()[0] + "/log"
+logFilePath = mtma.getConfiguration('ProjectRoot') + "/log"
 k = open(logFilePath + "/createHit.log", "a+")
 
 pid = os.getpid()
@@ -53,12 +52,9 @@ k.close()
 
 # Execute loop based on polling interval
 while True:
-    mtma.cur.execute("select value from configuration where key = 'HitPollingInterval'")
-    hitPollingInterval = int(mtma.cur.fetchone()[0])
-    mtma.cur.execute("select value from configuration where key = 'QaqcHitPercentage'")
-    qaqcHitPercentage = int(mtma.cur.fetchone()[0])
-    mtma.cur.execute("select value from configuration where key = 'AvailHitTarget'")
-    availHitTarget = int(mtma.cur.fetchone()[0])
+    hitPollingInterval = int(mtma.getConfiguration('HitPollingInterval'))
+    qaqcHitPercentage = int(mtma.getConfiguration('QaqcHitPercentage'))
+    availHitTarget = int(mtma.getConfiguration('AvailHitTarget'))
 
     k = open(logFilePath + "/createHit.log", "a+")
     now = str(datetime.today())
@@ -142,8 +138,7 @@ while True:
 
     for i in xrange(numReqdQaqcHits):
         # Retrieve the last kml gid used to create a QAQC HIT.
-        mtma.cur.execute("select value from system_data where key = 'CurQaqcGid'")
-        curQaqcGid = mtma.cur.fetchone()[0]
+        curQaqcGid = mtma.getSystemData('CurQaqcGid')
 
         # Select the next kml for which to create a HIT. 
         # Look for all kmls of the right type whose gid is greater than the last kml chosen.
@@ -175,8 +170,7 @@ while True:
                 break
         nextKml = row[0]
         gid = row[1]
-        mtma.cur.execute("update system_data set value = '%s' where key = 'CurQaqcGid'" % gid)
-        mtma.dbcon.commit()
+        mtma.setSystemData('CurQaqcGid', gid)
 
         # Create the QAQC HIT
         try:
@@ -205,8 +199,7 @@ while True:
 
     for i in xrange(numReqdNonQaqcHits):
         # Retrieve the last kml gid used to create a non-QAQC HIT.
-        mtma.cur.execute("select value from system_data where key = 'CurNonQaqcGid'")
-        curNonQaqcGid = mtma.cur.fetchone()[0]
+        curNonQaqcGid = mtma.getSystemData('CurNonQaqcGid')
 
         # Select the next kml for which to create a HIT. 
         # Look for all kmls of the right type whose gid is greater than the last kml chosen.
@@ -234,8 +227,7 @@ while True:
             break
         nextKml = row[0]
         gid = row[1]
-        mtma.cur.execute("update system_data set value = '%s' where key = 'CurNonQaqcGid'" % gid)
-        mtma.dbcon.commit()
+        mtma.setSystemData('CurNonQaqcGid', gid)
 
         # Create the non-QAQC HIT
         try:

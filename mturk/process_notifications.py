@@ -9,8 +9,7 @@ from MTurkMappingAfrica import MTurkMappingAfrica
 now = str(datetime.today())
 
 mtma = MTurkMappingAfrica()
-mtma.cur.execute("select value from configuration where key = 'ProjectRoot'")
-logFilePath = mtma.cur.fetchone()[0] + "/log"
+logFilePath = mtma.getConfiguration('ProjectRoot') + "/log"
 mtma.close()
 k = open(logFilePath + "/notifications.log", "a")
 k.write("\ngetnotifications: datetime = %s\n" % now)

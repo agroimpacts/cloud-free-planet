@@ -29,8 +29,7 @@ class ProcessNotifications(object):
             "HITExpired": self.HITExpired
         }
         mtma = MTurkMappingAfrica()
-        mtma.cur.execute("select value from configuration where key = 'ProjectRoot'")
-        logFilePath = mtma.cur.fetchone()[0] + "/log"
+        logFilePath = mtma.getConfiguration('ProjectRoot') + "/log"
         k = open(logFilePath + "/notifications.log", "a")
 
         numMsgs = len(notifMsg.events)
@@ -110,8 +109,7 @@ class ProcessNotifications(object):
         # If the worker's results were saved, compute the worker's score on this KML.
         assignmentStatus = None
         if results_saved:
-            mtma.cur.execute("select value from configuration where key = 'ProjectRoot'")
-            projectRoot = mtma.cur.fetchone()[0]
+            projectRoot = mtma.getConfiguration('ProjectRoot')
             scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % projectRoot, kmlName, assignmentId], 
                 stdout=subprocess.PIPE).communicate()[0]
             try:
@@ -128,8 +126,7 @@ class ProcessNotifications(object):
             score = 1.              # Give worker the benefit of the doubt
             k.write("getnotifications: Unable to save worker's results; assigning a score of %.2f\n" %
                 score)
-        mtma.cur.execute("select value from configuration where key = 'HitAcceptThreshold'")
-        hitAcceptThreshold = float(mtma.cur.fetchone()[0])
+        hitAcceptThreshold = float(mtma.getConfiguration('HitAcceptThreshold'))
 
         # If the worker's results could not be saved or scored, or if their score meets 
         # the acceptance threshold, notify worker that his HIT was accepted.
