@@ -1,5 +1,4 @@
 from webob import Request, Response
-import psycopg2
 import datetime
 from MTurkMappingAfrica import MTurkMappingAfrica
 
@@ -10,22 +9,14 @@ def application(environ, start_response):
 
     now = str(datetime.datetime.today())
 
-    con = psycopg2.connect("dbname=SouthAfrica user=***REMOVED*** password=***REMOVED***")
-    cur = con.cursor()
-    cur.execute("select value from configuration where key = 'ProjectRoot'")
-    logFilePath = cur.fetchone()[0] + "/log"
-    cur.execute("select value from configuration where key = 'KMLUrl'")
-    kmlUrl = cur.fetchone()[0]
-    cur.execute("select value from configuration where key = 'KMLParameter'")
-    kmlName = cur.fetchone()[0]
-    cur.execute("select value from configuration where key = 'MTurkFrameHeight'")
-    mturkFrameHeight = int(cur.fetchone()[0])
-    cur.execute("select value from configuration where key = 'APIUrl'")
-    apiUrl = cur.fetchone()[0]
-    cur.execute("select value from configuration where key = 'MTurkPostPolygonScript'")
-    mturkPostPolygonScript = cur.fetchone()[0]
-    cur.execute("select value from configuration where key = 'MTurkNoPolygonScript'")
-    mturkNoPolygonScript = cur.fetchone()[0]
+    mtma = MTurkMappingAfrica()
+    logFilePath = mtma.getConfiguration('ProjectRoot') + "/log"
+    kmlUrl = mtma.getConfiguration('KMLUrl')
+    mturkFrameHeight = int(mtma.getConfiguration('MTurkFrameHeight'))
+    apiUrl = mtma.getConfiguration('APIUrl')
+    mturkPostPolygonScript = mtma.getConfiguration('MTurkPostPolygonScript')
+    mturkNoPolygonScript = mtma.getConfiguration('MTurkNoPolygonScript')
+
     polygonUrl = apiUrl + '/' + mturkPostPolygonScript
     noPolygonUrl = apiUrl + '/' + mturkNoPolygonScript
     headerHeight = 70
@@ -33,8 +24,8 @@ def application(environ, start_response):
 
     k = open(logFilePath + "/OL.log", "a")
     k.write("\ngetkml: datetime = %s\n" % now)
-    try:
-        kmlValue = req.params[kmlName]
+    kmlName = req.params['kmlName']
+    if len(kmlName) > 0:
         # MTurk cases.
         try:
             hitId = req.params['hitId']
@@ -42,23 +33,35 @@ def application(environ, start_response):
             # MTurk accept case.
             if assignmentId != 'ASSIGNMENT_ID_NOT_AVAILABLE':
                 workerId = req.params['workerId']
-                turkSubmitTo = req.params['turkSubmitTo']
                 preview = ''
                 disabled = ''
+                submitTo = req.params['turkSubmitTo'] + MTurkMappingAfrica.externalSubmit
+                target = '_self'
             # MTurk preview case.
             else:
                 workerId = ''
-                turkSubmitTo = ''
                 preview = '*** PREVIEW ***'
                 disabled = 'disabled'
-        # Non-MTurk case.
+                submitTo = ''
+                target = ''
+            trainingId = ''
+        # Training & non-MTurk cases.
         except:
             hitId = ''
             assignmentId = ''
             workerId = ''
-            turkSubmitTo = ''
             preview = ''
-            disabled = ''
+            disabled = 'disabled'
+            # Training case.
+            try:
+                submitTo = req.params['submitTo']
+                target = '_parent'
+                trainingId = req.params['trainingId']
+            # Non-MTurk case.
+            except:
+                submitTo = ''
+                target = ''
+                trainingId = ''
 
         mainText = '''
             <!DOCTYPE html>
@@ -67,7 +70,7 @@ def application(environ, start_response):
                     <title>One Square Km in South Africa</title>
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                     <script type="text/javascript" src="/afmap/OL/OpenLayers-2.12/OpenLayers.js"></script>
-                    <script type="text/javascript" src="https://maps.google.com/maps/api/js?v=3.7&sensor=false"></script>
+                    <script type="text/javascript" src="https://maps.google.com/maps/api/js?v=3.8&sensor=false"></script>
                     <script type="text/javascript" src="/afmap/OL/showkml.js"></script>
                     <link rel="stylesheet" href="/afmap/OL/showkml.css" type="text/css">
                     <style>
@@ -76,8 +79,8 @@ def application(environ, start_response):
                         }
                     </style>
                 </head>
-                <body onload="init('%(kmlPath)s', '%(polygonPath)s', '%(noPolygonPath)s', '%(kmlValue)s', '%(assignmentId)s')">
-                    <form style='width: 100%%; height: %(headerHeight)spx;' name='mturkform' action='%(turkSubmitTo)s/mturk/externalSubmit'>
+                <body onload="init('%(kmlPath)s', '%(polygonPath)s', '%(noPolygonPath)s', '%(kmlName)s', '%(assignmentId)s', '%(trainingId)s')">
+                    <form style='width: 100%%; height: %(headerHeight)spx;' name='mturkform' action='%(submitTo)s' target='%(target)s'>
                         <div class='instructions'>
                             %(preview)s
                             Please use the toolbar below to map all crop fields that are wholly or partially inside the white square outline (map the entire field, <br/>even the part that falls outside the box). Then save your changes by clicking on the disk icon to complete the HIT.
@@ -96,7 +99,8 @@ def application(environ, start_response):
                         </th>
                         </tr></table>
                         <input type='hidden' name='assignmentId' value='%(assignmentId)s' />
-                        <input type='hidden' name='kmlName' value='%(kmlValue)s' />
+                        <input type='hidden' name='trainingId' value='%(trainingId)s' />
+                        <input type='hidden' name='kmlName' value='%(kmlName)s' />
                         <input type='hidden' name='save_status' />
                     </form>
                     <div id="kml_display" style="width: 100%%; height: %(mapHeight)spx;"></div>
@@ -106,9 +110,11 @@ def application(environ, start_response):
             'kmlPath': kmlUrl,
             'polygonPath': polygonUrl,
             'noPolygonPath': noPolygonUrl,
-            'kmlValue': kmlValue,
+            'kmlName': kmlName,
             'assignmentId': assignmentId,
-            'turkSubmitTo': turkSubmitTo,
+            'trainingId': trainingId,
+            'submitTo': submitTo,
+            'target': target,
             'preview': preview,
             'disabled': disabled,
             'mturkFrameHeight': mturkFrameHeight,
@@ -121,39 +127,43 @@ def application(environ, start_response):
             # If this is an accepted HIT,
             if assignmentId != 'ASSIGNMENT_ID_NOT_AVAILABLE':
                 # If this is a new HIT,
-                cur.execute("SELECT TRUE FROM assignment_data WHERE assignment_id = '%s'" % assignmentId)
-                if not cur.fetchone():
+                mtma.cur.execute("SELECT TRUE FROM assignment_data WHERE assignment_id = '%s'" % assignmentId)
+                if not mtma.cur.fetchone():
                     # If this is a new worker,
-                    cur.execute("SELECT TRUE FROM worker_data WHERE worker_id = '%s'" % (workerId))
-                    if not cur.fetchone():
-                        cur.execute("""INSERT INTO worker_data 
+                    mtma.cur.execute("SELECT TRUE FROM worker_data WHERE worker_id = '%s'" % (workerId))
+                    if not mtma.cur.fetchone():
+                        mtma.cur.execute("""INSERT INTO worker_data 
                             (worker_id, first_time, last_time) 
                             VALUES ('%s', '%s', '%s')""" % (workerId, now, now))
                     # Else, this is an existing worker.
                     else:
-                        cur.execute("""UPDATE worker_data SET last_time = '%s'
+                        mtma.cur.execute("""UPDATE worker_data SET last_time = '%s'
                             WHERE worker_id = '%s'""" % (now, workerId))
                     # Insert the assignment data.
-                    cur.execute("""INSERT INTO assignment_data 
+                    mtma.cur.execute("""INSERT INTO assignment_data 
                         (assignment_id, hit_id, worker_id, accept_time, status) 
                         VALUES ('%s' , '%s', '%s', '%s', '%s')""" % (assignmentId, hitId, workerId, now, MTurkMappingAfrica.HITAccepted))
-                    k.write("getkml: MTurk ACCEPT request fetched kmlValue = %s\n" % kmlValue)
-                    con.commit()
+                    k.write("getkml: MTurk ACCEPT request fetched kmlName = %s\n" % kmlName)
+                    mtma.dbcon.commit()
                 # Else, this is the continuation of a previously accepted HIT.
                 else:
-                    k.write("getkml: MTurk CONTINUE request fetched kmlValue = %s\n" % kmlValue)
+                    k.write("getkml: MTurk CONTINUE request fetched kmlName = %s\n" % kmlName)
                 k.write("getkml: MTurk provided hitId = %s\n" % hitId)
                 k.write("getkml: MTurk provided assignmentId = %s\n" % assignmentId)
                 k.write("getkml: MTurk provided workerId = %s\n" % workerId)
-                k.write("getkml: MTurk provided turkSubmitTo = %s\n" % turkSubmitTo)
+                k.write("getkml: MTurk provided turkSubmitTo = %s\n" % submitTo)
             # else, this is a HIT preview.
             else:
-                k.write("getkml: MTurk PREVIEW request fetched kmlValue = %s\n" % kmlValue)
+                k.write("getkml: MTurk PREVIEW request fetched kmlName = %s\n" % kmlName)
                 k.write("getkml: MTurk provided hitId = %s\n" % hitId)
         # Else, we are not running under MTurk.
+        elif len(trainingId) > 0:
+            k.write("getkml: Training request fetched kmlName = %s\n" % kmlName)
         else:
-            k.write("getkml: Non-MTurk request fetched kmlValue = %s\n" % kmlValue)
-    except KeyError as e:
+            k.write("getkml: Non-MTurk request fetched kmlName = %s\n" % kmlName)
+
+    # No KML specified.
+    else:
         mainText = '''
             <!DOCTYPE html>
             <html>
@@ -162,14 +172,12 @@ def application(environ, start_response):
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                 </head>
                 <body>
-                    <b>Invalid or missing keyword: '%(kmlName)s' required.</b>
+                    <b></b>
                 </body>
             </html>
-        ''' % {
-            'kmlName': kmlName
-        }
+        '''
         res.body = mainText
-        k.write("getkml: Missing keyword error %s\n" % (e))
+        k.write("getkml: No KML specified in URL.\n")
     k.close()
-    con.close()
+    mtma.dbcon.close()
     return res(environ, start_response)

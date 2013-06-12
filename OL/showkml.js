@@ -1,4 +1,4 @@
-function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId) {
+function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, trainingId) {
 
 // Create the map using the specified DOM element
 var map = new OpenLayers.Map("kml_display");
@@ -50,26 +50,33 @@ kmlLayer = new OpenLayers.Layer.Vector(
 map.addLayer(kmlLayer);
 
 saveStrategy = new OpenLayers.Strategy.Save();
-saveStrategy.events.register('success', null, function() {saveSuccess(kmlName, assignmentId);});
+saveStrategy.events.register('success', null, function() {saveSuccess(kmlName, assignmentId, trainingId);});
 saveStrategy.events.register('fail', null, function() {saveFail(kmlName, assignmentId);});
 saveStrategyFailed = false;
-// If this is an MTurk accepted HIT, let user save changes, and add assignment ID to kml name.
-if (assignmentId.length > 0 && assignmentId != 'ASSIGNMENT_ID_NOT_AVAILABLE') {
-    saveStrategyActive = true;
-    foldersName = kmlName + '_' + assignmentId;
-    preview = false;
-} else {
-    // Else, if this is an MTurk preview, don't let user save changes.
-    if (assignmentId.length > 0) {
-        saveStrategyActive = false;
-        preview = true;
-    // Else, if this is not an MTurk invocation, let user save changes.
-    } else {
+if (assignmentId.length > 0) {
+    // If this is an MTurk accepted HIT, let user save changes, 
+    // and add assignment ID to kml name.
+    if (assignmentId != 'ASSIGNMENT_ID_NOT_AVAILABLE') {
         saveStrategyActive = true;
+        foldersName = kmlName + '_' + assignmentId;
         preview = false;
+    } else {
+        // Else, if this is an MTurk preview, don't let user save changes.
+        saveStrategyActive = false;
+        foldersName = kmlName;
+        preview = true;
     }
-    // No assignment ID in either case.
+// If this is a training map, let user save changes, and add training ID to kml name.
+} else if (trainingId.length > 0) {
+    saveStrategyActive = true;
+    // Note: double underscore below.
+    foldersName = kmlName + '__' + trainingId;
+    preview = false;
+// Else, if this is not an MTurk invocation, let user save changes.
+} else {
+    saveStrategyActive = true;
     foldersName = kmlName;
+    preview = false;
 }
 
 fieldsLayer = new OpenLayers.Layer.Vector(
@@ -176,7 +183,7 @@ if (preview) {
     );
     panelControl4 = new OpenLayers.Control.Button({
         displayClass: 'saveButton',
-        trigger: function() {checkSaveStrategy(kmlName, noPolygonPath, assignmentId);},
+        trigger: function() {checkSaveStrategy(kmlName, noPolygonPath, assignmentId, trainingId);},
         title: 'Save changes: Click on this button only ONCE when all mapped fields have been created, and you are satisfied with your work. Click when done even if there are NO fields to draw on this map.'
     });
 }
@@ -200,7 +207,7 @@ kmlLayer.events.register("loadend", kmlLayer, function() {
 
 }
 
-function checkSaveStrategy(kmlName, noPolygonPath, assignmentId) {
+function checkSaveStrategy(kmlName, noPolygonPath, assignmentId, trainingId) {
     var msg;
     if (!saveStrategyActive) {
         return;
@@ -222,24 +229,16 @@ function checkSaveStrategy(kmlName, noPolygonPath, assignmentId) {
         }
         saveStrategy.save();
     } else {
-        if (assignmentId.length > 0) {
-            var request = OpenLayers.Request.PUT({
-                url: noPolygonPath,
-                params: {
-                    kmlName: kmlName,
-                    assignmentId: assignmentId
-                },
-                success: function() {notificationSuccess(kmlName, assignmentId);},
-                failure: function() {notificationFail(kmlName, assignmentId);}
-            });
-        } else {
-            var request = OpenLayers.Request.PUT({
-                url: noPolygonPath,
-                params: { kmlName: kmlName },
-                success: function() {notificationSuccess(kmlName, assignmentId);},
-                failure: function() {notificationFail(kmlName, assignmentId);}
-            });
-        }
+        var request = OpenLayers.Request.PUT({
+            url: noPolygonPath,
+            params: {
+                kmlName: kmlName,
+                assignmentId: assignmentId,
+                trainingId: trainingId
+            },
+            success: function() {notificationSuccess(kmlName, assignmentId, trainingId);},
+            failure: function() {notificationFail(kmlName, assignmentId);}
+        });
     }
     // Don't allow Save button to be used again.
     saveStrategyActive = false
@@ -251,16 +250,22 @@ function checkSaveStrategy(kmlName, noPolygonPath, assignmentId) {
 }
 
 // Report to the worker that the save was successful, and that they should complete the HIT.
-function saveSuccess(kmlName, assignmentId) {
-    if (assignmentId.length > 0) {
+function saveSuccess(kmlName, assignmentId, trainingId) {
+    if (trainingId.length > 0) {
+        alert('Success! Your mapped fields were saved. Click Ok to continue to next training map.');
+    }
+    if (assignmentId.length > 0 || trainingId.length > 0) {
         document.mturkform.save_status.value = true;
         document.mturkform.submit();
     }
 }
 
 // Report to the worker that the notification was successful, and that they should complete the HIT.
-function notificationSuccess(kmlName, assignmentId) {
-    if (assignmentId.length > 0) {
+function notificationSuccess(kmlName, assignmentId, trainingId) {
+    if (trainingId.length > 0) {
+        alert('Success! Your notification was saved. Click Ok to continue to next training map.');
+    }
+    if (assignmentId.length > 0 || trainingId.length > 0) {
         document.mturkform.save_status.value = true;
         document.mturkform.submit();
     }

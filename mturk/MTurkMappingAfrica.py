@@ -9,7 +9,7 @@ from boto.mturk.qualification import (
     PercentAssignmentsReturnedRequirement,PercentAssignmentsAbandonedRequirement, 
     Requirement
 )
-from boto.mturk.question import ExternalQuestion
+from boto.mturk.question import ExternalQuestion,QuestionForm,Overview,Question,QuestionContent,FormattedContent,AnswerSpecification,FreeTextAnswer,NumericConstraint,LengthConstraint
 from boto.mturk.layoutparam import LayoutParameters, LayoutParameter
 
 # Key connection parameters.
@@ -18,14 +18,12 @@ db_user = '***REMOVED***'
 db_password = '***REMOVED***'
 mt_sandbox_host = 'mechanicalturk.sandbox.amazonaws.com'
 mt_public_host = 'mechanicalturk.amazonaws.com'
-aws_access_key_id = 'AKIAILXIZLZSARQKEX7Q'
-aws_secret_access_key = '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'
+aws_access_key_id = 'AKIAJDK3CO4RKHBZQU5A'
+aws_secret_access_key = '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'
 
 class MTurkMappingAfrica(object):
 
-    #
     # HIT assignment_data.status constants
-    #
     HITAccepted = 'Accepted'                    # HIT accepted by worker
     HITAbandoned = 'Abandoned'                  # HIT abandoned by worker
     HITReturned = 'Returned'                    # HIT returned by worker
@@ -37,26 +35,27 @@ class MTurkMappingAfrica(object):
     HITUnscored = 'Unscored'                    # HIT not scorable, hence approved
 
     # non-QAQC statuses only
-    HITPending = 'Pending'                      # Approved/Rejected/UnsavedQAQC/UnscoredQAQC status 
-                                                #   pending next QAQC score
+    HITPending = 'Pending'                      # Approved/Rejected/UnsavedQAQC/
+                                                # UnscoredQAQC status 
+                                                # pending next QAQC score
     HITPendingUnsaved = 'PendingUnsaved'        # HITUnsaved status pending next QAQC score
     HITUnsavedQAQC = 'UnsavedQAQC'              # QAQC HIT unsaved, hence non-QAQC HIT approved & reused
     HITUnscoredQAQC = 'UnscoredQAQC'            # QAQC HIT unscored, hence non-QAQC HIT approved & reused
 
-    #
     # KML kml_data.kml_type constants
-    #
     KmlNormal = 'N'                             # Normal (non-QAQC) KML
     KmlQAQC = 'Q'                               # QAQC KML
     KmlInitial = 'I'                            # Initial training KML
+
+    # MTurk external submit path
+    externalSubmit = '/mturk/externalSubmit'
 
     def __init__(self, debug=0):
         self.dbcon = psycopg2.connect("dbname=%s user=%s password=%s" % 
             (db_name, db_user, db_password))
         self.cur = self.dbcon.cursor()
 
-        self.cur.execute("select value from configuration where key = 'MTurkSandbox'")
-        self.sandbox = (self.cur.fetchone()[0] == 'true')
+        self.sandbox = self.getConfiguration('MTurkSandbox')
         if self.sandbox:
             self.host = mt_sandbox_host
         else:
@@ -74,13 +73,11 @@ class MTurkMappingAfrica(object):
         self.dbcon.close()
 
     def createHit(self, kml=None, hitType=KmlNormal):
-        self.cur.execute("select value from configuration where key = 'Hit_Lifetime'")
-        self.hitLifetime = self.cur.fetchone()[0]
+        self.hitLifetime = self.getConfiguration('Hit_Lifetime')
         if hitType == MTurkMappingAfrica.KmlNormal:
-            self.cur.execute("select value from configuration where key = 'Hit_MaxAssignmentsN'")
+            self.hitMaxAssignments = self.getConfiguration('Hit_MaxAssignmentsN')
         else:
-            self.cur.execute("select value from configuration where key = 'Hit_MaxAssignmentsQ'")
-        self.hitMaxAssignments = self.cur.fetchone()[0]
+            self.hitMaxAssignments = self.getConfiguration('Hit_MaxAssignmentsQ')
 
         self.createHitRS = self.mtcon.create_hit(
             hit_type = self.registerHitType(),
@@ -96,8 +93,7 @@ class MTurkMappingAfrica(object):
         return self.hitId
 
     def setNotification(self, hitType):
-        self.cur.execute("select value from configuration where key = 'MTurkNotificationEmail'")
-        self.mturkNotificationEmail = self.cur.fetchone()[0]
+        self.mturkNotificationEmail = self.getConfiguration('MTurkNotificationEmail')
         self.setNotificationRS = self.mtcon.set_email_notification(
             hit_type = hitType,
             email = self.mturkNotificationEmail,
@@ -106,8 +102,7 @@ class MTurkMappingAfrica(object):
         assert self.setNotificationRS.status
 
     def sendEmailTestEventNotification(self, testEventType):
-        self.cur.execute("select value from configuration where key = 'MTurkNotificationEmail'")
-        self.mturkNotificationEmail = self.cur.fetchone()[0]
+        self.mturkNotificationEmail = self.getConfiguration('MTurkNotificationEmail')
         self.sendEmailTestEventNotificationRS = self.mtcon.send_email_test_event_notification(
             email = self.mturkNotificationEmail,
             event_types = "AssignmentSubmitted,AssignmentAbandoned,AssignmentReturned,HITReviewable,HITExpired,Ping",
@@ -116,12 +111,9 @@ class MTurkMappingAfrica(object):
         assert self.sendEmailTestEventNotificationRS.status
 
     def sendRestTestEventNotification(self, testEventType):
-        self.cur.execute("select value from configuration where key = 'ServerName'")
-        self.serverName = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'APIUrl'")
-        self.apiUrl = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'MTurkNotificationScript'")
-        self.mturkNotificationScript = self.cur.fetchone()[0]
+        self.serverName = self.getConfiguration('ServerName')
+        self.apiUrl = self.getConfiguration('APIUrl')
+        self.mturkNotificationScript = self.getConfiguration('MTurkNotificationScript')
         self.url = "https://%s%s/%s" % \
             (self.serverName, self.apiUrl, self.mturkNotificationScript)
         self.sendRestTestEventNotificationRS = self.mtcon.send_rest_test_event_notification(
@@ -186,18 +178,12 @@ class MTurkMappingAfrica(object):
         assert self.disposeHitRS.status
 
     def registerHitType(self):
-        self.cur.execute("select value from configuration where key = 'HitType_Title'")
-        self.hitTypeTitle = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'HitType_Description'")
-        self.hitTypeDescription = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'HitType_Keywords'")
-        self.hitTypeKeywords = self.cur.fetchone()[0].split(',')
-        self.cur.execute("select value from configuration where key = 'HitType_Reward'")
-        self.hitTypeReward = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'HitType_Duration'")
-        self.hitTypeDuration = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'HitType_ApprovalDelay'")
-        self.hitTypeApprovalDelay = self.cur.fetchone()[0]
+        self.hitTypeTitle = self.getConfiguration('HitType_Title')
+        self.hitTypeDescription = self.getConfiguration('HitType_Description')
+        self.hitTypeKeywords = self.getConfiguration('HitType_Keywords')
+        self.hitTypeReward = self.getConfiguration('HitType_Reward')
+        self.hitTypeDuration = self.getConfiguration('HitType_Duration')
+        self.hitTypeApprovalDelay = self.getConfiguration('HitType_ApprovalDelay')
         self.registerHitTypeRS = self.mtcon.register_hit_type(
             title=self.hitTypeTitle, 
             description=self.hitTypeDescription, 
@@ -217,14 +203,10 @@ class MTurkMappingAfrica(object):
         return self.hitTypeId
 
     def qualifications(self):
-        self.cur.execute("select value from configuration where key = 'Qual_NumberHitsApproved'")
-        self.hitsApproved = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'Qual_PercentAssignmentsApproved'")
-        self.percentApproved = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'Qual_PercentAssignmentsReturned'")
-        self.percentReturned = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'Qual_PercentAssignmentsAbandoned'")
-        self.percentAbandoned = self.cur.fetchone()[0]
+        self.hitsApproved = self.getConfiguration('Qual_NumberHitsApproved')
+        self.percentApproved = self.getConfiguration('Qual_PercentAssignmentsApproved')
+        self.percentReturned = self.getConfiguration('Qual_PercentAssignmentsReturned')
+        self.percentAbandoned = self.getConfiguration('Qual_PercentAssignmentsAbandoned')
         self.quals = Qualifications()
         if self.hitsApproved != 'ignore':
             self.quals.add(NumberHitsApprovedRequirement(
@@ -250,23 +232,84 @@ class MTurkMappingAfrica(object):
                     integer_value=self.percentAbandoned,
                     required_to_preview=True)
             )
+        self.quals.add(Requirement(
+                # Retrieve the ID for the Mapping Africa qualification.
+                qualification_type_id=self.getSystemData('Qual_MappingAfricaId'),
+                comparator='Exists')
+        )
         return self.quals
 
+    def createQualificationType(self):
+        self.qualTestName = self.getConfiguration('QualTest_Name')
+        self.qualTestDescription = self.getConfiguration('QualTest_Description')
+        self.qualTestRetryDelay = self.getConfiguration('QualTest_RetryDelay')
+        self.qualTestDuration = self.getConfiguration('QualTest_Duration')
+        self.createQualificationTypeRS = self.mtcon.create_qualification_type(
+            name=self.qualTestName, 
+            description=self.qualTestDescription, 
+            status='Active', 
+            retry_delay=self.qualTestRetryDelay, 
+            test=self.qualTestQuestionForm(), 
+            test_duration=self.qualTestDuration
+        )
+        assert self.createQualificationTypeRS.status
+        # Loop through the ResultSet looking for an QualificationType object.
+        for r in self.createQualificationTypeRS:
+            if hasattr(r,'QualificationType'):
+                self.qualificationTypeId = r.QualificationTypeId
+        # Save this value in the system_table.
+        self.setSystemData('Qual_MappingAfricaId', self.qualificationTypeId)
+
+    def qualTestQuestionForm(self):
+        self.qualTestTitle = self.getConfiguration('QualTest_Title')
+        self.qualTestOverview = self.getConfiguration('QualTest_Overview')
+        self.qualTestText = self.getConfiguration('QualTest_Text')
+        #print(self.qualTestText)
+        self.questForm = QuestionForm()
+        overview = Overview()
+        overview.append_field('Title', self.qualTestTitle)
+        overview.append(FormattedContent(self.qualTestOverview))
+        self.questForm.append(overview)
+        content1 = QuestionContent()
+        content1.append(FormattedContent(self.qualTestText))
+        answer = AnswerSpecification(FreeTextAnswer(num_lines=1))
+        self.questForm.append(Question(identifier=1, is_required=True, content=content1, answer_spec=answer))
+        return self.questForm
+
+    def disposeQualificationType(self):
+        self.disposeQualificationTypeRS = self.mtcon.dispose_qualification_type(
+                # Retrieve the ID for the Mapping Africa qualification.
+                self.getSystemData('Qual_MappingAfricaId')
+        )
+        assert self.disposeQualificationTypeRS.status
+        # Clear this value in the system_table.
+        self.setSystemData('Qual_MappingAfricaId', '')
+        
     def externalQuestion(self, kml=None):
-        self.cur.execute("select value from configuration where key = 'ServerName'")
-        self.serverName = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'APIUrl'")
-        self.apiUrl = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'MTurkExtQuestionScript'")
-        self.mturkExtQuestionScript = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'KMLParameter'")
-        self.kmlParameter = self.cur.fetchone()[0]
-        self.cur.execute("select value from configuration where key = 'MTurkFrameHeight'")
-        self.mturkFrameHeight = self.cur.fetchone()[0]
-        self.url = "https://%s%s/%s?%s=%s" % \
-            (self.serverName, self.apiUrl, self.mturkExtQuestionScript, self.kmlParameter, kml)
+        self.serverName = self.getConfiguration('ServerName')
+        self.apiUrl = self.getConfiguration('APIUrl')
+        self.mturkExtQuestionScript = self.getConfiguration('MTurkExtQuestionScript')
+        self.mturkFrameHeight = self.getConfiguration('MTurkFrameHeight')
+        self.url = "https://%s%s/%s?kmlName=%s" % \
+            (self.serverName, self.apiUrl, self.mturkExtQuestionScript, kml)
         self.extQuestion = ExternalQuestion(
             external_url=self.url, 
             frame_height=self.mturkFrameHeight
         )
         return self.extQuestion
+
+    def getConfiguration(self, key):
+        self.cur.execute("select value from configuration where key = '%s'" % key)
+        return self.cur.fetchone()[0]
+
+    def getSystemData(self, key):
+        self.cur.execute("select value from system_data where key = '%s'" % key)
+        return self.cur.fetchone()[0]
+
+    def setSystemData(self, key, value):
+        self.cur.execute("update system_data set value = '%s' where key = '%s'" % (value, key))
+        self.dbcon.commit()
+
+    def querySingleValue(self, sql):
+        self.cur.execute(sql)
+        return self.cur.fetchone()[0]
