@@ -34,4 +34,4 @@ To restore the entire SouthAfrica database:
 To configure daily database backups:
 
 1) Execute:
-crontab /var/www/html/afmap/mturk/crontabSetup
+crontab /var/www/html/afmap/mturk/crontabSetup.root
