@@ -1,5 +1,4 @@
 MAILTO=csesi@Princeton.EDU
 SHELL=/bin/bash
 # Min Hour(0-23) Day Month DOW Command
-35 * * * * /var/www/html/afmap/mturk/daemonNanny.sh create_hit_daemon >>/var/www/html/afmap/log/daemonNanny.log
 15 01 * * * PGDIR=/var/www/html/afmap/pgsql;export PGPASSFILE=$PGDIR/pgpassfile;$PGDIR/daily_backup.sh
