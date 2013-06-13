@@ -210,32 +210,32 @@ class MTurkMappingAfrica(object):
         self.quals = Qualifications()
         if self.hitsApproved != 'ignore':
             self.quals.add(NumberHitsApprovedRequirement(
-                    comparator="GreaterThan", 
-                    integer_value=self.hitsApproved,
-                    required_to_preview=True)
+                comparator="GreaterThan", 
+                integer_value=self.hitsApproved,
+                required_to_preview=True)
             )
         if self.percentApproved != 'ignore':
             self.quals.add(PercentAssignmentsApprovedRequirement(
-                    comparator="GreaterThan", 
-                    integer_value=self.percentApproved,
-                    required_to_preview=True)
+                comparator="GreaterThan", 
+                integer_value=self.percentApproved,
+                required_to_preview=True)
             )
         if self.percentReturned != 'ignore':
             self.quals.add(PercentAssignmentsReturnedRequirement(
-                    comparator="LessThan", 
-                    integer_value=self.percentReturned,
-                    required_to_preview=True)
+                comparator="LessThan", 
+                integer_value=self.percentReturned,
+                required_to_preview=True)
             )
         if self.percentAbandoned != 'ignore':
             self.quals.add(PercentAssignmentsAbandonedRequirement(
-                    comparator="LessThan", 
-                    integer_value=self.percentAbandoned,
-                    required_to_preview=True)
+                comparator="LessThan", 
+                integer_value=self.percentAbandoned,
+                required_to_preview=True)
             )
         self.quals.add(Requirement(
-                # Retrieve the ID for the Mapping Africa qualification.
-                qualification_type_id=self.getSystemData('Qual_MappingAfricaId'),
-                comparator='Exists')
+            # Retrieve the ID for the Mapping Africa qualification.
+            qualification_type_id=self.getSystemData('Qual_MappingAfricaId'),
+            comparator='Exists')
         )
         return self.quals
 
@@ -273,18 +273,62 @@ class MTurkMappingAfrica(object):
         content1 = QuestionContent()
         content1.append(FormattedContent(self.qualTestText))
         answer = AnswerSpecification(FreeTextAnswer(num_lines=1))
+        # identifier must match qid in getQualificationRequests()
         self.questForm.append(Question(identifier=1, is_required=True, content=content1, answer_spec=answer))
         return self.questForm
 
     def disposeQualificationType(self):
         self.disposeQualificationTypeRS = self.mtcon.dispose_qualification_type(
-                # Retrieve the ID for the Mapping Africa qualification.
-                self.getSystemData('Qual_MappingAfricaId')
+            # Retrieve the ID for the Mapping Africa qualification.
+            self.getSystemData('Qual_MappingAfricaId')
         )
         assert self.disposeQualificationTypeRS.status
         # Clear this value in the system_table.
         self.setSystemData('Qual_MappingAfricaId', '')
         
+    def getQualificationRequests(self):
+        self.getQualificationRequestsRS = self.mtcon.get_qualification_requests(
+            # Retrieve the ID for the Mapping Africa qualification.
+            self.getSystemData('Qual_MappingAfricaId')
+        )
+        assert self.getQualificationRequestsRS.status
+        # Loop through the ResultSet looking for an QualificationRequest object.
+        self.qualificationRequests = []
+        for r in self.getQualificationRequestsRS:
+            if hasattr(r,'QualificationRequest'):
+                # Get the Qualification Request ID of the prospective worker.
+                qualificationRequestId = r.QualificationRequestId
+                # Get the ID of the worker making the request.
+                workerId = r.SubjectId
+                # Get the Training ID entered by the worker.
+                params = {}
+                for kv in r.answers[0]:
+                    # qid must match identifier in qualTestQuestionForm().
+                    if kv.qid == '1':
+                        trainingId = kv.fields[0]
+                self.qualificationRequests.append((qualificationRequestId, workerId, trainingId))
+        return self.qualificationRequests
+
+    def grantQualification(self, qualificationRequestId):
+        self.grantQualificationRS = self.mtcon.grant_qualification(qualificationRequestId)
+        assert self.grantQualificationRS.status
+
+    def rejectQualificationRequest(self, qualificationRequestId, reason=None):
+        self.rejectQualificationRequestRS = self.mtcon.reject_qualification_request(
+            qualificationRequestId,
+            reason
+        )
+        assert self.rejectQualificationRequestRS.status
+
+    def revokeQualification(self, workerId, reason):
+        self.revokeQualificationRS = self.mtcon.revoke_qualification(
+            workerId,
+            # Retrieve the ID for the Mapping Africa qualification.
+            self.getSystemData('Qual_MappingAfricaId'),
+            self.getConfiguration('QualRevocation_Description')
+        )
+        assert self.revokeQualificationRS.status
+
     def externalQuestion(self, kml=None):
         self.serverName = self.getConfiguration('ServerName')
         self.apiUrl = self.getConfiguration('APIUrl')
