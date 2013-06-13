@@ -147,7 +147,7 @@ class ProcessNotifications(object):
             try:
                 # TODO: *** Put reject feedback into configuration table, or have more sophisticated code
                 #       to guide what the text should say: e.g., were they close or far? Use different feedback. ***
-                mtma.rejectAssignment(assignmentId, "We're sorry, but your score was too low to accept your results.")
+                mtma.rejectAssignment(assignmentId, mtma.getConfiguration('HitRejection_Description'))
             except MTurkRequestError as e:
                 k.write("getnotifications: rejectAssignment failed for assignment ID %s:\n%s\n%s\n" % 
                     (assignmentId, e.error_code, e.error_message))
@@ -268,7 +268,7 @@ class ProcessNotifications(object):
                 try:
                     # TODO: *** Put reject feedback into configuration table, or have more sophisticated code
                     #       to guide what the text should say: e.g., were they close or far? Use different feedback. ***
-                    mtma.rejectAssignment(assignmentId, "We're sorry, but your score was too low to accept your results.")
+                    mtma.rejectAssignment(assignmentId, mtma.getConfiguration('HitRejection_Description'))
                 except MTurkRequestError as e:
                     k.write("getnotifications: rejectAssignment failed for assignment ID %s:\n%s\n%s\n" %
                         (assignmentId, e.error_code, e.error_message))
