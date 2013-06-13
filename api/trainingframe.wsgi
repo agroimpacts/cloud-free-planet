@@ -46,7 +46,7 @@ def application(environ, start_response):
             VALUES ('%s', '%s', '%s')""" % (trainingId, now, now))
     totCount = int(mtma.querySingleValue("""select count(*) from kml_data 
         where kml_type = 'I'"""))
-    if totCount > doneCount:
+    if doneCount < totCount:
         nextKml = mtma.querySingleValue("""select name from kml_data
             left outer join 
                 (select * from qual_assignment_data where training_id = '%s') qad 
