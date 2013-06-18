@@ -68,7 +68,7 @@ def application(environ, start_response):
                 VALUES ('%s' , '%s', '%s')""" % (trainingId, nextKml, now))
             ps = ''
         else:
-            ps = 'Please complete the current map before moving on to the next.'
+            ps = '<b>Note:</b> you must correctly complete the current training map before you can move on to the next.'
         k.write("trainingframe: Candidate starting on KML %s\n" % nextKml)
         mtma.dbcon.commit()
     else:

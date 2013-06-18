@@ -110,7 +110,7 @@ class ProcessNotifications(object):
         assignmentStatus = None
         if results_saved:
             projectRoot = mtma.getConfiguration('ProjectRoot')
-            scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % projectRoot, kmlName, assignmentId], 
+            scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % projectRoot, "qa", kmlName, assignmentId], 
                 stdout=subprocess.PIPE).communicate()[0]
             try:
                 score = float(scoreString)

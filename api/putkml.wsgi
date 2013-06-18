@@ -1,3 +1,4 @@
+import subprocess
 from webob import Request, Response
 import psycopg2
 import datetime
@@ -30,16 +31,27 @@ def application(environ, start_response):
     # If this is a training map, then call the scoring routine and 
     # record the results here.
     if len(trainingId) > 0:
-        score = 0.7
+        projectRoot = mtma.getConfiguration('ProjectRoot')
+        scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % projectRoot, "tr", kmlName, trainingId], 
+            stdout=subprocess.PIPE).communicate()[0]
+        try:
+            score = float(scoreString)
+        # Pay the worker if we couldn't score his work properly.
+        except:
+            score = 1.          # Give worker the benefit of the doubt
+            k.write("putkml: Invalid value '%s' returned from R scoring script; assigning a score of %.2f\n" % 
+                (scoreString, score))
+        hitAcceptThreshold = float(mtma.getConfiguration('HitAcceptThreshold'))
+        k.write("putkml: training assignment has been scored as: %.2f/%.2f\n" %
+            (score, hitAcceptThreshold))
+        if score < hitAcceptThreshold:
+            res.status = '460 Low Score'
 
-        # Record the HIT submission time and status, and user comment.
+        # Record the assignment submission time and score.
         mtma.cur.execute("""update qual_assignment_data set completion_time = '%s',
             score = '%s' where training_id = '%s' and name = '%s'""" %
             (now, score, trainingId, kmlName))
         mtma.dbcon.commit()
-        hitAcceptThreshold = float(mtma.getConfiguration('HitAcceptThreshold'))
-        k.write("putkml: training assignment has been scored as: %.2f/%.2f\n" %
-            (score, hitAcceptThreshold))
 
     k.close()
     return res(environ, start_response)
