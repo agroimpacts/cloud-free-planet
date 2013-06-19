@@ -71,10 +71,14 @@
 #                   13/6/2013: 
 #                     Update to version 1.2.4.
 #                     * Change to take argument from Turker training sites as well normal assignments
-#                       ** Uses this format suggested by Dennis
-#                          KMLAccuracyCheck.R [-t] <kmlName> <trainingId>
-#                          '-t' is optional, if present, 2nd parameter is trainingId, if absent, assignmentId.
+#                       ** Uses this format suggested by Dennis, with modifications
+#                          KMLAccuracyCheck.R ["tr"|"qa"] <kmlName> <trainingId|assignmentId>
+#                          where "tr" is for training sites, and "qa" for qaqc sites
 #                     * Deleted commented out functions that persisted in version 1.2.3.
+#                   14/6/2013: 
+#                     * Edited feature to write error components to database, reflecting new database added for
+#                     for qual_error_data.
+#                     * Removed code to write to text error log, now redundant
 #                    
 ##############################################################################################################
 # Hardcoded values placed here for easy changing 
@@ -85,8 +89,7 @@ out.err.wt    <- 0.2  # Weighting for out of grid map discrepancy
 err.switch    <- 1  # Selects which area error metric used for in grid accuracy: 1 = overall accuracy; 2 = TSS
 comments      <- "F"  # For testing, one can turn on print statements to see what is happening
 consel        <- "africa"  # postgres connection switch: "africa" when run on server, "mac" for off server
-write.err.log <- "F"  # Option to write text log containing error metrics (anything besides "T" turns off)
-write.err.db  <- "F"  # Option to write error metrics into error_data table in postgres (off if not "T") 
+write.err.db  <- "T"  # Option to write error metrics into error_data table in postgres (off if not "T") 
 draw.maps     <- "T"  # Option to draw maps showing output error components (where maps possible, off w/o "T")
 test          <- "N"  # For manual testing, one can give a single kmlid, and the code will pull the entire 
                       # assignment_data and hit_data tables to find the right assignment ids to test, "Y" for 
@@ -108,6 +111,11 @@ if(consel == "mac") {
   con <- dbConnect(drv, host = "africa.princeton.edu", port = 5432, dbname = "SouthAfrica", user = "***REMOVED***", 
                    password = "***REMOVED***")
 }
+
+# mtype <- "tr"
+# assignmentid <- "3TdJgeSgGSwF"
+# assignmentidtype <- ifelse(mtype == "tr", "training_id", "assignment_id") 
+# kmlid <- "SA188774"
 
 # Input args
 if(test == "N") {
@@ -415,8 +423,15 @@ if(qaqc.hasfields == "Y") {
 
 # Insert error component statistics into the database
 if(write.err.db == "T") {
-  error.sql <- paste("insert into error_data (assignment_id, score, error1, error2, error3, error4) values ('", 
-                     assignmentid, "', ", paste(err.out, collapse = ", "), ")", sep = "")
+  if(mtype == "qa") {
+    error.sql <- paste("insert into error_data (assignment_id, score, error1, error2, error3, error4) ", 
+                       "values ('", assignmentid, "', ", paste(err.out, collapse = ", "), ")", sep = "")
+  } else if(mtype == "tr") {
+    error.sql <- paste("insert into qual_error_data",  
+                       "(training_id, name, score, error1, error2, error3, error4) ", 
+                       "values ('", assignmentid, "', ", "'", kmlid, "', ", paste(err.out, collapse = ", "), 
+                       ")", sep = "")
+  }  
   ret <- dbSendQuery(con, error.sql)
 }
 
@@ -428,18 +443,6 @@ if(comments == "T") {
   cat(err.out)
 } else {
   cat(err.out[1])
-}
-
-# Write error metrics to log file
-if(write.err.log == "T") {
-  prj.file.path <- dbGetQuery(con, "select value from configuration where key = 'ProjectRoot'")$value
-  err.fname <- paste(prj.file.path, "/R/Error_records/error_metrics.Rout", sep = "")
-  err.strng <- paste(kmlid, assignmentid, paste(round(err.out, 4), collapse = "  "), sep = "   ")
-  if(file.exists(err.fname)) {
-    write(err.strng, file = err.fname, append = T) 
-  } else {
-    write(err.strng, file = err.fname)
-  } 
 }
 
 # Map results according to error class

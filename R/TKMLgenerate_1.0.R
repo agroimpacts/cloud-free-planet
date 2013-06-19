@@ -7,6 +7,8 @@
 # Used by    : 
 # Notes      : Created 03/06/2013
 #              Writes out manually selected grids from sa1kgrid to kmls
+#              18/6/13: Re-ran because names were cleared out accidentally on this date, switching off 
+#                portion to write new kml files for grid boxes
 ##############################################################################################################
 
 library(RPostgreSQL)
@@ -68,9 +70,9 @@ for(i in 1:nrow(grids.r)) {
     # Step 4. Write out the kml
     geom.poly.gcs <- spTransform(x = geom.poly, CRSobj = CRS(gcs))  # First convert to geographic coords
     setwd(kml.file.path)  # Change into kml directory
-    writeOGR(geom.poly.gcs, dsn = paste(geom.poly.gcs@data$kmlname, "kml", sep = "."), 
-             layer = geom.poly.gcs@data$kmlname, driver = "KML", dataset_options = c("NameField = name"), 
-             overwrite = T)  # Write it
+#     writeOGR(geom.poly.gcs, dsn = paste(geom.poly.gcs@data$kmlname, "kml", sep = "."), 
+#              layer = geom.poly.gcs@data$kmlname, driver = "KML", dataset_options = c("NameField = name"), 
+#              overwrite = T)  # Write it
     print(paste("kml for", geom.poly.gcs@data$kmlname, "written"))
 }
         

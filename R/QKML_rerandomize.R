@@ -10,6 +10,8 @@
 #              Current QAQCs are at ration of 205 with fields and 609 without
 #              13/5/2013: Updated QAQCs in kml_data at a rate of 1:1 fields to non-fields QAQCs
 #              17/5/2013: Reverting system back to normal 2:1 ratio non-fields/fields
+#              18/6/2013: Re-running a second time because results were cleared (re-ran on date not
+#                noted after 17/5)
 ##############################################################################################################
 
 library(RPostgreSQL)
@@ -29,6 +31,7 @@ newIDs <- data.frame(matrix(nrow = nrow(grid.IDs), ncol = 2))  # Dummy for reord
 colnames(newIDs) <- colnames(grid.IDs)
 newIDs2 <- newIDs  # Second dummy 
 # Select out fields and non-fields locations and reorder them
+set.seed(123)
 flds.rand <- grid.IDs[grid.IDs$fields == "Y",  ][sample(1:nrow(grid.IDs[grid.IDs$fields == "Y",  ])), ]
 nflds.rand <- grid.IDs[grid.IDs$fields == "N",  ][sample(1:nrow(grid.IDs[grid.IDs$fields == "N",  ])), ]
 a <- round(seq(1, nrow(grid.IDs), ratio + 1))

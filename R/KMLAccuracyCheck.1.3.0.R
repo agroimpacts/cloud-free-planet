@@ -1,6 +1,6 @@
 #! /usr/bin/R -f
 ##############################################################################################################
-# Title      : KMLAccuracyCheck_1.2.3.R
+# Title      : KMLAccuracyCheck_1.3.0.R
 # Purpose    : Development of QAQC accuracy assessment side of Google Earth/Maps Africa field mapping project
 # Author     : Lyndon Estes
 # Draws from : GMap.grid.R, GMap.server.[1|1.1].R; GMap.acc.check.1.R; GMap.QAQC.check.1.1.R
@@ -68,6 +68,27 @@
 #                      and intersects
 #                   19/4/2013: 
 #                     Note: Bug remains in pprepair on one set of polygons that starts an infinite loop
+#                   13/6/2013: 
+#                     Update to version 1.2.4.
+#                     * Change to take argument from Turker training sites as well normal assignments
+#                       ** Uses this format suggested by Dennis, with modifications
+#                          KMLAccuracyCheck.R ["tr"|"qa"] <kmlName> <trainingId|assignmentId>
+#                          where "tr" is for training sites, and "qa" for qaqc sites
+#                     * Deleted commented out functions that persisted in version 1.2.3.
+#                   14/6/2013: 
+#                     * Edited feature to write error components to database, reflecting new database added for
+#                     for qual_error_data.
+#                     * Removed code to write to text error log, now redundant
+#                   19/6/2013: 
+#                      ********** Update to version 1.3.0 ************
+#                     * Editing to incorporate new changes to training module, where new database allows 
+#                       multiple user maps per training site
+#                     * Error algorithm switched to TSS (err.switch = 2)
+#                     * Wrote in logic to check if training error map was recorded more than once. If so, add
+#                       10 to try attempt number and write again
+#                     * Simplified logic for reading in qaqc maps. Removed check to newqaqc_sites for whether
+#                       fields exist or not, which might make this table redundant. 
+#                     * Compare to version 1.2.4 in Test_and_Old_R or in SVN to recover changes
 #                    
 ##############################################################################################################
 # Hardcoded values placed here for easy changing 
@@ -75,13 +96,12 @@ prjsrid       <- 97490  # EPSG identifier for equal area project
 count.err.wt  <- 0.1  # Weighting given to error in number of fields identified 
 in.err.wt     <- 0.7  # Weighting for in grid map discrepancy
 out.err.wt    <- 0.2  # Weighting for out of grid map discrepancy
-err.switch    <- 1  # Selects which area error metric used for in grid accuracy: 1 = overall accuracy; 2 = TSS
+err.switch    <- 2  # Selects which area error metric used for in grid accuracy: 1 = overall accuracy; 2 = TSS
 comments      <- "F"  # For testing, one can turn on print statements to see what is happening
 consel        <- "africa"  # postgres connection switch: "africa" when run on server, "mac" for off server
-write.err.log <- "T"  # Option to write text log containing error metrics (anything besides "T" turns off)
 write.err.db  <- "T"  # Option to write error metrics into error_data table in postgres (off if not "T") 
 draw.maps     <- "T"  # Option to draw maps showing output error components (where maps possible, off w/o "T")
-test          <- "F"  # For manual testing, one can give a single kmlid, and the code will pull the entire 
+test          <- "N"  # For manual testing, one can give a single kmlid, and the code will pull the entire 
                       # assignment_data and hit_data tables to find the right assignment ids to test, "Y" for 
                       # this option, else "N" for normal production runs
 ##############################################################################################################
@@ -90,7 +110,6 @@ test          <- "F"  # For manual testing, one can give a single kmlid, and the
 suppressMessages(library(RPostgreSQL))
 suppressMessages(library(rgdal))
 suppressMessages(library(rgeos))
-#suppressMessages(library(maptools))
 
 # Paths and connections
 drv <- dbDriver("PostgreSQL")
@@ -101,12 +120,17 @@ if(consel == "mac") {
   con <- dbConnect(drv, host = "africa.princeton.edu", port = 5432, dbname = "SouthAfrica", user = "***REMOVED***", 
                    password = "***REMOVED***")
 }
-  
+
 # Input args
 if(test == "N") {
   args <- commandArgs(TRUE)
-  kmlid <- args[1]  # ID of grid cell 
-  assignmentid <- args[2]  # Job identifier
+  mtype <- args[1]  # training "tr" or normal qaqc check "qa"
+  kmlid <- args[2]  # ID of grid cell 
+  assignmentid <- args[3]  # Job identifier
+  if(!is.na(args[4]) & mtype == "tr") tryid <- args[4] # Try identifier (for training module only)
+  if(!is.na(args[4]) & mtype == "qa") stop("QA tests do not have multiple attempts")
+  assignmentidtype <- ifelse(mtype == "tr", "training_id", "assignment_id")  # value to paste into user.sql
+  if(comments == "T") print(mtype)
   if(comments == "T") print(kmlid)
   if(comments == "T") print(assignmentid)
 }
@@ -118,8 +142,6 @@ if(test == "Y") {
   hits <- dbGetQuery(con, hit.sql)
   ass.sql <- "select assignment_id, hit_id, worker_id, score from assignment_data"
   asses <- dbGetQuery(con, ass.sql)
-  #userall.sql <- "select name, assignment_id, ST_AsEWKT(geom) from user_maps order by name"
-  #userallmaps <- dbGetQuery(con, userall.sql)
 
   # If you have the kmlid 
   if(exists("kmlid") & !exists("assignmentid")) {
@@ -153,7 +175,6 @@ accStatsSum <- function(tp, fp, tn, fn) {
   if(is.na(agree)) agree <- 0  # Set to 0 if NA
   accuracy <- sum(tp, tn) / sum(tp, tn, fp, fn)
   TSS <- agree + (tn / (fp + tn)) - 1  # Sens + specificity - 1
-  #r1 <- round(accuracy * 100, 1)
   r1 <- round(accuracy, 2)
   r2 <- round(TSS, 2)
   out <- c(r1, r2)
@@ -193,27 +214,8 @@ mapError <- function(maps, truth, region) {
   tflist <- c("tp", "fp", "fn", "tn")  # 28/11/12: Bug fix for crash in areas caused by null fp results
   areas <- sapply(tflist, function(x) ifelse(!is.null(get(x)) & is.object(get(x)), gArea(get(x)), 0))
   names(areas) <- tflist  # Added 28/11/12 to have specific names from areas to pass to accStatsSum
-  #areas <- sapply(list(tp, fp, tn, fn), function(x) ifelse(is.object(x), gArea(x), x))
-  # 28/11/12: Specific names referenced in call to accStatsSum
   list(accStatsSum(tp = areas["tp"], fp = areas["fp"], fn = areas["fn"], tn = areas["tn"]), tp, fp, fn, tn)  
 }
-
-# createSPPolyfromWKT <- function(geom.tab, crs) {
-# # Function for reading in and creating SpatialPolygonsDataFrame from PostGIS
-# # Args: 
-# #   geom.tab: Dataframe with geometry and identifiers in it. Identifier must be 1st column, geometries 2nd col  
-# #   crs: Coordinate reference system
-# # Returns: 
-# #   A SpatialPolygonsDataFrame
-#   polys <- tst <- sapply(1:nrow(geom.tab), function(x) {
-#     poly <- as(readWKT(geom.tab[x, 2], p4s = crs), "SpatialPolygonsDataFrame")
-#     poly@data$ID <- geom.tab[x, 1]
-#     newid <- paste(x)
-#     poly <- spChFIDs(poly, newid)
-#     return(poly)
-#   })
-#   polyspdf <- do.call("rbind", polys)
-# }
 
 countError <- function(qaqc_rows, user_rows) {
 # Calculates percent agreement between number of fields in qaqc and user kmls
@@ -223,110 +225,12 @@ countError <- function(qaqc_rows, user_rows) {
 # Returns: Score between 0-1
 # Notes: Rearranges numerator and denominator of equation according to whether user mapped fields are more 
 # or less than QAQC fields
-  #qaqc.row <- ifelse(is.null(qaqc), 0, nrow(qaqc))
-  #kml.row <- ifelse(is.null(kml), 0, nrow(kml))
   cden <- ifelse(qaqc_rows >= user_rows, qaqc_rows, user_rows)
   cnu1 <- ifelse(qaqc_rows >= user_rows, qaqc_rows, user_rows)
   cnu2 <- ifelse(qaqc_rows >= user_rows, user_rows, qaqc_rows)
   cnterr <- 1 - (cnu1 - cnu2) / cden  # Percent agreement
   return(cnterr)
 }
-
-# cleanPolybyUnion <- function(poly.in) {
-# # To prevent rgeos errors caused by overlapping polygons, this function checks input polygons for overlaps 
-# # and performs a gUnaryUnion on any overlapping polygons
-# # Args: 
-# #  poly.in:  Input polygons
-# # Returns: 
-# #  Polygons with overlaps returned, if any
-# 
-#   o <- gOverlaps(poly.in, byid = T)
-#   if(any(o)) {
-#     poly.out <- gUnaryUnion(poly.in) 
-#   } else {
-#     poly.out <- poly.in
-#   }
-#   return(poly.out)
-# }
-
-# removeOverlaps <- function(x) {
-#   #newpoly <- SpatialPolygons(lapply(1:length(x), function(z) Polygons(x@polygons[[1]]@Polygons, z)))
-#   outpoly <- x
-#   newpoly2 <- lapply(1:length(outpoly), function(j) outpoly[j, ])
-#   itab <- gOverlaps(outpoly, byid = T)
-#   itab[which(itab)] <- 1
-#   itab1 <- rowSums(itab)
-#   i <- which(itab1 > 0)[1]
-# 
-#   while(i <= length(outpoly)) {
-#     a <- outpoly[i, ]
-#     b <- outpoly[-i, ]
-#     d <- b[which(gOverlaps(a, b, byid = T)), ]
-#     plot(newpoly2[[i]], add = T, col = "green")
-#     plot(b)
-#     plot(e, add = T, border = "maroon")
-#     plot(d, add = T, col = "red")
-#     plot(a, add = T, border = "green")
-#     d <- gUnaryUnion(d)
-#     plot(gDifference(outpoly, outpoly2, byid = T))
-#     newpoly2[[i]] <- gDifference(spgeom1 = a, spgeom2 = d, byid = T)
-#     outpoly2 <- SpatialPolygons(lapply(1:length(newpoly2), function(j) {
-#       Polygons(newpoly2[[j]]@polygons[[1]]@Polygons, j)
-#     }))
-#     itab <- gOverlaps(outpoly, byid = T)
-#     itab[which(itab)] <- 1
-#     itab1 <- rowSums(itab)
-#     ct <- which(itab1 > 0)[1]
-#     i <- unname(ifelse(is.na(ct), length(outpoly) + 1, ct)) 
-#     print(i)
-#   } 
-# }  # Commented out 4/4/13
-
-# Swtiching off grass cleaning 4/4/13
-# library(spgrass6)
-# SG <- Sobj_SpatialGrid(qaqc.poly)$SG
-# loc <- initGRASS("/Applications/GRASS-6.4.app/Contents/MacOS/", home=tempdir(), SG, override = TRUE)
-# tf <- tempfile()
-# mapset <- execGRASS("g.gisenv", parameters=list(get="MAPSET"), intern=TRUE)
-# execGRASS("g.gisenv", parameters=list(set=shQuote('MAPSET=PERMANENT')))
-# prj <- showWKT(proj4string(qaqc.poly), tf)
-# execGRASS("g.proj", flags="c", parameters=list(wkt=tf))
-# execGRASS("g.proj", flags="p")
-# execGRASS("g.gisenv", parameters=list(set=paste("'MAPSET=", mapset, "'", sep="")))
-# execGRASS("g.region", flags="d")
-# writeVECT6(qaqc.poly, "qaqc")
-# o <- readVECT6("qaqc", with_c=FALSE, remove.duplicates = F)
-# polylist <- lapply(1:length(unique(o@data$cat)), function(x) gUnaryUnion(o[o@data$cat == x, ]))
-# newpoly <- SpatialPolygons(lapply(1:length(unique(o@data$cat)), function(x) {
-#   Polygons(polylist[[x]]@polygons[[1]]@Polygons, x)
-# }))
-# 
-# outpoly <- newpoly
-# newpoly2 <- lapply(1:length(newpoly), function(j) newpoLy[j, ])
-# itab <- gOverlaps(outpoly, byid = T)
-# itab[which(itab)] <- 1
-# itab1 <- rowSums(itab)
-# i <- which(itab1 > 0)[1]
-# 
-# while(i <= length(newploy)) {
-#   a <- outpoly[i, ]
-#   b <- outpoly[-i, ]
-#   d <- b[which(gOverlaps(a, b, byid = T)), ]
-#   d <- gUnaryUnion(d)
-#   newpoly2[[i]] <- gDifference(spgeom1 = a, spgeom2 = gUnaryUnion(d), byid = T)
-#   outpoly <- SpatialPolygons(lapply(1:length(newpoly2), function(x) {
-#     Polygons(newpoly2[[x]]@polygons[[1]]@Polygons, x)
-#   }))
-#   itab <- gOverlaps(outpoly, byid = T)
-#   itab[which(itab)] <- 1
-#   itab1 <- rowSums(itab)
-#   ct <- which(itab1 > 0)[1]
-#   i <- unname(ifelse(is.na(ct), length(newploy) + 1, ct)) 
-#   print(i)
-# }  
-# plot(outpoly)
-# gOverlaps(outpoly, byid = T)
-# plot(newpoly2[[i]])
 
 callPprepair <- function(dirnm, spdfinname, spdfoutname, crs = crs) {
 # Function to make system call to polygon cleaning program pprepair
@@ -337,8 +241,6 @@ callPprepair <- function(dirnm, spdfinname, spdfoutname, crs = crs) {
 # Returns: 
 #   spdf of cleaned polygons, pointing to a temporary shapefile written to disk
   
-  #crs = prjstr
-  #dirnm = td; spdfinname = tmpnmin; spdfoutname = tmpnmout
   inname <- paste(dirnm, "/", spdfinname, ".shp", sep = "")
   outname <- paste(dirnm, "/", spdfoutname, ".shp", sep = "")
   ppcall <- paste("/usr/local/bin/pprepair -i", inname, "-o", outname, "-fix")
@@ -366,7 +268,6 @@ createCleanTempPolyfromWKT <- function(geom.tab, crs) {
   })
   polyspdf <- do.call("rbind", polys)
   polys.count <- nrow(polyspdf)
-  #td <- "/var/www/html/afmap/R/tmp/"
   td <- tempdir()
   tmpnmin <- strsplit(tempfile("poly", tmpdir = ""), "/")[[1]][2]
   tmpnmout <- strsplit(tempfile("poly", tmpdir = ""), "/")[[1]][2]
@@ -378,39 +279,34 @@ createCleanTempPolyfromWKT <- function(geom.tab, crs) {
 
 ##############################################################################################################
 
-# First check if the QAQC site is null or not
-qaqc.sql <- paste("select fields from newqaqc_sites where name=", "'", kmlid, "'", sep = "")
-qaqc.hasfields <- dbGetQuery(con, qaqc.sql)$fields  # Check fields column in master qaqcs sites database
+# Collect QAQC fields (if there are any; if not then "N" value will be returned). This should work for both
+# training and test sites
+qaqc.sql <- paste("select id,ST_AsEWKT(geom) from qaqcfields where name=", "'", kmlid, "'", sep = "")
+qaqc.geom.tab <- dbGetQuery(con, qaqc.sql)
+qaqc.hasfields <- ifelse(nrow(qaqc.geom.tab) > 0, "Y", "N") 
 if(qaqc.hasfields == "Y") {
-  qaqc.fields.sql <- paste("select id,ST_AsEWKT(geom) from qaqcfields where name=", "'", kmlid, "'", sep = "")
-  qaqc.geom.tab <- dbGetQuery(con, qaqc.fields.sql)
   qaqc.geom.tab[, 2] <- gsub("^SRID=*.*;", "", qaqc.geom.tab[, 2])
-  #qaqc.poly <- createSPPolyfromWKT(geom.tab = qaqc.geom.tab, crs = prjstr)
-  #qaqc.nfields <- nrow(qaqc.poly)  # Collect number of unique fields before cleaning
-  #qaqc.poly <- cleanPolybyUnion(qaqc.poly)  # Clean up any overlaps
-  #qaqc.poly <- gUnaryUnion(qaqc.poly)  # Clean up any overlaps
-  #qaqc.poly <- gUnaryUnion(gBuffer(qaqc.poly, byid = TRUE, width = 0)) # 30/11/12 Bug fix for self-int
   qaqc.poly.list <- createCleanTempPolyfromWKT(geom.tab = qaqc.geom.tab, crs = prjstr)
   qaqc.poly <- gUnaryUnion(qaqc.poly.list[[1]])
   qaqc.nfields <- qaqc.poly.list[[2]]
-}
+} 
 
 # Read in user data
-user.sql <- paste("select name,ST_AsEWKT(geom) from user_maps where assignment_id=", "'", 
-                 assignmentid, "'", " order by name", sep = "")
-# user.sql <- paste("select name,ST_AsEWKT(ST_MakeValid(geom)) from user_maps where assignment_id=", "'", 
-#                   assignmentid, "'", " order by name", sep = "")
+if(mtype == "tr") {  # Training case
+  user.sql <- paste("select name,ST_AsEWKT(geom),try from qual_user_maps where ",  assignmentidtype, "='", 
+                    assignmentid, "'", " and try='",  tryid, "' order by name", sep = "")
+} else if(mtype == "qa") {  # Test case
+  user.sql <- paste("select name,ST_AsEWKT(geom) from user_maps where assignment_id=", "'", 
+                   assignmentid, "'", " order by name", sep = "")  
+}
 user.geom.tab <- dbGetQuery(con, user.sql)  # Collect user data and fields geometries
+user.geom.tab <- user.geom.tab[grep(kmlid, user.geom.tab$name), ]  # added to drop other training results
 user.hasfields <- ifelse(nrow(user.geom.tab) > 0, "Y", "N")  # Need to get this right
 if(user.hasfields == "Y") {  # Read in user fields if there are any
   user.geom.tab[, 2] <- gsub("^SRID=*.*;", "", user.geom.tab[, 2])
-  #user.poly.gcs <- createSPPolyfromWKT(geom.tab = user.geom.tab, crs = gcs)
   user.poly.list <- createCleanTempPolyfromWKT(geom.tab = user.geom.tab, crs = gcs)
   user.poly <- gUnaryUnion(spTransform(user.poly.list[[1]], CRSobj = CRS(prjstr)))  # Transform to Albers
   user.nfields <- user.poly.list[[2]]  #  Record number of distinct fields observed by user
-  #user.poly <- cleanPolybyUnion(user.poly)  # Clean up any overlaps in user polygons
-  #user.poly <- gUnaryUnion(user.poly)  # Clean up any overlaps in user polygons
-  #user.poly <- gUnaryUnion(gBuffer(user.poly, byid = TRUE, width = 0))  # 30/11/12 Bug fix with self-int
 }
 
 # Error checks begin
@@ -422,10 +318,13 @@ if((qaqc.hasfields == "N") & (user.hasfields == "N")) {
   err.out <- c("total_error" = err, "count_error" = 1, "out_error" = 1, "in_error" = 1, "user_fldcount" = 0)
 } else {
   # Pick up grid cell from qaqc table, for background location, as it will be needed for the other three cases
-  grid.sql <- paste("SELECT id,ST_AsEWKT(geom) from newqaqc_sites where name=", "'", kmlid, "'", sep = "")
+  if(mtype == "tr") {  # Training case
+    grid.sql <- paste("SELECT id,ST_AsEWKT(geom) from sa1kgrid where name=", "'", kmlid, "'", sep = "")
+  } else if(mtype == "tr") {  # QAQC case
+    grid.sql <- paste("SELECT id,ST_AsEWKT(geom) from newqaqc_sites where name=", "'", kmlid, "'", sep = "")
+  }
   grid.geom.tab <- dbGetQuery(con, grid.sql)
   grid.geom.tab[, 2] <- gsub("^SRID=*.*;", "", grid.geom.tab[, 2])
-  #grid.poly <- createSPPolyfromWKT(geom.tab = grid.geom.tab, crs = prjstr)
   grid.poly <- createCleanTempPolyfromWKT(geom.tab = grid.geom.tab, crs = prjstr)[[1]]
 }
 
@@ -485,7 +384,6 @@ if(qaqc.hasfields == "Y") {
     
     # Mapped area differences inside the target grid cell
     user.poly.in <- gIntersection(spgeom1 = grid.poly, spgeom2 = user.poly, byid = T) # Turker maps in grid
-    #qaqc.poly.in <- gIntersection(spgeom1 = grid.poly, spgeom2 = gBuffer(qaqc.poly, byid = T, width = 0), byid = T) # QAQC inside grid cell
     qaqc.poly.in <- gIntersection(spgeom1 = grid.poly, spgeom2 = qaqc.poly, byid = T) # QAQC inside grid cell
     user.poly.out <- gDifference(spgeom1 = user.poly, spgeom2 = grid.poly, byid = T)  # Turker maps out 
     qaqc.poly.out <- gDifference(spgeom1 = qaqc.poly, spgeom2 = grid.poly, byid = T)  # QAQC outside grid cell
@@ -501,7 +399,6 @@ if(qaqc.hasfields == "Y") {
       fno <- gDifference(spgeom1 = qaqc.poly.out, spgeom2 = user.poly.out)  # true positives (overlap)
       tflisto <- c("tpo", "fno")  # 29/11/12: Bug fix for crash in areas caused by null intersect
       areaso <- sapply(tflisto, function(x) ifelse(!is.null(get(x)) & is.object(get(x)), gArea(get(x)), 0))
-      #areaso <- sapply(list(tpo, fno), function(x) gArea(x))
       out.error <- areaso[1] / sum(areaso)
     } else {
       if(comments == "T") print("Either QAQC or User fields outside of grid, but not both")
@@ -517,31 +414,27 @@ if(qaqc.hasfields == "Y") {
 
 # Insert error component statistics into the database
 if(write.err.db == "T") {
-  error.sql <- paste("insert into error_data (assignment_id, score, error1, error2, error3, error4) values ('", 
-                     assignmentid, "', ", paste(err.out, collapse = ", "), ")", sep = "")
+  if(mtype == "qa") {
+    error.sql <- paste("insert into error_data (assignment_id, score, error1, error2, error3, error4) ", 
+                       "values ('", assignmentid, "', ", paste(err.out, collapse = ", "), ")", sep = "")
+  } else if(mtype == "tr") {
+    t.error.check.sql <- paste("select training_id,name,try from qual_error_data where training_id='", 
+                           assignmentid, "' and try=", tryid, sep = "")  # Check to see if error record exists
+    t.error.check <- dbGetQuery(con, t.error.check.sql) 
+    tryid2 <- ifelse(nrow(t.error.check) > 0, as.numeric(tryid) + 10, tryid)  # If so, add 10 to try attempt
+    error.sql <- paste("insert into qual_error_data",  
+                       "(training_id, name, score, error1, error2, error3, error4, try) ", 
+                       "values ('", assignmentid, "', ", "'", kmlid, "', ", paste(err.out, collapse = ", "), 
+                       ", ", tryid2, ")", sep = "")  # Write try error data
+  }  
   ret <- dbSendQuery(con, error.sql)
 }
 
-# Note: I want to keep some of the additional error metrics, if possible.  I can write them from here into 
-# the database, or pass them all out to python, and have the python code handle that.  
-# For now, I am just passing out the primary error metric, which I am setting to zero if is is negative
-#score <- ifelse(err.out[1] < 0, 0, err.out[1])
+# Pass out error metrics
 if(comments == "T") {
-  cat(err.out)
+  cat(err.out)  # All metrics if comments are on (testing only)
 } else {
-  cat(err.out[1])
-}
-
-# Write error metrics to log file
-if(write.err.log == "T") {
-  prj.file.path <- dbGetQuery(con, "select value from configuration where key = 'ProjectRoot'")$value
-  err.fname <- paste(prj.file.path, "/R/Error_records/error_metrics.Rout", sep = "")
-  err.strng <- paste(kmlid, assignmentid, paste(round(err.out, 4), collapse = "  "), sep = "   ")
-  if(file.exists(err.fname)) {
-    write(err.strng, file = err.fname, append = T) 
-  } else {
-    write(err.strng, file = err.fname)
-  } 
+  cat(err.out[1])  # First metric if in production
 }
 
 # Map results according to error class
@@ -591,7 +484,6 @@ if(draw.maps == "T") {
 }
 
 # Clean up a bit (aids with running tests)
-#rmnames <- ls(pattern = "qaqc|err|user|count\\.|tpo|fpo|grid\\.|bbr|ass|kmlid")
 rmnames <- ls()
 user.sql <- paste("select name,ST_AsEWKT(geom) from user_maps where assignment_id=", "'", 
                   assignmentid, "'", " order by name", sep = "")
