@@ -86,9 +86,11 @@
 #                     * Error algorithm switched to TSS (err.switch = 2)
 #                     * Wrote in logic to check if training error map was recorded more than once. If so, add
 #                       10 to try attempt number and write again
+#                       [switched this option off]
 #                     * Simplified logic for reading in qaqc maps. Removed check to newqaqc_sites for whether
 #                       fields exist or not, which might make this table redundant. 
 #                     * Compare to version 1.2.4 in Test_and_Old_R or in SVN to recover changes
+#                   20/6/2013: Returned error switch to original accuracy measure, as TSS is too strict
 #                    
 ##############################################################################################################
 # Hardcoded values placed here for easy changing 
@@ -96,8 +98,8 @@ prjsrid       <- 97490  # EPSG identifier for equal area project
 count.err.wt  <- 0.1  # Weighting given to error in number of fields identified 
 in.err.wt     <- 0.7  # Weighting for in grid map discrepancy
 out.err.wt    <- 0.2  # Weighting for out of grid map discrepancy
-err.switch    <- 2  # Selects which area error metric used for in grid accuracy: 1 = overall accuracy; 2 = TSS
-comments      <- "F"  # For testing, one can turn on print statements to see what is happening
+err.switch    <- 1  # Selects which area error metric used for in grid accuracy: 1 = overall accuracy; 2 = TSS
+comments      <- "T"  # For testing, one can turn on print statements to see what is happening
 consel        <- "africa"  # postgres connection switch: "africa" when run on server, "mac" for off server
 write.err.db  <- "T"  # Option to write error metrics into error_data table in postgres (off if not "T") 
 draw.maps     <- "T"  # Option to draw maps showing output error components (where maps possible, off w/o "T")
@@ -129,6 +131,7 @@ if(test == "N") {
   assignmentid <- args[3]  # Job identifier
   if(!is.na(args[4]) & mtype == "tr") tryid <- args[4] # Try identifier (for training module only)
   if(!is.na(args[4]) & mtype == "qa") stop("QA tests do not have multiple attempts")
+  if(is.na(args[4]) & mtype == "tr") stop("Training sites need to have try (attempt) specified")
   assignmentidtype <- ifelse(mtype == "tr", "training_id", "assignment_id")  # value to paste into user.sql
   if(comments == "T") print(mtype)
   if(comments == "T") print(kmlid)
@@ -418,14 +421,15 @@ if(write.err.db == "T") {
     error.sql <- paste("insert into error_data (assignment_id, score, error1, error2, error3, error4) ", 
                        "values ('", assignmentid, "', ", paste(err.out, collapse = ", "), ")", sep = "")
   } else if(mtype == "tr") {
-    t.error.check.sql <- paste("select training_id,name,try from qual_error_data where training_id='", 
-                           assignmentid, "' and try=", tryid, sep = "")  # Check to see if error record exists
-    t.error.check <- dbGetQuery(con, t.error.check.sql) 
-    tryid2 <- ifelse(nrow(t.error.check) > 0, as.numeric(tryid) + 10, tryid)  # If so, add 10 to try attempt
+    #t.error.check.sql <- paste("select training_id,name,try from qual_error_data where training_id='", 
+    #                       assignmentid, "' and try=", tryid, sep = "")  # Check to see if error record exists
+    #t.error.check <- dbGetQuery(con, t.error.check.sql) 
+    #tryid2 <- ifelse(nrow(t.error.check) > 0, as.numeric(tryid) + 10, tryid)  # If so, add 10 to try attempt
     error.sql <- paste("insert into qual_error_data",  
                        "(training_id, name, score, error1, error2, error3, error4, try) ", 
                        "values ('", assignmentid, "', ", "'", kmlid, "', ", paste(err.out, collapse = ", "), 
-                       ", ", tryid2, ")", sep = "")  # Write try error data
+                       #", ", tryid2, ")", sep = "")  # Write try error data
+                       ", ", tryid, ")", sep = "")  # Write try error data
   }  
   ret <- dbSendQuery(con, error.sql)
 }

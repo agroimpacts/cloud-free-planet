@@ -18,6 +18,8 @@
 #              26/10/12: Fixed connections and changed error logger to reflect dropping of afmap
 #              13/6/12: Updated avail.kml.count to have no sql statement b/c kml_data no longer has hit_id
 #                 Ran manually to give some initial non-qaqc kmls to work with
+#              20/6/13: Added logging for daemon start time and for pid to be recorded in separate file. 
+#                 Daemon start time is recorded in log file that lists NKML ids selected for writing 
 ##############################################################################################################
 
 library(RPostgreSQL)
@@ -29,6 +31,7 @@ con <- dbConnect(drv, dbname = "SouthAfrica", user = "***REMOVED***", password =
 #dbListConnections(drv); dbGetInfo(drv); summary(con)
 
 # Hardcoded data
+fname <- "KMLgenerate_1.2.3"  # KMLgenerate version number
 country.ID <- "SA"  # Ideally this will be read out of the database, as we expand to other countries
 kml.type <- "N"  # Type of KML (N for non-QAQC)
 
@@ -42,21 +45,34 @@ kml.file.path <- kml.file.path$value
 log.file.path <- dbGetQuery(con, "select value from configuration where key = 'ProjectRoot'")
 log.file.path <- paste(log.file.path$value, "/log", sep="")
 
+# Write out pid to file and record daemon start time
+setwd(log.file.path)
+pid <- Sys.getpid()
+write(pid, file = paste(fname, ".pid", sep = ""))  # Write out pid to new file, overwriting is exists
+pstart.string <- paste("KMLgenerate: Daemon starting up at ", format(Sys.time(), "%a %b %e %H:%M:%S %Z %Y"), 
+                       " (pid ", pid, ")", sep = "")
+
 # Initialize csv to log database error message
+setwd(log.file.path)
 log.hdr <- rbind("Error messages from KMLGenerate_X.X.R", 
                  "Time errcode errmessage",
                  "#####################################################################################")
-setwd(log.file.path)
-write.table(log.hdr, file = "KMLGenerate_dbase_error.log", sep = "", col.names = F, row.names = F, 
-            quote = FALSE)
+dberrfname <- "KMLGenerate_dbase_error.log"
+if(!file.exists(dberrfname)) {
+   write.table(log.hdr, file = dberrfname, sep = "", col.names = F, row.names = F, quote = FALSE)
+}
 options(digit.secs = 4)  # Display milliseconds for time stamps 
 
-# Initialize Rlog file to record which kml ids written and when
-rlog.hdr <- rbind("Log of KML ids written and times, from KMLGenerate_X.X.R", 
+# Initialize Rlog file to record daemon start time and which kml ids written and when
+rlog.hdr <- rbind("Log of script start, KML ids written and times, from KMLgenerate_X.X.X.R", 
                   "#########################################################################################",
                   "")
-setwd(log.file.path)
-write.table(rlog.hdr, file = "KMLGenerate_kmlID.log", sep = "", col.names = F, row.names = F, quote = FALSE)
+logfname <- paste(fname, ".log", sep = "")  # Log file name
+if(!file.exists(logfname)) {
+  #write(rlog.hdr, file = paste(fname, ".log", sep = ""), col.names = F, row.names = F, quote = FALSE)
+  write(rlog.hdr, file = logfname)
+}
+write(rbind(pstart.string, ""), file = logfname, append = TRUE)  # Write out daemon start stamp
 
 repeat {
   
@@ -127,25 +143,25 @@ repeat {
 	  if(exception$errorNum != 0) {
 			print("Error updating SouthAfrica")
       errors <- paste(gsub("EDT", "", Sys.time()), "  ", paste(exception, collapse = "    "))
-      write(errors, file = "KMLGenerate_dbase_error.log", append = T)
+      write(errors, file = dberrfname, append = T)
 			quit(status=exception$errorNum, save="no")
 		}
 	}
   end.time <- Sys.time()
   
   # Write out kmlID log
-  write("**************************************", file = "KMLGenerate_kmlID.log", append = T)
-  write(format(start.time, "%a %b %d %X %Y %Z"), file = "KMLGenerate_kmlID.log", append = T)
-  write("**************************************", file = "KMLGenerate_kmlID.log", append = T)
+  write("**************************************", file = logfname, append = T)
+  write(format(start.time, "%a %b %d %X %Y %Z"), file = logfname, append = T)
+  write("**************************************", file = logfname, append = T)
   if(avail.kml.count < min.avail.kml) {
-    write(id.rand, file = "KMLGenerate_kmlID.log", append = T)
+    write(id.rand, file = logfname, append = T)
   } else{ 
-    write("Sufficient NKMLs are in the system", file = "KMLGenerate_kmlID.log", append = T)
+    write("Sufficient NKMLs are in the system", file = logfname, append = T)
   }
-  write("**************************************", file = "KMLGenerate_kmlID.log", append = T)
-  write(format(end.time, "%a %b %d %X %Y %Z"), file = "KMLGenerate_kmlID.log", append = T)
-  write("**************************************", file = "KMLGenerate_kmlID.log", append = T)
-  write("", file = "KMLGenerate_kmlID.log", append = T)
+  write("**************************************", file = logfname, append = T)
+  write(format(end.time, "%a %b %d %X %Y %Z"), file = logfname, append = T)
+  write("**************************************", file = logfname, append = T)
+  write("", file = logfname, append = T)
 	Sys.sleep(kmlPollingInterval)
 }
 
