@@ -31,7 +31,7 @@ con <- dbConnect(drv, dbname = "SouthAfrica", user = "***REMOVED***", password =
 #dbListConnections(drv); dbGetInfo(drv); summary(con)
 
 # Hardcoded data
-fname <- "KMLgenerate_1.2.3"  # KMLgenerate version number
+fname <- "KMLgenerate"  # KMLgenerate 
 country.ID <- "SA"  # Ideally this will be read out of the database, as we expand to other countries
 kml.type <- "N"  # Type of KML (N for non-QAQC)
 
@@ -54,12 +54,12 @@ pstart.string <- paste("KMLgenerate: Daemon starting up at ", format(Sys.time(),
 
 # Initialize csv to log database error message
 setwd(log.file.path)
-log.hdr <- rbind("Error messages from KMLGenerate_X.X.R", 
+log.hdr <- rbind("Error messages from KMLgenerate_X.X.R", 
                  "Time errcode errmessage",
                  "#####################################################################################")
-dberrfname <- "KMLGenerate_dbase_error.log"
+dberrfname <- "KMLgenerate_dbase_error.log"
 if(!file.exists(dberrfname)) {
-   write.table(log.hdr, file = dberrfname, sep = "", col.names = F, row.names = F, quote = FALSE)
+   write.table(log.hdr, file = dberrfname, sep = "", col.names = FALSE, row.names = FALSE, quote = FALSE)
 }
 options(digit.secs = 4)  # Display milliseconds for time stamps 
 
@@ -97,7 +97,7 @@ repeat {
 
     # Step 2. Draw weighted random sample = min.kml.batch
 	  set.seed(234)
-    id.rand <- sample(grid.IDs$id, size = kml.batch.size, replace = F, prob = grid.IDs$fwts)  # Random draw
+    id.rand <- sample(grid.IDs$id, size = kml.batch.size, replace = FALSE, prob = grid.IDs$fwts)  # Random 
     #table(grid.IDs[grid.IDs$id %in% id.rand, "fwts"])
     sql <- paste("SELECT ST_AsEWKT(geom) from sa1kgrid where id in", " (", paste(id.rand, collapse = ","), 
                  ")", sep = "")
@@ -143,25 +143,25 @@ repeat {
 	  if(exception$errorNum != 0) {
 			print("Error updating SouthAfrica")
       errors <- paste(gsub("EDT", "", Sys.time()), "  ", paste(exception, collapse = "    "))
-      write(errors, file = dberrfname, append = T)
+      write(errors, file = dberrfname, append = TRUE)
 			quit(status=exception$errorNum, save="no")
 		}
 	}
   end.time <- Sys.time()
   
   # Write out kmlID log
-  write("**************************************", file = logfname, append = T)
-  write(format(start.time, "%a %b %d %X %Y %Z"), file = logfname, append = T)
-  write("**************************************", file = logfname, append = T)
+  write("**************************************", file = logfname, append = TRUE)
+  write(format(start.time, "%a %b %d %X %Y %Z"), file = logfname, append = TRUE)
+  write("**************************************", file = logfname, append = TRUE)
   if(avail.kml.count < min.avail.kml) {
     write(id.rand, file = logfname, append = T)
   } else{ 
-    write("Sufficient NKMLs are in the system", file = logfname, append = T)
+    write("Sufficient NKMLs are in the system", file = logfname, append = TRUE)
   }
-  write("**************************************", file = logfname, append = T)
-  write(format(end.time, "%a %b %d %X %Y %Z"), file = logfname, append = T)
-  write("**************************************", file = logfname, append = T)
-  write("", file = logfname, append = T)
+  write("**************************************", file = logfname, append = TRUE)
+  write(format(end.time, "%a %b %d %X %Y %Z"), file = logfname, append = TRUE)
+  write("**************************************", file = logfname, append = TRUE)
+  write("", file = logfname, append = TRUE)
 	Sys.sleep(kmlPollingInterval)
 }
 

@@ -91,6 +91,7 @@
 #                       fields exist or not, which might make this table redundant. 
 #                     * Compare to version 1.2.4 in Test_and_Old_R or in SVN to recover changes
 #                   20/6/2013: Returned error switch to original accuracy measure, as TSS is too strict
+#                   6/8/2013: Made modification to write TSS to *error_data tables
 #                    
 ##############################################################################################################
 # Hardcoded values placed here for easy changing 
@@ -317,7 +318,8 @@ if(user.hasfields == "Y") {  # Read in user fields if there are any
 # Case 1: A null qaqc site recorded as null by the observer; score set to 1
 if((qaqc.hasfields == "N") & (user.hasfields == "N")) {
   if(comments == "T") print("No QAQC or User fields")
-  err <- 1  
+  err <- 1
+  tss.err <- 1  
   err.out <- c("total_error" = err, "count_error" = 1, "out_error" = 1, "in_error" = 1, "user_fldcount" = 0)
 } else {
   # Pick up grid cell from qaqc table, for background location, as it will be needed for the other three cases
@@ -351,7 +353,8 @@ if((qaqc.hasfields == "N") & (user.hasfields == "Y")) {
   }
 
   # Combine error metric
-  err <- count.error * count.err.wt + unname(inres[[1]][err.switch]) * in.err.wt + out.error * out.err.wt  
+  err <- count.error * count.err.wt + unname(inres[[1]][err.switch]) * in.err.wt + out.error * out.err.wt 
+  tss.err <- inres[[1]][2]
   err.out <- c("total_error" = err, "count_error" = count.error, "out_error" = out.error, 
                "in_error" = unname(inres[[1]][err.switch]), "user_fldcount" = user.nfields)
 }
@@ -374,7 +377,8 @@ if(qaqc.hasfields == "Y") {
     out.error <- 0  # reduces to 0, because there is neither true positive nor false negative
    
     # Combine error metric
-    err <- count.error * count.err.wt + unname(inres[[1]][err.switch]) * in.err.wt + out.error * out.err.wt  
+    err <- count.error * count.err.wt + unname(inres[[1]][err.switch]) * in.err.wt + out.error * out.err.wt 
+    tss.err <- inres[[1]][2]
     err.out <- c("total_error" = err, "count_error" = count.error, "out_error" = out.error, 
                  "in_error" = unname(inres[[1]][err.switch]), "user_fldcount" = 0)
   
@@ -409,7 +413,8 @@ if(qaqc.hasfields == "Y") {
     }
     
     # Combine error metric
-    err <- count.error * count.err.wt + unname(inres[[1]][err.switch]) * in.err.wt + out.error * out.err.wt  
+    err <- count.error * count.err.wt + unname(inres[[1]][err.switch]) * in.err.wt + out.error * out.err.wt 
+    tss.err <- inres[[1]][2]
     err.out <- c("total_error" = err, "count_error" = count.error, "out_error" = out.error, 
                  "in_error" = unname(inres[[1]][err.switch]), "user_fldcount" = user.nfields)
   }
@@ -418,18 +423,14 @@ if(qaqc.hasfields == "Y") {
 # Insert error component statistics into the database
 if(write.err.db == "T") {
   if(mtype == "qa") {
-    error.sql <- paste("insert into error_data (assignment_id, score, error1, error2, error3, error4) ", 
-                       "values ('", assignmentid, "', ", paste(err.out, collapse = ", "), ")", sep = "")
+    error.sql <- paste("insert into error_data (assignment_id, score, error1, error2, error3, error4, tss) ", 
+                       "values ('", assignmentid, "', ", paste(err.out, collapse = ", "), ", ", tss.err,  
+                       ")", sep = "")
   } else if(mtype == "tr") {
-    #t.error.check.sql <- paste("select training_id,name,try from qual_error_data where training_id='", 
-    #                       assignmentid, "' and try=", tryid, sep = "")  # Check to see if error record exists
-    #t.error.check <- dbGetQuery(con, t.error.check.sql) 
-    #tryid2 <- ifelse(nrow(t.error.check) > 0, as.numeric(tryid) + 10, tryid)  # If so, add 10 to try attempt
     error.sql <- paste("insert into qual_error_data",  
-                       "(training_id, name, score, error1, error2, error3, error4, try) ", 
+                       "(training_id, name, score, error1, error2, error3, error4, try, tss) ", 
                        "values ('", assignmentid, "', ", "'", kmlid, "', ", paste(err.out, collapse = ", "), 
-                       #", ", tryid2, ")", sep = "")  # Write try error data
-                       ", ", tryid, ")", sep = "")  # Write try error data
+                       ", ", tryid, ", ", tss.err, ")", sep = "")  # Write try error data
   }  
   ret <- dbSendQuery(con, error.sql)
 }
