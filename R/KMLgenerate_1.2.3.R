@@ -19,7 +19,8 @@
 #              13/6/12: Updated avail.kml.count to have no sql statement b/c kml_data no longer has hit_id
 #                 Ran manually to give some initial non-qaqc kmls to work with
 #              20/6/13: Added logging for daemon start time and for pid to be recorded in separate file. 
-#                 Daemon start time is recorded in log file that lists NKML ids selected for writing 
+#                 Daemon start time is recorded in log file that lists NKML ids selected for writing
+#              13/8/2013: Fixed bug, sys.sleep was referring to wrong variable name
 ##############################################################################################################
 
 library(RPostgreSQL)
@@ -162,7 +163,7 @@ repeat {
   write(format(end.time, "%a %b %d %X %Y %Z"), file = logfname, append = TRUE)
   write("**************************************", file = logfname, append = TRUE)
   write("", file = logfname, append = TRUE)
-	Sys.sleep(kmlPollingInterval)
+	Sys.sleep(kml.polling.interval)
 }
 
 # After testing, reset changes to the following database fields: 
