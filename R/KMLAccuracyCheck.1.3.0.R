@@ -92,6 +92,7 @@
 #                     * Compare to version 1.2.4 in Test_and_Old_R or in SVN to recover changes
 #                   20/6/2013: Returned error switch to original accuracy measure, as TSS is too strict
 #                   6/8/2013: Made modification to write TSS to *error_data tables
+#                   12/9/2013: Bug in creating grid.sql found for "qa" case. Was set to "tr" in logic.
 #                    
 ##############################################################################################################
 # Hardcoded values placed here for easy changing 
@@ -325,7 +326,7 @@ if((qaqc.hasfields == "N") & (user.hasfields == "N")) {
   # Pick up grid cell from qaqc table, for background location, as it will be needed for the other three cases
   if(mtype == "tr") {  # Training case
     grid.sql <- paste("SELECT id,ST_AsEWKT(geom) from sa1kgrid where name=", "'", kmlid, "'", sep = "")
-  } else if(mtype == "tr") {  # QAQC case
+  } else if(mtype == "qa") {  # QAQC case
     grid.sql <- paste("SELECT id,ST_AsEWKT(geom) from newqaqc_sites where name=", "'", kmlid, "'", sep = "")
   }
   grid.geom.tab <- dbGetQuery(con, grid.sql)
@@ -423,6 +424,8 @@ if(qaqc.hasfields == "Y") {
 # Insert error component statistics into the database
 if(write.err.db == "T") {
   if(mtype == "qa") {
+#     error.sql <- paste("insert into error_data (assignment_id, score, error1, error2, error3, error4) ", 
+#                        "values ('", assignmentid, "', ", paste(err.out, collapse = ", "), ")", sep = "")
     error.sql <- paste("insert into error_data (assignment_id, score, error1, error2, error3, error4, tss) ", 
                        "values ('", assignmentid, "', ", paste(err.out, collapse = ", "), ", ", tss.err,  
                        ")", sep = "")
@@ -430,6 +433,7 @@ if(write.err.db == "T") {
     error.sql <- paste("insert into qual_error_data",  
                        "(training_id, name, score, error1, error2, error3, error4, try, tss) ", 
                        "values ('", assignmentid, "', ", "'", kmlid, "', ", paste(err.out, collapse = ", "), 
+                       #", ", tryid2, ")", sep = "")  # Write try error data
                        ", ", tryid, ", ", tss.err, ")", sep = "")  # Write try error data
   }  
   ret <- dbSendQuery(con, error.sql)
