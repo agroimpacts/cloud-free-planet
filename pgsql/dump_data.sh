@@ -1,6 +1,6 @@
 #! /bin/bash
 
-DATADIR=/var/www/html/afmap/pgsql/data
+DATADIR=`dirname $0`
 
 if [ -f $DATADIR/$1_data.sql.gz.2 ]; then
         mv $DATADIR/$1_data.sql.gz.2 $DATADIR/$1_data.sql.gz.3

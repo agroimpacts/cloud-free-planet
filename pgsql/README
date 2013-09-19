@@ -7,7 +7,7 @@ To restore the entire SouthAfrica database:
     psql -U postgres
     \i role.sql
 
-4) Gunzip the database schema dump you wish to load.
+4) Select the database schema dump you wish to load.
 5) As superuser ***REMOVED***, create the SouthAfrica database and schema 
    (using ***REMOVED*** to do this ensures that all ***REMOVED*** extension 
     objects are owned by ***REMOVED***):
