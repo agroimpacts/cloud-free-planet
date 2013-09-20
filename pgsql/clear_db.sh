@@ -14,4 +14,14 @@ delete from error_data;
 delete from assignment_data;
 delete from worker_data;
 delete from hit_data;
+delete from qual_user_maps;
+delete from qual_error_data;
+delete from qual_assignment_data;
+delete from qual_worker_data;
+update system_data set value=0 where key='Qual_MappingAfricaId';
+update system_data set value=0 where key='CurNonQaqcGid';
+update system_data set value=0 where key='CurQaqcGid';
+update system_data set value=0 where key='SumPendingNonQaqcs';
+update system_data set value=0 where key='NumQaqcs';
+update system_data set value=0 where key='AvgPendingNonQaqcs';
 EOD
