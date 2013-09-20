@@ -1,6 +1,6 @@
 #! /bin/bash
 
-DATADIR=`dirname $0`
+DATADIR=`dirname $0`/data
 
 if [ -f $DATADIR/$1_db.sql.gz.2 ]; then
         mv $DATADIR/$1_db.sql.gz.2 $DATADIR/$1_db.sql.gz.3

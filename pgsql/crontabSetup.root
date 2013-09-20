@@ -2,4 +2,4 @@ MAILTO=csesi@Princeton.EDU
 SHELL=/bin/bash
 # Min Hour(0-23) Day Month DOW Command
 15 01 * * * PGDIR=/u/mapper/afmap/pgsql;export PGPASSFILE=$PGDIR/pgpassfile;$PGDIR/daily_backup.sh
-15 02 * * * PGDIR=/u/sandbox/afmap/pgsql;export PGPASSFILE=$PGDIR/pgpassfile;$PGDIR/daily_backup.sh
+15 02 * * * PGDIR=/u/sandbox/afmap/pgsql;export PGPASSFILE=$PGDIR/pgpassfile_sandbox;$PGDIR/daily_backup.sh
