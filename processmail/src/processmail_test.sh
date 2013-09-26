@@ -7,3 +7,5 @@
 # 4) Send email to test_email@<this_server>.princeton.edu
 
 id >/tmp/id.test
+umask >>/tmp/id.test
+env >>/tmp/id.test

@@ -55,7 +55,7 @@
 #endif
 
 void usage(char *prog) {
-    if ( DEBUG ) printf("Usage: %s --user <effective_user> --script <target_script> <args> ...\n", prog);
+    if ( DEBUG ) printf("Usage: %s --user <effective_user> --umask <effective_umask> --script <target_script> <args> ...\n", prog);
 }
 
 int main(int argc, char** argv) {
@@ -64,6 +64,7 @@ int main(int argc, char** argv) {
     int status;
 
     char *euser = NULL;
+    int eumask = 0;
     char *script = NULL;
     char   **script_args;
     struct stat script_attrs;
@@ -88,6 +89,10 @@ int main(int argc, char** argv) {
         if (strcmp(argv[i], "--user") == 0) {
             euser = argv[++i];
         }
+        // Check for new effective umask argument pair
+        if (strcmp(argv[i], "--umask") == 0) {
+            eumask = strtoul(argv[++i], NULL, 8);
+        }
         // Check for target script path argument pair
         else if (strcmp(argv[i], "--script") == 0) {
             script = argv[++i];
@@ -104,9 +109,13 @@ int main(int argc, char** argv) {
         usage(argv[0]);
         return 2;
     }
-    if (script == NULL) {
+    if (eumask == 0) {
         usage(argv[0]);
         return 3;
+    }
+    if (script == NULL) {
+        usage(argv[0]);
+        return 4;
     }
     script_args[0] = script;
 
@@ -115,26 +124,26 @@ int main(int argc, char** argv) {
     if ( MTA == NULL ) {
         if ( DEBUG ) printf("%s compiled with non-existent MTA user (%s)\n", 
                 argv[0], MTA_USER);
-        return 4;
+        return 5;
     }
     int caller = getuid();
     if ( caller !=  MTA->pw_uid ) {
         if ( DEBUG ) printf(
                 "Caller UID (%d) does not match that of expected MTA user (%s)\n", 
                 caller, MTA_USER);
-        return 5;
+        return 6;
     }
 
     // Check effective user
     EUSER = getpwnam(euser);
     if ( EUSER == NULL ) {
         if ( DEBUG ) printf("Non-existent effective user (%s) specified\n", euser);
-        return 6;
+        return 7;
     }
     // Don't allow root as an effective user
     if ( EUSER->pw_uid == 0 ) {
         if ( DEBUG ) printf("Invalid effective user (%s) specified\n", euser);
-        return 7;
+        return 8;
     }
 
     /* set UID, GID and supplementary groups to be those of the specified user */
@@ -142,22 +151,24 @@ int main(int argc, char** argv) {
     if (initgroups(euser, EUSER->pw_gid)) {
         if ( DEBUG ) printf("Can't set supplementary groups for effective user (%s)\n",
                 euser);
-        return 8;
+        return 9;
     }
 #endif
     if (setgid(EUSER->pw_gid)) {
         if ( DEBUG ) printf("setgid failed for effective user\n");
-        return 9;
+        return 10;
     }
     if (setuid(EUSER->pw_uid)) {
         if ( DEBUG ) printf("setuid failed for effective user\n");
-        return 10;
+        return 11;
     }
+    // Change effective umask
+    umask(eumask);
 
     /* Check that target script exists */
     if ( stat(script, &script_attrs) ) {
         if ( DEBUG ) printf("Target script does not exist (%s)\n",script);
-        return 11;
+        return 12;
     }
 
     /* Execute script */
@@ -166,5 +177,5 @@ int main(int argc, char** argv) {
     // Should never get here
     if ( DEBUG ) printf("Script (%s) execution failure (error=%d). "
             "Check permission and interpreter path.\n", script, status);
-    return 12;
+    return 13;
 }
