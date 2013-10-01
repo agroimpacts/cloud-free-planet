@@ -1,4 +1,4 @@
-#! /usr/bin/R -f 
+#! /usr/bin/Rscript
 ##############################################################################################################
 # Title      : KMLgenerate_1.2.3.R
 # Purpose    : KML file generation daemon
@@ -12,53 +12,61 @@
 #              which has variable names separated with periods, and functions done in the python style: 
 #              e.g. some.variable.name 
 #              e.g. someFunctionName
-#              Changes from *1.2.R
-#              19/10/12: Updated to remove coordinates from kml names, and to remove ".kml" from kml_names
-#              22/10/12: Database connections updated to reflect moving of afmap into SouthAfrica
-#              26/10/12: Fixed connections and changed error logger to reflect dropping of afmap
-#              13/6/12: Updated avail.kml.count to have no sql statement b/c kml_data no longer has hit_id
-#                 Ran manually to give some initial non-qaqc kmls to work with
-#              20/6/13: Added logging for daemon start time and for pid to be recorded in separate file. 
-#                 Daemon start time is recorded in log file that lists NKML ids selected for writing
-#              13/8/2013: Fixed bug, sys.sleep was referring to wrong variable name
+#              Changes now kept in ChangeLog.txt
 ##############################################################################################################
+
+####################### 
+# Hardcoded Switches
+test.root <- "N"
+prjsrid   <- 97490  # EPSG identifier for equal area project
+######################
 
 library(RPostgreSQL)
 library(rgdal)
 library(rgeos)
 
+# Run script to determine working directory and database
+initial.options <- commandArgs(trailingOnly = FALSE)
+arg.name <- "--file="
+script.name <- sub(arg.name, "", initial.options[grep(arg.name, initial.options)])
+script.dir <- dirname(script.name)
+source(paste(script.dir, "getDBName.R", sep="/"))
+
 drv <- dbDriver("PostgreSQL")
-con <- dbConnect(drv, dbname = "SouthAfrica", user = "***REMOVED***", password = "***REMOVED***")
+con <- dbConnect(drv, dbname = db.name, user = "***REMOVED***", password = "***REMOVED***")
 #dbListConnections(drv); dbGetInfo(drv); summary(con)
+
+if(test.root == "Y") {
+  print(paste("database =", db.name, "directory = ", project.root))
+  stop("Stopping here: Just making sure we are working and writing to the right places")
+} 
 
 # Hardcoded data
 fname <- "KMLgenerate"  # KMLgenerate 
-country.ID <- "SA"  # Ideally this will be read out of the database, as we expand to other countries
+country.ID <- "SA"  ### Ideally this will be read out of the database, as we expand to other countries
 kml.type <- "N"  # Type of KML (N for non-QAQC)
 
 # CRS (coordinate reference systems)
-alb <- "+proj=aea +lat_1=-18 +lat_2=-32 +lat_0=0 +lon_0=24 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0"
+prj.sql <- paste("select proj4text from spatial_ref_sys where srid=", prjsrid, sep = "")
+prjstr <- dbGetQuery(con, prj.sql)$proj4text
 gcs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
-# Database invariant data
-kml.file.path <- dbGetQuery(con, "select value from configuration where key = 'KMLFilePath'")
-kml.file.path <- kml.file.path$value
-log.file.path <- dbGetQuery(con, "select value from configuration where key = 'ProjectRoot'")
-log.file.path <- paste(log.file.path$value, "/log", sep="")
+# File paths
+kml.file.path <- paste(project.root, "/kmls/", sep="")
+log.file.path <- paste(project.root, "/log/", sep="")
 
 # Write out pid to file and record daemon start time
-setwd(log.file.path)
 pid <- Sys.getpid()
-write(pid, file = paste(fname, ".pid", sep = ""))  # Write out pid to new file, overwriting is exists
+pidfile <- paste(log.file.path, fname, ".pid", sep = "")
+write(pid, file = pidfile)  # Write out pid to new file, overwriting is exists
 pstart.string <- paste("KMLgenerate: Daemon starting up at ", format(Sys.time(), "%a %b %e %H:%M:%S %Z %Y"), 
                        " (pid ", pid, ")", sep = "")
 
 # Initialize csv to log database error message
-setwd(log.file.path)
 log.hdr <- rbind("Error messages from KMLgenerate_X.X.R", 
                  "Time errcode errmessage",
                  "#####################################################################################")
-dberrfname <- "KMLgenerate_dbase_error.log"
+dberrfname <- paste(log.file.path, "KMLgenerate_dbase_error.log", sep = "")   ### Possible conflict
 if(!file.exists(dberrfname)) {
    write.table(log.hdr, file = dberrfname, sep = "", col.names = FALSE, row.names = FALSE, quote = FALSE)
 }
@@ -68,7 +76,7 @@ options(digit.secs = 4)  # Display milliseconds for time stamps
 rlog.hdr <- rbind("Log of script start, KML ids written and times, from KMLgenerate_X.X.X.R", 
                   "#########################################################################################",
                   "")
-logfname <- paste(fname, ".log", sep = "")  # Log file name
+logfname <- paste(log.file.path, fname, ".log", sep = "")  # Log file name
 if(!file.exists(logfname)) {
   #write(rlog.hdr, file = paste(fname, ".log", sep = ""), col.names = F, row.names = F, quote = FALSE)
   write(rlog.hdr, file = logfname)
@@ -84,13 +92,11 @@ repeat {
   kml.batch.size <- as.numeric(kml.batch.size$value)  # Should be at least 500 to ensure decent weighting
   min.avail.kml <- dbGetQuery(con, "select value from configuration where key = 'MinAvailNKMLTarget'")
   min.avail.kml <- min.avail.kml$value
-  #avail.kml.count <- dbGetQuery(con, "select count(*) from kml_data where hit_id is NULL")
   avail.kml.count <- dbGetQuery(con, paste("select count(*) from kml_data left outer join hit_data", 
                                            "using (name) where kml_type = 'N' and create_time is null"))
   avail.kml.count <- avail.kml.count$count
   
   start.time <- Sys.time()  
-  #avail.kml.count < 400
   if(avail.kml.count < min.avail.kml) {  # Set pretty high in case HITs are drawn down at rapid rate
 
 	  # Step 1. Poll the database (SouthAfrica) to see which grid IDs are still available
@@ -109,7 +115,7 @@ repeat {
     # Create and print kmls
     for(i in 1:nrow(geom.tab)) {
       geom.str <- unlist(strsplit(geom.tab[i, 2], ";"))  # Strip out polygon IDs
-      geom.poly <- as(readWKT(geom.str[-grep("SRID", geom.str)], p4s = alb), "SpatialPolygonsDataFrame") #SPDF
+      geom.poly <- as(readWKT(geom.str[-grep("SRID", geom.str)], p4s = prjstr), "SpatialPolygonsDataFrame") 
       colnames(geom.poly@data)[1] <- "ID"  # Rename ID field
     
       # Step 3. Create a file name for the kml
@@ -122,7 +128,7 @@ repeat {
       setwd(kml.file.path)  # Change into kml directory
   	  writeOGR(geom.poly.gcs, dsn = paste(geom.poly.gcs@data$kmlname, "kml", sep = "."), 
                layer = geom.poly.gcs@data$kmlname, driver = "KML", dataset_options = c("NameField = name"), 
-               overwrite = T)  # Write it
+               overwrite = TRUE)  # Write it
       #print(paste("kml for", geom.poly.gcs@data$kmlname, "written"))
     }
         
@@ -131,7 +137,7 @@ repeat {
                                   paste("('", kmlnames, "', ", "'", kml.type, "')", sep = "", collapse = ","), 
                                   sep = ""))
      # Update SouthAfrica to show grid is no longer available for selecting/writing
-    ret2 <- dbSendQuery(con, paste("UPDATE sa1kgrid SET avail='F' where ID in", 
+    ret2 <- dbSendQuery(con, paste("UPDATE sa1kgrid SET avail='F' where ID in",        ### hardcoded name here
                                     "(", paste(geom.tab[, 1], collapse = ","), ")", sep = ""))
     
     # Database error handling
@@ -142,7 +148,7 @@ repeat {
     # http://stackoverflow.com/questions/1928332/is-there-any-standard-logging-package-for-r
     # Crude solution built into your original code:
 	  if(exception$errorNum != 0) {
-			print("Error updating SouthAfrica")
+			print("Error updating SouthAfrica")  ### Hardcoded name
       errors <- paste(gsub("EDT", "", Sys.time()), "  ", paste(exception, collapse = "    "))
       write(errors, file = dberrfname, append = TRUE)
 			quit(status=exception$errorNum, save="no")
@@ -155,7 +161,7 @@ repeat {
   write(format(start.time, "%a %b %d %X %Y %Z"), file = logfname, append = TRUE)
   write("**************************************", file = logfname, append = TRUE)
   if(avail.kml.count < min.avail.kml) {
-    write(id.rand, file = logfname, append = T)
+    write(id.rand, file = logfname, append = TRUE)
   } else{ 
     write("Sufficient NKMLs are in the system", file = logfname, append = TRUE)
   }
