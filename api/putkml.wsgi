@@ -11,28 +11,37 @@ def application(environ, start_response):
     now = str(datetime.datetime.today())
 
     mtma = MTurkMappingAfrica()
-    logFilePath = mtma.getConfiguration('ProjectRoot') + "/log"
+    logFilePath = mtma.projectRoot + "/log"
 
     k = open(logFilePath + "/OL.log", "a")
     k.write("\nputkml: datetime = %s\n" % now)
 
     kmlName = req.params['kmlName']
-    k.write("putkml: OL reported 'save' without polygons for kml %s\n" % kmlName)
+    # Get the type for this kml.
+    mtma.cur.execute("select kml_type from kml_data where name = '%s'" % kmlName)
+    kmlType = mtma.cur.fetchone()[0]
+    if kmlType == MTurkMappingAfrica.KmlQAQC:
+        kmlType = 'QAQC'
+    elif kmlType == MTurkMappingAfrica.KmlNormal:
+        kmlType = 'non-QAQC'
+    elif kmlType == MTurkMappingAfrica.KmlTraining:
+        kmlType = 'training'
+    k.write("putkml: OL reported 'save' without polygons for %s kml = %s\n" % (kmlType, kmlName))
 
     assignmentId = req.params['assignmentId']
     trainingId = req.params['trainingId']
+    tryNum = int(req.params['tryNum'])
     if len(assignmentId) > 0:
         k.write("putkml: MTurk Assignment ID = %s\n" % assignmentId)
     elif len(trainingId) > 0:
-        k.write("putkml: Training ID = %s\n" % trainingId)
+        k.write("putkml: Training ID = %s; try %d\n" % (trainingId, tryNum))
     else:
         k.write("putkml: No MTurk Assignment or Training ID\n")
 
     # If this is a training map, then call the scoring routine and 
     # record the results here.
     if len(trainingId) > 0:
-        projectRoot = mtma.getConfiguration('ProjectRoot')
-        scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % projectRoot, "tr", kmlName, trainingId], 
+        scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % mtma.projectRoot, "tr", kmlName, trainingId, str(tryNum)], 
             stdout=subprocess.PIPE).communicate()[0]
         try:
             score = float(scoreString)
@@ -53,5 +62,6 @@ def application(environ, start_response):
             (now, score, trainingId, kmlName))
         mtma.dbcon.commit()
 
+    del mtma
     k.close()
     return res(environ, start_response)

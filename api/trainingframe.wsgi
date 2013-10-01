@@ -12,9 +12,16 @@ def application(environ, start_response):
     now = str(datetime.datetime.today())
 
     mtma = MTurkMappingAfrica()
-    logFilePath = mtma.getConfiguration('ProjectRoot') + "/log"
+    logFilePath = mtma.projectRoot + "/log"
+    serverName = mtma.getConfiguration('ServerName')
     apiUrl = mtma.getConfiguration('APIUrl')
+    mturkExtQuestionScript = mtma.getConfiguration('MTurkExtQuestionScript')
     hitAcceptThreshold = float(mtma.getConfiguration('HitAcceptThreshold'))
+    qualTestTfTextStart = mtma.getConfiguration('QualTest_TF_TextStart')
+    qualTestTfTextMiddle = mtma.getConfiguration('QualTest_TF_TextMiddle')
+    qualTestTfTextEnd = mtma.getConfiguration('QualTest_TF_TextEnd')
+
+    kmlUrl = "https://%s%s/%s" % (serverName, apiUrl, mturkExtQuestionScript)
 
     k = open(logFilePath + "/OL.log", "a")
     k.write("\ntrainingframe: datetime = %s\n" % now)
@@ -35,7 +42,7 @@ def application(environ, start_response):
         # Generate a unique training ID.
         while True:
             trainingId = ''.join([random.choice( \
-                string.ascii_letters+string.digits+'-_') for ch in range(12)])
+                string.ascii_letters+string.digits) for ch in range(12)])
             if mtma.querySingleValue("""select count(*) from qual_worker_data 
                     where training_id = '%s'""" % trainingId) == 0:
                 break
@@ -45,9 +52,9 @@ def application(environ, start_response):
             (training_id, first_time, last_time) 
             VALUES ('%s', '%s', '%s')""" % (trainingId, now, now))
     totCount = int(mtma.querySingleValue("""select count(*) from kml_data 
-        where kml_type = 'I'"""))
+        where kml_type = 'I' """))
     if doneCount < totCount:
-        nextKml = mtma.querySingleValue("""select name from kml_data
+        mtma.cur.execute("""select name, hint from kml_data
             left outer join 
                 (select * from qual_assignment_data where training_id = '%s') qad 
                 using (name)
@@ -56,40 +63,54 @@ def application(environ, start_response):
                     or score < %s)
             order by gid
             limit 1""" % (trainingId, hitAcceptThreshold))
-                # Allow skipping of incomplete training KMLs.
-                # If the clause below is added to the above query, the last
-                # kml name must be returned in the req onject, and if no row 
-                # is returned, the query must be issued without this clause
-                # to handle the wrap-around case.
-                #and gid > (select gid from kml_data where name = '%s')
-        if mtma.querySingleValue("select count(*) from qual_assignment_data where training_id = '%s' and name = '%s'" % (trainingId, nextKml)) == 0:
+        nextKml, hint = mtma.cur.fetchone()
+        # Get the type for this kml.
+        mtma.cur.execute("select kml_type from kml_data where name = '%s'" % nextKml)
+        kmlType = mtma.cur.fetchone()[0]
+        if kmlType == MTurkMappingAfrica.KmlQAQC:
+            kmlType = 'QAQC'
+        elif kmlType == MTurkMappingAfrica.KmlNormal:
+            kmlType = 'non-QAQC'
+        elif kmlType == MTurkMappingAfrica.KmlTraining:
+            kmlType = 'training'
+        
+        # Increment the number of tries by this worker on this map.
+        tries = mtma.querySingleValue("select tries from qual_assignment_data where training_id = '%s' and name = '%s'" % (trainingId, nextKml))
+        if not tries:
+            tries = 0
+        tries = int(tries) + 1
+        if tries == 1:
             mtma.cur.execute("""INSERT INTO qual_assignment_data 
-                (training_id, name, start_time) 
-                VALUES ('%s' , '%s', '%s')""" % (trainingId, nextKml, now))
-            ps = ''
+                (training_id, name, tries, start_time) 
+                VALUES ('%s', '%s', %s, '%s')""" % (trainingId, nextKml, tries, now))
         else:
-            ps = '<b>Note:</b> you must correctly complete the current training map before you can move on to the next.'
-        k.write("trainingframe: Candidate starting on KML %s\n" % nextKml)
-        mtma.dbcon.commit()
+            mtma.cur.execute("""UPDATE qual_assignment_data SET tries = %s 
+                WHERE training_id = '%s' and name = '%s'""" % 
+                (tries, trainingId, nextKml))
+        k.write("trainingframe: Candidate starting try %d on %s kml = %s\n" % (tries, kmlType, nextKml))
     else:
         nextKml = ''
-        ps = ''
+        hint = ''
+        tries = 0
+    mtma.dbcon.commit()
+
     if newWorker:
-        greeting = '''Welcome to the Mapping Africa Training site.<br/>
-As described in the training video, here you'll be briefly working 
-on %d maps to get hands-on familiarity with identifying and labeling 
-agricultural fields.''' % totCount
+        status = qualTestTfTextStart % { 'totCount': totCount }
     else:
-        if totCount > doneCount:
-            greeting = 'You have successfully completed %d of %d maps.' % \
-                (doneCount, totCount)
+        if doneCount < totCount:
+            status = qualTestTfTextMiddle % { 'doneCount': doneCount, 'totCount': totCount }
         else:
-            greeting = """Congratulations! You have successfully completed all %d training maps. Now please copy-and-paste<br/><b>%s</b><br/>into the qualification test window's answer field, and click 'Done'.<br/>You will receive an email confirmation that you have earned the Mapping Africa qualification shortly afterward.""" % (totCount, trainingId)
+            status = qualTestTfTextEnd % { 'totCount': totCount, 'trainingId': trainingId }
+    if len(hint) > 0:
+        mapHint = "Map %d hint: %s" % (doneCount + 1, hint)
+    else:
+        mapHint = ''
+
     mainText = u'''
         <!DOCTYPE html>
         <html>
             <head>
-                <title>Mapping Africa Training</title>
+                <title>Mapping Africa Training Site</title>
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                 <style type="text/css">
                     html, body {
@@ -99,37 +120,37 @@ agricultural fields.''' % totCount
                         font-size:10pt;
                         font-family:arial;
                     }
-                    form {
+                    .trainhdr {
+                        text-align:center;
                         background-color:yellow;
+                        margin: 0;
                     }
                 </style>
             </head>
             <body>
-                <form style='width: 100%%' name="hitForm" method="POST" action="%(submitTo)s">
-                    <div align="center">
-                        <h2>The Mapping Africa Training Site</h2>
-                        <p>%(greeting)s</p>
-                        <p>%(ps)s</p>
-                        <input type="hidden" name="trainingId" value="%(trainingId)s">
-                        <input type="submit" value="Next Uncompleted Training Map">
-                        <p></p>
-                    </div>
-                </form>
+                <div class="trainhdr">
+                    <h2>Welcome to the Mapping Africa Training Site</h2>
+                    <p>%(status)s<br/>&nbsp;</p>
+                    <!-- <div>%(mapHint)s</div> -->
+                </div>
                 <iframe height="720" width="100%%" scrolling="auto" frameborder="0" align="center" 
-                    src="https://mapper.princeton.edu/afmap/api/getkml?kmlName=%(kmlName)s&trainingId=%(trainingId)s&submitTo=%(submitTo)s" 
+                    src="%(kmlUrl)s?kmlName=%(kmlName)s&trainingId=%(trainingId)s&tryNum=%(tryNum)s&submitTo=%(submitTo)s&mapHint=%(mapHint)s" 
                     name="ExternalQuestionIFrame">
                 </iframe>
             </body>
         </html>
     ''' % {
+        'kmlUrl': kmlUrl,
         'trainingId': trainingId,
         'kmlName': nextKml,
-        'greeting': greeting,
-        'ps': ps,
+        'tryNum': tries,
+        'status': status,
+        'mapHint': mapHint,
         # Set to hard-coded constant for now. Must be same name as this file.
         'submitTo': apiUrl + '/' + 'trainingframe'
     }
     res.text = mainText
-    #res.body = mainText
 
+    del mtma
+    k.close()
     return res(environ, start_response)

@@ -10,10 +10,12 @@ def application(environ, start_response):
     now = str(datetime.today())
 
     mtma = MTurkMappingAfrica()
-    mtma.cur.execute("select value from configuration where key = 'ProjectRoot'")
-    logFilePath = mtma.cur.fetchone()[0] + "/log"
-    mtma.close()
+    logFilePath = mtma.projectRoot + "/log"
     k = open(logFilePath + "/notifications.log", "a")
+
+    # Get serialization lock.
+    mtma.getSerializationLock()
+
     k.write("\ngetnotifications: datetime = %s\n" % now)
 
     try:
@@ -23,9 +25,14 @@ def application(environ, start_response):
         msgOK = False
 
     k.write("getnotifications: REST message parsed and verified: %s\n" % msgOK)
-    k.close()
 
     if msgOK:
-        ProcessNotifications(restNotification.notifMsg)
+        ProcessNotifications(mtma, k, restNotification.notifMsg)
+
+    # Release serialization lock.
+    mtma.dbcon.commit()
+    # Destroy mtma object.
+    del mtma
+    k.close()
 
     return res(environ, start_response)

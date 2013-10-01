@@ -12,30 +12,46 @@ def application(environ, start_response):
     now = str(datetime.datetime.today())
 
     mtma = MTurkMappingAfrica()
-    logFilePath = mtma.getConfiguration('ProjectRoot') + "/log"
+    logFilePath = mtma.projectRoot + "/log"
 
     kml = parseString(req.body)
 
+    k = open(logFilePath + "/OL.log", "a")
+
     # Use this to store name and Assignment ID of completed kml in DB.
     kmlValue = kml.getElementsByTagName('name')[0].firstChild.data.split('_')
+    #k.write("test: kmlvalue: %s\n" % kmlValue)
     kmlName = kmlValue[0]
+    # Get the type for this kml.
+    mtma.cur.execute("select kml_type from kml_data where name = '%s'" % kmlName)
+    kmlType = mtma.cur.fetchone()[0]
+    if kmlType == MTurkMappingAfrica.KmlQAQC:
+        kmlType = 'QAQC'
+    elif kmlType == MTurkMappingAfrica.KmlNormal:
+        kmlType = 'non-QAQC'
+    elif kmlType == MTurkMappingAfrica.KmlTraining:
+        kmlType = 'training'
+
     if len(kmlValue) == 2:
         assignmentId = kmlValue[1]
         trainingId = None
-    elif len(kmlValue) == 3:
+        tryNum = None
+    elif len(kmlValue) == 4:
         assignmentId = None
         trainingId = kmlValue[2]
+        tryNum = int(kmlValue[3])
     else:
         assignmentId = None
         trainingId = None
+        tryNum = None
 
-    k = open(logFilePath + "/OL.log", "a")
+    #k.write("test: aid:%s tid:%s tn:%d\n" % (assignmentId,trainingId,tryNum))
     k.write("\npostkml: datetime = %s\n" % now)
-    k.write("postkml: OL saved polygons for kml %s\n" % kmlName)
+    k.write("postkml: OL saved polygons for %s kml = %s\n" % (kmlType, kmlName))
     if assignmentId:
         k.write("postkml: MTurk Assignment ID = %s\n" % assignmentId)
     elif trainingId:
-        k.write("postkml: Training ID = %s\n" % trainingId)
+        k.write("postkml: Training ID = %s; try %d\n" % (trainingId, tryNum))
     else:
         k.write("postkml: No MTurk Assignment or Training ID\n")
     k.write("postkml: kml = %s\n" % req.body)
@@ -47,11 +63,18 @@ def application(environ, start_response):
         k.write("postkml: polygon name = %s\n" % polyName)
         k.write("postkml: polygon = %s\n" % polygon)
         try:
-            mtma.cur.execute("""INSERT INTO user_maps (name, geom, completion_time, 
-                assignment_id, training_id)
-                SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, 
-                %s as assignment_id, %s as training_id""",
-                (polyName, polygon, now, assignmentId, trainingId))
+            if not trainingId:
+                mtma.cur.execute("""INSERT INTO user_maps (name, geom, completion_time, 
+                    assignment_id)
+                    SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, 
+                    %s as assignment_id""",
+                    (polyName, polygon, now, assignmentId))
+            else:
+                mtma.cur.execute("""INSERT INTO qual_user_maps (name, geom, completion_time, 
+                    training_id, try)
+                    SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, 
+                    %s as training_id, %s as try""",
+                    (polyName, polygon, now, trainingId, tryNum))
             mtma.dbcon.commit()
         except psycopg2.InternalError as e:
             k.write("postkml: Database error %s: %s" % (e.pgcode, e.pgerror))
@@ -59,14 +82,12 @@ def application(environ, start_response):
             if e.pgerror.find('invalid KML representation') != -1:
                 k.write("postkml: Ignoring this polygon and continuing\n")
             else:
-                # Internal Server Error - catchall
-                res.status_code = 500
+                raise
                 break
         except psycopg2.Error as e:
             k.write("postkml: General database error %s: %s" % (e.pgcode, e.pgerror))
             mtma.dbcon.rollback()
-            # Internal Server Error - catchall
-            res.status_code = 500
+            raise
             break
     else:
         mtma.dbcon.commit()
@@ -74,8 +95,7 @@ def application(environ, start_response):
     # If this is a training map, then call the scoring routine and 
     # record the results here.
     if trainingId:
-        projectRoot = mtma.getConfiguration('ProjectRoot')
-        scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % projectRoot, "tr", kmlName, trainingId], 
+        scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % mtma.projectRoot, "tr", kmlName, trainingId, str(tryNum)], 
             stdout=subprocess.PIPE).communicate()[0]
         try:
             score = float(scoreString)
@@ -96,5 +116,6 @@ def application(environ, start_response):
             (now, score, trainingId, kmlName))
         mtma.dbcon.commit()
 
+    del mtma
     k.close()
     return res(environ, start_response)
