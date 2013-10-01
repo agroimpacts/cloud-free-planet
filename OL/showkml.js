@@ -1,4 +1,4 @@
-function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, trainingId) {
+function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, trainingId, tryNum) {
 
 // Constants defining status returned for a training map with a low score.
 lowScoreCode = 460;
@@ -54,8 +54,6 @@ kmlLayer = new OpenLayers.Layer.Vector(
 map.addLayer(kmlLayer);
 
 saveStrategy = new OpenLayers.Strategy.Save();
-//saveStrategy.events.register('success', null, function() {saveSuccess(kmlName, assignmentId, trainingId);});
-//saveStrategy.events.register('fail', null, function() {saveFail(kmlName, assignmentId);});
 
 if (assignmentId.length > 0) {
     // If this is an MTurk accepted HIT, let user save changes, 
@@ -74,7 +72,7 @@ if (assignmentId.length > 0) {
 } else if (trainingId.length > 0) {
     saveStrategyActive = true;
     // Note: double underscore below.
-    foldersName = kmlName + '__' + trainingId;
+    foldersName = kmlName + '__' + trainingId + '_' + tryNum;
     preview = false;
 // Else, if this is not an MTurk invocation, let user save changes.
 } else {
@@ -100,6 +98,7 @@ fieldsLayer = new OpenLayers.Layer.Vector(
 // to the server. There will be only one POST in our case. This is necessary
 // (instead of registering 'success' and 'fail' handlers with saveStrategy) 
 // so that we can retrieve the HTTP status code and string.
+// NOTE: 'response' argument in passed by low-level callback code.
 fieldsLayer.protocol.options.create = { callback: function(response) {saveKMLStatus(response, assignmentId, trainingId);} };
 map.addLayer(fieldsLayer);
 
@@ -187,7 +186,7 @@ if (preview) {
     );
     panelControl4 = new OpenLayers.Control.Button({
         displayClass: 'saveButton',
-        trigger: function() {checkSaveStrategy(kmlName, noPolygonPath, assignmentId, trainingId);},
+        trigger: function() {checkSaveStrategy(kmlName, noPolygonPath, assignmentId, trainingId, tryNum);},
         title: 'Save changes: Click on this button only ONCE when all mapped fields have been created, and you are satisfied with your work. Click when done even if there are NO fields to draw on this map.'
     });
 }
@@ -211,7 +210,7 @@ kmlLayer.events.register("loadend", kmlLayer, function() {
 
 }
 
-function checkSaveStrategy(kmlName, noPolygonPath, assignmentId, trainingId) {
+function checkSaveStrategy(kmlName, noPolygonPath, assignmentId, trainingId, tryNum) {
     var msg;
     if (!saveStrategyActive) {
         return;
@@ -238,11 +237,9 @@ function checkSaveStrategy(kmlName, noPolygonPath, assignmentId, trainingId) {
             params: {
                 kmlName: kmlName,
                 assignmentId: assignmentId,
-                trainingId: trainingId
+                trainingId: trainingId,
+                tryNum: tryNum
             },
-            //success: function() {notificationSuccess(kmlName, assignmentId, trainingId);},
-            //failure: function() {notificationFail(kmlName, assignmentId);},
-
             // Special callback to catch the completion after the PUT to notification
             // to the server. This is necessary (instead of registering 'success' and 
             // 'failure' handlers above) so that we can retrieve the HTTP status code 
@@ -259,46 +256,6 @@ function checkSaveStrategy(kmlName, noPolygonPath, assignmentId, trainingId) {
     panelControls[0].activate();
 }
 
-// Report to the worker that the save was successful, and that they should complete the HIT.
-function saveSuccess(kmlName, assignmentId, trainingId) {
-    if (trainingId.length > 0) {
-        alert('Success! Your mapped fields were saved. Click Ok to continue to next training map.');
-    }
-    if (assignmentId.length > 0 || trainingId.length > 0) {
-        document.mturkform.save_status.value = true;
-        document.mturkform.submit();
-    }
-}
-
-// Report to the worker that the notification was successful, and that they should complete the HIT.
-function notificationSuccess(kmlName, assignmentId, trainingId) {
-    if (trainingId.length > 0) {
-        alert('Success! Your notification was saved. Click Ok to continue to next training map.');
-    }
-    if (assignmentId.length > 0 || trainingId.length > 0) {
-        document.mturkform.save_status.value = true;
-        document.mturkform.submit();
-    }
-}
-
-function saveFail(kmlName, assignmentId) {
-    alert('Error! Your mapped fields could not be saved, but we will pay you for your effort.');
-    
-    if (assignmentId.length > 0) {
-        document.mturkform.save_status.value = false;
-        document.mturkform.submit();
-    }
-}
-
-function notificationFail(kmlName, assignmentId) {
-    alert('Error! Your notification could not be saved, but we will pay you for your effort.');
-    
-    if (assignmentId.length > 0) {
-        document.mturkform.save_status.value = false;
-        document.mturkform.submit();
-    }
-}
-
 // Report polygon status to the worker. 
 // If it's for a training map with a low score, let him try to remap once more time.
 function saveKMLStatus(response, assignmentId, trainingId) {
@@ -310,14 +267,14 @@ function saveKMLStatus(response, assignmentId, trainingId) {
         if (statusCode >= 200 && statusCode < 300) {
             alert("Congratulations! You successfully mapped the crop fields in this map. Please click Ok to move on to the next training map.");
             document.mturkform.save_status.value = true;
-        } else if (statusCode == lowScoreCode && statusText == lowScoreText) {
+        } else if (statusCode == lowScoreCode || statusText == lowScoreText) {
             alert("We're sorry, but you failed to correctly map the crop fields in this map. Please click Ok to try again.");
             document.mturkform.save_status.value = true;
         } else {
-            alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance. Please try again later. We apologize for the inconvenience.");
+            // alert("statusCode: " + statusCode + "; statusText: '" + statusText + "'");
+            alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance, but you will be paid for your time when it is available again. Please try again later. We apologize for the inconvenience.");
             document.mturkform.save_status.value = false;
         }
-        
     // HIT and stand-alone cases.
     } else {
         if (statusCode >= 200 && statusCode < 300) {
@@ -343,11 +300,12 @@ function notificationStatus(request, assignmentId, trainingId) {
         if (statusCode >= 200 && statusCode < 300) {
             alert("Congratulations! You successfully reported the absence of crop fields in this map. Please click Ok to move on to the next training map.");
             document.mturkform.save_status.value = true;
-        } else if (statusCode == lowScoreCode && statusText == lowScoreText) {
+        } else if (statusCode == lowScoreCode || statusText == lowScoreText) {
             alert("We're sorry, but you failed to map the crop fields in this map. Please click Ok to try again.");
             document.mturkform.save_status.value = true;
         } else {
-            alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance. Please try again later. We apologize for the inconvenience.");
+            // alert("statusCode: " + statusCode + "; statusText: '" + statusText + "'");
+            alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance, but you will be paid for your time when it is available again. Please try again later. We apologize for the inconvenience.");
             document.mturkform.save_status.value = false;
         }
         

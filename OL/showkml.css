@@ -22,6 +22,7 @@ html, body {
     color:#23238e;
     text-align:center;
 */
+    margin: 0;
 }
 .olControlEditingToolbar .olControlDeleteFeatureItemActive {
     background-image: url("img/delete_feature_active.png");
