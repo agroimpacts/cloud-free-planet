@@ -1,44 +1,64 @@
 #!/bin/bash
 #
-# daemonNanny - make sure specified daemon is running
-#               Intended to be run from cron
+# daemonNanny - make sure specified daemon is running.
+#               Intended to be run from cron.
 #
-PROGRAM=$1
-if [ -z "$PROGRAM" ]; then
-    echo "`date`: Usage: $0 <daemon_name>"
+COMMAND=$1
+if [ -z "$COMMAND" ]; then
+    echo "`date`: Usage: $0 <full_daemon_path>"
     exit 1
 fi
 AFMAP_HOME=`dirname $0`/..
-PIDFILE=${AFMAP_HOME}/log/${PROGRAM}.pid
-COMMAND=${AFMAP_HOME}/mturk/${PROGRAM}.py
-LOGFILE=${AFMAP_HOME}/log/${PROGRAM}.log
+PROGRAM=`basename $COMMAND`
+BASEPROGRAM=${PROGRAM%.*}
+PIDFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.pid
+LOGFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.oe.log
+
+NOW=`/bin/date '+%m/%d/%Y %H:%M:%S'`
+TO="lestes@princeton.edu,dmcr@princeton.edu"
+SUBJECT="Daemon nanny has restarted a daemon"
 
 if [ ! -x "$COMMAND" ]; then
     echo "`date`: $COMMAND does not exist or is not executable"
     exit 2
 fi
 
+# Utility function
+email() {
+    /bin/mail -s "$SUBJECT" "$TO" << EOEMAIL
+$emailBody
+EOEMAIL
+}
+
 checkrestart() {
         restart=0
         if [ -e $PIDFILE ]; then
-             PID=`cat $PIDFILE`
-             ps $PID > /dev/null 2>&1
-             restart=$?
+            PID=`cat $PIDFILE`
+            ps $PID > /dev/null 2>&1
+            restart=$?
         else
-             restart=1
+            restart=1
         fi
 }
 
 checkrestart
 if [ $restart == 1 ]; then
         nohup $COMMAND >>$LOGFILE 2>&1 &
-        sleep 5
+        sleep 15
         checkrestart
         if [ $restart == 1 ]; then
-             echo "`date`: Failed to restart $PROGRAM"
-             exit 2
+            echo "`date`: Failed to restart $PROGRAM"
+            exit 2
         else
-             echo "`date`: $PROGRAM restarted"
+            echo "`date`: $PROGRAM restarted"
+            emailBody=`/bin/cat <<EOF
+$SUBJECT
+
+Daemon $PROGRAM restarted at $NOW.
+Please check $LOGFILE for details.
+EOF`
+            email
+
         fi
 else
         echo "`date`: $PROGRAM already running"

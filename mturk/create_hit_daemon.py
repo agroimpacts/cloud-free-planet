@@ -18,7 +18,7 @@ class Row:
 # Email function used when there are validation failures.
 def email(msg = None):
     sender = 'mapper@princeton.edu'
-    receiver = 'dmcr@princeton.edu'
+    receiver = 'lestes@princeton.edu,dmcr@princeton.edu'
     message = """From: %s
 To: %s
 Subject: create_hit_daemon validation problem
@@ -28,7 +28,7 @@ Subject: create_hit_daemon validation problem
 
     try:
         smtpObj = smtplib.SMTP('localhost')
-        smtpObj.sendmail(sender, [receiver], message)
+        smtpObj.sendmail(sender, receiver.split(","), message)
         smtpObj.quit()
     except smtplib.SMTPException:
         print "Error: unable to send email: %s" % message
@@ -38,7 +38,7 @@ Subject: create_hit_daemon validation problem
 #
 mtma = MTurkMappingAfrica()
 
-logFilePath = mtma.getConfiguration('ProjectRoot') + "/log"
+logFilePath = mtma.projectRoot + "/log"
 k = open(logFilePath + "/createHit.log", "a+")
 
 pid = os.getpid()
@@ -66,12 +66,16 @@ while True:
     # Validate that the HITS on Mturk match the HITs recorded in the DB.
     hits = {}
 
+    # Get serialization lock.
+    mtma.getSerializationLock()
+
     # Get all Murk HITs.
     mthits = mtma.getAllHits()
     for hit in mthits:
         hits[hit.HITId] = Row(status=hit.HITStatus)
 
     # Merge in all unverified DB HITS.
+    # Verified is defined as true if DB and Mturk agree HIT is deleted.
     # Note: active HITs are always unverified, 
     #       as are HITs that were deleted since the last poll cycle.
     mtma.cur.execute("""
@@ -88,6 +92,9 @@ while True:
             hits[hit[0]].create_time = hit[1]
             hits[hit[0]].delete_time = hit[2]
             hits[hit[0]].kml_type = hit[3]
+
+    # Release serialization lock.
+    mtma.dbcon.commit()
 
     # Do the verification.
     numMturkQaqcHits = 0
@@ -112,7 +119,7 @@ while True:
             else:
                 mtma.cur.execute("""update hit_data set hit_verified = True 
                     where hit_id = '%s'""" % hitId)
-                mtma.dbcon.commit()
+            mtma.dbcon.commit()
         # if HIT is on Mturk and in DB,
         elif row.status and row.create_time:
             # if DB says HIT no longer exists: should never happen.
@@ -215,7 +222,7 @@ while True:
             and  kml_type = '%s' 
             and gid > %s 
             order by gid 
-            limit 1""" % (kmlType, curQaqcGid))
+            limit 1""" % (kmlType, curNonQaqcGid))
         row = mtma.cur.fetchone()
         # If we have no kmls left, all kmls in the kml_data table have been 
         # successfully processed. Notify Lyndon that more kmls are needed.

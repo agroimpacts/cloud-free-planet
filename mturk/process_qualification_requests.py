@@ -11,7 +11,7 @@ from MTurkMappingAfrica import MTurkMappingAfrica
 #
 mtma = MTurkMappingAfrica()
 
-logFilePath = mtma.getConfiguration('ProjectRoot') + "/log"
+logFilePath = mtma.projectRoot + "/log"
 k = open(logFilePath + "/processQualReqs.log", "a+")
 
 pid = os.getpid()

@@ -1,8 +1,27 @@
+import smtplib
 import subprocess
 from psycopg2.extensions import adapt
 from boto.mturk.notification import NotificationMessage, NotificationEmail, Event
 from boto.mturk.connection import MTurkRequestError
 from MTurkMappingAfrica import MTurkMappingAfrica, aws_secret_access_key
+
+# Email function used when there are validation failures.
+def email(msg = None):
+    sender = 'mapper@princeton.edu'
+    receiver = 'lestes@princeton.edu,dmcr@princeton.edu'
+    message = """From: %s
+To: %s
+Subject: create_hit_daemon validation problem
+
+%s
+""" % (sender, receiver, msg)
+
+    try:
+        smtpObj = smtplib.SMTP('localhost')
+        smtpObj.sendmail(sender, receiver.split(","), message)
+        smtpObj.quit()
+    except smtplib.SMTPException:
+        print "Error: unable to send email: %s" % message
 
 class ParseEmailNotification(object):
     def __init__(self, fp):
@@ -17,7 +36,7 @@ class ParseRestNotification(object):
 
 class ProcessNotifications(object):
 
-    def __init__(self, notifMsg):
+    def __init__(self, mtma, k, notifMsg):
         #
         # HIT notificaton transfer table
         #
@@ -28,10 +47,6 @@ class ProcessNotifications(object):
             "HITReviewable": self.HITReviewable,
             "HITExpired": self.HITExpired
         }
-        mtma = MTurkMappingAfrica()
-        logFilePath = mtma.getConfiguration('ProjectRoot') + "/log"
-        k = open(logFilePath + "/notifications.log", "a")
-
         numMsgs = len(notifMsg.events)
         k.write("getnotifications: received %d event(s):\n" % numMsgs)
         
@@ -54,10 +69,6 @@ class ProcessNotifications(object):
             # Process the event type.
             if eventType in eventTypes:
                 eventTypes[eventType](mtma, k, hitId, assignmentId, eventTime)
-                mtma.dbcon.commit()
-        
-        k.close()
-        mtma.close()
 
     def AssignmentAbandoned(self, mtma, k, hitId, assignmentId, eventTime):
         # Mark the assignment as abandoned.
@@ -83,7 +94,7 @@ class ProcessNotifications(object):
             k.write("getnotifications: Bad getAssignment status for assignment ID %s:\n" % assignmentId)
             return
 
-        # Get the KML type for this assignment.
+        # Get the KML type for this assignment's associated HIT.
         mtma.cur.execute("select kml_type from kml_data inner join hit_data using (name) where hit_id = '%s'" % hitId)
         kmlType = mtma.cur.fetchone()[0]
 
@@ -109,8 +120,7 @@ class ProcessNotifications(object):
         # If the worker's results were saved, compute the worker's score on this KML.
         assignmentStatus = None
         if results_saved:
-            projectRoot = mtma.getConfiguration('ProjectRoot')
-            scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % projectRoot, "qa", kmlName, assignmentId], 
+            scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % mtma.projectRoot, "qa", kmlName, assignmentId], 
                 stdout=subprocess.PIPE).communicate()[0]
             try:
                 score = float(scoreString)
@@ -120,6 +130,8 @@ class ProcessNotifications(object):
                 score = 1.          # Give worker the benefit of the doubt
                 k.write("getnotifications: Invalid value '%s' returned from R scoring script; assigning a score of %.2f\n" % 
                     (scoreString, score))
+                email("getnotifications: Invalid value '%s' returned from R scoring script for KML %s and assignment ID %s; assigning a score of %.2f\n" % 
+                    (scoreString, kmlName, assignmentId, score))
         # Pay the worker if we couldn't save his work.
         else:
             assignmentStatus = MTurkMappingAfrica.HITUnsaved
@@ -161,7 +173,7 @@ class ProcessNotifications(object):
         mtma.cur.execute("""update assignment_data set completion_time = '%s', status = '%s', 
             comment = %s, score = '%s' where assignment_id = '%s'""" % 
             (submitTime, assignmentStatus, adapt(comment), score, assignmentId))
-        k.write("getnotifications: assignment has been marked as %s: %.2f/%.2f\n" % 
+        k.write("getnotifications: QAQC assignment has been marked as %s: %.2f/%.2f\n" % 
             (assignmentStatus.lower(), score, hitAcceptThreshold))
 
         # TODO: *** To determine bonus or disqualification, compute cumulative score.
@@ -212,7 +224,7 @@ class ProcessNotifications(object):
         mtma.cur.execute("""update assignment_data set completion_time = '%s', status = '%s', 
             comment = %s where assignment_id = '%s'""" % 
             (submitTime, assignmentStatus, adapt(comment), assignmentId))
-        k.write("getnotifications: non-QAQC assignment has been marked as %s" % 
+        k.write("getnotifications: non-QAQC assignment has been marked as %s\n" % 
             assignmentStatus.lower())
 
     def NormalPostProcessing(self, mtma, k, eventTime, workerId, score, hitAcceptThreshold, qaqcAssignmentStatus):
@@ -223,6 +235,20 @@ class ProcessNotifications(object):
             (workerId, (MTurkMappingAfrica.HITPending, MTurkMappingAfrica.HITPendingUnsaved),))
         assignments = mtma.cur.fetchall()
         k.write("getnotifications: Checking for pending non-QAQC assignments: found %d\n" % len(assignments))
+
+        # Update running average of pending non-QAQCs per QAQC.
+        # Should correspond to QaqcHitPercentage.
+        mtma.cur.execute("""update system_data 
+            set value=cast(value as integer)+%s where key='SumPendingNonQaqcs'""" %
+            len(assignments))
+        mtma.cur.execute("""update system_data 
+            set value=cast(value as integer)+1 where key='NumQaqcs'""")
+        mtma.cur.execute("""update system_data 
+            set value=cast(sum as integer)/cast(num as integer)
+            from (select s1.value as sum, s2.value as num from system_data s1,
+            (select value from system_data where key='NumQaqcs') as s2
+            where key='SumPendingNonQaqcs') sq
+            where key='AvgPendingNonQaqcs'""")
 
         # If none since the last QAQC HIT, then there's nothing to do.
         if len(assignments) == 0:
@@ -293,7 +319,7 @@ class ProcessNotifications(object):
             mtma.cur.execute("""update assignment_data set status = '%s',
                 score = '%s' where assignment_id = '%s'""" %
                 (dbAssignmentStatus, score, assignmentId))
-            k.write("getnotifications: assignment has been %s, but marked in DB as %s: %.2f/%.2f\n" %
+            k.write("getnotifications: non-QAQC assignment %s; marked in DB as %s: %.2f/%.2f\n" %
                 (mturkAssignmentStatus.lower(), dbAssignmentStatus.lower(), score, hitAcceptThreshold))
 
             # Delete the HIT if all assignments have been submitted.

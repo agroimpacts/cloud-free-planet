@@ -1,5 +1,3 @@
-import os
-import pwd
 from datetime import datetime
 from dateutil import tz
 import psycopg2
@@ -15,12 +13,11 @@ from boto.mturk.question import ExternalQuestion,QuestionForm,Overview,Question,
 from boto.mturk.layoutparam import LayoutParameters, LayoutParameter
 
 # Key connection parameters.
-db_production_name = 'SouthAfrica'
-db_sandbox_name = 'SouthAfricaSandbox'
+db_name = 'SouthAfrica'
 db_user = '***REMOVED***'
 db_password = '***REMOVED***'
-mt_production_host = 'mechanicalturk.amazonaws.com'
 mt_sandbox_host = 'mechanicalturk.sandbox.amazonaws.com'
+mt_public_host = 'mechanicalturk.amazonaws.com'
 aws_access_key_id = 'AKIAJDK3CO4RKHBZQU5A'
 aws_secret_access_key = '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'
 
@@ -48,33 +45,21 @@ class MTurkMappingAfrica(object):
     # KML kml_data.kml_type constants
     KmlNormal = 'N'                             # Normal (non-QAQC) KML
     KmlQAQC = 'Q'                               # QAQC KML
-    KmlTraining = 'I'                           # Initial training KML
+    KmlInitial = 'I'                            # Initial training KML
 
     # MTurk external submit path
     externalSubmit = '/mturk/externalSubmit'
 
     def __init__(self, debug=0):
-        
-        # Determine sandbox/mapper based on effective user name.
-        euser = pwd.getpwuid(os.getuid()).pw_name
-        if euser == 'sandbox':
-            self.sandbox = True
-        elif euser == 'mapper':
-            self.sandbox = False
-        else:
-           raise Exception("MTurkMappingAfrica must run under sandbox or mapper user") 
-        self.projectRoot = '/u/%s/afmap' % euser
-        if self.sandbox:
-            db_name = db_sandbox_name
-            self.host = mt_sandbox_host
-        else:
-            db_name = db_production_name
-            self.host = mt_production_host
-        
         self.dbcon = psycopg2.connect("dbname=%s user=%s password=%s" % 
             (db_name, db_user, db_password))
         self.cur = self.dbcon.cursor()
 
+        self.sandbox = self.getConfiguration('MTurkSandbox')
+        if self.sandbox:
+            self.host = mt_sandbox_host
+        else:
+            self.host = mt_public_host
         self.mtcon = MTurkConnection(
             aws_access_key_id = aws_access_key_id,
             aws_secret_access_key = aws_secret_access_key,
@@ -82,9 +67,6 @@ class MTurkMappingAfrica(object):
             is_secure = True,
             debug = debug
             )
-
-    def __del__(self):
-        self.close()
 
     def close(self):
         self.mtcon.close()
@@ -225,7 +207,6 @@ class MTurkMappingAfrica(object):
         self.percentApproved = self.getConfiguration('Qual_PercentAssignmentsApproved')
         self.percentReturned = self.getConfiguration('Qual_PercentAssignmentsReturned')
         self.percentAbandoned = self.getConfiguration('Qual_PercentAssignmentsAbandoned')
-        self.QTRequired = self.getConfiguration('Qual_QualTestRequired')
         self.quals = Qualifications()
         if self.hitsApproved != 'ignore':
             self.quals.add(NumberHitsApprovedRequirement(
@@ -251,12 +232,11 @@ class MTurkMappingAfrica(object):
                 integer_value=self.percentAbandoned,
                 required_to_preview=True)
             )
-        if self.QTRequired != 'ignore':
-            self.quals.add(Requirement(
-                # Retrieve the ID for the Mapping Africa qualification.
-                qualification_type_id=self.getSystemData('Qual_MappingAfricaId'),
-                comparator='Exists')
-            )
+        self.quals.add(Requirement(
+            # Retrieve the ID for the Mapping Africa qualification.
+            qualification_type_id=self.getSystemData('Qual_MappingAfricaId'),
+            comparator='Exists')
+        )
         return self.quals
 
     def createQualificationType(self):
@@ -265,7 +245,12 @@ class MTurkMappingAfrica(object):
         self.qualTestRetryDelay = self.getConfiguration('QualTest_RetryDelay')
         self.qualTestDuration = self.getConfiguration('QualTest_Duration')
         self.createQualificationTypeRS = self.mtcon.create_qualification_type(
-            name=self.qualTestName, 
+            #name='Introduction - hi-res SWF Flash - 480px height', 
+            #name='Introduction - hi-res SWF Flash - 400px height', 
+            name='Introduction - hi-res SWF Flash - 360 height', 
+            #name='Instructional - hi-res SWF Flash', 
+            #name='Instructional - lo-res MP4 file', 
+            #name='Demo',
             description=self.qualTestDescription, 
             status='Active', 
             retry_delay=self.qualTestRetryDelay, 
@@ -282,39 +267,28 @@ class MTurkMappingAfrica(object):
 
     def qualTestQuestionForm(self):
         self.qualTestTitle = self.getConfiguration('QualTest_Title')
-        self.qualTestOverview1 = self.getConfiguration('QualTest_Overview1')
-        self.qualTestOverview2 = self.getConfiguration('QualTest_Overview2')
-        self.qualTestOverview3 = self.getConfiguration('QualTest_Overview3')
-        self.qualTestOverview4 = self.getConfiguration('QualTest_Overview4')
-        self.serverName = self.getConfiguration('ServerName')
-        self.apiUrl = self.getConfiguration('APIUrl')
-        self.qualTest_TrainingScript = self.getConfiguration('QualTest_TrainingScript')
-        self.videoUrl = self.getConfiguration('VideoUrl')
-        self.qualTestIntroVideo = self.getConfiguration('QualTest_IntroVideo')
-        self.qualTestIntroVideoWidth = self.getConfiguration('QualTest_IntroVideoWidth')
-        self.qualTestIntroVideoHeight = self.getConfiguration('QualTest_IntroVideoHeight')
-        self.qualTestInstructionalVideo = self.getConfiguration('QualTest_InstructionalVideo')
-        self.qualTestInstructionalVideoWidth = self.getConfiguration('QualTest_InstructionalVideoWidth')
-        self.qualTestInstructionalVideoHeight = self.getConfiguration('QualTest_InstructionalVideoHeight')
-        self.introUrl = "https://%s%s/%s" % \
-            (self.serverName, self.videoUrl, self.qualTestIntroVideo)
-        self.instructionalUrl = "https://%s%s/%s" % \
-            (self.serverName, self.videoUrl, self.qualTestInstructionalVideo)
-        self.trainingUrl = "<p><a href=\"https://%s%s/%s\" target=\"_blank\">Click here to take the qualification test</a></p>" % \
-            (self.serverName, self.apiUrl, self.qualTest_TrainingScript)
-
+        self.qualTestOverview = self.getConfiguration('QualTest_Overview')
+        self.qualTestText = self.getConfiguration('QualTest_Text')
+        #print(self.qualTestText)
         self.questForm = QuestionForm()
         overview = Overview()
         overview.append_field('Title', self.qualTestTitle)
-        overview.append(FormattedContent(self.qualTestOverview1))
-        overview.append(Flash(self.introUrl,self.qualTestIntroVideoWidth,self.qualTestIntroVideoHeight))
-        overview.append(FormattedContent(self.qualTestOverview2))
-        overview.append(Flash(self.instructionalUrl,self.qualTestInstructionalVideoWidth,self.qualTestInstructionalVideoHeight))
+        overview.append(FormattedContent(self.qualTestOverview))
+        #overview.append(Flash('https://mapper.princeton.edu/afmap/kmls/lyndon_talking2_bestqual.swf',590,480))
+        #overview.append(Flash('https://mapper.princeton.edu/afmap/kmls/lyndon_talking2_bestqual.swf',490,400))
+        overview.append(Flash('https://mapper.princeton.edu/afmap/kmls/lyndon_talking2_bestqual.swf',540,360))
+        #overview.append(Flash('https://mapper.princeton.edu/afmap/kmls/howto2_lrg_bestqual.swf',850,480))
+        #overview.append(EmbeddedBinary('video','mp4','https://mapper.princeton.edu/afmap/kmls/howto2_lrg_lowres.mp4','Link to training video',850,480))
+        #overview.append(Flash('https://mapper.princeton.edu/afmap/kmls/Demo.swf',900,700,))
+
+        #overview.append(Flash('http://kaltura.princeton.edu/index.php/kwidget/cache_st/1373650278/wid/_110/uiconf_id/1727969/entry_id/0_45cxqgpn',400,333,allowFullScreen="true",allowNetworking="all",allowScriptAccess="always",bgcolor="#000000"))
+        #overview.append(EmbeddedBinary('video','x-flv','https://mapper.princeton.edu/afmap/kmls/demo.flv','Link to training video 7',850,480))
+        #overview.append(EmbeddedBinary('video','mp4','http://www.youtube.com/embed/OMNxMPhjy68','Link to training video 1',560,315))
+        #overview.append(EmbeddedBinary('video','mpeg','https://mapper.princeton.edu/afmap/kmls/orange.mpg','Link to training video 2',640,320))
+
         self.questForm.append(overview)
         content1 = QuestionContent()
-        content1.append(FormattedContent(self.qualTestOverview3))
-        content1.append(FormattedContent(self.trainingUrl))
-        content1.append(FormattedContent(self.qualTestOverview4))
+        content1.append(FormattedContent(self.qualTestText))
         answer = AnswerSpecification(FreeTextAnswer(num_lines=1))
         # identifier must match qid in getQualificationRequests()
         self.questForm.append(Question(identifier=1, is_required=True, content=content1, answer_spec=answer))
@@ -397,7 +371,7 @@ class MTurkMappingAfrica(object):
         self.cur.execute("update system_data set value = '%s' where key = '%s'" % (value, key))
         self.dbcon.commit()
 
-    # Request a single value from a single column of a table.
+    # Request a single value from a simgle column of a table.
     # If there is no record that matches the select criteria, return None.
     def querySingleValue(self, sql):
         self.cur.execute(sql)
@@ -408,10 +382,3 @@ class MTurkMappingAfrica(object):
                 return None
             else:
                 raise
-
-    # Obtain serialization lock to allow create_hit_daemon.py and individual 
-    # ProcessNotifications.py threads to access Mturk and database records
-    # without interfering with each other.
-    def getSerializationLock(self):
-        self.cur.execute("select value from system_data where key = 'SerializationLock' for update")
-        return self.cur.fetchone()[0]

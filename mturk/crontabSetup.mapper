@@ -1,5 +1,6 @@
 MAILTO=csesi@Princeton.EDU
 SHELL=/bin/bash
 # Min Hour(0-23) Day Month DOW Command
-35 * * * * /var/www/html/afmap/mturk/daemonNanny.sh create_hit_daemon >>/var/www/html/afmap/log/daemonNanny.log
-40 * * * * /var/www/html/afmap/mturk/daemonNanny.sh process_qualification_requests >>/var/www/html/afmap/log/daemonNanny.log
+35 * * * * /u/${USER}/afmap/mturk/daemonNanny.sh /u/${USER}/afmap/mturk/create_hit_daemon.py >>/u/${USER}/afmap/log/daemonNanny.log
+40 * * * * /u/${USER}/afmap/mturk/daemonNanny.sh /u/${USER}/afmap/mturk/process_qualification_requests.py >>/u/${USER}/afmap/log/daemonNanny.log
+45 * * * * /u/${USER}/afmap/mturk/daemonNanny.sh /u/${USER}/afmap/R/KMLgenerate.R >>/u/${USER}/afmap/log/daemonNanny.log

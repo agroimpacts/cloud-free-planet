@@ -1,0 +1,62 @@
+From 20130315202016fe51621b34ad4176b17206bcb67a4075@bounces.amazon.com  Fri Mar 15 16:20:17 2013
+Return-Path: <20130315202016fe51621b34ad4176b17206bcb67a4075@bounces.amazon.com>
+X-Original-To: process_notifications@trac.princeton.edu
+Delivered-To: process_notifications@trac.princeton.edu
+Received: from ppa02.Princeton.EDU (ppa02.Princeton.EDU [128.112.128.216])
+        by cses18.Princeton.EDU (Postfix) with ESMTP id 541EC17E6C
+        for <process_notifications@trac.princeton.edu>; Fri, 15 Mar 2013 16:20:17 -0400 (EDT)
+Received: from smtp-out-212-38.amazon.com (smtp-out-212-38.amazon.com [72.21.212.38])
+        by ppa02.Princeton.EDU (8.14.4/8.14.4) with ESMTP id r2FKKGMj007740
+        for <process_notifications@trac.princeton.edu>; Fri, 15 Mar 2013 16:20:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=eaxkvsyelrnxjh4cicqyjjmtjpetuwjx; d=amazon.com; t=1363378816;
+        h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding;
+        bh=KsosYLoEt6wszz5/JgDPRG70yF3RL5GPAX8mH4Q67lE=;
+        b=EsKo9qBApeJnHZW8wKmvb2zKYh1eqWTQhle1+YxhVhGDgqzG7ImX/WGrdSWrKOBB
+        Ye+P5dRMYhtwFcipP8LopFnGNDleookgvPsN296sRHHW5pPQRSuvXC6Zf57Mr9RDBU2
+        EyLegL7DDjZo1SNx602WYtbmboALZ7G48bkirgtU=
+Date: Fri, 15 Mar 2013 20:20:16 +0000
+From: Mechanical Turk <mturk-noreply@amazon.com>
+To: Mapping Africa <process_notifications@trac.princeton.edu>
+Message-ID: <0000013d6fb5c5eb-bf910ab6-b8d7-4414-b27e-0c125ee71c6f-000000@email.amazonses.com>
+Subject: SANDBOX: Your Event Notification
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Bounces-to: 20130315202016fe51621b34ad4176b17206bcb67a4075@bounces.amazon.com
+X-AMAZON-MAIL-RELAY-TYPE: notification
+X-AMAZON-RTE-VERSION: 2.0
+X-Original-MessageID: <urn.correios.msg.20130315202016fe51621b34ad4176b17206bcb67a4075@1363378816440.rte-svc-1a-i-3fd4824f.us-east-1.amazon.com>
+X-SES-Outgoing: 72.21.212.38
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10432:5.10.8626,1.0.431,0.0.0000
+ definitions=2013-03-15_08:2013-03-15,2013-03-15,1970-01-01 signatures=0
+X-Proofpoint-Spam-Details: rule=quarantine_notspam policy=quarantine score=0 spamscore=0 ipscore=0
+ suspectscore=1 phishscore=0 bulkscore=2 adultscore=0 classifier=spam
+ adjust=0 reason=mlx scancount=1 engine=6.0.2-1211240000
+ definitions=main-1303150151
+
+Greetings from Amazon Mechanical Turk,
+
+You are receiving this email because you subscribed to be notified when
+certain events related to your HITs or Qualifications occurred.
+
+Specific event information is shown below:
+
+    Event Type: AssignmentSubmitted
+    Event Time: 2013-03-15T20:20:16Z
+    HIT Type ID: 09876543210987654321
+    HIT ID: 12345678901234567890
+    Assignment ID: 1234567890123456789012345678901234567890
+
+    Event Type: AssignmentSubmitted
+    Event Time: 2013-03-15T20:20:16Z
+    HIT Type ID: 09876543210987654321
+    HIT ID: 12345678901234567890
+    Assignment ID: 1234567890123456789012345678900987654321
+
+
+Sincerely,
+Amazon Mechanical Turk
+https://requestersandbox.mturk.com
+410 Terry Avenue North
+SEATTLE, WA 98109-5210 USA
