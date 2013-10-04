@@ -158,7 +158,6 @@ repeat {
   
   # Write out kmlID log
   log.timestamp <- c(format(start.time, "%a %b %d %X %Y %Z"), format(end.time, "%a %b %d %X %Y %Z"))
-  write(format(start.time, "%a %b %d %X %Y %Z"), file = logfname, append = TRUE)
   if(avail.kml.count < min.avail.kml) {
     write(log.timestamp[1], file = logfname, append = TRUE)
     write(id.rand, file = logfname, append = TRUE)
