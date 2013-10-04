@@ -157,18 +157,16 @@ repeat {
   end.time <- Sys.time()
   
   # Write out kmlID log
-  write("**************************************", file = logfname, append = TRUE)
+  log.timestamp <- c(format(start.time, "%a %b %d %X %Y %Z"), format(end.time, "%a %b %d %X %Y %Z"))
   write(format(start.time, "%a %b %d %X %Y %Z"), file = logfname, append = TRUE)
-  write("**************************************", file = logfname, append = TRUE)
   if(avail.kml.count < min.avail.kml) {
+    write(log.timestamp[1], file = logfname, append = TRUE)
     write(id.rand, file = logfname, append = TRUE)
+    write(log.timestamp[2], file = logfname, append = TRUE)
   } else{ 
-    write("Sufficient NKMLs are in the system", file = logfname, append = TRUE)
+    write(paste(log.timestamp[2], "- no new NKMLs were needed"), file = logfname, append = TRUE)
   }
-  write("**************************************", file = logfname, append = TRUE)
-  write(format(end.time, "%a %b %d %X %Y %Z"), file = logfname, append = TRUE)
-  write("**************************************", file = logfname, append = TRUE)
-  write("", file = logfname, append = TRUE)
+  #write("", file = logfname, append = TRUE)
 	Sys.sleep(kml.polling.interval)
 }
 
