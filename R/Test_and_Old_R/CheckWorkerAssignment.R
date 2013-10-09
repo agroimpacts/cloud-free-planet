@@ -5,7 +5,10 @@
 # Author     : Lyndon Estes
 # Draws from : KMLAccuracyCheck_3.X.R
 # Used by    : 
-# Notes      : To help respond to Turker tickets
+# Notes      : Created 8/10/2013
+#              To help respond to Turker tickets
+#              Usage: (from terminal) Rscript CheckWorkerAssignment.R kmlid workerid [Y/N]
+#               Y or N for testing location/working directory
 ##############################################################################################################
 
 # Libraries
@@ -14,8 +17,6 @@ suppressMessages(library(rgdal))
 suppressMessages(library(rgeos))
 
 # Hardcoded variables
-#db.name <- "SouthAfrica"
-#kml.path <- "/u/sandbox/afmap/maps/"  # This will be changed to appropriate alternate directory when created
 prjsrid <- 97490  # EPSG identifier for equal area project
 
 # Get HIT ID, assignment ID
@@ -86,28 +87,12 @@ if(test.root == "N") {
     user.poly@data$fld <- 1:nrow(user.poly@data)
     user.poly@data <- user.poly@data[, -1]
   }
-  # 8/10/2013: bypassing pprepair for hit 24192NJKM05BS8R9TNN2OTP9E1HFAW, worker A1NJ1IJLKAS0Y4, where pprepair
-  # failing
-  # polys <- tst <- sapply(1:nrow(user.geom.tab), function(x) {
-  #   poly <- as(readWKT(user.geom.tab[x, 2], p4s = gcs), "SpatialPolygonsDataFrame")
-  #   poly@data$ID <- user.geom.tab[x, 1]
-  #   newid <- paste(x)
-  #   poly <- spChFIDs(poly, newid)
-  #   return(poly)
-  # })
-  # user.poly <- do.call("rbind", polys)
-
-#   grid.sql <- paste("SELECT id,ST_AsEWKT(geom) from newqaqc_sites where name=", "'", hits$name, "'", sep = "")
-#   grid.geom.tab <- dbGetQuery(con, grid.sql)
-#   grid.geom.tab[, 2] <- gsub("^SRID=*.*;", "", grid.geom.tab[, 2])
-#   grid.poly <- createCleanTempPolyfromWKT(geom.tab = grid.geom.tab, crs = prjstr)[[1]]
 
   # Create unique directory for worker if file doesn't exist
   worker.path <- paste(kml.path, worker.id, sep = "")
   if(!file.exists(worker.path)) dir.create(path = worker.path)
   
   # Write KMLs out to worker specific directory
-  # Need to figure out different colors for QAQC maps and worker maps
   setwd(worker.path)
   if(exists("user.poly")) {
     user.poly@data$kmlname <- paste(hits$name, "_w", sep = "")  
@@ -122,13 +107,6 @@ if(test.root == "N") {
              layer = qaqc.poly.gcs@data$kmlname, driver = "KML", dataset_options = c("NameField = name"), 
              overwrite = TRUE)  # Write it
   }
-  # grid.poly.gcs <- spTransform(x = grid.poly, CRSobj = CRS(gcs))  # First convert to geographic coords
-  # grid.poly.gcs@data$kmlname <- paste(country.ID, grid.poly.gcs@data$ID, sep = "")
-  # grid.poly.gcs@data <- grid.poly.gcs@data[, -1]
-  # writeOGR(grid.poly.gcs, dsn = paste(grid.poly.gcs@data$kmlname[1], "kml", sep = "."), 
-  #          layer = grid.poly.gcs@data$kmlname, driver = "KML", dataset_options = c("NameField = name"), 
-  #          overwrite = TRUE)  # Write it
-  
   worker.url <- paste("http://", kml.root, ".princeton.edu/api/getkml?workerId=", worker.id, "&kmlName=", 
                       hits$name, sep = "")
   cat(worker.url, "\n") # Return details
