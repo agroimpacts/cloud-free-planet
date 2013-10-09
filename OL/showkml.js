@@ -1,4 +1,4 @@
-function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, trainingId, tryNum) {
+function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, trainingId, tryNum, mapPath, workerId) {
 
 // Constants defining status returned for a training map with a low score.
 lowScoreCode = 460;
@@ -53,6 +53,42 @@ kmlLayer = new OpenLayers.Layer.Vector(
 )
 map.addLayer(kmlLayer);
 
+// If this is a worker-feedback map, create two additional layers.
+if (workerId.length > 0) {
+    rMapLayer = new OpenLayers.Layer.Vector(
+        "Reference Map", 
+        {
+            protocol: new OpenLayers.Protocol.HTTP({
+                    url: mapPath + '/' + workerId + '/' + kmlName + '_r.kml',
+                    format: new OpenLayers.Format.KML()
+            }),
+            strategies: [new OpenLayers.Strategy.Fixed()],
+            displayInLayerSwitcher: true
+        }
+    )
+    map.addLayer(rMapLayer);
+
+    var wSty = new OpenLayers.Style({
+        fillColor: "blue",
+        fillOpacity: 0.2,
+        strokeOpacity: 0.0
+    });
+    var wStymap = new OpenLayers.StyleMap({ 'default': wSty });
+    wMapLayer = new OpenLayers.Layer.Vector(
+        "Worker Map", 
+        {
+            styleMap: wStymap,
+            protocol: new OpenLayers.Protocol.HTTP({
+                    url: mapPath + '/' + workerId + '/' + kmlName + '_w.kml',
+                    format: new OpenLayers.Format.KML()
+            }),
+            strategies: [new OpenLayers.Strategy.Fixed()],
+            displayInLayerSwitcher: true
+        }
+    )
+    map.addLayer(wMapLayer);
+}
+
 saveStrategy = new OpenLayers.Strategy.Save();
 
 if (assignmentId.length > 0) {
@@ -74,7 +110,12 @@ if (assignmentId.length > 0) {
     // Note: double underscore below.
     foldersName = kmlName + '__' + trainingId + '_' + tryNum;
     preview = false;
-// Else, if this is not an MTurk invocation, let user save changes.
+// If this is a worker-feedback map, don't let the user save maps.
+} else if (workerId.length > 0) {
+    saveStrategyActive = false;
+    foldersName = kmlName;
+    preview = true;
+// Else, if this is a standalone invocation, let user save changes.
 } else {
     saveStrategyActive = true;
     foldersName = kmlName;
@@ -111,6 +152,9 @@ var mousePosition = new OpenLayers.Control.MousePosition({
 });
 var scaleline = new OpenLayers.Control.ScaleLine();
 map.addControls([layerSwitcher, panZoomBar, mousePosition, scaleline]);
+if (workerId.length > 0) {
+    layerSwitcher.maximizeControl();
+}
 
 var DeleteFeature = OpenLayers.Class(OpenLayers.Control, {
     initialize: function(layer, options) {

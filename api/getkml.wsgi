@@ -11,9 +11,10 @@ def application(environ, start_response):
 
     mtma = MTurkMappingAfrica()
     logFilePath = mtma.projectRoot + "/log"
-    kmlUrl = mtma.getConfiguration('KMLUrl')
     mturkFrameHeight = int(mtma.getConfiguration('MTurkFrameHeight'))
+    kmlUrl = mtma.getConfiguration('KMLUrl')
     apiUrl = mtma.getConfiguration('APIUrl')
+    mapUrl = mtma.getConfiguration('MapUrl')
     mturkPostPolygonScript = mtma.getConfiguration('MTurkPostPolygonScript')
     mturkNoPolygonScript = mtma.getConfiguration('MTurkNoPolygonScript')
 
@@ -57,11 +58,10 @@ def application(environ, start_response):
             trainingId = ''
             tryNum = 0
             mapHint = ''
-        # Training & non-MTurk cases.
+        # Training, worker feedback, and standalone cases.
         except:
             hitId = ''
             assignmentId = ''
-            workerId = ''
             preview = ''
             disabled = 'disabled'
             # Training case.
@@ -73,13 +73,20 @@ def application(environ, start_response):
                 mapHint = '<div class="hints">' + req.params['mapHint'] + '</div>'
                 headerHeight = headerHeight + 35
                 mapHeight = mturkFrameHeight - headerHeight
-            # Non-MTurk case.
+                workerId = ''
+            # Worker feedback and standalone cases.
             except:
                 submitTo = ''
                 target = ''
                 trainingId = ''
                 tryNum = 0
                 mapHint = ''
+                # Worker feedback case.
+                try:
+                    workerId = req.params['workerId']
+                # Standalone case.
+                except:
+                    workerId = ''
 
         mainText = '''
             <!DOCTYPE html>
@@ -107,7 +114,7 @@ def application(environ, start_response):
                         }
                     </style>
                 </head>
-                <body onload="init('%(kmlPath)s', '%(polygonPath)s', '%(noPolygonPath)s', '%(kmlName)s', '%(assignmentId)s', '%(trainingId)s', %(tryNum)s)">
+                <body onload="init('%(kmlPath)s', '%(polygonPath)s', '%(noPolygonPath)s', '%(kmlName)s', '%(assignmentId)s', '%(trainingId)s', %(tryNum)s, '%(mapPath)s', '%(workerId)s')">
                     <form style='width: 100%%; height: %(headerHeight)spx;' name='mturkform' action='%(submitTo)s' method='POST' target='%(target)s'>
                         <div class='instructions'>
                             %(preview)s
@@ -150,7 +157,9 @@ def application(environ, start_response):
             'mapHint': mapHint,
             'mturkFrameHeight': mturkFrameHeight,
             'headerHeight': headerHeight,
-            'mapHeight': mapHeight
+            'mapHeight': mapHeight,
+            'mapPath': mapUrl,
+            'workerId': workerId
         }
         res.text = mainText
         # If we are running under MTurk,
