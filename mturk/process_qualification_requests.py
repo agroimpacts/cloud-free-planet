@@ -65,6 +65,7 @@ while True:
 
         # Check if Training ID is bogus.
         if doneCount == 0:
+            mtma.dbcon.rollback()
             mtma.rejectQualificationRequest(qualificationRequestId, "Invalid training ID")
             k.write("processQualReqs: Training ID %s has no completed assignments.\n" % 
                 trainingId)
@@ -75,6 +76,7 @@ while True:
         totCount = int(mtma.querySingleValue("""select count(*) from kml_data
             where kml_type = 'I'"""))
         if doneCount < totCount:
+            mtma.dbcon.rollback()
             mtma.rejectQualificationRequest(qualificationRequestId, "Incomplete test")
             k.write("processQualReqs: Training ID %s successfully completed only %d of %d maps.\n" %
                 (trainingId, doneCount, totCount))
@@ -82,6 +84,7 @@ while True:
             continue
 
         # Grant the qualification and notify user via email.
+        mtma.dbcon.commit()
         mtma.grantQualification(qualificationRequestId)
         k.write("processQualReqs: Training ID %s successfully completed all %d maps.\n" %
             (trainingId, totCount))
