@@ -15,7 +15,7 @@ PIDFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.pid
 LOGFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.oe.log
 
 NOW=`/bin/date '+%m/%d/%Y %H:%M:%S'`
-TO="lestes@princeton.edu,dmcr@princeton.edu"
+TO="mappingafrica_internal_alert@trac.princeton.edu"
 SUBJECT="Daemon nanny has restarted a daemon"
 
 if [ ! -x "$COMMAND" ]; then

@@ -8,10 +8,10 @@ from MTurkMappingAfrica import MTurkMappingAfrica, aws_secret_access_key
 # Email function used when there are validation failures.
 def email(msg = None):
     sender = 'mapper@princeton.edu'
-    receiver = 'lestes@princeton.edu,dmcr@princeton.edu'
+    receiver = 'mappingafrica_internal_alert@trac.princeton.edu'
     message = """From: %s
 To: %s
-Subject: create_hit_daemon validation problem
+Subject: ProcessNotifications problem
 
 %s
 """ % (sender, receiver, msg)
