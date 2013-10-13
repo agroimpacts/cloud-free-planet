@@ -68,7 +68,7 @@ if(test.root == "N") {
     qaqc.geom.tab[, 2] <- gsub("^SRID=*.*;", "", qaqc.geom.tab[, 2])
     qaqc.poly.list <- createCleanTempPolyfromWKT(geom.tab = qaqc.geom.tab, crs = prjstr)
     qaqc.poly <- qaqc.poly.list[[1]]
-    qaqc.poly@data$ID <- qaqc.geom.tab[, 1]
+    qaqc.poly@data$ID <- rep(qaqc.geom.tab[1, 1], nrow(qaqc.poly))
     qaqc.poly@data$fld <- 1:nrow(qaqc.poly@data)
     qaqc.poly@data <- qaqc.poly@data[, -1]
   } 
@@ -83,7 +83,7 @@ if(test.root == "N") {
     user.geom.tab[, 2] <- gsub("^SRID=*.*;", "", user.geom.tab[, 2])
     user.poly.list <- createCleanTempPolyfromWKT(geom.tab = user.geom.tab, crs = gcs)
     user.poly <- user.poly.list[[1]]
-    user.poly@data$ID <- user.geom.tab[, 1]
+    user.poly@data$ID <- rep(user.geom.tab[1, 1], nrow(user.poly))
     user.poly@data$fld <- 1:nrow(user.poly@data)
     user.poly@data <- user.poly@data[, -1]
   }

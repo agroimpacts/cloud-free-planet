@@ -133,6 +133,10 @@ Created 27/9/2013
 *** CheckWorkerAssignment.R ***
 Created 8/10/2013 - writes out user and qaqc maps to folder in new "maps" folder, outputting link to send to 
 workers who want feedback on mapping results. 
+* Fixed bug that caused failure of shapefile creation for writing because pprepair changed number of polygons, 
+  and labelling IDs in image data table failed because of mismatch between numbers of records. This is a bug
+  that does not appear to affect KMLAccuracyCheck.
+
 
 
 
