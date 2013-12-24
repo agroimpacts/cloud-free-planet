@@ -16,7 +16,7 @@ def application(environ, start_response):
     serverName = mtma.getConfiguration('ServerName')
     apiUrl = mtma.getConfiguration('APIUrl')
     mturkExtQuestionScript = mtma.getConfiguration('MTurkExtQuestionScript')
-    hitAcceptThreshold = float(mtma.getConfiguration('HitAcceptThreshold'))
+    hitAcceptThreshold = float(mtma.getConfiguration('HitQAcceptThreshold'))
     qualTestTfTextStart = mtma.getConfiguration('QualTest_TF_TextStart')
     qualTestTfTextMiddle = mtma.getConfiguration('QualTest_TF_TextMiddle')
     qualTestTfTextEnd = mtma.getConfiguration('QualTest_TF_TextEnd')

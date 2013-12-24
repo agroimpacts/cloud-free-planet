@@ -25,6 +25,7 @@ def application(environ, start_response):
 
     k = open(logFilePath + "/OL.log", "a")
     k.write("\ngetkml: datetime = %s\n" % now)
+
     kmlName = req.params['kmlName']
     if len(kmlName) > 0:
         # Get the type for this kml.
@@ -37,6 +38,8 @@ def application(environ, start_response):
         elif kmlType == MTurkMappingAfrica.KmlTraining:
             kmlType = 'training'
 
+        instructions = "Please use the toolbar below to map all crop fields that are wholly or partially inside the white square outline (map the entire field, <br/>even the part that falls outside the box). Then save your changes by clicking on the disk icon to complete the HIT."
+
         # MTurk cases.
         try:
             hitId = req.params['hitId']
@@ -44,14 +47,17 @@ def application(environ, start_response):
             # MTurk accept case.
             if assignmentId != 'ASSIGNMENT_ID_NOT_AVAILABLE':
                 workerId = req.params['workerId']
-                preview = ''
                 disabled = ''
                 submitTo = req.params['turkSubmitTo'] + MTurkMappingAfrica.externalSubmit
                 target = '_self'
             # MTurk preview case.
             else:
+                # For preview case, replace the actual map with the first training map.
+                instructions = '*** PREVIEW Mode Disabled - Sample Map Only ***<br/>Please click on the Accept HIT button above in order to view and work on an actual map.'
+                mtma.cur.execute("""select name from kml_data where kml_type = '%s' 
+                        order by gid limit 1""" % MTurkMappingAfrica.KmlTraining)
+                kmlName = mtma.cur.fetchone()[0]
                 workerId = ''
-                preview = '*** PREVIEW ***'
                 disabled = 'disabled'
                 submitTo = ''
                 target = ''
@@ -62,7 +68,6 @@ def application(environ, start_response):
         except:
             hitId = ''
             assignmentId = ''
-            preview = ''
             disabled = 'disabled'
             # Training case.
             try:
@@ -117,9 +122,7 @@ def application(environ, start_response):
                 <body onload="init('%(kmlPath)s', '%(polygonPath)s', '%(noPolygonPath)s', '%(kmlName)s', '%(assignmentId)s', '%(trainingId)s', %(tryNum)s, '%(mapPath)s', '%(workerId)s')">
                     <form style='width: 100%%; height: %(headerHeight)spx;' name='mturkform' action='%(submitTo)s' method='POST' target='%(target)s'>
                         <div class='instructions'>
-                            %(preview)s
-                            Please use the toolbar below to map all crop fields that are wholly or partially inside the white square outline (map the entire field, <br/>even the part that falls outside the box). Then save your changes by clicking on the disk icon to complete the HIT.
-                            %(preview)s
+                            %(instructions)s
                         </div>
                         <table class='comments'><tr>
                         <th>
@@ -137,7 +140,7 @@ def application(environ, start_response):
                         <input type='hidden' name='assignmentId' value='%(assignmentId)s' />
                         <input type='hidden' name='trainingId' value='%(trainingId)s' />
                         <input type='hidden' name='kmlName' value='%(kmlName)s' />
-                        <input type='hidden' name='save_status' />
+                        <input type='hidden' name='save_status_code' />
                     </form>
                     <div id="kml_display" style="width: 100%%; height: %(mapHeight)spx;"></div>
                 </body>
@@ -152,7 +155,7 @@ def application(environ, start_response):
             'tryNum': tryNum,
             'submitTo': submitTo,
             'target': target,
-            'preview': preview,
+            'instructions': instructions,
             'disabled': disabled,
             'mapHint': mapHint,
             'mturkFrameHeight': mturkFrameHeight,

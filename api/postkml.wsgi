@@ -89,6 +89,7 @@ def application(environ, start_response):
             mtma.dbcon.rollback()
             raise
             break
+    # This gets executed if we did not break out of the loop: i.e., if no errors.
     else:
         mtma.dbcon.commit()
 
@@ -104,7 +105,7 @@ def application(environ, start_response):
             score = 1.          # Give worker the benefit of the doubt
             k.write("postkml: Invalid value '%s' returned from R scoring script; assigning a score of %.2f\n" % 
                 (scoreString, score))
-        hitAcceptThreshold = float(mtma.getConfiguration('HitAcceptThreshold'))
+        hitAcceptThreshold = float(mtma.getConfiguration('HitQAcceptThreshold'))
         k.write("postkml: training assignment has been scored as: %.2f/%.2f\n" %
             (score, hitAcceptThreshold))
         if score < hitAcceptThreshold:

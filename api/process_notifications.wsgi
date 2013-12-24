@@ -7,16 +7,18 @@ def application(environ, start_response):
     req = Request(environ)
     res = Response()
 
-    now = str(datetime.today())
-
+    notiftime = str(datetime.today())
     mtma = MTurkMappingAfrica()
-    logFilePath = mtma.projectRoot + "/log"
-    k = open(logFilePath + "/notifications.log", "a")
 
     # Get serialization lock.
     mtma.getSerializationLock()
 
+    logFilePath = mtma.projectRoot + "/log"
+    k = open(logFilePath + "/notifications.log", "a")
+
+    now = str(datetime.today())
     k.write("\ngetnotifications: datetime = %s\n" % now)
+    k.write("getnotifications: notification arrived = %s\n" % notiftime)
 
     try:
         restNotification = ParseRestNotification(req.params)
@@ -29,10 +31,18 @@ def application(environ, start_response):
     if msgOK:
         ProcessNotifications(mtma, k, restNotification.notifMsg)
 
-    # Release serialization lock.
+    now = str(datetime.today())
+    k.write("getnotifications: processing completed = %s\n" % now)
+
+    k.close()
+
+    # Commit any uncommitted changes
     mtma.dbcon.commit()
+
+    # Release serialization lock.
+    mtma.releaseSerializationLock()
+
     # Destroy mtma object.
     del mtma
-    k.close()
 
     return res(environ, start_response)
