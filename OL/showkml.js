@@ -54,7 +54,7 @@ kmlLayer = new OpenLayers.Layer.Vector(
 map.addLayer(kmlLayer);
 
 // If this is a worker-feedback map, create two additional layers.
-if (workerId.length > 0) {
+if (assignmentId.length == 0 && workerId.length > 0) {
     rMapLayer = new OpenLayers.Layer.Vector(
         "Reference Map", 
         {
@@ -111,7 +111,7 @@ if (assignmentId.length > 0) {
     foldersName = kmlName + '__' + trainingId + '_' + tryNum;
     preview = false;
 // If this is a worker-feedback map, don't let the user save maps.
-} else if (workerId.length > 0) {
+} else if (assignmentId.length == 0 && workerId.length > 0) {
     saveStrategyActive = false;
     foldersName = kmlName;
     preview = true;
@@ -152,7 +152,7 @@ var mousePosition = new OpenLayers.Control.MousePosition({
 });
 var scaleline = new OpenLayers.Control.ScaleLine();
 map.addControls([layerSwitcher, panZoomBar, mousePosition, scaleline]);
-if (workerId.length > 0) {
+if (assignmentId.length == 0 && workerId.length > 0) {
     layerSwitcher.maximizeControl();
 }
 
@@ -301,32 +301,27 @@ function checkSaveStrategy(kmlName, noPolygonPath, assignmentId, trainingId, try
 }
 
 // Report polygon status to the worker. 
-// If it's for a training map with a low score, let him try to remap once more time.
+// If it's for a training map with a low score, let him try to remap again.
 function saveKMLStatus(response, assignmentId, trainingId) {
     statusCode = response.priv.status;
     statusText = response.priv.statusText;
+
+    // Save the status code in the MTurk HTML form.
+    document.mturkform.save_status_code.value = statusCode;
 
     // Training case.
     if (trainingId.length > 0) {
         if (statusCode >= 200 && statusCode < 300) {
             alert("Congratulations! You successfully mapped the crop fields in this map. Please click Ok to move on to the next training map.");
-            document.mturkform.save_status.value = true;
         } else if (statusCode == lowScoreCode || statusText == lowScoreText) {
             alert("We're sorry, but you failed to correctly map the crop fields in this map. Please click Ok to try again.");
-            document.mturkform.save_status.value = true;
         } else {
             // alert("statusCode: " + statusCode + "; statusText: '" + statusText + "'");
             alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance, but you will be paid for your time when it is available again. Please try again later. We apologize for the inconvenience.");
-            document.mturkform.save_status.value = false;
         }
     // HIT and stand-alone cases.
-    } else {
-        if (statusCode >= 200 && statusCode < 300) {
-            document.mturkform.save_status.value = true;
-        } else {
-            alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance. Please try again later. We apologize for the inconvenience.");
-            document.mturkform.save_status.value = false;
-        }
+    } else if (! (statusCode >= 200 && statusCode < 300)) {
+        alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance. Please try again later. We apologize for the inconvenience.");
     }
     if (assignmentId.length > 0 || trainingId.length > 0) {
         document.mturkform.submit();
@@ -339,28 +334,23 @@ function notificationStatus(request, assignmentId, trainingId) {
     statusCode = request.status;
     statusText = request.statusText;
 
+    // Save the status code in the MTurk HTML form.
+    document.mturkform.save_status_code.value = statusCode;
+
     // Training case.
     if (trainingId.length > 0) {
         if (statusCode >= 200 && statusCode < 300) {
             alert("Congratulations! You successfully reported the absence of crop fields in this map. Please click Ok to move on to the next training map.");
-            document.mturkform.save_status.value = true;
         } else if (statusCode == lowScoreCode || statusText == lowScoreText) {
             alert("We're sorry, but you failed to map the crop fields in this map. Please click Ok to try again.");
-            document.mturkform.save_status.value = true;
         } else {
             // alert("statusCode: " + statusCode + "; statusText: '" + statusText + "'");
             alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance, but you will be paid for your time when it is available again. Please try again later. We apologize for the inconvenience.");
-            document.mturkform.save_status.value = false;
         }
         
     // HIT and stand-alone cases.
-    } else {
-        if (statusCode >= 200 && statusCode < 300) {
-            document.mturkform.save_status.value = true;
-        } else {
-            alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance. Please try again later. We apologize for the inconvenience.");
-            document.mturkform.save_status.value = false;
-        }
+    } else if (! (statusCode >= 200 && statusCode < 300)) {
+        alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance. Please try again later. We apologize for the inconvenience.");
     }
     if (assignmentId.length > 0 || trainingId.length > 0) {
         document.mturkform.submit();
