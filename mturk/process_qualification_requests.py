@@ -6,6 +6,10 @@ from datetime import datetime
 from boto.mturk.connection import MTurkRequestError
 from MTurkMappingAfrica import MTurkMappingAfrica
 
+# Shortcut constants
+isTrained = '*Trained*'
+backDoor = '***My_B@ckD0Or***'       # zero followed by capital 'o'
+
 #
 # Main code begins here.
 #
@@ -27,7 +31,7 @@ k.close()
 # Execute loop based on polling interval
 while True:
     hitPollingInterval = int(mtma.getConfiguration('HitPollingInterval'))
-    hitAcceptThreshold = float(mtma.getConfiguration('HitAcceptThreshold'))
+    hitAcceptThreshold = float(mtma.getConfiguration('HitQAcceptThreshold'))
 
     k = open(logFilePath + "/processQualReqs.log", "a+")
     now = str(datetime.today())
@@ -39,25 +43,59 @@ while True:
         (qualificationRequestId, workerId, trainingId) = qr
 
         # If this is a new worker,
-        mtma.cur.execute("SELECT TRUE FROM worker_data WHERE worker_id = '%s'" 
-% (workerId))
-        if not mtma.cur.fetchone():
+        mtma.cur.execute("SELECT qualified FROM worker_data WHERE worker_id = '%s'" % (workerId))
+        preQualified = mtma.cur.fetchone()
+        if preQualified is None:
             mtma.cur.execute("""INSERT INTO worker_data
                 (worker_id, first_time, last_time)
                 VALUES ('%s', '%s', '%s')""" % (workerId, now, now))
-        # Else, this is an existing worker.
+        # Else, this is an existing worker. Explicitly mark them as qualified, 
+        # since they may have been previously disqualified.
         else:
-            mtma.cur.execute("""UPDATE worker_data SET last_time = '%s'
-                            WHERE worker_id = '%s'""" % (now, workerId))
+            preQualified = preQualified[0]
+            # Set previously disqualified worker to qualified, and clear out his score and return history.
+            # This is also done for previously trained workers who need to be re-qualified.
+            mtma.cur.execute("""UPDATE worker_data SET last_time = %s, qualified = true,
+                            scores = %s, returns = %s
+                            WHERE worker_id = %s""", (now, [], [], workerId))
+
+        k.write("\nprocessQualReqs: datetime = %s\n" % now)
+        k.write("processQualReqs: Worker ID %s provided Training ID %s.\n" %
+            (workerId, trainingId))
+
+        # Check for re-approval request (i.e., previously trained workers needing re-approval
+        # because we recreated the qualification type without significantly changing the
+        # qualification test).
+        if trainingId == isTrained and preQualified:
+            mtma.dbcon.commit()
+            mtma.grantQualification(qualificationRequestId)
+            k.write("processQualReqs: Worker given pre-trained approval.\n")
+            k.write("processQualReqs: Mapping Africa qualification granted.\n")
+            continue
+
+        # else, check for back door.
+        elif trainingId == backDoor:
+            mtma.dbcon.commit()
+            mtma.grantQualification(qualificationRequestId)
+            k.write("processQualReqs: Worker given back door approval.\n")
+            k.write("processQualReqs: Mapping Africa qualification granted.\n")
+            continue
 
         # Record the Worker ID for the specified Training ID.
         mtma.cur.execute("""UPDATE qual_worker_data SET last_time = '%s', 
             worker_id = '%s' WHERE training_id = '%s'""" % 
             (now, workerId, trainingId))
-        k.write("\nprocessQualReqs: datetime = %s\n" % now)
-        k.write("processQualReqs: Worker ID %s provided Training ID %s.\n" %
-            (workerId, trainingId))
 
+        # Check if trainingID exists.
+        if mtma.cur.rowcount == 0:
+            mtma.dbcon.rollback()
+            mtma.rejectQualificationRequest(qualificationRequestId, "Invalid training ID")
+            k.write("processQualReqs: Training ID %s does not exist.\n" % 
+                trainingId)
+            k.write("processQualReqs: Mapping Africa qualification rejected.\n")
+            continue
+
+        # Check number of assignments completed with this trainingId.
         doneCount = int(mtma.querySingleValue("""select count(*)
             from qual_assignment_data where training_id = '%s'
             and (completion_time is not null and score >= %s)""" %
