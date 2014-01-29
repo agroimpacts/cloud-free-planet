@@ -1,6 +1,6 @@
 MAILTO=csesi@Princeton.EDU
 SHELL=/bin/bash
 # Min Hour(0-23) Day Month DOW Command
-35 * * * * /u/${USER}/afmap/mturk/daemonNanny.sh /u/${USER}/afmap/mturk/create_hit_daemon.py >>/u/${USER}/afmap/log/daemonNanny.log
-40 * * * * /u/${USER}/afmap/mturk/daemonNanny.sh /u/${USER}/afmap/mturk/process_qualification_requests.py >>/u/${USER}/afmap/log/daemonNanny.log
-45 * * * * /u/${USER}/afmap/mturk/daemonNanny.sh /u/${USER}/afmap/R/KMLgenerate.R >>/u/${USER}/afmap/log/daemonNanny.log
+0,5,10,15,20,25,30,35,40,45,50,55 * * * * /u/${USER}/afmap/mturk/daemonNanny.sh /u/${USER}/afmap/mturk/create_hit_daemon.py >>/u/${USER}/afmap/log/daemonNanny.log
+0,5,10,15,20,25,30,35,40,45,50,55 * * * * /u/${USER}/afmap/mturk/daemonNanny.sh /u/${USER}/afmap/mturk/process_qualification_requests.py >>/u/${USER}/afmap/log/daemonNanny.log
+0,5,10,15,20,25,30,35,40,45,50,55 * * * * /u/${USER}/afmap/mturk/daemonNanny.sh /u/${USER}/afmap/R/KMLgenerate.R >>/u/${USER}/afmap/log/daemonNanny.log
