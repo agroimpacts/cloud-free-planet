@@ -4,7 +4,9 @@ from datetime import datetime
 from dateutil import tz
 import psycopg2
 from psycopg2.extensions import adapt
+import collections
 
+from lock import lock
 from boto.mturk.connection import MTurkConnection, MTurkRequestError
 from boto.mturk.qualification import (
     Qualifications, NumberHitsApprovedRequirement, PercentAssignmentsApprovedRequirement, 
@@ -27,23 +29,25 @@ aws_secret_access_key = 'TlfAMeCldA5NKGVl15Pu2phMKu49qxDoRNkDqfAL'
 class MTurkMappingAfrica(object):
 
     # HIT assignment_data.status constants
+
+    # QAQC and non-QAQC HIT constants
     HITAccepted = 'Accepted'                    # HIT accepted by worker
     HITAbandoned = 'Abandoned'                  # HIT abandoned by worker
     HITReturned = 'Returned'                    # HIT returned by worker
-    HITApproved = 'Approved'                    # HIT scored and approved
-    HITRejected = 'Rejected'                    # HIT scored and rejected
-    HITUnsaved = 'Unsaved'                      # HIT unsaved, hence approved & non-QAQC reused
-
-    # QAQC status only
+    HITApproved = 'Approved'                    # HIT submitted and approved:
+                                                # a) QAQC had high score
+                                                # b) non-QAQC had high trust level
+    HITUnsaved = 'Unsaved'                      # HIT unsaved, hence approved
+                                                # (non-QAQC KML reused in this case)
+    # QAQC constants
+    HITRejected = 'Rejected'                    # HIT submitted and rejected
     HITUnscored = 'Unscored'                    # HIT not scorable, hence approved
+    HITReversed = 'Reversed'                    # HIT was originally rejected and then reversed.
 
-    # non-QAQC statuses only
-    HITPending = 'Pending'                      # Approved/Rejected/UnsavedQAQC/
-                                                # UnscoredQAQC status 
-                                                # pending next QAQC score
-    HITPendingUnsaved = 'PendingUnsaved'        # HITUnsaved status pending next QAQC score
-    HITUnsavedQAQC = 'UnsavedQAQC'              # QAQC HIT unsaved, hence non-QAQC HIT approved & reused
-    HITUnscoredQAQC = 'UnscoredQAQC'            # QAQC HIT unscored, hence non-QAQC HIT approved & reused
+    # non-QAQC constants (HIT always approved)
+    HITPending = 'Pending'                      # Awaiting enough trust history to calculate trust level
+    HITUntrusted = 'Untrusted'                  # Insufficiently high trust level
+                                                # (non-QAQC KML reused in this case)
 
     # KML kml_data.kml_type constants
     KmlNormal = 'N'                             # Normal (non-QAQC) KML
@@ -53,17 +57,24 @@ class MTurkMappingAfrica(object):
     # MTurk external submit path
     externalSubmit = '/mturk/externalSubmit'
 
+    # Database column name constants
+    ScoresCol = 'scores'
+    ReturnsCol = 'returns'
+
+    # Serialization lock file name
+    lockFile = 'serial_file.lck'
+
     def __init__(self, debug=0):
         
         # Determine sandbox/mapper based on effective user name.
-        euser = pwd.getpwuid(os.getuid()).pw_name
-        if euser == 'sandbox':
+        self.euser = pwd.getpwuid(os.getuid()).pw_name
+        if self.euser == 'sandbox':
             self.sandbox = True
-        elif euser == 'mapper':
+        elif self.euser == 'mapper':
             self.sandbox = False
         else:
            raise Exception("MTurkMappingAfrica must run under sandbox or mapper user") 
-        self.projectRoot = '/u/%s/afmap' % euser
+        self.projectRoot = '/u/%s/afmap' % self.euser
         if self.sandbox:
             db_name = db_sandbox_name
             self.host = mt_sandbox_host
@@ -182,12 +193,35 @@ class MTurkMappingAfrica(object):
         )
         assert self.approveAssignmentRS.status
 
-    def rejectAssignment(self, assignmentId, feedback=None):
+        # Check to see if training bonus should be paid.
+        # Return True if bonus paid.
+        self.cur.execute("""select worker_id, bonus_paid from worker_data
+            inner join assignment_data using (worker_id) where assignment_id = '%s'""" %
+            assignmentId)
+        (workerId, bonusPaid) = self.cur.fetchone()
+        if not bonusPaid:
+            bonusAmount = self.getConfiguration('Bonus_AmountTraining')
+            bonusReason = self.getConfiguration('Bonus_ReasonTraining')
+            self.grantBonus(assignmentId, workerId, bonusAmount, bonusReason)
+            self.cur.execute("update worker_data set bonus_paid = %s where worker_id = %s", \
+                (True, workerId))
+            self.dbcon.commit()
+            return True
+        return False
+
+    def rejectAssignment(self, assignmentId):
         self.rejectAssignmentRS = self.mtcon.reject_assignment(
+            assignment_id = assignmentId,
+            feedback = self.getConfiguration('HitRejectDescription')
+        )
+        assert self.rejectAssignmentRS.status
+
+    def approveRejectedAssignment(self, assignmentId, feedback):
+        self.approveRejectedAssignmentRS = self.mtcon.approve_rejected_assignment(
             assignment_id = assignmentId,
             feedback = feedback
         )
-        assert self.rejectAssignmentRS.status
+        assert self.approveRejectedAssignmentRS.status
 
     def disposeHit(self, hitId):
         self.disposeHitRS = self.mtcon.dispose_hit(
@@ -231,31 +265,32 @@ class MTurkMappingAfrica(object):
             self.quals.add(NumberHitsApprovedRequirement(
                 comparator="GreaterThan", 
                 integer_value=self.hitsApproved,
-                required_to_preview=True)
+                required_to_preview=False)
             )
         if self.percentApproved != 'ignore':
             self.quals.add(PercentAssignmentsApprovedRequirement(
                 comparator="GreaterThan", 
                 integer_value=self.percentApproved,
-                required_to_preview=True)
+                required_to_preview=False)
             )
         if self.percentReturned != 'ignore':
             self.quals.add(PercentAssignmentsReturnedRequirement(
                 comparator="LessThan", 
                 integer_value=self.percentReturned,
-                required_to_preview=True)
+                required_to_preview=False)
             )
         if self.percentAbandoned != 'ignore':
             self.quals.add(PercentAssignmentsAbandonedRequirement(
                 comparator="LessThan", 
                 integer_value=self.percentAbandoned,
-                required_to_preview=True)
+                required_to_preview=False)
             )
         if self.QTRequired != 'ignore':
             self.quals.add(Requirement(
                 # Retrieve the ID for the Mapping Africa qualification.
                 qualification_type_id=self.getSystemData('Qual_MappingAfricaId'),
-                comparator='Exists')
+                comparator="Exists",
+                required_to_preview=False)
             )
         return self.quals
 
@@ -279,6 +314,7 @@ class MTurkMappingAfrica(object):
                 self.qualificationTypeId = r.QualificationTypeId
         # Save this value in the system_table.
         self.setSystemData('Qual_MappingAfricaId', self.qualificationTypeId)
+        self.dbcon.commit()
 
     def qualTestQuestionForm(self):
         self.qualTestTitle = self.getConfiguration('QualTest_Title')
@@ -328,6 +364,7 @@ class MTurkMappingAfrica(object):
         assert self.disposeQualificationTypeRS.status
         # Clear this value in the system_table.
         self.setSystemData('Qual_MappingAfricaId', '')
+        self.dbcon.commit()
         
     def getQualificationRequests(self):
         self.getQualificationRequestsRS = self.mtcon.get_qualification_requests(
@@ -356,21 +393,30 @@ class MTurkMappingAfrica(object):
         self.grantQualificationRS = self.mtcon.grant_qualification(qualificationRequestId)
         assert self.grantQualificationRS.status
 
-    def rejectQualificationRequest(self, qualificationRequestId, reason=None):
+    def rejectQualificationRequest(self, qualificationRequestId, reason):
         self.rejectQualificationRequestRS = self.mtcon.reject_qualification_request(
             qualificationRequestId,
             reason
         )
         assert self.rejectQualificationRequestRS.status
 
-    def revokeQualification(self, workerId, reason):
+    def revokeQualification(self, workerId):
         self.revokeQualificationRS = self.mtcon.revoke_qualification(
             workerId,
-            # Retrieve the ID for the Mapping Africa qualification.
+            # Retrieve the ID and revocation reason for the Mapping Africa qualification.
             self.getSystemData('Qual_MappingAfricaId'),
-            self.getConfiguration('QualRevocation_Description')
+            self.getConfiguration('Qual_RevocationDescription')
         )
         assert self.revokeQualificationRS.status
+
+    def grantBonus(self, assignmentId, workerId, bonus, reason):
+        self.grantBonusRS = self.mtcon.grant_bonus(
+            worker_id = workerId,
+            assignment_id = assignmentId,
+            bonus_price = MTurkConnection.get_price_as_price(bonus),
+            reason = reason
+        )
+        assert self.grantBonusRS.status
 
     def externalQuestion(self, kml=None):
         self.serverName = self.getConfiguration('ServerName')
@@ -384,6 +430,11 @@ class MTurkMappingAfrica(object):
             frame_height=self.mturkFrameHeight
         )
         return self.extQuestion
+
+    def notifyWorkers(self, workers, subject, body):
+        self.notifyWorkersRS = self.mtcon.notify_workers(workers, subject, body)
+        assert self.notifyWorkersRS.status
+        return self.notifyWorkersRS
 
     def getConfiguration(self, key):
         self.cur.execute("select value from configuration where key = '%s'" % key)
@@ -413,5 +464,143 @@ class MTurkMappingAfrica(object):
     # ProcessNotifications.py threads to access Mturk and database records
     # without interfering with each other.
     def getSerializationLock(self):
-        self.cur.execute("select value from system_data where key = 'SerializationLock' for update")
+        self.lock = lock('%s/mturk/%s' % (self.projectRoot, MTurkMappingAfrica.lockFile))
+
+    # Release serialization lock.
+    def releaseSerializationLock(self):
+        del self.lock
+
+    # Save and retrieve circular buffer into database.
+    # NOTE: assumes that rightmost entry is most recent. 
+    # Works well with collections.deque().
+    # Store circular buffer array into specified column for specified worker.
+    def putCB(self, array, dbField, workerId):
+        self.cur.execute("update worker_data set %s=%s where worker_id = %s" % (dbField,'%s','%s'), (array,workerId,))
+        self.dbcon.commit()
+
+    # Retrieve circular buffer from specified column for specified worker.
+    def getCB(self, dbField, workerId):
+        self.cur.execute("select %s from worker_data where worker_id = %s" % (dbField,'%s'), (workerId,))
         return self.cur.fetchone()[0]
+
+    # Add new value to circular buffer for scores.
+    def pushScore(self, workerId, value):
+        depth = int(self.getConfiguration('Quality_ScoreHistDepth'))
+        scores = self.getCB(self.ScoresCol, workerId)
+        if scores is None:
+            scores = collections.deque(maxlen=depth)
+        else:
+            scores = collections.deque(scores,maxlen=depth)
+        scores.append(value)
+        self.putCB(list(scores), self.ScoresCol, workerId)
+
+    # Get moving average of scores saved. If number of scores saved is 
+    # less than the required depth, return None.
+    def getAvgScore(self, workerId):
+        depth = int(self.getConfiguration('Quality_ScoreHistDepth'))
+        scores = collections.deque(self.getCB(self.ScoresCol, workerId),maxlen=depth)
+        if len(scores) < depth:
+            return None
+        return sum(scores)/depth
+
+    # Add new return state to circular buffer for returns.
+    # State must be True for returns and False for submissions.
+    def pushReturn(self, assignmentId, state):
+        # Get the worker ID for this assignment.
+        self.cur.execute("select worker_id from assignment_data where assignment_id = '%s'" % assignmentId)
+        workerId = self.cur.fetchone()[0]
+        depth = int(self.getConfiguration('Quality_ReturnHistDepth'))
+        returns = self.getCB(self.ReturnsCol, workerId)
+        if returns is None:
+            returns = collections.deque(maxlen=depth)
+        else:
+            returns = collections.deque(returns,maxlen=depth)
+        if state:
+            value = 1.0
+        else:
+            value = 0.0
+        returns.append(value)
+        self.putCB(list(returns), self.ReturnsCol, workerId)
+
+    # Get moving average of scores saved. If number of scores saved is 
+    # less than the required depth, return None.
+    def getReturnRate(self, workerId):
+        depth = int(self.getConfiguration('Quality_ReturnHistDepth'))
+        returns = collections.deque(self.getCB(self.ReturnsCol, workerId),maxlen=depth)
+        if len(returns) < depth:
+            return None
+        return sum(returns)/depth
+
+    # Calculate quality score.
+    def getQualityScore(self, workerId):
+        weight = float(self.getConfiguration('Quality_ReturnWeight'))
+        avgScore = self.getAvgScore(workerId)
+        if avgScore is None:
+            return None
+        returnRate = self.getReturnRate(workerId)
+        if returnRate is None:
+            return None
+        qScore = avgScore - (returnRate * weight)
+        return qScore
+
+    # Pay bonus and return True if quality score shows worker as qualified.
+    def payBonusIfQualified(self, workerId, assignmentId):
+        qualityScore = self.getQualityScore(workerId)
+        if qualityScore is None:
+            return 0
+        bonusThreshold = self.getConfiguration('Bonus_Threshold4')
+        if bonusThreshold != 'ignore' and qualityScore >= float(bonusThreshold):
+            bonusAmount = self.getConfiguration('Bonus_Amount4')
+            bonusReason = self.getConfiguration('Bonus_Reason4')
+            self.grantBonus(assignmentId, workerId, bonusAmount, bonusReason)
+            return 4
+        bonusThreshold = self.getConfiguration('Bonus_Threshold3')
+        if bonusThreshold != 'ignore' and qualityScore >= float(bonusThreshold):
+            bonusAmount = self.getConfiguration('Bonus_Amount3')
+            bonusReason = self.getConfiguration('Bonus_Reason3')
+            self.grantBonus(assignmentId, workerId, bonusAmount, bonusReason)
+            return 3
+        bonusThreshold = self.getConfiguration('Bonus_Threshold2')
+        if bonusThreshold != 'ignore' and qualityScore >= float(bonusThreshold):
+            bonusAmount = self.getConfiguration('Bonus_Amount2')
+            bonusReason = self.getConfiguration('Bonus_Reason2')
+            self.grantBonus(assignmentId, workerId, bonusAmount, bonusReason)
+            return 2
+        bonusThreshold = self.getConfiguration('Bonus_Threshold1')
+        if bonusThreshold != 'ignore' and qualityScore >= float(bonusThreshold):
+            bonusAmount = self.getConfiguration('Bonus_Amount1')
+            bonusReason = self.getConfiguration('Bonus_Reason1')
+            self.grantBonus(assignmentId, workerId, bonusAmount, bonusReason)
+            return 1
+        return 0
+
+    # Revoke Mapping Africa qualification if quality score 
+    # shows worker as no longer qualified.
+    def revokeQualificationIfUnqualifed(self, workerId, submitTime):
+        qualityScore = self.getQualityScore(workerId)
+        if qualityScore is None:
+            return False
+        revocationThreshold = float(self.getConfiguration('Qual_RevocationThreshold'))
+        if qualityScore >= revocationThreshold:
+            return False
+        # Revoke the qualification if not already done.
+        self.cur.execute("SELECT qualified FROM worker_data WHERE worker_id = '%s'" % (workerId))
+        qualified = self.cur.fetchone()[0]
+        if qualified:
+            # Mark worker as having lost his qualification.
+            self.revokeQualification(workerId)
+            self.cur.execute("""update worker_data set qualified = false
+                where worker_id = '%s'""" % workerId)
+            self.dbcon.commit()
+        return True
+
+    # Return True if worker is trusted based on quality score.
+    def isWorkerTrusted(self, workerId):
+        qualityScore = self.getQualityScore(workerId)
+        if qualityScore is None:
+            return None
+        trustThreshold = float(self.getConfiguration('HitNTrustThreshold'))
+        if qualityScore >= trustThreshold:
+            return True
+        else:
+            return False
