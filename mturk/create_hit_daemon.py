@@ -16,8 +16,8 @@ class Row:
         self.kml_type = kml_type
 
 # Email function used when there are validation failures.
-def email(msg = None):
-    sender = 'mapper@princeton.edu'
+def email(mtma, msg = None):
+    sender = '%s@mapper.princeton.edu' % mtma.euser
     receiver = 'mappingafrica_internal_alert@trac.princeton.edu'
     message = """From: %s
 To: %s
@@ -93,9 +93,6 @@ while True:
             hits[hit[0]].delete_time = hit[2]
             hits[hit[0]].kml_type = hit[3]
 
-    # Release serialization lock.
-    mtma.dbcon.commit()
-
     # Do the verification.
     numMturkQaqcHits = 0
     numMturkNonQaqcHits = 0
@@ -105,7 +102,7 @@ while True:
         # If HIT on Mturk but not in DB: should never happen.
         if row.status and not row.create_time:
             k.write("createHit: Error: Mturk HIT '%s' not in database!\n" % hitId)
-            email("Error: Mturk HIT '%s' not in database!" % hitId)
+            email(mtma, "Error: Mturk HIT '%s' not in database!" % hitId)
         # if HIT in DB but not on Mturk,
         elif not row.status and row.create_time:
             # If DB says HIT still exists: should never happen.
@@ -114,18 +111,17 @@ while True:
                 mtma.cur.execute("""update hit_data set hit_verified = True, delete_time = '%s' 
                     where hit_id = '%s'""" % (now, hitId))
                 k.write("createHit: Error: Active DB HIT '%s' not found on Mturk!\ncreateHit: Now marked as deleted in DB.\n" % hitId)
-                email("Error: Active DB HIT '%s' not found on Mturk!\r\nNow marked as deleted in DB." % hitId)
+                email(mtma, "Error: Active DB HIT '%s' not found on Mturk!\r\nNow marked as deleted in DB." % hitId)
             # If DB says HIT has been deleted, then mark it as verified.
             else:
                 mtma.cur.execute("""update hit_data set hit_verified = True 
                     where hit_id = '%s'""" % hitId)
-            mtma.dbcon.commit()
         # if HIT is on Mturk and in DB,
         elif row.status and row.create_time:
             # if DB says HIT no longer exists: should never happen.
             if row.delete_time:
                 k.write("createHit: Error: Deleted DB HIT '%s' still exists on Mturk!\n" % hitId)
-                email("Error: Deleted DB HIT '%s' still exists on Mturk!" % hitId)
+                email(mtma, "Error: Deleted DB HIT '%s' still exists on Mturk!" % hitId)
             else:
                 # Calculate the current number of assignable QAQC and non-QAQC HITs 
                 # currently active on the MTurk server.
@@ -134,6 +130,12 @@ while True:
                         numMturkQaqcHits = numMturkQaqcHits + 1
                     elif row.kml_type == MTurkMappingAfrica.KmlNormal:
                         numMturkNonQaqcHits = numMturkNonQaqcHits + 1
+
+    # Commit any uncommitted changes
+    mtma.dbcon.commit()
+
+    # Release serialization lock.
+    mtma.releaseSerializationLock()
 
     # Create any needed QAQC HITs.
     kmlType = MTurkMappingAfrica.KmlQAQC
@@ -205,24 +207,17 @@ while True:
             (numMturkNonQaqcHits, numReqdNonQaqcHits))
 
     for i in xrange(numReqdNonQaqcHits):
-        # Retrieve the last kml gid used to create a non-QAQC HIT.
-        curNonQaqcGid = mtma.getSystemData('CurNonQaqcGid')
-
         # Select the next kml for which to create a HIT. 
-        # Look for all kmls of the right type whose gid is greater than the last kml chosen.
-        # Exclude any kmls that currently have an active HIT on the MTurk server, or
-        # that are deleted but previously approved.
+        # Look for all kmls of the right type that have not been marked as mapped by a trusted worker.
+        # Exclude any kmls that currently have an active HIT on the MTurk server.
         mtma.cur.execute("""
-            select name, gid from kml_data k 
-            where not exists
-                (select true from hit_data h 
-                left outer join assignment_data a using (hit_id)
-                where h.name = k.name 
-                and (h.delete_time is null or a.status = 'Approved'))
+            select name from kml_data k 
+            where not exists (select true from hit_data h 
+                where h.name = k.name and delete_time is null)
             and  kml_type = '%s' 
-            and gid > %s 
+            and mapped = false
             order by gid 
-            limit 1""" % (kmlType, curNonQaqcGid))
+            limit 1""" % kmlType)
         row = mtma.cur.fetchone()
         # If we have no kmls left, all kmls in the kml_data table have been 
         # successfully processed. Notify Lyndon that more kmls are needed.
@@ -230,11 +225,9 @@ while True:
             # Set notification delay to 1 hour.
             hitPollingInterval = 3600
             k.write("createHit: Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs.")
-            email("Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs.")
+            email(mtma, "Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs.")
             break
         nextKml = row[0]
-        gid = row[1]
-        mtma.setSystemData('CurNonQaqcGid', gid)
 
         # Create the non-QAQC HIT
         try:
