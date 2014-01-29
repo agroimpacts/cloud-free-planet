@@ -16,7 +16,7 @@ LOGFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.oe.log
 
 NOW=`/bin/date '+%m/%d/%Y %H:%M:%S'`
 TO="mappingafrica_internal_alert@trac.princeton.edu"
-SUBJECT="Daemon nanny has restarted a daemon"
+#TO="dmcr@princeton.edu"
 
 if [ ! -x "$COMMAND" ]; then
     echo "`date`: $COMMAND does not exist or is not executable"
@@ -48,17 +48,25 @@ if [ $restart == 1 ]; then
         checkrestart
         if [ $restart == 1 ]; then
             echo "`date`: Failed to restart $PROGRAM"
+            SUBJECT="Daemon nanny has failed to restart a daemon"
+            emailBody=`/bin/cat <<EOF
+$SUBJECT
+
+Daemon $PROGRAM failed to restart at $NOW.
+Please check $LOGFILE for details.
+EOF`
+            email
             exit 2
         else
             echo "`date`: $PROGRAM restarted"
+            SUBJECT="Daemon nanny has restarted a daemon"
             emailBody=`/bin/cat <<EOF
 $SUBJECT
 
 Daemon $PROGRAM restarted at $NOW.
 Please check $LOGFILE for details.
 EOF`
-            email
-
+            #email
         fi
 else
         echo "`date`: $PROGRAM already running"
