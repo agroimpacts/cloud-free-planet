@@ -1,6 +1,7 @@
 # functions for cleaning mapping polygons
 import os, re, subprocess, glob
 from osgeo import ogr
+from datetime import datetime
 from MTurkMappingAfrica import MTurkMappingAfrica
 
 def polyPrepair(shape_name, table):
@@ -30,8 +31,8 @@ def polyPrepair(shape_name, table):
         feature.SetFID(featureIndex)
         feature.SetField('name', name)
         layer.CreateFeature(feature)
-
-    feature.Destroy()
+        feature.Destroy()
+    
     ds.Destroy()
 
 def wktPrepair(wkt):
@@ -48,8 +49,16 @@ def polyPPrepair(shape_name_in, shape_name_out):
         stdout=subprocess.PIPE).communicate()
 
 def shapeReader(shape_name_in):
+    mtma = MTurkMappingAfrica()
+    logFilePath = mtma.projectRoot + "/log"
     shape_in = shape_name_in + ".shp"
+    now = str(datetime.today())
+    k = open(logFilePath + "/miscellaneous.log", "a")
     polys = ogr.Open(shape_in)
+    if polys is None:
+        k.write("\mapFix: OGR couldn't open '%s' at '%s'\n" % (shape_in, now))
+        raise Exception("OGR can't open '%s'!" % shape_in)
+    k.close()
     elements = polys.GetLayer()
     outHash = {}
 
@@ -85,8 +94,8 @@ def shapeWriter(poly_hash, shape_name_out):
         feature.SetFID(featureIndex)
         feature.SetField('name', name)
         layer.CreateFeature(feature)
+        feature.Destroy()
 
-    feature.Destroy()
     ds.Destroy()
 
 def cleanPolyHash(poly_hash):
@@ -106,11 +115,11 @@ def cleanPolyHash(poly_hash):
             
     return(cleanHash)
 
-def tempShapeDel(assignment_id):
-    tempfilelist = glob.glob("*" + assignment_id + "*")
+def tempShapeDel(path, nameroot):
+    tempfilelist = glob.glob(path + "*" + nameroot + "*")
     try:
         for f in tempfilelist:
-            print(f)
+            #print(f)
             os.remove(f)
     except Exception,e:
         print e

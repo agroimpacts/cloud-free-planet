@@ -6,35 +6,24 @@ import glob, sys, os, subprocess, re #getpass
 from MTurkMappingAfrica import MTurkMappingAfrica
 import mapCleaners as mp
 
-if(len(sys.argv) < 4 or len(sys.argv) > 6):
-    print "Error: There must be at least 5 and no more than 6 arguments: maptype, kmlid, assn id, testing option, and/or try id"
-    quit()
-
-mtype = sys.argv[1]
-kmlid = sys.argv[2]
-assignmentid = sys.argv[3]
-testing = sys.argv[4] 
-if(len(sys.argv) == 6): 
-    tryid = sys.argv[5]
-else: 
-    tryid = 'NA'
-
 def mapFix(mtype, kmlid, assignmentid, testing, tryid=None):
     mtma = MTurkMappingAfrica()
-    cleaning_dir = mtma.projectRoot + "/laundromat"  # directory for temporary maps
-    os.chdir(cleaning_dir)  # change into cleaning directory
+    cleaning_dir = mtma.projectRoot + "/laundromat/"  # directory for temporary maps
 
-    fixshpnm1 = "temp_" + assignmentid
-    fixshpnm2 = "temp_fix_" + assignmentid
-    fixshpnm3 = "temp_fix_2_" + assignmentid
-    fixshpnm4 = "temp_fix_3_" + assignmentid
+    fixshpnm_base = assignmentid + "_" + tryid
+    fixshpnm = fixshpnm_base.encode('utf-8')
+    fixshpnm1 = cleaning_dir + "temp_" + fixshpnm
+    fixshpnm2 = cleaning_dir + "temp_fix_" + fixshpnm
+    fixshpnm3 = cleaning_dir + "temp_fix_2_" + fixshpnm
+    fixshpnm4 = cleaning_dir + "temp_fix_3_" + fixshpnm
 
     if (testing == "yes" or testing == "comments"):
         print "Effective user: " + mtma.euser
         print "Root directory: " + mtma.projectRoot
         print "Map cleaning directory: " + os.getcwd()
         print "Assignment ID: " + assignmentid
-        print "Try ID: " + tryid
+        if tryid is not None:
+            print "Try ID: " + tryid
         print fixshpnm1, fixshpnm2
 
     if mtype == "tr":
@@ -68,7 +57,7 @@ def mapFix(mtype, kmlid, assignmentid, testing, tryid=None):
         print "Error: The number of cleaned polygons doesn't match the number of input polygons for assignment" + assignmentid
 
     if (testing == "no" or testing == "comments"):
-        mp.tempShapeDel(assignmentid)
+        mp.tempShapeDel(cleaning_dir, fixshpnm)
 
     del mtma
 
@@ -83,13 +72,11 @@ def main():
     testing = sys.argv[4]
     if(len(sys.argv) == 6):
         tryid = sys.argv[5]
+        mapFix(mtype, kmlid, assignmentid, testing, tryid)
     else:
-        tryid = 'NA'
+        tryid = "0"
+        mapFix(mtype, kmlid, assignmentid, testing, tryid)
 
-    mapFix(mtype, kmlid, assignmentid, testing, tryid)
 
 if __name__ == '__main__':
     main()
-
-
-
