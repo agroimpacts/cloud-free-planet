@@ -4,6 +4,7 @@ from xml.dom.minidom import parseString
 import psycopg2
 import datetime
 from MTurkMappingAfrica import MTurkMappingAfrica
+from mapFix import mapFix
 
 def application(environ, start_response):
     req = Request(environ)
@@ -91,6 +92,10 @@ def application(environ, start_response):
             break
     # This gets executed if we did not break out of the loop: i.e., if no errors.
     else:
+        if not trainingId:
+            mapFix(mtma, "ma", kmlName, assignmentId, "no")
+        else:
+            mapFix(mtma, "tr", kmlName, trainingId, "no", tryNum)
         mtma.dbcon.commit()
 
     # If this is a training map, then call the scoring routine and 
@@ -120,3 +125,7 @@ def application(environ, start_response):
     del mtma
     k.close()
     return res(environ, start_response)
+
+# Uncomment two lines below for reporting tracebacks in Firebug.
+#from paste.exceptions.errormiddleware import ErrorMiddleware
+#application = ErrorMiddleware(application, debug=True)
