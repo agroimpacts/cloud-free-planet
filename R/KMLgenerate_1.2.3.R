@@ -92,9 +92,14 @@ repeat {
   kml.batch.size <- as.numeric(kml.batch.size$value)  # Should be at least 500 to ensure decent weighting
   min.avail.kml <- dbGetQuery(con, "select value from configuration where key = 'MinAvailNKMLTarget'")
   min.avail.kml <- min.avail.kml$value
-  avail.kml.count <- dbGetQuery(con, paste("select count(*) from kml_data left outer join hit_data", 
-                                           "using (name) where kml_type = 'N' and create_time is null"))
+  avail.kml.count <- dbGetQuery(con, paste("select count(*) from kml_data k",
+                                            "where not exists (select true from hit_data h",
+                                            "where h.name = k.name and delete_time is null)",
+                                            "and  kml_type = 'N'",
+                                            "and mapped = false"))
   avail.kml.count <- avail.kml.count$count
+
+  #write(paste(avail.kml.count, "KMLs are unused"), file = logfname, append = TRUE)
   
   start.time <- Sys.time()  
   if(avail.kml.count < min.avail.kml) {  # Set pretty high in case HITs are drawn down at rapid rate

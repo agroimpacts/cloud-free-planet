@@ -6,12 +6,12 @@ import glob, sys, os, subprocess, re #getpass
 from MTurkMappingAfrica import MTurkMappingAfrica
 import mapCleaners as mp
 
-def mapFix(mtype, kmlid, assignmentid, testing, tryid=None):
-    mtma = MTurkMappingAfrica()
+def mapFix(mtma, mtype, kmlid, assignmentid, testing, tryid=None):
     cleaning_dir = mtma.projectRoot + "/laundromat/"  # directory for temporary maps
 
-    fixshpnm_base = assignmentid + "_" + tryid
-    fixshpnm = fixshpnm_base.encode('utf-8')
+    fixshpnm = assignmentid.encode('utf-8')
+    if tryid is not None:
+        fixshpnm = "%s_%s" % (fixshpnm, tryid)
     fixshpnm1 = cleaning_dir + "temp_" + fixshpnm
     fixshpnm2 = cleaning_dir + "temp_fix_" + fixshpnm
     fixshpnm3 = cleaning_dir + "temp_fix_2_" + fixshpnm
@@ -23,24 +23,28 @@ def mapFix(mtype, kmlid, assignmentid, testing, tryid=None):
         print "Map cleaning directory: " + os.getcwd()
         print "Assignment ID: " + assignmentid
         if tryid is not None:
-            print "Try ID: " + tryid
-        print fixshpnm1, fixshpnm2
+            print "Try ID: %s" % tryid
 
-    if mtype == "tr":
+    if mtype == "tr" and tryid is not None:
         mtma.cur.execute("""SELECT name,ST_AsEWKT(geom),try FROM qual_user_maps WHERE name LIKE '%s_%%' AND training_id='%s' AND 
             try='%s' ORDER BY name FOR UPDATE""" % (kmlid, assignmentid, tryid))
-    elif mtype == "ma":
+    elif mtype == "ma" and tryid is None:
         mtma.cur.execute("""SELECT name,ST_AsEWKT(geom) FROM user_maps WHERE name LIKE '%s_%%' AND assignment_id='%s' ORDER BY name 
             FOR UPDATE""" % (kmlid, assignmentid))
-    poly_table = mtma.cur.fetchall()
+    else:
+        raise Exception ("Invalid maptype or tryid passed to Mapfix")
 
-    mp.polyPrepair(fixshpnm1, poly_table)
-    mp.polyPPrepair(fixshpnm1, fixshpnm2)
-    poly_fix = mp.shapeReader(fixshpnm2)
-    poly_fix2 = mp.cleanPolyHash(poly_fix)
-    mp.shapeWriter(poly_fix2, fixshpnm3) 
-    mp.polyPPrepair(fixshpnm3, fixshpnm4)
-    poly_fixf = mp.shapeReader(fixshpnm4)
+    poly_table = mtma.cur.fetchall()
+    if len(poly_table) == 0:
+        raise Exception ("Invalid kmlid, assignmentid/trainingid, or tryid passed to Mapfix")
+
+    mp.polyPrepair(mtma, fixshpnm1, poly_table)
+    mp.polyPPrepair(mtma, fixshpnm1, fixshpnm2)
+    poly_fix = mp.shapeReader(mtma, fixshpnm2)
+    poly_fix2 = mp.cleanPolyHash(mtma, poly_fix)
+    mp.shapeWriter(mtma, poly_fix2, fixshpnm3) 
+    mp.polyPPrepair(mtma, fixshpnm3, fixshpnm4)
+    poly_fixf = mp.shapeReader(mtma, fixshpnm4)
     if(len(poly_table) == len(poly_fixf)): 
         for name in poly_fixf:
             if mtype == "tr":
@@ -57,25 +61,26 @@ def mapFix(mtype, kmlid, assignmentid, testing, tryid=None):
         print "Error: The number of cleaned polygons doesn't match the number of input polygons for assignment" + assignmentid
 
     if (testing == "no" or testing == "comments"):
-        mp.tempShapeDel(cleaning_dir, fixshpnm)
+        mp.tempShapeDel(mtma, cleaning_dir, fixshpnm)
 
     del mtma
 
 def main():
-    if(len(sys.argv) < 4 or len(sys.argv) > 6):
+    if len(sys.argv) < 5 or len(sys.argv) > 6:
         print "Error: There must be at least 4 and no more than 5 arguments: maptype, kmlid, assn id, testing option, and/or try id"
         quit()
 
     mtype = sys.argv[1]
     kmlid = sys.argv[2]
     assignmentid = sys.argv[3]
+    assignmentid = unicode(assignmentid, "UTF-8")
     testing = sys.argv[4]
-    if(len(sys.argv) == 6):
-        tryid = sys.argv[5]
-        mapFix(mtype, kmlid, assignmentid, testing, tryid)
+    mtma = MTurkMappingAfrica()
+    if len(sys.argv) == 6:
+        tryid = int(sys.argv[5])
+        mapFix(mtma, mtype, kmlid, assignmentid, testing, tryid)
     else:
-        tryid = "0"
-        mapFix(mtype, kmlid, assignmentid, testing, tryid)
+        mapFix(mtma, mtype, kmlid, assignmentid, testing)
 
 
 if __name__ == '__main__':

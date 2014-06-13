@@ -66,7 +66,7 @@ $SUBJECT
 Daemon $PROGRAM restarted at $NOW.
 Please check $LOGFILE for details.
 EOF`
-            #email
+            email
         fi
 else
         echo "`date`: $PROGRAM already running"
