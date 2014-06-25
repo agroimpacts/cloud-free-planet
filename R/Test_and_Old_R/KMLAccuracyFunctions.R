@@ -5,7 +5,7 @@
 # Author     : Lyndon Estes
 # Draws from : KMLAccuracyCheck_1.3.0+.R
 # Used by    : 
-# Notes      : Created 27/9/2013
+# Notes      : 
 ##############################################################################################################
 
 accStatsSum <- function(tp, fp, tn, fn) {
@@ -89,6 +89,24 @@ callPprepair <- function(dirnm, spdfinname, spdfoutname, crs = crs) {
   return(polyfixed)
 }
 
+polyFromWkt <- function(geom.tab, crs) {
+  # Creates a spatialPolygonsDataFrame from a geometry table read in from Postgis
+  # Args: 
+  #   geom.tab: Dataframe with geometry and identifiers in it. Identifier must be 1st column, geometries 2nd col  
+  #   crs: Coordinate reference system
+  # Returns: 
+  #   A SpatialPolygonsDataFrame
+  polys <- tst <- sapply(1:nrow(geom.tab), function(x) {
+    poly <- as(readWKT(geom.tab[x, 2], p4s = crs), "SpatialPolygonsDataFrame")
+    poly@data$ID <- geom.tab[x, 1]
+    newid <- paste(x)
+    poly <- spChFIDs(poly, newid)
+    return(poly)
+  })
+  polyspdf <- do.call("rbind", polys)
+  return(polyspdf)
+}
+
 createCleanTempPolyfromWKT <- function(geom.tab, crs) {
   # Function for reading in a spatial geometry from PostGIS and creating a temporary shapefile out of it  
   # Args: 
@@ -98,14 +116,15 @@ createCleanTempPolyfromWKT <- function(geom.tab, crs) {
   #   A SpatialPolygonsDataFrame
   # Notes: 
   #   Uses callPprepair function to clean up read in polygons and write them to a temporary location
-  polys <- tst <- sapply(1:nrow(geom.tab), function(x) {
-    poly <- as(readWKT(geom.tab[x, 2], p4s = crs), "SpatialPolygonsDataFrame")
-    poly@data$ID <- geom.tab[x, 1]
-    newid <- paste(x)
-    poly <- spChFIDs(poly, newid)
-    return(poly)
-  })
-  polyspdf <- do.call("rbind", polys)
+#   polys <- tst <- sapply(1:nrow(geom.tab), function(x) {
+#     poly <- as(readWKT(geom.tab[x, 2], p4s = crs), "SpatialPolygonsDataFrame")
+#     poly@data$ID <- geom.tab[x, 1]
+#     newid <- paste(x)
+#     poly <- spChFIDs(poly, newid)
+#     return(poly)
+#   })
+#   polyspdf <- do.call("rbind", polys)
+  polyspdf <- polyFromWkt(geom.tab, crs)
   polys.count <- nrow(polyspdf)
   td <- tempdir()
   tmpnmin <- strsplit(tempfile("poly", tmpdir = ""), "/")[[1]][2]

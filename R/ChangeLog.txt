@@ -12,7 +12,7 @@ Changes from *1.2.R
 13/6/12: 
 * Updated avail.kml.count to have no sql statement b/c kml_data no longer has hit_id
 * Ran manually to give some initial non-qaqc kmls to work with
-20/6/13: 
+20/6/13:
 * Added logging for daemon start time and for pid to be recorded in separate file. 
 * Daemon start time is recorded in log file that lists NKML ids selected for writing 
 27/9/2013: 
@@ -123,6 +123,16 @@ Update to version 1.2.4.
 * Moved all supporting functions for KMLAccuracyCheck to KMLAccuracyFunctions.R, which is now sourced. 
 30/9/2013: 
 * Dennis added some additional arguments that allow script to find getDBName.R
+
+********** Update to version 1.4.0 ************
+24/06/2014:
+* New version, simplified, relies on reading in pre-cleaned geometries that have gone through the mapFix*.py
+  process.
+* Additional logic added to deal with case where cleaning routines fail for users' maps (e.g. geom_clean has 
+  null values). This invokes original function that calls pprepair to temporarily clean geometries for 
+  accuracy assessment, but does not store cleaned geometries. This check is only implemented for user maps 
+  (training or ordinary maps). The assumption is that all qaqcs will have geometries cleaned offline using 
+  mapFixBatch.py. 
 
 *** getBDName.R ***                 
 Created 26/9/2013
