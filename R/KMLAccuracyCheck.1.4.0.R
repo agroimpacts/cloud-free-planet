@@ -16,10 +16,10 @@ count.err.wt  <- 0.1  # Weighting given to error in number of fields identified
 in.err.wt     <- 0.7  # Weighting for in grid map discrepancy
 out.err.wt    <- 0.2  # Weighting for out of grid map discrepancy
 err.switch    <- 1  # Selects which area error metric used for in grid accuracy: 1 = overall accuracy; 2 = TSS
-comments      <- "T"  # For testing, one can turn on print statements to see what is happening
-write.err.db  <- "F"  # Option to write error metrics into error_data table in postgres (off if not "T") 
-draw.maps     <- "F"  # Option to draw maps showing output error components (where maps possible, off w/o "T")
-test          <- "Y"  # For manual testing, one can give a single kmlid, and the code will pull the entire 
+comments      <- "F"  # For testing, one can turn on print statements to see what is happening
+write.err.db  <- "T"  # Option to write error metrics into error_data table in postgres (off if not "T") 
+draw.maps     <- "T"  # Option to draw maps showing output error components (where maps possible, off w/o "T")
+test          <- "N"  # For manual testing, one can give a single kmlid, and the code will pull the entire 
                       # assignment_data and hit_data tables to find the right assignment ids to test, "Y" for 
                       # this option, else "N" for normal production runs
 test.root     <- "N"  # For testing location of working environment ("Y" or "N". "N" is for production)
@@ -73,11 +73,6 @@ if(test.root == "N") {
   
   #########################
   # Testing variables for remote off Africa access
-  #assignmentid <- "2MTPC6SK9RJ8BDXXB38MDAPMQEQ3RD"
-  #assignmentid <- "21B85OZIZEHMGZN10DH5HWPXNZQBZX"
-  #assignmentid <- "hDTcDCf8ESUq"; tryid <- 1; mtype <- "tr"; kmlid <- "SA188774" 
-  #assignmentid <- "IJpMv7t8Xs8y"; tryid <- 1; mtype <- "tr"; kmlid <- "SA226678"; 
-  #assignmentidtype <- "training_id" 
   if(test == "Y") {
     hit.sql <- "select hit_id, name from hit_data"
     hits <- dbGetQuery(con, hit.sql)
