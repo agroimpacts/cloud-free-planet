@@ -1,6 +1,7 @@
 To restore the entire SouthAfrica database:
 
-1) As root, copy the local pg_hba.conf to /var/lib/pgsql/9.1/data. 
+1) As root, copy the local pg_hba.conf to /var/lib/pgsql/9.1/data.
+   NOTE: Make sure ownership is postgres:postgres and permissions are 600.
    Comment all 'all postgres md5' lines and uncomment all 'all all trust' lines.
 2) As root, run 'service postgresql-9.1 start'.
 3) Change the PostgreSQL postgres password, and create the ***REMOVED*** role as superuser:
