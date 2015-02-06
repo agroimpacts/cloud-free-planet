@@ -14,14 +14,14 @@ prepair is based on a constrained triangulation ([CGAL](http://www.cgal.org) is 
 
 It is available under a dual license scheme: [GPLv3](http://www.gnu.org/copyleft/gpl.html) and commercial. If you are interested in a commercial license, please contact [Ken Arroyo Ohori](mailto:g.a.k.arroyoohori@tudelft.nl).
 
-Note that prepair is only concerned with single polygons, and if you're interested in validating how different polygons interact with each other (to be precise: to check if they form a planar partition) have a look at our other project [pprepair](https://github.com/tudelft-gist/pprepair).
+Note that prepair is only concerned with single polygons, and if you're interested in validating how different polygons interact with each other (to be precise: to check if they form a planar partition) have a look at our other project [pprepair](https://github.com/tudelft3d/pprepair).
 
 
 ## Details
 
 Details of how we automatically repair broken polygons, and what results you can expect, are available in this scientific article:
 
-> Ledoux, H., Arroyo Ohori, K., and Meijers, M. (2014). A triangulation-based approach to automatically repair GIS polygons. *Computers & Geosciences* 66:121–131. [ [DOI] ](http://dx.doi.org/10.1016/j.cageo.2014.01.009) [ [PDF] ](http://homepage.tudelft.nl/23t4p/pdfs/14cgeo_prepair.pdf)
+> Ledoux, H., Arroyo Ohori, K., and Meijers, M. (2014). A triangulation-based approach to automatically repair GIS polygons. *Computers & Geosciences* 66:121–131. [ [DOI] ](http://dx.doi.org/10.1016/j.cageo.2014.01.009) [ [PDF] ](http://3dgeoinfo.bk.tudelft.nl/hledoux/pdfs/14cgeo_prepair.pdf)
 
 If you use prepair for a scientific project, please cite this article.
 
@@ -65,7 +65,7 @@ A [WKT](http://en.wikipedia.org/wiki/Well-known_text) or an OGR dataset (shapefi
 
 [Snap rounding](http://www.cgal.org/Manual/latest/doc_html/cgal_manual/Snap_rounding_2/Chapter_main.html) of the input segments can be performed with the --isr option:
 
-    $ /prepair --isr 2 --wkt "POLYGON((0 0, 10 0, 15 5, 10 0, 10 10, 0 10, 0 0))"
+    $ ./prepair --isr 2 --wkt "POLYGON((0 0, 10 0, 15 5, 10 0, 10 10, 0 10, 0 0))"
     MULTIPOLYGON (((11 1,11 11,1 11,1 1,11 1)))
     
 

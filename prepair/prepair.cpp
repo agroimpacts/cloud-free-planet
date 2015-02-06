@@ -81,12 +81,32 @@ int main (int argc, const char * argv[]) {
     //-- reading from WKT passed directly
     else if (strcmp(argv[argNum], "--wkt") == 0) {
       unsigned int bufferSize = 100000000;
-      char *inputWKT = (char *)malloc(bufferSize*sizeof(char *));
+      char *inputWKT = (char *)malloc(bufferSize*sizeof(char));
       strcpy(inputWKT, argv[argNum+1]);
       ++argNum;
-      OGRGeometryFactory::createFromWkt(&inputWKT, NULL, &geometry);
-      if (geometry == NULL) {
-        std::cout << "Error: WKT is not valid" << std::endl;
+      OGRErr err = OGRGeometryFactory::createFromWkt(&inputWKT, NULL, &geometry);
+      if (err != OGRERR_NONE) {
+        switch (err) {
+          case OGRERR_UNSUPPORTED_GEOMETRY_TYPE:
+            std::cerr << "Error: geometry must be Polygon or MultiPolygon" << std::endl;
+            break;
+          case OGRERR_NOT_ENOUGH_DATA:
+          case OGRERR_CORRUPT_DATA:
+            std::cerr << "Error: corrupted input" << std::endl;
+            break;
+          default:
+            std::cerr << "Error: corrupted input" << std::endl;
+            break;
+        }
+        return 1;
+      }
+      if (geometry->IsEmpty() == 1) {
+        std::cerr << "Error: empty geometry" << std::endl;
+        return 1;
+      }
+      if ( (geometry->getGeometryType() != wkbPolygon) && 
+           (geometry->getGeometryType() != wkbMultiPolygon) ) {
+        std::cerr << "Error: geometry must be Polygon or MultiPolygon" << std::endl;
         return 1;
       }
     }
@@ -94,7 +114,7 @@ int main (int argc, const char * argv[]) {
     //-- reading from WKT stored in first line of a text file
     else if (strcmp(argv[argNum], "-f") == 0) {
       unsigned int bufferSize = 100000000;
-      char *inputWKT = (char *)malloc(bufferSize*sizeof(char *));
+      char *inputWKT = (char *)malloc(bufferSize*sizeof(char));
       if (argNum + 1 <= argc - 1 && argv[argNum+1][0] != '-') {
         std::ifstream infile(argv[argNum+1], std::ifstream::in);
         infile.getline(inputWKT, bufferSize);
@@ -151,19 +171,12 @@ int main (int argc, const char * argv[]) {
   if (computeRobustness == true)
     std::cout << "Robustness of input polygon: " << sqrt(prepair.computeRobustness(geometry)) <<std::endl;
   
-  OGRGeometry *snappedGeometry;
-  if (isrTolerance != 0) {
-    snappedGeometry = prepair.isr(geometry, isrTolerance);
-  } else {
-    snappedGeometry = geometry;
-  }
-  
   
   OGRMultiPolygon *outPolygons;
   if (pointSet) {
-    outPolygons = prepair.repairPointSet(snappedGeometry, startTime);
+    outPolygons = prepair.repairPointSet(geometry, startTime);
   } else {
-    outPolygons = prepair.repairOddEven(snappedGeometry, startTime);
+    outPolygons = prepair.repairOddEven(geometry, startTime);
   }
   
   if (minArea > 0) {
@@ -208,6 +221,7 @@ void usage() {
   std::cout << "--minarea AREA Only output polygons larger than AREA" << std::endl;
   std::cout << "--isr GRIDSIZE Snap round the input before repairing" << std::endl;
   std::cout << "--time         Benchmark the different stages of the process" << std::endl;
+  std::cout << "--shpOut       Output a shapefile (out.shp) instead of a WKT" << std::endl;
   
 }
 
