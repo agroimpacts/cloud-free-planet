@@ -2,6 +2,6 @@
 
 make clean
 
-export LD_LIBRARY_PATH="/usr/local/lib:/usr/lib64:/usr/pgsql-9.1/lib"
+export LD_LIBRARY_PATH="/usr/pgsql-9.4/lib"
 cmake .
 make
