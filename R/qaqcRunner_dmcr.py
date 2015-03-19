@@ -8,7 +8,8 @@ import subprocess
 #score = subprocess.Popen(["Rscript", "KMLAccuracyCheck.1.1.R", "3348", "1A2BC3463"], stdout=subprocess.PIPE).communicate()[0]
 #score = subprocess.Popen(["Rscript", "KMLAccuracyCheck.R", "SA364154", "298KPEIB9BAWRHKC1FWV0UD3MH4X0F"], stdout=subprocess.PIPE).communicate()[0]
 #score = subprocess.Popen(["Rscript", "KMLAccuracyCheck.R", "SA175522", "2TNCNHMVHVKCPPZGWRY4M79KQKI42Q"], stdout=subprocess.PIPE).communicate()[0]
-score = subprocess.Popen(["Rscript", "KMLAccuracyCheck.R", "SA175418", "22CMT6YTWX4H9604NT49CGI6I8SW1E"], stdout=subprocess.PIPE).communicate()[0]
+#score = subprocess.Popen(["Rscript", "KMLAccuracyCheck.R", "SA175418", "22CMT6YTWX4H9604NT49CGI6I8SW1E"], stdout=subprocess.PIPE).communicate()[0]
+score = subprocess.Popen(["Rscript", "KMLAccuracyCheck2.R", "qa", "SA202797", "3RKNTXVS3MY4PDOG3FPDTJXTIGQA4C"], stdout=subprocess.PIPE).communicate()[0]
 score = float(score)
 print "score = %.2f\n" % score
 

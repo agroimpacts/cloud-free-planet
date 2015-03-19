@@ -82,7 +82,9 @@ callPprepair <- function(dirnm, spdfinname, spdfoutname, crs = crs) {
   
   inname <- paste(dirnm, "/", spdfinname, ".shp", sep = "")
   outname <- paste(dirnm, "/", spdfoutname, ".shp", sep = "")
-  ppcall <- paste("/usr/local/bin/pprepair -i", inname, "-o", outname, "-fix")
+  #ppcall <- paste("/usr/local/bin/pprepair -i", inname, "-o", outname, "-fix")
+  ppcall <- paste("/u/sandbox/afmap/pprepair/pprepair -i", inname, "-o", 
+                  outname, "-fix")
   ctch <- system(ppcall, intern = TRUE)
   polyfixed <- readOGR(dsn = dirnm, layer = spdfoutname, verbose = FALSE)
   polyfixed@proj4string <- crs

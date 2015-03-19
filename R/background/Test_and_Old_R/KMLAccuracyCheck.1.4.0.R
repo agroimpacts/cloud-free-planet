@@ -1,13 +1,13 @@
 #! /usr/bin/Rscript
-##############################################################################################################
+################################################################################
 # Title      : KMLAccuracyCheck_1.4.0.R
 # Purpose    : QAQC accuracy assessment routine
 # Author     : Lyndon Estes
-# Draws from : GMap.grid.R, GMap.server.[1|1.1].R; GMap.acc.check.1.R; GMap.QAQC.check.1.1.R
-#              KMLAccuracyCheck_1.X.R
+# Draws from : GMap.grid.R, GMap.server.[1|1.1].R; GMap.acc.check.1.R; 
+#              GMap.QAQC.check.1.1.R; KMLAccuracyCheck_1.X.R
 # Used by    : 
 # Notes      : Notes on changes/modification moved to ChangeLog.txt (26/9/2013)
-##############################################################################################################
+################################################################################
 
 ###################
 # Hardcoded values placed here for easy changing 
@@ -16,10 +16,10 @@ count.err.wt  <- 0.1  # Weighting given to error in number of fields identified
 in.err.wt     <- 0.7  # Weighting for in grid map discrepancy
 out.err.wt    <- 0.2  # Weighting for out of grid map discrepancy
 err.switch    <- 1  # Selects which area error metric used for in grid accuracy: 1 = overall accuracy; 2 = TSS
-comments      <- "T"  # For testing, one can turn on print statements to see what is happening
-write.err.db  <- "F"  # Option to write error metrics into error_data table in postgres (off if not "T") 
-draw.maps     <- "F"  # Option to draw maps showing output error components (where maps possible, off w/o "T")
-test          <- "Y"  # For manual testing, one can give a single kmlid, and the code will pull the entire 
+comments      <- "F"  # For testing, one can turn on print statements to see what is happening
+write.err.db  <- "T"  # Option to write error metrics into error_data table in postgres (off if not "T") 
+draw.maps     <- "T"  # Option to draw maps showing output error components (where maps possible, off w/o "T")
+test          <- "N"  # For manual testing, one can give a single kmlid, and the code will pull the entire 
                       # assignment_data and hit_data tables to find the right assignment ids to test, "Y" for 
                       # this option, else "N" for normal production runs
 test.root     <- "N"  # For testing location of working environment ("Y" or "N". "N" is for production)
@@ -34,7 +34,8 @@ suppressMessages(library(rgeos))
 if(test == "N") {
   initial.options <- commandArgs(trailingOnly = FALSE)
   arg.name <- "--file="
-  script.name <- sub(arg.name, "", initial.options[grep(arg.name, initial.options)])
+  script.name <- sub(arg.name, "", 
+                     initial.options[grep(arg.name, initial.options)])
   script.dir <- dirname(script.name)
 } else if(test == "Y") {
   script.dir <- getwd()  
@@ -46,12 +47,12 @@ drv <- dbDriver("PostgreSQL")
 con <- dbConnect(drv, dbname = db.name, user = "***REMOVED***", password = "***REMOVED***")
 
 if(test.root == "Y") {
-  prj.sql <- paste("select proj4text from spatial_ref_sys where srid=", prjsrid, sep = "")
+  prj.sql <- paste0("select proj4text from spatial_ref_sys where srid=", prjsrid)
   prjstr <- dbGetQuery(con, prj.sql)$proj4text
   print(paste("database =", db.name, "directory = ", project.root))
   print(prjstr)
   paste(project.root, "/R/Error_records/")
-  print("Stopping here: Just making sure we are working and writing to the right places")
+  print("Stopping here: Just checking we are working in the right places")
 } 
 
 if(test.root == "N") {
@@ -62,10 +63,14 @@ if(test.root == "N") {
     mtype <- args[1]  # training "tr" or normal qaqc check "qa"
     kmlid <- args[2]  # ID of grid cell 
     assignmentid <- args[3]  # Job identifier
-    if(!is.na(args[4]) & mtype == "tr") tryid <- args[4] # Try identifier (for training module only)
-    if(!is.na(args[4]) & mtype == "qa") stop("QA tests do not have multiple attempts")
-    if(is.na(args[4]) & mtype == "tr") stop("Training sites need to have try (attempt) specified")
-    assignmentidtype <- ifelse(mtype == "tr", "training_id", "assignment_id")  # value to paste into user.sql
+    if(!is.na(args[4]) & mtype == "tr") tryid <- args[4] # Try # (training only)
+    if(!is.na(args[4]) & mtype == "qa") {
+      stop("QA tests do not have multiple attempts")
+    }
+    if(is.na(args[4]) & mtype == "tr") {
+      stop("Training sites need to have try (attempt) specified")
+    }
+    assignmentidtype <- ifelse(mtype == "tr", "training_id", "assignment_id")
     if(comments == "T") print(mtype)
     if(comments == "T") print(kmlid)
     if(comments == "T") print(assignmentid)
@@ -73,15 +78,11 @@ if(test.root == "N") {
   
   #########################
   # Testing variables for remote off Africa access
-  #assignmentid <- "2MTPC6SK9RJ8BDXXB38MDAPMQEQ3RD"
-  #assignmentid <- "21B85OZIZEHMGZN10DH5HWPXNZQBZX"
-  #assignmentid <- "hDTcDCf8ESUq"; tryid <- 1; mtype <- "tr"; kmlid <- "SA188774" 
-  #assignmentid <- "IJpMv7t8Xs8y"; tryid <- 1; mtype <- "tr"; kmlid <- "SA226678"; 
-  #assignmentidtype <- "training_id" 
   if(test == "Y") {
     hit.sql <- "select hit_id, name from hit_data"
     hits <- dbGetQuery(con, hit.sql)
-    ass.sql <- "select assignment_id, hit_id, worker_id, score from assignment_data"
+    ass.sql <- paste0("select assignment_id, hit_id, worker_id,", 
+                      " score from assignment_data")
     asses <- dbGetQuery(con, ass.sql)
     
     # If you have the kmlid 
@@ -90,7 +91,7 @@ if(test.root == "N") {
       hid <- hits[hits$name == kmlid, "hit_id"]
       assignmentid <- asses[asses$hit_id == hid, "assignment_id"]
       if(length(assignmentid) > 1) { 
-        print("More than one assignment has been completed for this kml, selecting the first 1")
+        print("> one assignment completed for this kml, selecting the first 1")
         assignmentid <- assignmentid[1]
       }
     }
@@ -102,18 +103,20 @@ if(test.root == "N") {
     }
   }
   ########################
+
   # Load in necessary functions
   source(paste(script.dir, "KMLAccuracyFunctions.R", sep="/"))
   
   # Projections 
-  prj.sql <- paste("select proj4text from spatial_ref_sys where srid=", prjsrid, sep = "")
+  prj.sql <- paste0("select proj4text from spatial_ref_sys where srid=", 
+                    prjsrid)
   prjstr <- dbGetQuery(con, prj.sql)$proj4text
-  gcs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"  # Always this one
+  gcs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
   
-  # Collect QAQC fields (if there are any; if not then "N" value will be returned). This should work for both
-  # training and test sites
-  qaqc.sql <- paste("select id,ST_AsEWKT(geom_clean),ST_AsEWKT(geom) from qaqcfields where name=", "'", 
-                    kmlid, "'", sep = "")
+  # Collect QAQC fields (if there are any; if not then "N" value will be 
+  # returned). This should work for both training and test sites
+  qaqc.sql <- paste0("select id,ST_AsEWKT(geom_clean),ST_AsEWKT(geom)", 
+                     " from qaqcfields where name=", "'", kmlid, "'")
   qaqc.geom.tab <- dbGetQuery(con, qaqc.sql)
   qaqc.hasfields <- ifelse(nrow(qaqc.geom.tab) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
@@ -125,22 +128,25 @@ if(test.root == "N") {
   
   # Read in user data
   if(mtype == "tr") {  # Training case
-    user.sql <- paste("select name,ST_AsEWKT(geom_clean),ST_AsEWKT(geom),try from qual_user_maps where ",  
-                      assignmentidtype, "='", assignmentid, "'", " and try='",  tryid, "' order by name", 
-                      sep = "")
+    user.sql <- paste0("select name,ST_AsEWKT(geom_clean),ST_AsEWKT(geom),try",
+                       " from qual_user_maps where ",  assignmentidtype, "='", 
+                       assignmentid, "'", " and try='",  tryid, 
+                       "' order by name")
   } else if(mtype == "qa") {  # Test case
-    user.sql <- paste("select name,ST_AsEWKT(geom_clean),ST_AsEWKT(geom) from user_maps where assignment_id=",
-                      "'", assignmentid, "'", " order by name", sep = "")  
+    user.sql <- paste0("select name,ST_AsEWKT(geom_clean),ST_AsEWKT(geom) from", 
+                       " user_maps where assignment_id=", "'", assignmentid, 
+                       "'", " order by name")  
   }
-  user.geom.tab <- dbGetQuery(con, user.sql)  # Collect user data and fields geometries
-  user.geom.tab <- user.geom.tab[grep(kmlid, user.geom.tab$name), ]  # added to drop other training results
-  user.hasfields <- ifelse(nrow(user.geom.tab) > 0, "Y", "N")  # Need to get this right
+  user.geom.tab <- dbGetQuery(con, user.sql)  # Collect user & fields geometries
+  user.geom.tab <- user.geom.tab[grep(kmlid, user.geom.tab$name), ]  # drop other training results
+  user.hasfields <- ifelse(nrow(user.geom.tab) > 0, "Y", "N") 
   if(user.hasfields == "Y") {  # Read in user fields if there are any
     if(any(is.na(user.geom.tab[, 2]))) {  # invoke cleaning algorithm if initial clean on maps not done
       user.geom.tab[, 3] <- gsub("^SRID=*.*;", "", user.geom.tab[, 3])
       user.poly.list <- createCleanTempPolyfromWKT(geom.tab = user.geom.tab[, c(1, 3)], crs = gcs)
-      user.nfields <- user.poly.list[[2]]  #  Record number of distinct fields observed by user
-      user.poly <- gUnaryUnion(spTransform(user.poly.list[[1]], CRSobj = CRS(prjstr)))  # Transform to Albers
+      user.nfields <- user.poly.list[[2]]  #  Record n distinct fields
+      user.poly <- gUnaryUnion(spTransform(user.poly.list[[1]], 
+                                           CRSobj = CRS(prjstr)))  # Transform
     } else if(all(!is.na(user.geom.tab[, 2]))) { 
       user.geom.tab[, 2] <- gsub("^SRID=*.*;", "", user.geom.tab[, 2])
       user.polys <- polyFromWkt(geom.tab = user.geom.tab, crs = gcs)
@@ -156,7 +162,8 @@ if(test.root == "N") {
     if(comments == "T") print("No QAQC or User fields")
     err <- 1
     tss.err <- 1  
-    err.out <- c("total_error" = err, "count_error" = 1, "out_error" = 1, "in_error" = 1, "user_fldcount" = 0)
+    err.out <- c("total_error" = err, "count_error" = 1, "out_error" = 1, 
+                 "in_error" = 1, "user_fldcount" = 0)
   } else {
     # Pick up grid cell from qaqc table, for background location, as it will be needed for the other 3 cases
     if(mtype == "tr") {  # Training case
@@ -255,7 +262,7 @@ if(test.root == "N") {
                    "in_error" = unname(inres[[1]][err.switch]), "user_fldcount" = user.nfields)
     }
   } 
-  
+
   # Insert error component statistics into the database
   if(write.err.db == "T") {
     if(mtype == "qa") {
@@ -305,20 +312,25 @@ if(test.root == "N") {
         cols <- c("green4", "red4", "blue4", "grey30")
         for(i in 1:4) {
           if(objchk[i] == "TRUE") plot(inres[[i + 1]], add = T, col = cols[i])
-          mtext(round(err.out[i], 3), side = 3, line = -1, adj = plotpos[i], cex = cx)
+          mtext(round(err.out[i], 3), side = 3, line = -1, adj = plotpos[i], 
+                cex = cx)
           mtext(mpi[i], side = 3, line = 0.5, adj = plotpos[i], cex = cx)
           if(exists("user.poly.out")) {
-            if(!is.null(user.poly.out)) plot(user.poly.out, add = T, col = "grey")
+            if(!is.null(user.poly.out)) {
+              plot(user.poly.out, add = T, col = "grey")
+            }
           }
           if(exists("qaqc.poly.out")) {
-            if(!is.null(qaqc.poly.out)) plot(qaqc.poly.out, add = T, col = "pink")
+            if(!is.null(qaqc.poly.out)) {
+              plot(qaqc.poly.out, add = T, col = "pink")
+            }
           }
           if(exists("tpo")) if(is.object(tpo)) plot(tpo, col = "green1", add = T)  # 29/11 added fix for nulls
           if(exists("fno")) if(is.object(tpo)) plot(fno, col = "blue1", add = T)   # 29/11 added fix for nulls
         }
         mtext(paste(kmlid, "_", assignmentid, sep = ""), side = 1, cex = cx)
-        legend(x = "right", legend = c("TP", "FP", "FN", "TN"), pch = 15, bty = "n", col = cols, pt.cex = 3, 
-               cex = cx)
+        legend(x = "right", legend = c("TP", "FP", "FN", "TN"), pch = 15, 
+               bty = "n", col = cols, pt.cex = 3, cex = cx)
         garbage <- dev.off()  # Suppress dev.off message
       }  
     }
