@@ -1,9 +1,13 @@
 To restore the entire SouthAfrica database:
 
-1) As root, copy the local pg_hba.conf to /var/lib/pgsql/9.1/data.
+NOTE: If updating ***REMOVED*** to a later version, modify the steps below to
+follow the procedure described at this link:
+http://***REMOVED***.net/docs/***REMOVED***_installation.html#hard_upgrade
+
+1) As root, copy the local pg_hba.conf to /var/lib/pgsql/9.4/data.
    NOTE: Make sure ownership is postgres:postgres and permissions are 600.
    Comment all 'all postgres md5' lines and uncomment all 'all all trust' lines.
-2) As root, run 'service postgresql-9.1 start'.
+2) As root, run 'service postgresql-9.4 start'.
 3) Change the PostgreSQL postgres password, and create the ***REMOVED*** role as superuser:
     psql -U postgres
     \i role.sql
@@ -17,9 +21,9 @@ To restore the entire SouthAfrica database:
     \i SouthAfrica_schema.sql
     (*** Ignore the 3 geometry_columns duplicate rule creation errors.)
 
-6) As root, edit /var/lib/pgsql/9.1/data/pg_hba.conf, and uncomment all 
+6) As root, edit /var/lib/pgsql/9.4/data/pg_hba.conf, and uncomment all 
    'all postgres md5' lines and comment all 'all all trust' lines.
-7) As root, run 'service postgresql-9.1 restart'.
+7) As root, run 'service postgresql-9.4 restart'.
 
 8) As superuser postgres, remove superuser privileges from ***REMOVED*** role:
     psql -U postgres
@@ -34,5 +38,5 @@ To restore the entire SouthAfrica database:
 
 To configure daily database backups:
 
-1) Execute:
+1) As root, execute:
 crontab /var/www/html/afmap/mturk/crontabSetup.root
