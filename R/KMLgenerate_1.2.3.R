@@ -38,7 +38,7 @@ if(test.root == "Y") {
   print(paste("database =", dinfo["db.name"], "directory = ", 
               dinfo["project.root"]))
   stop(paste0("Stopping here: Just making sure we are working and writing to", 
-              "the right places")
+              "the right places"))
 } 
 
 #### This section needs to change as we will have multiple countries in DB
@@ -92,7 +92,7 @@ repeat {
   # afmap queries
   kml.polling.interval <- dbGetQuery(con, 
                                      paste0("select value from configuration",
-                                            " where key = 'KMLPollingInterval'")
+                                            " where key = 'KMLPollingInterval'"))
   kml.polling.interval <- as.numeric(kml.polling.interval$value)  
   kml.batch.size <- dbGetQuery(con, paste0("select value from configuration", 
                                            " where key = 'NKMLBatchSize'"))
