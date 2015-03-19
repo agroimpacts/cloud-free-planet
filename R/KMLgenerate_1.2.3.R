@@ -26,22 +26,15 @@ library(rgdal)
 library(rgeos)
 library(rmapaccuracy)
 
-# Run script to determine working directory and database
-# initial.options <- commandArgs(trailingOnly = FALSE)
-# arg.name <- "--file="
-# script.name <- sub(arg.name, "", initial.options[grep(arg.name, initial.options)])
-# script.dir <- dirname(script.name)
-# source(paste(script.dir, "getDBName.R", sep="/"))
+# Determine working directory and database
 dinfo <- getDBName()  # pull working environment
 
 drv <- dbDriver("PostgreSQL")
-#con <- dbConnect(drv, dbname = db.name, user = "***REMOVED***", password = "***REMOVED***")
 con <- dbConnect(drv, dbname = dinfo["db.name"], user = "***REMOVED***", 
                  password = "***REMOVED***")
 #dbListConnections(drv); dbGetInfo(drv); summary(con)
 
 if(test.root == "Y") {
-  #print(paste("database =", db.name, "directory = ", project.root))
   print(paste("database =", dinfo["db.name"], "directory = ", 
               dinfo["project.root"]))
   stop(paste0("Stopping here: Just making sure we are working and writing to", 
@@ -101,9 +94,12 @@ repeat {
                                      paste0("select value from configuration",
                                             " where key = 'KMLPollingInterval'")
   kml.polling.interval <- as.numeric(kml.polling.interval$value)  
-  kml.batch.size <- dbGetQuery(con, "select value from configuration where key = 'NKMLBatchSize'")
-  kml.batch.size <- as.numeric(kml.batch.size$value)  # Should be at least 500 to ensure decent weighting
-  min.avail.kml <- dbGetQuery(con, "select value from configuration where key = 'MinAvailNKMLTarget'")
+  kml.batch.size <- dbGetQuery(con, paste0("select value from configuration", 
+                                           " where key = 'NKMLBatchSize'"))
+  # Should be at least 500 to ensure decent weighting
+  kml.batch.size <- as.numeric(kml.batch.size$value)  
+  min.avail.kml <- dbGetQuery(con, paste0("select value from configuration", 
+                                          " where key = 'MinAvailNKMLTarget'"))
   min.avail.kml <- min.avail.kml$value
   avail.kml.count <- dbGetQuery(con, paste("select count(*) from kml_data k",
                                            "where not exists",  
