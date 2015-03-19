@@ -9,8 +9,10 @@ from MTurkMappingAfrica import MTurkMappingAfrica
 
 # Row class used in HIT validation logic.
 class Row:
-    def __init__(self, status=None, create_time=None, delete_time=None, kml_type=None):
+    def __init__(self, status=None, assignments_completed=None, create_time=None, 
+            delete_time=None, kml_type=None):
         self.status = status
+        self.assignments_completed = assignments_completed
         self.create_time = create_time
         self.delete_time = delete_time
         self.kml_type = kml_type
@@ -72,7 +74,8 @@ while True:
     # Get all Murk HITs.
     mthits = mtma.getAllHits()
     for hit in mthits:
-        hits[hit.HITId] = Row(status=hit.HITStatus)
+        hits[hit.HITId] = Row(status=hit.HITStatus, 
+                assignments_completed=int(hit.NumberOfAssignmentsCompleted))
 
     # Merge in all unverified DB HITS.
     # Verified is defined as true if DB and Mturk agree HIT is deleted.
@@ -97,7 +100,8 @@ while True:
     numMturkQaqcHits = 0
     numMturkNonQaqcHits = 0
     for hitId, row in hits.iteritems():
-        #print hitId, row.status, row.create_time, row.delete_time, row.kml_type
+        #print hitId, row.status, row.assignments_completed, row.create_time, 
+        #        row.delete_time, row.kml_type
 
         # If HIT on Mturk but not in DB: should never happen.
         if row.status and not row.create_time:
@@ -124,8 +128,9 @@ while True:
                 email(mtma, "Error: Deleted DB HIT '%s' still exists on Mturk!" % hitId)
             else:
                 # Calculate the current number of assignable QAQC and non-QAQC HITs 
-                # currently active on the MTurk server.
-                if row.status == 'Assignable':
+                # currently active on the MTurk server. For HITs with multiple assignments,
+                # only count HITs that have no completed assignments.
+                if row.status == 'Assignable' and row.assignments_completed == 0:
                     if row.kml_type == MTurkMappingAfrica.KmlQAQC:
                         numMturkQaqcHits = numMturkQaqcHits + 1
                     elif row.kml_type == MTurkMappingAfrica.KmlNormal:
@@ -208,30 +213,34 @@ while True:
 
     for i in xrange(numReqdNonQaqcHits):
         # Select the next kml for which to create a HIT. 
-        # Look for all kmls of the right type that have not been marked as mapped by a trusted worker.
+        # Look for all kmls of the right type whose mapped count by a trusted worker is less than
+        # the number of mappings specified by Hit_MaxAssignmentsN.
         # Exclude any kmls that currently have an active HIT on the MTurk server.
+        hitMaxAssignmentsN = int(mtma.getConfiguration('Hit_MaxAssignmentsN'))
         mtma.cur.execute("""
-            select name from kml_data k 
+            select name, mapped_count from kml_data k 
             where not exists (select true from hit_data h 
                 where h.name = k.name and delete_time is null)
             and  kml_type = '%s' 
-            and mapped = false
+            and post_processed = false
+            and mapped_count < %s
             order by gid 
-            limit 1""" % kmlType)
+            limit 1""" % (kmlType, hitMaxAssignmentsN))
         row = mtma.cur.fetchone()
         # If we have no kmls left, all kmls in the kml_data table have been 
         # successfully processed. Notify Lyndon that more kmls are needed.
         if not row:
             # Set notification delay to 1 hour.
             hitPollingInterval = 3600
-            k.write("createHit: Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs.")
+            k.write("createHit: Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs.\n")
             email(mtma, "Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs.")
             break
         nextKml = row[0]
+        remainingAssignments = hitMaxAssignmentsN - row[1]
 
         # Create the non-QAQC HIT
         try:
-            hitId = mtma.createHit(kml=nextKml, hitType=kmlType)
+            hitId = mtma.createHit(kml=nextKml, hitType=kmlType, maxAssignments=remainingAssignments)
         except MTurkRequestError as e:
             k.write("createHit: createHit failed for KML %s:\n%s\n%s\n" %
                 (nextKml, e.error_code, e.error_message))
@@ -241,10 +250,11 @@ while True:
             exit(-2)
 
         # Record the HIT ID.
-        mtma.cur.execute("""insert into hit_data (hit_id, name, create_time) 
-            values ('%s' , '%s', '%s')""" % (hitId, nextKml, now))
+        mtma.cur.execute("""insert into hit_data (hit_id, name, create_time, max_assignments) 
+            values ('%s', '%s', '%s', '%s')""" % (hitId, nextKml, now, remainingAssignments))
         mtma.dbcon.commit()
-        k.write("createHit: Created HIT ID %s for non-QAQC KML %s\n" % (hitId, nextKml))
+        k.write("createHit: Created HIT ID %s with %d assignments for non-QAQC KML %s\n" % 
+                (hitId, remainingAssignments, nextKml))
 
     # Sleep for specified polling interval
     k.close()

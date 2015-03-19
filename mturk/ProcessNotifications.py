@@ -110,7 +110,7 @@ class ProcessNotifications(object):
             self.QAQCSubmission(mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params, hitStatus)
         # Else, if non-QAQC HIT, then mark it as pending post-processing.
         elif kmlType == MTurkMappingAfrica.KmlNormal:
-            self.NormalSubmission(mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params, hitStatus)
+            self.NormalSubmission(mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params)
 
     def QAQCSubmission(self, mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params, hitStatus):
         # Get the kml name, save status, and worker comment.
@@ -129,18 +129,19 @@ class ProcessNotifications(object):
         # If the worker's results were saved, compute the worker's score on this KML.
         assignmentStatus = None
         if resultsSaved:
-            scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % mtma.projectRoot, "qa", kmlName, assignmentId], 
-                stdout=subprocess.PIPE).communicate()[0]
+            scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % mtma.projectRoot, 
+                "qa", kmlName, assignmentId], 
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
             try:
                 score = float(scoreString)
             # Pay the worker if we couldn't score his work properly.
             except:
                 assignmentStatus = MTurkMappingAfrica.HITUnscored
                 score = 1.          # Give worker the benefit of the doubt
-                k.write("ProcessNotifications: Invalid value '%s' returned from R scoring script; assigning a score of %.2f\n" % 
-                    (scoreString, score))
-                email(mtma, "ProcessNotifications: Invalid value '%s' returned from R scoring script for KML %s and assignment ID %s; assigning a score of %.2f\n" % 
-                    (scoreString, kmlName, assignmentId, score))
+                k.write("ProcessNotifications: Invalid value returned from R scoring script; assigning a score of %.2f\nReturned value:\n%s\n" % 
+                    (score, scoreString))
+                email(mtma, "ProcessNotifications: Invalid value returned from R scoring script for KML %s and assignment ID %s; assigning a score of %.2f\nReturned value:\n%s\n" % 
+                    (kmlName, assignmentId, score, scoreString))
         # Pay the worker if we couldn't save his work.
         else:
             assignmentStatus = MTurkMappingAfrica.HITUnsaved
@@ -225,7 +226,7 @@ class ProcessNotifications(object):
         # Post-process any pending non-QAQC HITs for this worker.
         self.NormalPostProcessing(mtma, k, eventTime, workerId)
 
-    def NormalSubmission(self, mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params, hitStatus):
+    def NormalSubmission(self, mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params):
         # Get the save status and worker comment.
         try:
             kmlName = params['kmlName']
@@ -249,8 +250,8 @@ class ProcessNotifications(object):
                 assignmentStatus = MTurkMappingAfrica.HITApproved
 
                 # Since results trusted, mark this KML as mapped.
-                mtma.cur.execute("update kml_data set mapped = true where name = '%s'" % kmlName)
-                k.write("ProcessNotifications: KML %s marked as mapped-by-trusted-worker\n" % kmlName)
+                mtma.cur.execute("update kml_data set mapped_count = mapped_count + 1 where name = '%s'" % kmlName)
+                k.write("ProcessNotifications: incremented mapped count by trusted worker for KML %s\n" % kmlName)
             else:
                 assignmentStatus = MTurkMappingAfrica.HITUntrusted
         else:
@@ -277,8 +278,15 @@ class ProcessNotifications(object):
             assignmentStatus.lower())
         mtma.dbcon.commit()
 
-        # Delete the HIT if all assignments have been submitted.
-        if hitStatus == 'Reviewable':
+        # Delete the HIT if all assignments have been submitted and have a final status
+        # (i.e., there are no assignments in pending, abandoned, or return status).
+        hitStatusFinal = int(mtma.querySingleValue("""select count(*) from hit_data
+            where hit_id = '%s' and max_assignments =
+            (select count(*) from hit_data inner join assignment_data using (hit_id)
+            where hit_id = '%s' and status not in ('%s','%s','%s'))""" %
+            (hitId, hitId, MTurkMappingAfrica.HITPending, MTurkMappingAfrica.HITAbandoned, 
+            MTurkMappingAfrica.HITReturned)))
+        if hitStatusFinal:
             try:
                 mtma.disposeHit(hitId)
             except MTurkRequestError as e:
@@ -289,11 +297,12 @@ class ProcessNotifications(object):
                 k.write("ProcessNotifications: Bad disposeHit status for HIT ID %s:\n" % hitId)
                 return
             # Record the HIT deletion time.
-            mtma.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % (eventTime, hitId))
+            mtma.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % 
+                (eventTime, hitId))
             mtma.dbcon.commit()
-            k.write("ProcessNotifications: hit has no remaining assignments and has been deleted\n")
+            k.write("ProcessNotifications: hit has no remaining Mturk or pending assignments and has been deleted\n")
         else:
-            k.write("ProcessNotifications: hit still has remaining assignments and cannot be deleted\n")
+            k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
 
     def NormalPostProcessing(self, mtma, k, eventTime, workerId):
         # Determine this worker's trust level.
@@ -304,7 +313,7 @@ class ProcessNotifications(object):
             return
 
         # Get the the key data for this worker's pending non-QAQC submitted HITs.
-        mtma.cur.execute("""select name, assignment_id
+        mtma.cur.execute("""select name, assignment_id, hit_id
             from assignment_data inner join hit_data using (hit_id)
             where worker_id = %s and status = %s order by completion_time""", 
             (workerId, MTurkMappingAfrica.HITPending,))
@@ -320,6 +329,7 @@ class ProcessNotifications(object):
         for assignment in assignments:
             kmlName = assignment[0]
             assignmentId = assignment[1]
+            hitId = assignment[2]
 
             k.write("ProcessNotifications: Post-processing assignmentId = %s\n" % assignmentId)
 
@@ -328,8 +338,8 @@ class ProcessNotifications(object):
                 assignmentStatus = MTurkMappingAfrica.HITApproved
 
                 # Since results trusted, mark this KML as mapped.
-                mtma.cur.execute("update kml_data set mapped = true where name = '%s'" % kmlName)
-                k.write("ProcessNotifications: KML %s marked as mapped-by-trusted-worker\n" % kmlName)
+                mtma.cur.execute("update kml_data set mapped_count = mapped_count + 1 where name = '%s'" % kmlName)
+                k.write("ProcessNotifications: incremented mapped count by trusted worker for KML %s\n" % kmlName)
             else:
                 assignmentStatus = MTurkMappingAfrica.HITUntrusted
 
@@ -339,6 +349,32 @@ class ProcessNotifications(object):
             mtma.dbcon.commit()
             k.write("ProcessNotifications: non-QAQC assignment marked in DB as %s\n" %
                 assignmentStatus.lower())
+
+            # Delete the HIT if all assignments have been submitted and have a final status
+            # (i.e., there are no assignments in pending, abandoned, or return status).
+            hitStatusFinal = int(mtma.querySingleValue("""select count(*) from hit_data
+                where hit_id = '%s' and max_assignments =
+                (select count(*) from hit_data inner join assignment_data using (hit_id)
+                where hit_id = '%s' and status not in ('%s','%s','%s'))""" %
+                (hitId, hitId, MTurkMappingAfrica.HITPending, MTurkMappingAfrica.HITAbandoned, 
+                MTurkMappingAfrica.HITReturned)))
+            if hitStatusFinal:
+                try:
+                    mtma.disposeHit(hitId)
+                except MTurkRequestError as e:
+                    k.write("ProcessNotifications: disposeHit failed for HIT ID %s:\n%s\n%s\n" % 
+                        (hitId, e.error_code, e.error_message))
+                    return
+                except AssertionError:
+                    k.write("ProcessNotifications: Bad disposeHit status for HIT ID %s:\n" % hitId)
+                    return
+                # Record the HIT deletion time.
+                mtma.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % 
+                    (eventTime, hitId))
+                mtma.dbcon.commit()
+                k.write("ProcessNotifications: hit has no remaining Mturk or pending assignments and has been deleted\n")
+            else:
+                k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
 
     # Delete HIT if it expires with outstanding assignments left unsubmitted.
     def HITExpired(self, mtma, k, hitId, assignmentId, eventTime):

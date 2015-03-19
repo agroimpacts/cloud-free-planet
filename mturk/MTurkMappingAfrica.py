@@ -101,12 +101,9 @@ class MTurkMappingAfrica(object):
         self.mtcon.close()
         self.dbcon.close()
 
-    def createHit(self, kml=None, hitType=KmlNormal):
+    def createHit(self, kml=None, hitType=KmlNormal, maxAssignments=1):
+        self.hitMaxAssignments = maxAssignments
         self.hitLifetime = self.getConfiguration('Hit_Lifetime')
-        if hitType == MTurkMappingAfrica.KmlNormal:
-            self.hitMaxAssignments = self.getConfiguration('Hit_MaxAssignmentsN')
-        else:
-            self.hitMaxAssignments = self.getConfiguration('Hit_MaxAssignmentsQ')
 
         self.createHitRS = self.mtcon.create_hit(
             hit_type = self.registerHitType(),
