@@ -199,10 +199,10 @@ repeat {
     write(log.timestamp[1], file = logfname, append = TRUE)
     write(id.rand, file = logfname, append = TRUE)
     write(log.timestamp[2], file = logfname, append = TRUE)
-  } else{ 
-    write(paste(log.timestamp[2], "- no new NKMLs were needed"), 
-          file = logfname, append = TRUE)
-  }
+  } #else{ 
+    #write(paste(log.timestamp[2], "- no new NKMLs were needed"), 
+    #      file = logfname, append = TRUE)
+  #}
   #write("", file = logfname, append = TRUE)
 	Sys.sleep(kml.polling.interval)
 }
