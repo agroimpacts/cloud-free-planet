@@ -76,7 +76,7 @@ if(!file.exists(dberrfname)) {
 }
 options(digit.secs = 4)  # Display milliseconds for time stamps 
 
-# Initialize Rlog file to record daemon start time and which kml ids written and when
+# Initialize Rlog file to record daemon start time, which kml ids written & when
 rlog.hdr <- rbind("Log of KMLgenerate.R start, KML ids written & times", 
                   paste0("####################################################",
                          "#####################################"), "")
@@ -128,18 +128,22 @@ repeat {
     #table(grid.IDs[grid.IDs$id %in% id.rand, "fwts"])
     
     ########### Name change needed here because hardcoded ##############
-    sql <- paste("SELECT ST_AsEWKT(geom) from sa1kgrid where id in", 
+    sql <- paste("SELECT id,ST_AsEWKT(geom) from sa1kgrid where id in", 
                  " (", paste(id.rand, collapse = ","), 
                  ")", sep = "")
-	  id.geom <- dbGetQuery(con, sql)  # Get the coordinates for the random grid
-    geom.tab <- cbind(id.rand, id.geom)  # IDs and geometries in table
+	  #id.geom <- dbGetQuery(con, sql)  # Get the coordinates for the random grid
+    #geom.tab <- cbind(id.rand, id.geom)  # IDs and geometries in table
+    #geom.tab[1:10, ]
+    geom.tab <- dbGetQuery(con, sql)  # Get the coordinates for the random grid
     kmlnames <- rep(NA, nrow(geom.tab))  # set up vector of kml names
     
     # Create and print kmls
     for(i in 1:nrow(geom.tab)) {
-      geom.str <- unlist(strsplit(geom.tab[i, 2], ";"))  # Strip out polygon IDs
-      geom.poly <- as(readWKT(geom.str[-grep("SRID", geom.str)], p4s = prjstr), 
-                      "SpatialPolygonsDataFrame") 
+      #geom.str <- unlist(strsplit(geom.tab[i, 2], ";"))  # Strip out polygon IDs
+      #geom.poly <- as(readWKT(geom.str[-grep("SRID", geom.str)], p4s = prjstr), 
+      #                "SpatialPolygonsDataFrame")
+      geom.str <- gsub("*.*;", "", geom.tab[i, 2])
+      geom.poly <- as(readWKT(geom.str, p4s = prjstr), "SpatialPolygonsDataFrame")
       colnames(geom.poly@data)[1] <- "ID"  # Rename ID field
     
       # Step 3. Create a file name for the kml
@@ -203,8 +207,8 @@ repeat {
     #write(paste(log.timestamp[2], "- no new NKMLs were needed"), 
     #      file = logfname, append = TRUE)
   #}
-  #write("", file = logfname, append = TRUE)
-	Sys.sleep(kml.polling.interval)
+  write("", file = logfname, append = TRUE)
+  Sys.sleep(kml.polling.interval)
 }
 
 # After testing, reset changes to the following database fields: 

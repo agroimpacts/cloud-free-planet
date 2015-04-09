@@ -52,5 +52,9 @@ for(i in c(1:49, 51:60)) {
   source("/var/www/html/afmap/R/Test_and_Old_R/KMLAccuracyCheck.1.2.2.t.R")  # 0.693 0 0 0.99 2      
 }
 
-
 rm(list = ls())
+
+assignmentid <- '3GD6L00D3SXOZF0MD0WG4CLQ0DR1MW'
+# setwd("..")
+# source("/var/www/html/afmap/R/KMLAccuracyCheck.R")
+
