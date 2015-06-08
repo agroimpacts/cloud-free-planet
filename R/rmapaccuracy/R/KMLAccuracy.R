@@ -93,7 +93,7 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid,
     # Pick up grid cell from qaqc table, for background location, as it will be 
     # needed for the other 3 cases
     if(mtype == "tr") {  # Training case
-      grid.sql <- paste0("SELECT id,ST_AsEWKT(geom) from sa1kgrid where name=", 
+      grid.sql <- paste0("SELECT id,ST_AsEWKT(geom) from qual_sites where name=", 
                          "'", kmlid, "'")
     } else if(mtype == "qa") {  # QAQC case
       grid.sql <- paste0("SELECT id,ST_AsEWKT(geom) from newqaqc_sites where",
@@ -224,9 +224,9 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid,
     } else if(mtype == "tr") {
       error.sql <- paste0("insert into qual_error_data(training_id, name,", 
                           " score, error1, error2, error3, error4, try, tss)", 
-                         " values ('", assignmentid, "', ", "'", kmlid, "', ", 
-                         paste(err.out, collapse = ", "), ", ", tryid, ", ", 
-                         tss.err, ")")  # Write try error data
+                          " values ('", assignmentid, "', ", "'", kmlid, "', ", 
+                          paste(err.out, collapse = ", "), ", ", tryid, ", ", 
+                          tss.err, ")")  # Write try error data
     }  
     ret <- dbSendQuery(con, error.sql)
   }

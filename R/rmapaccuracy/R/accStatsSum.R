@@ -9,7 +9,8 @@ accStatsSum <- function(tp, fp, tn, fn) {
   agree <- tp / sum(tp, fn)  # Simple agreement class 1
   if(is.na(agree)) agree <- 0  # Set to 0 if NA
   accuracy <- sum(tp, tn) / sum(tp, tn, fp, fn)
-  TSS <- agree + (tn / (fp + tn)) - 1  # Sens + specificity - 1
+  #TSS <- agree + (tn / (fp + tn)) - 1  # Sens + specificity - 1
+  TSS <- (agree + (tn / (fp + tn))) / 2  # TSS compressed to 0-1
   r1 <- round(accuracy, 2)
   r2 <- round(TSS, 2)
   out <- c(r1, r2)
