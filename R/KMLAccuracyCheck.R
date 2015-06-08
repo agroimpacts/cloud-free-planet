@@ -4,11 +4,11 @@
 # Author: Lyndon Estes
 
 # Static arguments
-prjsrid <- 97490
+prjsrid <- 102022
 count.err.wt <- 0.1  
 in.err.wt <- 0.7  
 out.err.wt <- 0.2  
-err.switch <- 1  
+err.switch <- 2  ### 2/6/15 changed to 2
 comments <- "F"
 write.err.db <- "T"  
 draw.maps  <- "T"  
@@ -27,7 +27,8 @@ if(test.root == "Y") {
                     prjsrid)
   dinfo <- getDBName()  # pull working environment
   drv <- dbDriver("PostgreSQL")
-  con <- dbConnect(drv, dbname = dinfo["db.name"], user = user, password = password)
+  con <- dbConnect(drv, dbname = dinfo["db.name"], user = user, 
+                   password = password)
   prjstr <- dbGetQuery(con, prj.sql)$proj4text
   print(paste("database =", dinfo["db.name"], "directory = ", 
               dinfo["project.root"]))
