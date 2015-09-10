@@ -12,6 +12,7 @@ diam <- 500
 
 library(RPostgreSQL)
 library(rmapaccuracy)
+library(data.table)
 
 # Determine working directory and database
 dinfo <- getDBName()  # pull working environment
@@ -101,7 +102,7 @@ repeat {
                          CRSobj = CRS(gcs))
         
     # And convert them to kmls 
-    for(i in 1:nrow(gpols_gcs)) {
+    for(i in 1:nrow(gpols)) {
       kml_name <- paste0(dinfo["project.root"], "/kmls/", gpols$name[i], ".kml")
       rgdal::writeOGR(gpols[i, ], dsn = kml_name, layer = gpols$name[i], 
                       driver = "KML", overwrite = TRUE)
