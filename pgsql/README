@@ -23,14 +23,16 @@ http://***REMOVED***.net/docs/***REMOVED***_installation.html#hard_upgrade
 
 6) As root, edit /var/lib/pgsql/9.4/data/pg_hba.conf, and uncomment all 
    'all postgres md5' lines and comment all 'all all trust' lines.
-7) As root, run 'service postgresql-9.4 restart'.
+7) Edit /var/lib/pgsql/9.4/data/postgresql.conf, uncomment the 'listen_addresses'
+   line, and change 'localhost' to '*'.
+8) As root, run 'service postgresql-9.4 restart'.
 
-8) As superuser postgres, remove superuser privileges from ***REMOVED*** role:
+9) As superuser postgres, remove superuser privileges from ***REMOVED*** role:
     psql -U postgres
     \i role_normal.sql
 
-9)  Gunzip the database data dump you wish to load.
-10) Load the database data dump:
+10)  Gunzip the database data dump you wish to load.
+11) Load the database data dump:
     psql -U ***REMOVED*** SouthAfrica
     \o SouthAfrica_data.sql.out
     \i SouthAfrica_data.sql

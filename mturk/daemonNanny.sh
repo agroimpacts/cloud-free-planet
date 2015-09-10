@@ -16,7 +16,7 @@ LOGFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.oe.log
 
 NOW=`/bin/date '+%m/%d/%Y %H:%M:%S'`
 TO="mappingafrica_internal_alert@trac.princeton.edu"
-#TO="dmcr@princeton.edu"
+# #TO="dmcr@princeton.edu"
 
 if [ ! -x "$COMMAND" ]; then
     echo "`date`: $COMMAND does not exist or is not executable"
