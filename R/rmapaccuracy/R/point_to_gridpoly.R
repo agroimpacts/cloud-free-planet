@@ -16,9 +16,9 @@ point_to_gridpoly <- function(xy, w, CRSobj) {
     pol <- as(pol, "SpatialPolygonsDataFrame")
     pol$id <- i
     pol$name <- xy$name[i]
-    pol@data <- pol@data[, c("id", "name"), drop = FALSE]
+    pol$fwts <- xy$fwts[i]
+    pol@data <- pol@data[, c("id", "name", "fwts"), drop = FALSE]
     pol
   }))
   return(pols)
 }
-

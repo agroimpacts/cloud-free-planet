@@ -163,7 +163,7 @@ while True:
         # Look for all kmls of the right type whose gid is greater than the last kml chosen.
         # Exclude any kmls that currently have an active HIT on the MTurk server.
         mtma.cur.execute("""
-            select name, gid from kml_data k 
+            select name, gid, fwts from kml_data k 
             where not exists (select true from hit_data h 
                 where h.name = k.name and delete_time is null)
             and  kml_type = '%s' 
@@ -189,11 +189,12 @@ while True:
                 break
         nextKml = row[0]
         gid = row[1]
+        fwts = row[2]
         mtma.setSystemData('CurQaqcGid', gid)
 
         # Create the QAQC HIT
         try:
-            hitId = mtma.createHit(kml=nextKml, hitType=kmlType)
+            hitId = mtma.createHit(kml=nextKml, hitType=kmlType, weight=fwts)
         except MTurkRequestError as e:
             k.write("createHit: createHit failed for KML %s:\n%s\n%s\n" %
                 (nextKml, e.error_code, e.error_message))
@@ -223,7 +224,7 @@ while True:
         # Exclude any kmls that currently have an active HIT on the MTurk server.
         hitMaxAssignmentsF = int(mtma.getConfiguration('Hit_MaxAssignmentsF'))
         mtma.cur.execute("""
-            select name, mapped_count from kml_data k 
+            select name, mapped_count, fwts from kml_data k 
             where not exists (select true from hit_data h 
                 where h.name = k.name and delete_time is null)
             and  kml_type = '%s' 
@@ -241,11 +242,12 @@ while True:
             email(mtma, "Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more F HITs.")
             break
         nextKml = row[0]
+        fwts = row[2]
         remainingAssignments = hitMaxAssignmentsF - row[1]
 
         # Create the FQAQC HIT
         try:
-            hitId = mtma.createHit(kml=nextKml, hitType=kmlType, maxAssignments=remainingAssignments)
+            hitId = mtma.createHit(kml=nextKml, hitType=kmlType, maxAssignments=remainingAssignments, weight=fwts)
         except MTurkRequestError as e:
             k.write("createHit: createHit failed for KML %s:\n%s\n%s\n" %
                 (nextKml, e.error_code, e.error_message))
@@ -258,7 +260,7 @@ while True:
         mtma.cur.execute("""insert into hit_data (hit_id, name, create_time, max_assignments) 
             values ('%s', '%s', '%s', '%s')""" % (hitId, nextKml, now, remainingAssignments))
         mtma.dbcon.commit()
-        k.write("createHit: Created HIT ID %s with %d assignments for non-QAQC KML %s\n" % 
+        k.write("createHit: Created HIT ID %s with %d assignments for FQAQC KML %s\n" % 
                 (hitId, remainingAssignments, nextKml))
 
 
@@ -278,7 +280,7 @@ while True:
         # Exclude any kmls that currently have an active HIT on the MTurk server.
         hitMaxAssignmentsN = int(mtma.getConfiguration('Hit_MaxAssignmentsN'))
         mtma.cur.execute("""
-            select name, mapped_count from kml_data k 
+            select name, mapped_count, fwts from kml_data k 
             where not exists (select true from hit_data h 
                 where h.name = k.name and delete_time is null)
             and  kml_type = '%s' 
@@ -296,11 +298,12 @@ while True:
             email(mtma, "Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs.")
             break
         nextKml = row[0]
+        fwts = row[2]
         remainingAssignments = hitMaxAssignmentsN - row[1]
 
         # Create the non-QAQC HIT
         try:
-            hitId = mtma.createHit(kml=nextKml, hitType=kmlType, maxAssignments=remainingAssignments)
+            hitId = mtma.createHit(kml=nextKml, hitType=kmlType, maxAssignments=remainingAssignments, weight=fwts)
         except MTurkRequestError as e:
             k.write("createHit: createHit failed for KML %s:\n%s\n%s\n" %
                 (nextKml, e.error_code, e.error_message))

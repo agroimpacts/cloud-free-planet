@@ -110,9 +110,8 @@ repeat {
     
     # Step 4. Update database tables
     # Update kml_data to show new names added and their kml_type
-    sqlrt <-  paste0("('", gpols$name, "', ", "'", kml_type, "')", 
-                     collapse = ",")
-    sql <- paste("insert into kml_data (name, kml_type) values ", sqlrt)
+    sqlrt <-  paste0("('", gpols$name, "', ", "'", kml_type,"','", gpols$fwts,"')", collapse = ",")
+    sql <- paste("insert into kml_data (name, kml_type, fwts) values ", sqlrt)
     ret <- dbSendQuery(con, sql)
     
     # Update master to show grid is no longer available for selecting/writing

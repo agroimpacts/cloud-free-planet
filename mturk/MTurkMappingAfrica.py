@@ -102,12 +102,12 @@ class MTurkMappingAfrica(object):
         self.mtcon.close()
         self.dbcon.close()
 
-    def createHit(self, kml=None, hitType=KmlNormal, maxAssignments=1):
+    def createHit(self, kml=None, hitType=KmlNormal, maxAssignments=1, weight=1):
         self.hitMaxAssignments = maxAssignments
         self.hitLifetime = self.getConfiguration('Hit_Lifetime')
 
         self.createHitRS = self.mtcon.create_hit(
-            hit_type = self.registerHitType(),
+            hit_type = self.registerHitType(weight=weight),
             question = self.externalQuestion(kml), 
             lifetime = self.hitLifetime, 
             max_assignments = self.hitMaxAssignments
@@ -227,18 +227,19 @@ class MTurkMappingAfrica(object):
         )
         assert self.disposeHitRS.status
 
-    def registerHitType(self):
+    def registerHitType(self,  weight=1):
         self.hitTypeTitle = self.getConfiguration('HitType_Title')
         self.hitTypeDescription = self.getConfiguration('HitType_Description')
         self.hitTypeKeywords = self.getConfiguration('HitType_Keywords')
         self.hitTypeReward = self.getConfiguration('HitType_Reward')
+        self.hitTypeRewardIncrement = self.getConfiguration('HitType_RewardIncrement')
         self.hitTypeDuration = self.getConfiguration('HitType_Duration')
         self.hitTypeApprovalDelay = self.getConfiguration('HitType_ApprovalDelay')
         self.registerHitTypeRS = self.mtcon.register_hit_type(
             title=self.hitTypeTitle, 
             description=self.hitTypeDescription, 
             keywords=self.hitTypeKeywords, 
-            reward = self.hitTypeReward, 
+            reward = self.hitTypeReward + ((weight – 1) * self.hitTypeRewardIncrement), 
             duration=self.hitTypeDuration, 
             approval_delay=self.hitTypeApprovalDelay, 
             qual_req=self.qualifications()
