@@ -52,6 +52,7 @@ class MTurkMappingAfrica(object):
     # KML kml_data.kml_type constants
     KmlNormal = 'N'                             # Normal (non-QAQC) KML
     KmlQAQC = 'Q'                               # QAQC KML
+    KmlFQAQC = 'F'                               # FQAQC KML
     KmlTraining = 'I'                           # Initial training KML
 
     # MTurk external submit path
