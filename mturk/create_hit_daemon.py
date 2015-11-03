@@ -56,14 +56,16 @@ k.close()
 while True:
     hitPollingInterval = int(mtma.getConfiguration('HitPollingInterval'))
     qaqcHitPercentage = int(mtma.getConfiguration('QaqcHitPercentage'))
+    fqaqcHitPercentage = int(mtma.getConfiguration('FqaqcHitPercentage'))
     availHitTarget = int(mtma.getConfiguration('AvailHitTarget'))
 
     k = open(logFilePath + "/createHit.log", "a+")
     now = str(datetime.today())
 
-    # Determine the number of QAQC and non-QAQC HITs that should exist.
+    # Determine the number of QAQC, FQAQC and non-QAQC HITs that should exist.
     numAvailQaqcHits = int(round(float(availHitTarget * qaqcHitPercentage) / 100.))
-    numAvailNonQaqcHits = availHitTarget - numAvailQaqcHits
+    numAvailFqaqcHits = int(round(float(availHitTarget * fqaqcHitPercentage) / 100.))
+    numAvailNonQaqcHits = availHitTarget - numAvailQaqcHits - numAvailFqaqcHits
 
     # Validate that the HITS on Mturk match the HITs recorded in the DB.
     hits = {}
@@ -98,6 +100,7 @@ while True:
 
     # Do the verification.
     numMturkQaqcHits = 0
+    numMturkFqaqcHits = 0
     numMturkNonQaqcHits = 0
     for hitId, row in hits.iteritems():
         #print hitId, row.status, row.assignments_completed, row.create_time, 
@@ -133,6 +136,8 @@ while True:
                 if row.status == 'Assignable' and row.assignments_completed == 0:
                     if row.kml_type == MTurkMappingAfrica.KmlQAQC:
                         numMturkQaqcHits = numMturkQaqcHits + 1
+                    if row.kml_type == MTurkMappingAfrica.KmlFQAQC:
+                        numMturkFqaqcHits = numMturkFqaqcHits + 1
                     elif row.kml_type == MTurkMappingAfrica.KmlNormal:
                         numMturkNonQaqcHits = numMturkNonQaqcHits + 1
 
@@ -202,6 +207,61 @@ while True:
             values ('%s' , '%s', '%s')""" % (hitId, nextKml, now))
         mtma.dbcon.commit()
         k.write("createHit: Created HIT ID %s for QAQC KML %s\n" % (hitId, nextKml))
+
+    # Create any needed FQAQC HITs.
+    kmlType = MTurkMappingAfrica.KmlFQAQC
+    numReqdFqaqcHits = max(numAvailFqaqcHits - numMturkFqaqcHits, 0)
+    if numReqdFqaqcHits > 0:
+        k.write("\ncreateHit: datetime = %s\n" % now)
+        k.write("createHit: createHit sees %s FQAQC HITs, and needs to create %s HITs\n" % 
+            (numMturkFqaqcHits, numReqdFqaqcHits))
+
+    for i in xrange(numReqdFqaqcHits):
+        # Select the next kml for which to create a HIT. 
+        # Look for all kmls of the right type whose mapped count by a trusted worker is less than
+        # the number of mappings specified by Hit_MaxAssignmentsF.
+        # Exclude any kmls that currently have an active HIT on the MTurk server.
+        hitMaxAssignmentsF = int(mtma.getConfiguration('Hit_MaxAssignmentsF'))
+        mtma.cur.execute("""
+            select name, mapped_count from kml_data k 
+            where not exists (select true from hit_data h 
+                where h.name = k.name and delete_time is null)
+            and  kml_type = '%s' 
+            and post_processed = false
+            and mapped_count < %s
+            order by gid 
+            limit 1""" % (kmlType, hitMaxAssignmentsF))
+        row = mtma.cur.fetchone()
+        # If we have no kmls left, all kmls in the kml_data table have been 
+        # successfully processed. Notify Lyndon that more kmls are needed.
+        if not row:
+            # Set notification delay to 1 hour.
+            hitPollingInterval = 3600
+            k.write("createHit: Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more F HITs.\n")
+            email(mtma, "Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more F HITs.")
+            break
+        nextKml = row[0]
+        remainingAssignments = hitMaxAssignmentsF - row[1]
+
+        # Create the FQAQC HIT
+        try:
+            hitId = mtma.createHit(kml=nextKml, hitType=kmlType, maxAssignments=remainingAssignments)
+        except MTurkRequestError as e:
+            k.write("createHit: createHit failed for KML %s:\n%s\n%s\n" %
+                (nextKml, e.error_code, e.error_message))
+            exit(-1)
+        except AssertionError:
+            k.write("createHit: Bad createHit status for KML %s:\n" % nextKml)
+            exit(-2)
+
+        # Record the HIT ID.
+        mtma.cur.execute("""insert into hit_data (hit_id, name, create_time, max_assignments) 
+            values ('%s', '%s', '%s', '%s')""" % (hitId, nextKml, now, remainingAssignments))
+        mtma.dbcon.commit()
+        k.write("createHit: Created HIT ID %s with %d assignments for non-QAQC KML %s\n" % 
+                (hitId, remainingAssignments, nextKml))
+
+
 
     # Create any needed non-QAQC HITs.
     kmlType = MTurkMappingAfrica.KmlNormal

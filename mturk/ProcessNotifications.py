@@ -109,7 +109,7 @@ class ProcessNotifications(object):
         if kmlType == MTurkMappingAfrica.KmlQAQC:
             self.QAQCSubmission(mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params, hitStatus)
         # Else, if non-QAQC HIT, then mark it as pending post-processing.
-        elif kmlType == MTurkMappingAfrica.KmlNormal:
+        elif kmlType == MTurkMappingAfrica.KmlNormal or kmlType == MTurkMappingAfrica.KmlFQAQC:
             self.NormalSubmission(mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params)
 
     def QAQCSubmission(self, mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params, hitStatus):
