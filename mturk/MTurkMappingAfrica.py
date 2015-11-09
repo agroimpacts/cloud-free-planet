@@ -239,7 +239,7 @@ class MTurkMappingAfrica(object):
             title=self.hitTypeTitle, 
             description=self.hitTypeDescription, 
             keywords=self.hitTypeKeywords, 
-            reward = self.hitTypeReward + ((weight – 1) * self.hitTypeRewardIncrement), 
+            reward = self.hitTypeReward + ((weight-1) * self.hitTypeRewardIncrement), 
             duration=self.hitTypeDuration, 
             approval_delay=self.hitTypeApprovalDelay, 
             qual_req=self.qualifications()
