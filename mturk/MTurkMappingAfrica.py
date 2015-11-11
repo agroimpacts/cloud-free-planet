@@ -5,6 +5,7 @@ from dateutil import tz
 import psycopg2
 from psycopg2.extensions import adapt
 import collections
+from decimal import *
 
 from lock import lock
 from boto.mturk.connection import MTurkConnection, MTurkRequestError
