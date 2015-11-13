@@ -96,8 +96,15 @@ sql <- paste("insert into kml_data (name, kml_type, fwts) values ", sqlrt2)
 dbSendQuery(con, sql)
 
 #Finally, update master grid counter to show that this number of records is processed already
-sql <- paste0("UPDATE master_grid_counter SET counter=", fqaqc_n, 
-              " WHERE block=1")
+sql <- paste("SELECT * from master_grid_counter ORDER BY block")
+count_tab <- data.table(dbGetQuery(con, sql), key = "block")
+if(count_tab[, sum(counter)] == 0) {
+  active_block <- count_tab[1, ]
+} else {
+  active_block <- count_tab[counter < max(nrows), .SD[1]]
+}
+newcount <- active_block[, counter] + fqaqc_n
+sql <- paste0("UPDATE master_grid_counter SET counter=", newcount, 
+              " WHERE block=", active_block[, block])
 dbSendQuery(con, sql)
-
 
