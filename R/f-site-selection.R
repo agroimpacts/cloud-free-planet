@@ -1,6 +1,3 @@
-'''title: F Site Selection
-author: Lyndon Estes
-date: June 1, 2015'''
 
 #Selection of sites for F QAQC type assignments/HITs, from the master_grid, and the corresponding creation of a new database to hold them.
 
