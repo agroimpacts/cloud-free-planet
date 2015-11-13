@@ -95,7 +95,7 @@ repeat {
     set.seed(2)
     xy_tab <- xy_tab[{name %in% sample(name, size = kml_batch_size, 
                                        replace = FALSE)}]
-      
+
     # Step 3. Convert them to polygons
     gpols <- spTransform(point_to_gridpoly(xy = as.data.frame(xy_tab), 
                                            w = diam, CRSobj = CRS(prjstr)), 
@@ -110,7 +110,8 @@ repeat {
     
     # Step 4. Update database tables
     # Update kml_data to show new names added and their kml_type
-    sqlrt <-  paste0("('", gpols$name, "', ", "'", kml_type,"','", gpols$fwts,"')", collapse = ",")
+    sqlrt <-  paste0("('", gpols$name, "', ", "'", kml_type,"',", gpols$fwts,")", 
+                     collapse = ",")
     sql <- paste("insert into kml_data (name, kml_type, fwts) values ", sqlrt)
     ret <- dbSendQuery(con, sql)
     
