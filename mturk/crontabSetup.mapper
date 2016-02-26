@@ -1,4 +1,7 @@
-MAILTO=csesi@Princeton.EDU
+# This email address has been configured on trac.princeton.edu in
+# /etc/aliases and /usr/local/etc/email2trac to create a ticket
+# under the Internal Alert component.
+MAILTO=mappingafrica_internal_alert@trac.princeton.edu
 SHELL=/bin/bash
 # Min Hour(0-23) Day Month DOW Command
 0,5,10,15,20,25,30,35,40,45,50,55 * * * * /u/${USER}/afmap/mturk/daemonNanny.sh /u/${USER}/afmap/mturk/create_hit_daemon.py >>/u/${USER}/afmap/log/daemonNanny.log

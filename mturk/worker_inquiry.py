@@ -14,7 +14,7 @@ HIT_PATTERN = r"^.+ HIT\s+(?P<hitid>[a-zA-Z0-9]+)\s*$"
 HIT_RE = re.compile(HIT_PATTERN)
 #---------------------------------
 #Customer ID: A2X5DP7XUVYR4P
-#Yet another test of a sandbox worker inquiry.
+#Yet another test of worker inquiry.
 #---------------------------------
 WORKER_PATTERN = r"^\s*Customer ID:\s+(?P<workerid>[a-zA-Z0-9]+)\s*$"
 WORKER_RE = re.compile(WORKER_PATTERN)
@@ -22,6 +22,9 @@ DASHES_PATTERN = r"^\s*-+\s*$"
 DASHES_RE = re.compile(DASHES_PATTERN)
 
 # Email function used to create worker feedback ticket.
+# This email address has been configured on trac.princeton.edu in
+# /etc/aliases and /usr/local/etc/email2trac to create a ticket
+# under the Worker Feedback component.
 def send_email(mtma, sender, subject, msg = None):
     receiver = 'mappingafrica_worker_feedback@trac.princeton.edu'
     #receiver = 'dmcr@princeton.edu'

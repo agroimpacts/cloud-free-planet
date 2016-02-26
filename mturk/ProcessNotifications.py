@@ -6,6 +6,9 @@ from boto.mturk.connection import MTurkRequestError
 from MTurkMappingAfrica import MTurkMappingAfrica, aws_secret_access_key
 
 # Email function used when there are validation failures.
+# This email address has been configured on trac.princeton.edu in
+# /etc/aliases and /usr/local/etc/email2trac to create a ticket
+# under the Internal Alert component.
 def email(mtma, msg = None):
     sender = '%s@mapper.princeton.edu' % mtma.euser
     receiver = 'mappingafrica_internal_alert@trac.princeton.edu'

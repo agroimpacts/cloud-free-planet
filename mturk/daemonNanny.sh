@@ -15,8 +15,12 @@ PIDFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.pid
 LOGFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.oe.log
 
 NOW=`/bin/date '+%m/%d/%Y %H:%M:%S'`
+
+# This email address has been configured on trac.princeton.edu in
+# /etc/aliases and /usr/local/etc/email2trac to create a ticket
+# under the Internal Alert component.
 TO="mappingafrica_internal_alert@trac.princeton.edu"
-# #TO="dmcr@princeton.edu"
+#TO="dmcr@princeton.edu"
 
 if [ ! -x "$COMMAND" ]; then
     echo "`date`: $COMMAND does not exist or is not executable"
