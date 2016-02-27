@@ -9,7 +9,9 @@ export PATH="/usr/pgsql-9.1/bin:$PATH"
 3) Add Apache http/https WSGI configurations for sandbox and mapper virtual hosts:
 see configuration file examples in the .../afmap/apache subdirectory.
 
-4) Add the following lines to .bashrc for sandbox and mapper users:
+4) Merge changes from the afmap/etc/aliases file into the system's aliases file.
+
+5) Add the following lines to .bashrc for sandbox and mapper users:
 a) For sandbox user:
 export PYTHONPATH="/u/sandbox/afmap/mturk"
 umask 0007
