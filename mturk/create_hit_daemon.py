@@ -166,7 +166,8 @@ while True:
         # Look for all kmls of the right type whose gid is greater than the last kml chosen.
         # Exclude any kmls that currently have an active HIT on the MTurk server.
         mtma.cur.execute("""
-            select name, gid, fwts from kml_data k 
+            select name, gid, fwts 
+            from kml_data k 
             where not exists (select true from hit_data h 
                 where h.name = k.name and delete_time is null)
             and  kml_type = '%s' 
@@ -227,7 +228,8 @@ while True:
         # Exclude any kmls that currently have an active HIT on the MTurk server.
         hitMaxAssignmentsF = int(mtma.getConfiguration('Hit_MaxAssignmentsF'))
         mtma.cur.execute("""
-            select name, mapped_count, fwts from kml_data k 
+            select name, mapped_count, fwts 
+            from kml_data k 
             where not exists (select true from hit_data h 
                 where h.name = k.name and delete_time is null)
             and  kml_type = '%s' 
@@ -241,8 +243,8 @@ while True:
         if not row:
             # Set notification delay to 1 hour.
             hitPollingInterval = 3600
-            k.write("createHit: Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more F HITs.\n")
-            email(mtma, "Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more F HITs.")
+            k.write("createHit: Alert: all FQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.\n")
+            email(mtma, "Alert: all FQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
             break
         nextKml = row[0]
         fwts = row[2]
@@ -266,8 +268,6 @@ while True:
         k.write("createHit: Created HIT ID %s with %d assignments for FQAQC KML %s\n" % 
                 (hitId, remainingAssignments, nextKml))
 
-
-
     # Create any needed non-QAQC HITs.
     kmlType = MTurkMappingAfrica.KmlNormal
     numReqdNonQaqcHits = max(numAvailNonQaqcHits - numMturkNonQaqcHits, 0)
@@ -283,7 +283,8 @@ while True:
         # Exclude any kmls that currently have an active HIT on the MTurk server.
         hitMaxAssignmentsN = int(mtma.getConfiguration('Hit_MaxAssignmentsN'))
         mtma.cur.execute("""
-            select name, mapped_count, fwts from kml_data k 
+            select name, mapped_count, fwts 
+            from kml_data k 
             where not exists (select true from hit_data h 
                 where h.name = k.name and delete_time is null)
             and  kml_type = '%s' 
@@ -297,8 +298,8 @@ while True:
         if not row:
             # Set notification delay to 1 hour.
             hitPollingInterval = 3600
-            k.write("createHit: Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs.\n")
-            email(mtma, "Alert: all KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs.")
+            k.write("createHit: Alert: all non-QAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.\n")
+            email(mtma, "Alert: all non-QAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
             break
         nextKml = row[0]
         fwts = row[2]

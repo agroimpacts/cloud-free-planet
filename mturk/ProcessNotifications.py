@@ -111,7 +111,7 @@ class ProcessNotifications(object):
         # If QAQC HIT, then score it and post-process any preceding non-QAQC HITs for this worker.
         if kmlType == MTurkMappingAfrica.KmlQAQC:
             self.QAQCSubmission(mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params, hitStatus)
-        # Else, if non-QAQC HIT, then mark it as pending post-processing.
+        # Else, if FQAQC HIT or non-QAQC HIT, then mark it as pending post-processing.
         elif kmlType == MTurkMappingAfrica.KmlNormal or kmlType == MTurkMappingAfrica.KmlFQAQC:
             self.NormalSubmission(mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params)
 
