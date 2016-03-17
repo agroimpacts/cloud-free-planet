@@ -1,4 +1,7 @@
-MAILTO=csesi@Princeton.EDU
+# This email address has been configured on trac.princeton.edu in
+# /etc/aliases and /usr/local/etc/email2trac to create a ticket
+# under the Internal Alert component.
+MAILTO=mappingafrica_internal_alert@trac.princeton.edu
 SHELL=/bin/bash
 # Min Hour(0-23) Day Month DOW Command
 15 01 * * * PGDIR=/u/mapper/afmap/pgsql;export PGPASSFILE=$PGDIR/pgpassfile;$PGDIR/daily_backup.sh

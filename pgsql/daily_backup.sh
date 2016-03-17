@@ -10,9 +10,9 @@ user=${array[2]}
 IFS=' '
 
 if [ "$user" == "mapper" ]; then
-    dbname="SouthAfrica"
+    dbname="Africa"
 elif [ "$user" == "sandbox" ]; then
-    dbname="SouthAfricaSandbox"
+    dbname="AfricaSandbox"
 else
     echo "$0 must be run using /u/mapper or /u/sandbox path"
     exit 1

@@ -1,4 +1,4 @@
-To restore the entire SouthAfrica database:
+To restore the entire Africa database:
 
 NOTE: If updating ***REMOVED*** to a later version, modify the steps below to
 follow the procedure described at this link:
@@ -10,15 +10,15 @@ http://***REMOVED***.net/docs/***REMOVED***_installation.html#hard_upgrade
 2) As root, run 'service postgresql-9.4 start'.
 3) Change the PostgreSQL postgres password, and create the ***REMOVED*** role as superuser:
     psql -U postgres
-    \i role.sql
+    \i role_create_su.sql
 
 4) Select the database schema dump you wish to load.
-5) As superuser ***REMOVED***, create the SouthAfrica database and schema 
+5) As superuser ***REMOVED***, create the Africa database and schema 
    (using ***REMOVED*** to do this ensures that all ***REMOVED*** extension 
     objects are owned by ***REMOVED***):
     psql -U ***REMOVED*** postgres
-    \o SouthAfrica_schema.sql.out
-    \i SouthAfrica_schema.sql
+    \o Africa_schema.sql.out
+    \i Africa_schema.sql
     (*** Ignore the 3 geometry_columns duplicate rule creation errors.)
 
 6) As root, edit /var/lib/pgsql/9.4/data/pg_hba.conf, and uncomment all 
@@ -33,9 +33,9 @@ http://***REMOVED***.net/docs/***REMOVED***_installation.html#hard_upgrade
 
 10)  Gunzip the database data dump you wish to load.
 11) Load the database data dump:
-    psql -U ***REMOVED*** SouthAfrica
-    \o SouthAfrica_data.sql.out
-    \i SouthAfrica_data.sql
+    psql -U ***REMOVED*** Africa
+    \o Africa_data.sql.out
+    \i Africa_data.sql
     (*** ignore error re duplicate key value in spatial_ref_sys)
 
 To configure daily database backups:

@@ -1,9 +1,9 @@
 #! /bin/bash
 
 if [ "${USER}" == "mapper" ]; then
-    dbname="SouthAfrica"
+    dbname="Africa"
 elif [ "${USER}" == "sandbox" ]; then
-    dbname="SouthAfricaSandbox"
+    dbname="AfricaSandbox"
 else
     echo "$0 must be run as user mapper or user sandbox"
     exit 1
