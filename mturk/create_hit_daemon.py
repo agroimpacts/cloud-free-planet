@@ -198,7 +198,7 @@ while True:
 
         # Create the QAQC HIT
         try:
-            hitId = mtma.createHit(kml=nextKml, hitType=kmlType, weight=fwts)
+            hitId = mtma.createHit(kml=nextKml, hitType=kmlType)
         except MTurkRequestError as e:
             k.write("createHit: createHit failed for KML %s:\n%s\n%s\n" %
                 (nextKml, e.error_code, e.error_message))
@@ -252,7 +252,7 @@ while True:
 
         # Create the FQAQC HIT
         try:
-            hitId = mtma.createHit(kml=nextKml, hitType=kmlType, maxAssignments=remainingAssignments, weight=fwts)
+            hitId = mtma.createHit(kml=nextKml, hitType=kmlType, maxAssignments=remainingAssignments)
         except MTurkRequestError as e:
             k.write("createHit: createHit failed for KML %s:\n%s\n%s\n" %
                 (nextKml, e.error_code, e.error_message))
@@ -307,7 +307,7 @@ while True:
 
         # Create the non-QAQC HIT
         try:
-            hitId = mtma.createHit(kml=nextKml, hitType=kmlType, maxAssignments=remainingAssignments, weight=fwts)
+            hitId = mtma.createHit(kml=nextKml, hitType=kmlType, maxAssignments=remainingAssignments)
         except MTurkRequestError as e:
             k.write("createHit: createHit failed for KML %s:\n%s\n%s\n" %
                 (nextKml, e.error_code, e.error_message))

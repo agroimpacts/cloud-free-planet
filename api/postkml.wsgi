@@ -31,6 +31,8 @@ def application(environ, start_response):
         kmlType = mtma.cur.fetchone()[0]
         if kmlType == MTurkMappingAfrica.KmlQAQC:
             kmlType = 'QAQC'
+        elif kmlType == MTurkMappingAfrica.KmlFQAQC:
+            kmlType = 'FQAQC'
         elif kmlType == MTurkMappingAfrica.KmlNormal:
             kmlType = 'non-QAQC'
         elif kmlType == MTurkMappingAfrica.KmlTraining:

@@ -5,7 +5,7 @@ from dateutil import tz
 import psycopg2
 from psycopg2.extensions import adapt
 import collections
-from decimal import *
+from decimal import Decimal
 
 from lock import lock
 from boto.mturk.connection import MTurkConnection, MTurkRequestError
@@ -18,8 +18,8 @@ from boto.mturk.question import ExternalQuestion,QuestionForm,Overview,Question,
 from boto.mturk.layoutparam import LayoutParameters, LayoutParameter
 
 # Key connection parameters.
-db_production_name = 'SouthAfrica'
-db_sandbox_name = 'SouthAfricaSandbox'
+db_production_name = 'Africa'
+db_sandbox_name = 'AfricaSandbox'
 db_user = '***REMOVED***'
 db_password = '***REMOVED***'
 mt_production_host = 'mechanicalturk.amazonaws.com'
@@ -103,12 +103,12 @@ class MTurkMappingAfrica(object):
         self.mtcon.close()
         self.dbcon.close()
 
-    def createHit(self, kml=None, hitType=KmlNormal, maxAssignments=1, weight=1):
+    def createHit(self, kml=None, hitType=KmlNormal, maxAssignments=1):
         self.hitMaxAssignments = maxAssignments
         self.hitLifetime = self.getConfiguration('Hit_Lifetime')
 
         self.createHitRS = self.mtcon.create_hit(
-            hit_type = self.registerHitType(weight=weight),
+            hit_type = self.registerHitType(),
             question = self.externalQuestion(kml), 
             lifetime = self.hitLifetime, 
             max_assignments = self.hitMaxAssignments
@@ -192,21 +192,32 @@ class MTurkMappingAfrica(object):
         )
         assert self.approveAssignmentRS.status
 
+        # Pay the difficulty bonus if KML's fwts > 1.
+        self.hitTypeRewardIncrement = self.getConfiguration('HitType_RewardIncrement')
+        self.cur.execute("""select fwts, name, worker_id, bonus_paid 
+            from assignment_data inner join hit_data using (hit_id) 
+            inner join kml_data using (name) inner join worker_data using (worker_id) 
+            where assignment_id = '%s'""" % assignmentId)
+        (fwts, name, workerId, bonusPaid) = self.cur.fetchone()
+        bonusAmount = Decimal("0.00")
+        if fwts > 1:
+            bonusAmount = (int(fwts) - 1) * Decimal(self.hitTypeRewardIncrement)
+            bonusReason = self.getConfiguration('Bonus_ReasonDifficulty')
+            self.grantBonus(assignmentId, workerId, bonusAmount, bonusReason)
+
         # Check to see if training bonus should be paid.
         # Return True if bonus paid.
-        self.cur.execute("""select worker_id, bonus_paid from worker_data
-            inner join assignment_data using (worker_id) where assignment_id = '%s'""" %
-            assignmentId)
-        (workerId, bonusPaid) = self.cur.fetchone()
+        trainBonusPaid = False
         if not bonusPaid:
-            bonusAmount = self.getConfiguration('Bonus_AmountTraining')
-            bonusReason = self.getConfiguration('Bonus_ReasonTraining')
-            self.grantBonus(assignmentId, workerId, bonusAmount, bonusReason)
+            trainBonusAmount = self.getConfiguration('Bonus_AmountTraining')
+            trainBonusReason = self.getConfiguration('Bonus_ReasonTraining')
+            self.grantBonus(assignmentId, workerId, trainBonusAmount, trainBonusReason)
             self.cur.execute("update worker_data set bonus_paid = %s where worker_id = %s", \
                 (True, workerId))
             self.dbcon.commit()
-            return True
-        return False
+            trainBonusPaid = True
+
+        return (fwts, bonusAmount, name, trainBonusPaid)
 
     def rejectAssignment(self, assignmentId):
         self.rejectAssignmentRS = self.mtcon.reject_assignment(
@@ -228,19 +239,18 @@ class MTurkMappingAfrica(object):
         )
         assert self.disposeHitRS.status
 
-    def registerHitType(self,  weight=1):
+    def registerHitType(self):
         self.hitTypeTitle = self.getConfiguration('HitType_Title')
         self.hitTypeDescription = self.getConfiguration('HitType_Description')
         self.hitTypeKeywords = self.getConfiguration('HitType_Keywords')
         self.hitTypeReward = self.getConfiguration('HitType_Reward')
-        self.hitTypeRewardIncrement = self.getConfiguration('HitType_RewardIncrement')
         self.hitTypeDuration = self.getConfiguration('HitType_Duration')
         self.hitTypeApprovalDelay = self.getConfiguration('HitType_ApprovalDelay')
         self.registerHitTypeRS = self.mtcon.register_hit_type(
             title=self.hitTypeTitle, 
             description=self.hitTypeDescription, 
             keywords=self.hitTypeKeywords, 
-            reward = Decimal(self.hitTypeReward) + ((int(weight)-1) * Decimal(self.hitTypeRewardIncrement)), 
+            reward = self.hitTypeReward, 
             duration=self.hitTypeDuration, 
             approval_delay=self.hitTypeApprovalDelay, 
             qual_req=self.qualifications()

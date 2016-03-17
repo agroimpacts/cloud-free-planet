@@ -168,10 +168,11 @@ class ProcessNotifications(object):
         # the acceptance threshold, notify worker that his HIT was accepted.
         if assignmentStatus != None or score >= hitAcceptThreshold:
             try:
-                trainBonusPaid = mtma.approveAssignment(assignmentId)
+                (fwts, bonusAmount, kmlName, trainBonusPaid) = mtma.approveAssignment(assignmentId)
+                if fwts > 1:
+                    k.write("ProcessNotifications: Difficulty bonus of $%s paid for level %s KML %s to worker %s\n" % (bonusAmount, fwts, kmlName, workerId))
                 if trainBonusPaid:
                     k.write("ProcessNotifications: Training bonus paid to worker %s\n" % workerId)
-                    
             except MTurkRequestError as e:
                 k.write("ProcessNotifications: approveAssignment failed for assignment ID %s:\n%s\n%s\n" % 
                     (assignmentId, e.error_code, e.error_message))
@@ -184,7 +185,7 @@ class ProcessNotifications(object):
             # Also, check if the worker merits a bonus for approved assignment.
             bonusStatus = mtma.payBonusIfQualified(workerId, assignmentId)
             if bonusStatus > 0:
-                k.write("ProcessNotifications: Bonus %s paid to worker %s\n" % (bonusStatus, workerId))
+                k.write("ProcessNotifications: Accuracy bonus level %s paid to worker %s\n" % (bonusStatus, workerId))
 
         # Only if the worker's results were saved and scored, and their score did not meet 
         # the threshold do we reject the HIT.
@@ -267,7 +268,9 @@ class ProcessNotifications(object):
 
         # In all cases, notify worker that his HIT was accepted.
         try:
-            trainBonusPaid = mtma.approveAssignment(assignmentId)
+            (fwts, bonusAmount, kmlName, trainBonusPaid) = mtma.approveAssignment(assignmentId)
+            if fwts > 1:
+                k.write("ProcessNotifications: Difficulty bonus of $%s paid for level %s KML %s to worker %s\n" % (bonusAmount, fwts, kmlName, workerId))
             if trainBonusPaid:
                 k.write("ProcessNotifications: Training bonus paid to worker %s\n" % workerId)
         except MTurkRequestError as e:
