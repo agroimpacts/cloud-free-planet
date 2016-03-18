@@ -8,7 +8,7 @@ else
     echo "$0 must be run as user mapper or user sandbox"
     exit 1
 fi
-echo "Do you really want to clear out the $dbname DB to restart or migrate?"
+echo "Do you really want to initialize the $dbname DB to restart or migrate?"
 select yn in "No" "Yes"; do
     case $yn in
         No ) exit;;
@@ -35,6 +35,7 @@ delete from master_grid_counter;
 delete from n_select;
 
 delete from kml_data;
+insert into kml_data select * from kml_data_static;
 
 update system_data set value=0 where key='CurQaqcGid';
 
