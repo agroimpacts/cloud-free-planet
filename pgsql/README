@@ -11,32 +11,20 @@ http://***REMOVED***.net/docs/***REMOVED***_installation.html#hard_upgrade
 3) Change the PostgreSQL postgres password, and create the ***REMOVED*** role as superuser:
     psql -U postgres
     \i role_create_su.sql
-
-4) Select the database schema dump you wish to load.
-5) As superuser ***REMOVED***, create the Africa database and schema 
-   (using ***REMOVED*** to do this ensures that all ***REMOVED*** extension 
-    objects are owned by ***REMOVED***):
-    psql -U ***REMOVED*** postgres
-    \o Africa_schema.sql.out
-    \i Africa_schema.sql
-    (*** Ignore the 3 geometry_columns duplicate rule creation errors.)
-
-6) As root, edit /var/lib/pgsql/9.4/data/pg_hba.conf, and uncomment all 
+4) As root, edit /var/lib/pgsql/9.4/data/pg_hba.conf, and uncomment all 
    'all postgres md5' lines and comment all 'all all trust' lines.
-7) Edit /var/lib/pgsql/9.4/data/postgresql.conf, uncomment the 'listen_addresses'
+5) Edit /var/lib/pgsql/9.4/data/postgresql.conf, uncomment the 'listen_addresses'
    line, and change 'localhost' to '*'.
-8) As root, run 'service postgresql-9.4 restart'.
+6) As root, run 'service postgresql-9.4 restart'.
 
-9) As superuser postgres, remove superuser privileges from ***REMOVED*** role:
-    psql -U postgres
-    \i role_normal.sql
-
-10)  Gunzip the database data dump you wish to load.
-11) Load the database data dump:
-    psql -U ***REMOVED*** Africa
-    \o Africa_data.sql.out
-    \i Africa_data.sql
-    (*** ignore error re duplicate key value in spatial_ref_sys)
+7) As superuser ***REMOVED***, create the desired (e.g., Africa or AfricaSandbox) database 
+   and schema by running the restore script:
+   (NOTE: logging into Postgresql as superuser ***REMOVED*** to do this ensures that 
+    all ***REMOVED*** extension objects are owned by ***REMOVED***.)
+   /u/mapper/afmap/pgsql/restoreRenamedDbFromBackup.sh
+     or
+   /u/sandbox/afmap/pgsql/restoreRenamedDbFromBackup.sh
+   NOTE: This script will restore ***REMOVED*** to be a regular DB user (not a superuser).
 
 To configure daily database backups:
 

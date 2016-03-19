@@ -2,6 +2,7 @@
 
 # Child scripts are in the same directory
 SDIR=`dirname $0`
+DATADIR=$SDIR/data
 
 # Assumes we were called with '/u/${USER}/afmap/pgsql/<script_name>'.
 IFS='/'
@@ -17,5 +18,13 @@ else
     echo "$0 must be run using /u/mapper or /u/sandbox path"
     exit 1
 fi
-$SDIR/dump_schema.sh $dbname
-$SDIR/dump_data.sh $dbname
+if [ -f $DATADIR/$dbname.pgdump.2 ]; then
+        mv $DATADIR/$dbname.pgdump.2 $DATADIR/$dbname.pgdump.3
+fi
+if [ -f $DATADIR/$dbname.pgdump.1 ]; then
+        mv $DATADIR/$dbname.pgdump.1 $DATADIR/$dbname.pgdump.2
+fi
+if [ -f $DATADIR/$dbname.pgdump ]; then
+        mv $DATADIR/$dbname.pgdump $DATADIR/$dbname.pgdump.1
+fi
+pg_dump -Fc -f $DATADIR/$dbname.pgdump -U postgres $dbname
