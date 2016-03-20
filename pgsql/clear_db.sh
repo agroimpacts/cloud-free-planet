@@ -40,3 +40,7 @@ insert into kml_data select * from kml_data_static;
 update system_data set value=0 where key='CurQaqcGid';
 
 EOD
+
+# Initialize the kmls directory with the startup set of I and Q kml files.
+rm -rf /u/${USER}/afmap/kmls/*
+cp -p /u/${USER}/afmap/kmls_static/* /u/${USER}/afmap/kmls
