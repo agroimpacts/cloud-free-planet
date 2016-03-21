@@ -6,12 +6,14 @@ setenv PATH "/usr/pgsql-9.4/bin:$PATH"
 bash:
 export PATH="/usr/pgsql-9.4/bin:$PATH"
 
-3) Add Apache http/https WSGI configurations for sandbox and mapper virtual hosts:
+3) For ease of execution of scripts, copy .../afmap/pgsql/pgpassfile_sandbox or .../afmap/pgsql/pgpassfile_mapper (as appropriate) to ~/.pgpass . Ensure that permissions are set to 600 for these files.
+
+4) Add Apache http/https WSGI configurations for sandbox and mapper virtual hosts:
 see configuration file examples in the .../afmap/apache subdirectory.
 
-4) Merge changes from the afmap/etc/aliases file into the system's aliases file.
+5) Merge changes from the afmap/etc/aliases file into the system's aliases file.
 
-5) Add the following lines to .bashrc for sandbox and mapper users:
+6) Add the following lines to .bashrc for sandbox and mapper users:
 a) For sandbox user:
 export PYTHONPATH="/u/sandbox/afmap/mturk"
 umask 0007
