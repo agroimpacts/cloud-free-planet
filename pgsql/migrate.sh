@@ -1,9 +1,17 @@
-#! /bin/bash -x
+#! /bin/bash
 
 if [ "${USER}" != "mapper" ]; then
     echo "$0 must be run as user mapper"
     exit 1
 fi
+echo "Do you want to migrate the AfricaSandbox DB to the Africa DB and initialize it?"
+select yn in "No" "Yes"; do
+    case $yn in
+        No ) exit;;
+        Yes ) break;;
+    esac
+done
+
 SDB=AfricaSandbox
 DDB=Africa
 
@@ -43,7 +51,7 @@ fi
 
 # Edit the new Africa database in preparation for starting up a production run.
 # This includes clearing out some GIS tables that will be repopulated by KMLgenerate.R .
-$SDIR/clear_db.sh
+$SDIR/clear_db.sh Yes
 if [[ $? != 0 ]]; then
     exit 1
 fi

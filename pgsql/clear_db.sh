@@ -8,13 +8,15 @@ else
     echo "$0 must be run as user mapper or user sandbox"
     exit 1
 fi
-echo "Do you really want to initialize the $dbname DB to restart or migrate?"
-select yn in "No" "Yes"; do
-    case $yn in
-        No ) exit;;
-        Yes ) break;;
-    esac
-done
+if [[ "$1" != "Yes" ]]; then
+    echo "Do you really want to initialize the $dbname DB for restart or migration purposes?"
+    select yn in "No" "Yes"; do
+        case $yn in
+            No ) exit;;
+            Yes ) break;;
+        esac
+    done
+fi
 
 # Delete the HIT and HIT-related data in all tables in the required order, except:
 # preserve worker list and status in worker_data and qual_worker_data.
