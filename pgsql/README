@@ -29,4 +29,11 @@ http://***REMOVED***.net/docs/***REMOVED***_installation.html#hard_upgrade
 To configure daily database backups:
 
 1) As root, execute:
-crontab /var/www/html/afmap/mturk/crontabSetup.root
+crontab /u/sandbox|mapper/afmap/pgsql/crontabSetup.root
+
+2) Set permissions to 600 for /u/sandbox/afmap/pgsql/pgpassfile_* and 
+   /u/mapper/afmap/pgsql/pgpassfile_* .
+
+3) For ease of execution of DB scripts, as users sandbox and mapper, copy 
+   /u/sandbox/afmap/pgsql/pgpassfile_sandbox and /u/mapper/afmap/pgsql/pgpassfile_mapper 
+   (respectively) to ~/.pgpass . 
