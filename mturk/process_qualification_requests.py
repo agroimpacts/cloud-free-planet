@@ -18,14 +18,8 @@ mtma = MTurkMappingAfrica()
 logFilePath = mtma.projectRoot + "/log"
 k = open(logFilePath + "/processQualReqs.log", "a+")
 
-pid = os.getpid()
-pf = open(logFilePath + "/process_qualification_requests.pid", 'wb')
-pf.write(repr(pid))
-pf.close()
-
 now = str(datetime.today())
-k.write("\nprocessQualReqs: Daemon starting up at %s (pid %d)\n" % 
-        (now, pid))
+k.write("\nprocessQualReqs: Daemon starting up at %s\n" % now)
 k.close()
 
 # Execute loop based on polling interval

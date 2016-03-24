@@ -46,13 +46,8 @@ mtma = MTurkMappingAfrica()
 logFilePath = mtma.projectRoot + "/log"
 k = open(logFilePath + "/createHit.log", "a+")
 
-pid = os.getpid()
-pf = open(logFilePath + "/create_hit_daemon.pid", 'wb')
-pf.write(repr(pid))
-pf.close()
-
 now = str(datetime.today())
-k.write("\ncreateHit: Daemon starting up at %s (pid %d)\n" % (now, pid))
+k.write("\ncreateHit: Daemon starting up at %s\n" % now)
 k.close()
 
 # Execute loop based on polling interval
