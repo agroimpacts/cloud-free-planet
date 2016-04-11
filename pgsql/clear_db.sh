@@ -10,6 +10,7 @@ else
 fi
 if [[ "$1" != "Yes" ]]; then
     echo "Do you really want to initialize the $dbname DB for restart or migration purposes?"
+    echo "WARNING: Do not run unless the crontab has been removed and ALL daemons have been killed!"
     select yn in "No" "Yes"; do
         case $yn in
             No ) exit;;
