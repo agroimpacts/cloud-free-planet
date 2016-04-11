@@ -17,7 +17,7 @@ fi
 # before reporting the same notification again. E.g., setting notifSkipCount to 12
 # would imply that identical notifications would be generated only once an hour
 # assuming 5-minute crontab check intervals.
-NotifSkipCount=12
+NotifSkipCount=144          # 12 hours
 
 AFMAP_HOME=`dirname $0`/..
 PROGRAM=`basename $COMMAND`
@@ -69,7 +69,7 @@ checkrestart
 if [ $restart == 1 ]; then
     nohup $COMMAND >>$LOGFILE 2>&1 &
     echo $! >$PIDFILE
-    sleep 15
+    sleep 20
     checkrestart
     if [ $restart == 1 ]; then
         if [[ ${varArray[0]} == 0 ]]; then

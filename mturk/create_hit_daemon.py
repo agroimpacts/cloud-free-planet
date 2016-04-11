@@ -41,6 +41,10 @@ Subject: create_hit_daemon problem
 #
 # Main code begins here.
 #
+daemonStarted = False
+fatalError = False
+fatalErrorMsg = ""
+
 mtma = MTurkMappingAfrica()
 
 logFilePath = mtma.projectRoot + "/log"
@@ -71,7 +75,7 @@ while True:
     # Get serialization lock.
     mtma.getSerializationLock()
 
-    # Get all Murk HITs.
+    # Get all Mturk HITs.
     mthits = mtma.getAllHits()
     for hit in mthits:
         hits[hit.HITId] = Row(status=hit.HITStatus, 
@@ -106,8 +110,10 @@ while True:
 
         # If HIT on Mturk but not in DB: should never happen.
         if row.status and not row.create_time:
-            k.write("createHit: Error: Mturk HIT '%s' not in database!\n" % hitId)
-            email(mtma, "Error: Mturk HIT '%s' not in database!" % hitId)
+            k.write("createHit: Fatal Error: Mturk HIT '%s' not in database!\n" % hitId)
+            if daemonStarted:
+                fatalErrorMsg += ("Fatal Error: Mturk HIT '%s' not in database!\r\n" % hitId)
+            fatalError = True
         # if HIT in DB but not on Mturk,
         elif not row.status and row.create_time:
             # If DB says HIT still exists: should never happen.
@@ -115,8 +121,10 @@ while True:
                 # Record the HIT deletion time.
                 mtma.cur.execute("""update hit_data set hit_verified = True, delete_time = '%s' 
                     where hit_id = '%s'""" % (now, hitId))
-                k.write("createHit: Error: Active DB HIT '%s' not found on Mturk!\ncreateHit: Now marked as deleted in DB.\n" % hitId)
-                email(mtma, "Error: Active DB HIT '%s' not found on Mturk!\r\nNow marked as deleted in DB." % hitId)
+                k.write("createHit: Fatal Error: Active DB HIT '%s' not found on Mturk!\ncreateHit: Now marked as deleted in DB.\n" % hitId)
+                if daemonStarted:
+                    fatalErrorMsg += ("Fatal Error: Active DB HIT '%s' not found on Mturk!\r\nNow marked as deleted in DB.\r\n" % hitId)
+                fatalError = True
             # If DB says HIT has been deleted, then mark it as verified.
             else:
                 mtma.cur.execute("""update hit_data set hit_verified = True 
@@ -125,8 +133,10 @@ while True:
         elif row.status and row.create_time:
             # if DB says HIT no longer exists: should never happen.
             if row.delete_time:
-                k.write("createHit: Error: Deleted DB HIT '%s' still exists on Mturk!\n" % hitId)
-                email(mtma, "Error: Deleted DB HIT '%s' still exists on Mturk!" % hitId)
+                k.write("createHit: Fatal Error: Deleted DB HIT '%s' still exists on Mturk!\n" % hitId)
+                if daemonStarted:
+                    fatalErrorMsg += ("Fatal Error: Deleted DB HIT '%s' still exists on Mturk!\r\n" % hitId)
+                fatalError = True
             else:
                 # Calculate the current number of assignable QAQC and non-QAQC HITs 
                 # currently active on the MTurk server. For HITs with multiple assignments,
@@ -144,6 +154,14 @@ while True:
 
     # Release serialization lock.
     mtma.releaseSerializationLock()
+
+    # Check for fatal errors found, create a ticket the first time, and exit.
+    if fatalError:
+        if len(fatalErrorMsg) > 0:
+            email(mtma, fatalErrorMsg)
+        exit(-3)
+
+    daemonStarted = True
 
     # Create any needed QAQC HITs.
     kmlType = MTurkMappingAfrica.KmlQAQC
@@ -236,8 +254,8 @@ while True:
         # If we have no kmls left, all kmls in the kml_data table have been 
         # successfully processed. Notify Lyndon that more kmls are needed.
         if not row:
-            # Set notification delay to 1 hour.
-            hitPollingInterval = 3600
+            # Set notification delay to 12 hours.
+            hitPollingInterval = 43200
             k.write("createHit: Alert: all FQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.\n")
             email(mtma, "Alert: all FQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
             break
@@ -291,8 +309,8 @@ while True:
         # If we have no kmls left, all kmls in the kml_data table have been 
         # successfully processed. Notify Lyndon that more kmls are needed.
         if not row:
-            # Set notification delay to 1 hour.
-            hitPollingInterval = 3600
+            # Set notification delay to 12 hours.
+            hitPollingInterval = 43200
             k.write("createHit: Alert: all non-QAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.\n")
             email(mtma, "Alert: all non-QAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
             break
