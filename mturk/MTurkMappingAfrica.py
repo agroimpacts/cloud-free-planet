@@ -584,6 +584,18 @@ class MTurkMappingAfrica(object):
             return 1
         return 0
 
+    # Revoke Mapping Africa qualification unconditionally unless not qualified.
+    def revokeQualificationUnconditionally(self, workerId, submitTime):
+        # Revoke the qualification if not already done.
+        self.cur.execute("SELECT qualified FROM worker_data WHERE worker_id = '%s'" % (workerId))
+        qualified = self.cur.fetchone()[0]
+        if qualified:
+            # Mark worker as having lost his qualification.
+            self.revokeQualification(workerId)
+            self.cur.execute("""update worker_data set qualified = false, last_time = '%s' 
+                where worker_id = '%s'""" % (submitTime, workerId))
+            self.dbcon.commit()
+
     # Revoke Mapping Africa qualification if quality score 
     # shows worker as no longer qualified.
     def revokeQualificationIfUnqualifed(self, workerId, submitTime):
@@ -593,15 +605,7 @@ class MTurkMappingAfrica(object):
         revocationThreshold = float(self.getConfiguration('Qual_RevocationThreshold'))
         if qualityScore >= revocationThreshold:
             return False
-        # Revoke the qualification if not already done.
-        self.cur.execute("SELECT qualified FROM worker_data WHERE worker_id = '%s'" % (workerId))
-        qualified = self.cur.fetchone()[0]
-        if qualified:
-            # Mark worker as having lost his qualification.
-            self.revokeQualification(workerId)
-            self.cur.execute("""update worker_data set qualified = false
-                where worker_id = '%s'""" % workerId)
-            self.dbcon.commit()
+        self.revokeQualificationUnconditionally(workerId, submitTime)
         return True
 
     # Return True if worker is trusted based on quality score.
