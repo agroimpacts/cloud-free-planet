@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document><Folder><name>SA386615</name>
+<Schema name="SA386615" id="SA386615">
+	<SimpleField name="Name" type="string"></SimpleField>
+	<SimpleField name="Description" type="string"></SimpleField>
+	<SimpleField name="name" type="string"></SimpleField>
+</Schema>
+  <Placemark>
+	<name>SA386615</name>
+	<Style><LineStyle><color>ff0000ff</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#SA386615">
+		<SimpleData name="Name">SA386615</SimpleData>
+	</SchemaData></ExtendedData>
+      <Polygon><outerBoundaryIs><LinearRing><coordinates>28.537846968933241,-27.384679543451728 28.53750889507246,-27.375720334063807 28.54768021158397,-27.375422238206443 28.548019042154266,-27.384381423962111 28.537846968933241,-27.384679543451728</coordinates></LinearRing></outerBoundaryIs></Polygon>
+  </Placemark>
+</Folder></Document></kml>
