@@ -157,8 +157,12 @@ while True:
 
     # Check for fatal errors found, create a ticket the first time, and exit.
     if fatalError:
+        k.write("createHit: Fatal Error: create_hit_daemon will now exit!\n")
         if len(fatalErrorMsg) > 0:
+            fatalErrorMsg += "Fatal Error: create_hit_daemon will now exit!\r\n"
             email(mtma, fatalErrorMsg)
+        print "\nFatal Error: create_hit_daemon will now exit due to HIT validation errors."
+        print "             See createHIT.log for details."
         exit(-3)
 
     daemonStarted = True
