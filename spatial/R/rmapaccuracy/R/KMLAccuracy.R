@@ -40,7 +40,7 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid,
     
   # Collect QAQC fields (if there are any; if not then "N" value will be 
   # returned). This should work for both training and test sites
-  qaqc.sql <- paste0("select id,ST_AsEWKT(geom_clean),ST_AsEWKT(geom)", 
+  qaqc.sql <- paste0("select gid,ST_AsEWKT(geom_clean),ST_AsEWKT(geom)", 
                      " from qaqcfields where name=", "'", kmlid, "'")
   qaqc.geom.tab <- dbGetQuery(con, qaqc.sql)
   qaqc.hasfields <- ifelse(nrow(qaqc.geom.tab) > 0, "Y", "N") 
@@ -50,7 +50,7 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid,
     qaqc.nfields <- nrow(qaqc.polys)
     qaqc.poly <- gUnaryUnion(qaqc.polys)    
   } 
-    
+  
   # Read in user data
   if(mtype == "tr") {  # Training case
     user.sql <- paste0("select name,ST_AsEWKT(geom_clean),ST_AsEWKT(geom),try",
@@ -247,8 +247,8 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid,
       
       if(exists("grid.poly")) {
         tm <- format(Sys.time(), "%Y%m%d%H%M%OS2")  
-        pngname <- paste0(dinfo["project.root"], "/R/Error_records/", kmlid, "_", 
-                          assignmentid, "_", tm, ".png")
+        pngname <- paste0(dinfo["project.root"], "/spatial/R/Error_records/", 
+                          kmlid, "_", assignmentid, "_", tm, ".png")
         png(pngname, height = 700, width = 700, antialias = "none")
         plot(grid.poly, xlim = vals[1, ], ylim = vals[2, ])
         objchk <- sapply(2:5, function(x) is.object(inres[[x]]))

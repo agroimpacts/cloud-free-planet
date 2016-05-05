@@ -5,8 +5,8 @@
 #' @note The function arguments currently default to SouthAfrica*, so expect 
 #' these to change with project upgrades
 #' @export
-getDBName <- function(db.sandbox.name = 'SouthAfricaSandbox', 
-                      db.production.name = 'SouthAfrica') {
+getDBName <- function(db.sandbox.name = 'AfricaSandbox', 
+                      db.production.name = 'Africa') {
   info <- Sys.info()
   euser <- unname(info["effective_user"])
   if(euser == "sandbox") {
