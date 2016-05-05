@@ -90,7 +90,7 @@ except:
 k.write("worker_inquiry: Email message parsed: %s\n" % msgOK)
 
 if msgOK:
-    url = subprocess.Popen(["Rscript", "%s/R/CheckWorkerAssignment.R" % mtma.projectRoot, hitId, workerId, "N"], 
+    url = subprocess.Popen(["Rscript", "%s/spatial/R/CheckWorkerAssignment.R" % mtma.projectRoot, hitId, workerId, "N"], 
         stdout=subprocess.PIPE).communicate()[0]
     url = url.rstrip()
     k.write("worker_inquiry: HIT ID: %s\n" % hitId)

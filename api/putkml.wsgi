@@ -43,7 +43,7 @@ def application(environ, start_response):
     # If this is a training map, then call the scoring routine and 
     # record the results here.
     if len(trainingId) > 0:
-        scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % mtma.projectRoot, "tr", kmlName, trainingId, str(tryNum)], 
+        scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % mtma.projectRoot, "tr", kmlName, trainingId, str(tryNum)], 
             stdout=subprocess.PIPE).communicate()[0]
         try:
             score = float(scoreString)

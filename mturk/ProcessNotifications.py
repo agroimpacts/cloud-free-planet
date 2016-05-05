@@ -7,7 +7,7 @@ from MTurkMappingAfrica import MTurkMappingAfrica, aws_secret_access_key
 
 # Email function used when there are validation failures.
 # This email address has been configured on trac.princeton.edu in
-# /etc/aliases and /usr/local/etc/email2trac to create a ticket
+# /etc/aliases and /usr/local/etc/email2trac.conf to create a ticket
 # under the Internal Alert component.
 def email(mtma, msg = None):
     sender = '%s@mapper.princeton.edu' % mtma.euser
@@ -132,7 +132,7 @@ class ProcessNotifications(object):
         # If the worker's results were saved, compute the worker's score on this KML.
         assignmentStatus = None
         if resultsSaved:
-            scoreString = subprocess.Popen(["Rscript", "%s/R/KMLAccuracyCheck.R" % mtma.projectRoot, 
+            scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % mtma.projectRoot, 
                 "qa", kmlName, assignmentId], 
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
             try:
