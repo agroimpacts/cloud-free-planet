@@ -111,9 +111,3 @@ if(test.root == "N") {
                       hits$name, sep = "")
   cat(worker.url, "\n") # Return details
 }
-
-
-
-
-
-

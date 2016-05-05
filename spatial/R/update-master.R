@@ -20,15 +20,14 @@ con <- dbConnect(drv, dbname = dinfo["db.name"], user = "***REMOVED***",
 if(!dbExistsTable(con, "master_grid")) {
   sql <- paste("CREATE TABLE master_grid",
                "(gid serial PRIMARY KEY,",
-               "ID integer, x double precision,",
+               "id integer, x double precision,",
                "y double precision, name varchar, pr double precision,", 
-               "fwts integer, avail char(1))")
+               "fwts integer, zone integer, avail char(1))")
   dbSendQuery(con, sql)
-  dbSendQuery(con, paste0("CREATE INDEX name_gix ON master_grid (ID, name, ", 
-                          "fwts, avail)"))
+  dbSendQuery(con, paste0("CREATE INDEX name_gix ON master_grid (id, name, ", 
+                          "fwts, zone, avail)"))
   dbSendQuery(con, "VACUUM ANALYZE master_grid")
   dbSendQuery(con, "CLUSTER master_grid USING name_gix")
-  # dbRemoveTable(con, name = "master_grid") 
 }
 
 # Read in master table counter data
@@ -56,11 +55,13 @@ if(count_tab[, sum(counter)] == 0) {
 # the next block if there are only 1000 records left before it hits the number 
 # of rows in the block. Otherwise, shouldn't be selecting a new group.  
 if(active_block$counter == 0) {
-  subgrid <- paste0(dinfo["project.root"], "/data/africa_master_grid_sub", 
+  subgrid <- paste0(dinfo["project.root"], 
+                    "/spatial/data/gridfiles/africa_master_grid_sub", 
                     active_block$block, ".csv")
 } else if(between(active_block$counter, active_block$nrows - 1000, 
                   active_block$nrows)) {
-  subgrid <- paste0(dinfo["project.root"], "/data/africa_master_grid_sub", 
+  subgrid <- paste0(dinfo["project.root"], 
+                    "/spatial/data/gridfiles/africa_master_grid_sub", 
                     active_block$block + 1, ".csv")
 } else {
   stop("Updating grid shouldn't happen yet", call. = FALSE)
@@ -71,7 +72,7 @@ dbSendQuery(con, "DELETE from master_grid where avail='F'")
 
 # Update by appending
 # Write sql command to file gridupdate.sql
-psql <- paste("\\copy master_grid(ID, x, y, name, pr, fwts, avail) FROM", 
+psql <- paste("\\copy master_grid(id, x, y, name, pr, fwts, zone, avail) FROM", 
               subgrid, "WITH DELIMITER ',' CSV HEADER")
 write(psql, file = paste0(dinfo["project.root"], "/pgsql/gridupdate.sql"))
 
@@ -83,7 +84,3 @@ system(pgsql, intern = TRUE)
 
 dbSendQuery(con, "VACUUM ANALYZE master_grid")
 dbSendQuery(con, "CLUSTER master_grid USING name_gix")
-
-
-
-

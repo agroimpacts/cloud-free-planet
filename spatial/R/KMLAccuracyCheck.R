@@ -8,7 +8,7 @@ prjsrid <- 102022
 count.err.wt <- 0.1  
 in.err.wt <- 0.7  
 out.err.wt <- 0.2  
-err.switch <- 2  ### 2/6/15 changed to 2
+err.switch <- 1  ### 5/2/2016 Changed to 1
 comments <- "F"
 write.err.db <- "T"  
 draw.maps  <- "T"  
@@ -33,7 +33,7 @@ if(test.root == "Y") {
   print(paste("database =", dinfo["db.name"], "directory = ", 
               dinfo["project.root"]))
   print(prjstr)
-  paste(project.root, "/R/Error_records/")
+  paste(project.root, "/spatial/R/Error_records/")
   print("Stopping here: Just checking we are working in the right places")
 } 
 

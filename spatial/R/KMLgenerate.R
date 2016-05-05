@@ -23,21 +23,20 @@ con <- dbConnect(drv, dbname = dinfo["db.name"], user = "***REMOVED***",
 #dbListConnections(drv); dbGetInfo(drv); summary(con)
 
 # CRS (coordinate reference systems)
-sql <- paste0("select proj4text from spatial_ref_sys where srid=", prjsrid)
+sql <- paste0("select proj4text from spatial_ref_sys where auth_name='map_af' ",
+              "order by auth_srid")
 prjstr <- dbGetQuery(con, sql)$proj4text
+sql <- paste0("select proj4text from spatial_ref_sys where srid=", prjsrid)
+alb <- dbGetQuery(con, sql)$proj4text
 gcs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 # File paths
 kml_file_path <- paste0(dinfo["project.root"], "/kmls/")
 log_file_path <- paste0(dinfo["project.root"], "/log/")
 
-# Write out pid to file and record daemon start time
-pid <- Sys.getpid()
-pidfile <- paste0(log_file_path, fname, ".pid")
-write(pid, file = pidfile)  # Write out pid to new file, overwriting if exists
+# Record daemon start time
 pstart_string <- paste0("KMLgenerate: Daemon starting up at ", 
-                        format(Sys.time(), "%a %b %e %H:%M:%S %Z %Y"), 
-                        " (pid ", pid, ")")
+                        format(Sys.time(), "%a %b %e %H:%M:%S %Z %Y"))
 
 # Initialize csv to log database error message
 log_hdr <- rbind("Error messages from KMLgenerate.R", 
@@ -86,37 +85,57 @@ repeat {
   if(avail_kml_count < min_avail_kml) {  
     
     # Step 1. Poll the database to see which grid IDs are still available
-    sql <- "select name, x, y, fwts from master_grid where avail = 'T'"
+    sql <- "select x, y, name, fwts, zone from master_grid where avail = 'T'"
     xy_tab <- data.table(dbGetQuery(con, sql))
     
     # Step 2. Draw weighted random sample = min.kml.batch
     # Just an ordinary random sample to select cells, because the weighted
     # draw was already made in creating master_grid
     set.seed(2)
-    xy_tab <- xy_tab[{name %in% sample(name, size = kml_batch_size, 
-                                       replace = FALSE)}]
-
-    # Step 3. Convert them to polygons
-    gpols <- spTransform(point_to_gridpoly(xy = as.data.frame(xy_tab), 
-                                           w = diam, CRSobj = CRS(prjstr)), 
-                         CRSobj = CRS(gcs))
-        
-    # And convert them to kmls 
-    for(i in 1:nrow(gpols)) {
-      kml_name <- paste0(dinfo["project.root"], "/kmls/", gpols$name[i], ".kml")
-      rgdal::writeOGR(gpols[i, ], dsn = kml_name, layer = gpols$name[i], 
-                      driver = "KML", overwrite = TRUE)
-    }
+    xy_tabs <- xy_tab[{name %in% 
+                         sample(name, size = kml_batch_size, replace = FALSE)}]
     
-    # Step 4. Update database tables
+    # Step 3. Convert point data to proper projections
+    gpnts <- sapply(1:nrow(xy_tabs), function(i) {  # i <- 1 
+      zn <- xy_tabs[i, zone]
+      xy <- data.frame(xy_tabs[i, ])
+      coordinates(xy) <- ~x + y # xy[1:2]
+      # xy <- xy[, 3:5]
+      crs(xy) <- alb
+      xy_trans <- spTransform(xy, CRS(prjstr[zn]))
+    })
+    
+    # Step 4. Convert points to polygons
+    gpols <- sapply(1:nrow(xy_tabs), function(i) { 
+      xy_trans <- gpnts[[i]] 
+      proj4 <- proj4string(xy_trans)
+      ptdata <- data.frame(xy_trans)
+      gpol <- point_to_gridpoly(xy = ptdata, w = diam, CRSobj = CRS(proj4))
+      gpol@data$zone <- xy_trans@data$zone
+      gpol@data$id <- i
+      gpol <- spChFIDs(gpol, as.character(gpol@data$id))
+    })
+    
+    # Step 5. Transform to geographic coordinates and write out to kmls
+    gpols_gcs <- sapply(1:length(gpols), function(i) {
+      gpol_gcs <- spTransform(x = gpols[[i]], CRSobj = CRS(gcs))
+      kml_name <- paste0(dinfo["project.root"], "/kmls/", gpol_gcs$name, 
+                         ".kml")
+      rgdal::writeOGR(gpol_gcs, dsn = kml_name, layer = gpol_gcs$name, 
+                      driver = "KML", overwrite = TRUE)
+      gpol_gcs
+    })
+    gpols_gcs <- do.call(rbind, gpols_gcs)
+    
+    # Step 6. Update database tables
     # Update kml_data to show new names added and their kml_type
-    sqlrt <-  paste0("('", gpols$name, "', ", "'", kml_type,"',", gpols$fwts,")", 
-                     collapse = ",")
+    sqlrt <-  paste0("('", gpols_gcs$name, "', ", "'", kml_type,"',", 
+                     gpols_gcs$fwts,")", collapse = ",")
     sql <- paste("insert into kml_data (name, kml_type, fwts) values ", sqlrt)
     ret <- dbSendQuery(con, sql)
     
     # Update master to show grid is no longer available for selecting/writing
-    sqlrt2 <- paste0(" (", paste0("'", gpols$name, "'", collapse = ","), ")")
+    sqlrt2 <- paste0(" (", paste0("'", gpols_gcs$name, "'", collapse = ","), ")")
     sql <- paste("UPDATE master_grid SET avail='F' where name in", sqlrt2)        
     ret2 <- dbSendQuery(con, sql)
     
@@ -133,7 +152,7 @@ repeat {
                   " WHERE block=", active_block[, block])
     ret3 <- dbSendQuery(con, sql)
     
-    # Step 6. Database (crude) error handling
+    # Step 7. Database (crude) error handling
     exception <- dbGetException(con)  # update exceptions
     if(exception$errorNum != 0) {
       print("Error updating master_grid")  
