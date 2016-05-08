@@ -108,10 +108,10 @@ class ProcessNotifications(object):
         mtma.cur.execute("select kml_type from kml_data inner join hit_data using (name) where hit_id = '%s'" % hitId)
         kmlType = mtma.cur.fetchone()[0]
 
-        # If QAQC HIT, then score it and post-process any preceding non-QAQC HITs for this worker.
+        # If QAQC HIT, then score it and post-process any preceding FQAQC or non-QAQC HITs for this worker.
         if kmlType == MTurkMappingAfrica.KmlQAQC:
             self.QAQCSubmission(mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params, hitStatus)
-        # Else, if FQAQC HIT or non-QAQC HIT, then mark it as pending post-processing.
+        # Else, if FQAQC HIT or non-QAQC HIT, then post-process it or mark it as pending post-processing.
         elif kmlType == MTurkMappingAfrica.KmlNormal or kmlType == MTurkMappingAfrica.KmlFQAQC:
             self.NormalSubmission(mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params)
 
@@ -227,7 +227,7 @@ class ProcessNotifications(object):
         else:
             k.write("ProcessNotifications: hit still has remaining assignments and cannot be deleted\n")
 
-        # Post-process any pending non-QAQC HITs for this worker.
+        # Post-process any pending FQAQC or non-QAQC HITs for this worker.
         self.NormalPostProcessing(mtma, k, eventTime, workerId)
 
     def NormalSubmission(self, mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params):
@@ -314,11 +314,11 @@ class ProcessNotifications(object):
         # Determine this worker's trust level.
         workerTrusted = mtma.isWorkerTrusted(workerId)
         if workerTrusted is None:
-            k.write("ProcessNotifications: Worker %s has insufficient history for evaluating non-QAQC HITs\n" %
+            k.write("ProcessNotifications: Worker %s has insufficient history for evaluating FQAQC or non-QAQC HITs\n" %
                     workerId)
             return
 
-        # Get the the key data for this worker's pending non-QAQC submitted HITs.
+        # Get the the key data for this worker's pending FQAQC or non-QAQC submitted HITs.
         mtma.cur.execute("""select name, assignment_id, hit_id
             from assignment_data inner join hit_data using (hit_id)
             where worker_id = %s and status = %s order by completion_time""", 
@@ -329,9 +329,9 @@ class ProcessNotifications(object):
         if len(assignments) == 0:
             return
 
-        k.write("ProcessNotifications: Checking for pending non-QAQC assignments: found %d\n" % len(assignments))
+        k.write("ProcessNotifications: Checking for pending FQAQC or non-QAQC assignments: found %d\n" % len(assignments))
 
-        # Loop on all the pending non-QAQC HITs for this worker, and finalize their status.
+        # Loop on all the pending FQAQC or non-QAQC HITs for this worker, and finalize their status.
         for assignment in assignments:
             kmlName = assignment[0]
             assignmentId = assignment[1]
@@ -349,11 +349,11 @@ class ProcessNotifications(object):
             else:
                 assignmentStatus = MTurkMappingAfrica.HITUntrusted
 
-            # Record the final non-QAQC HIT status.
+            # Record the final FQAQC or non-QAQC HIT status.
             mtma.cur.execute("""update assignment_data set status = '%s' where assignment_id = '%s'""" %
                 (assignmentStatus, assignmentId))
             mtma.dbcon.commit()
-            k.write("ProcessNotifications: non-QAQC assignment marked in DB as %s\n" %
+            k.write("ProcessNotifications: FQAQC or non-QAQC assignment marked in DB as %s\n" %
                 assignmentStatus.lower())
 
             # Delete the HIT if all assignments have been submitted and have a final status

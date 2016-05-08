@@ -60,6 +60,7 @@ while True:
     qaqcHitPercentage = int(mtma.getConfiguration('QaqcHitPercentage'))
     fqaqcHitPercentage = int(mtma.getConfiguration('FqaqcHitPercentage'))
     availHitTarget = int(mtma.getConfiguration('AvailHitTarget'))
+    hitMaxAssignmentsMT = int(mtma.getConfiguration('Hit_MaxAssignmentsMT'))
 
     k = open(logFilePath + "/createHit.log", "a+")
     now = str(datetime.today())
@@ -266,6 +267,11 @@ while True:
         nextKml = row[0]
         fwts = row[2]
         remainingAssignments = hitMaxAssignmentsF - row[1]
+        # Avoid the MTurk surcharge for # assignments by limiting them to hitMaxAssignmentsMT.
+        limitedByMT = 0;
+        if remainingAssignments > hitMaxAssignmentsMT:
+            limitedByMT = remainingAssignments
+            remainingAssignments = hitMaxAssignmentsMT
 
         # Create the FQAQC HIT
         try:
@@ -284,6 +290,9 @@ while True:
         mtma.dbcon.commit()
         k.write("createHit: Created HIT ID %s with %d assignments for FQAQC KML %s\n" % 
                 (hitId, remainingAssignments, nextKml))
+        if limitedByMT > 0:
+            k.write("createHit: (Assignment target of %d reduced to avoid MTurk surcharge)\n" % 
+                    limitedByMT)
 
     # Create any needed non-QAQC HITs.
     kmlType = MTurkMappingAfrica.KmlNormal
@@ -321,6 +330,11 @@ while True:
         nextKml = row[0]
         fwts = row[2]
         remainingAssignments = hitMaxAssignmentsN - row[1]
+        # Avoid the MTurk surcharge for # assignments by limiting them to hitMaxAssignmentsMT.
+        limitedByMT = 0;
+        if remainingAssignments > hitMaxAssignmentsMT:
+            limitedByMT = remainingAssignments
+            remainingAssignments = hitMaxAssignmentsMT
 
         # Create the non-QAQC HIT
         try:
@@ -339,6 +353,9 @@ while True:
         mtma.dbcon.commit()
         k.write("createHit: Created HIT ID %s with %d assignments for non-QAQC KML %s\n" % 
                 (hitId, remainingAssignments, nextKml))
+        if limitedByMT > 0:
+            k.write("createHit: (Assignment target of %d reduced to avoid MTurk surcharge)\n" % 
+                    limitedByMT)
 
     # Sleep for specified polling interval
     k.close()
