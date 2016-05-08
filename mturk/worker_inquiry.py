@@ -8,14 +8,19 @@ import subprocess
 import smtplib
 from MTurkMappingAfrica import MTurkMappingAfrica
 
-#Subject: SANDBOX: Regarding Amazon Mechanical Turk HIT
-# 2NAVQ8H88MQUCA33NK3I4RXXGUNR80
+# Subject: SANDBOX: Regarding Amazon Mechanical Turk HIT
+#   2NAVQ8H88MQUCA33NK3I4RXXGUNR80
+#
+# Message from Dennis McRitchie (dmcr@princeton.edu)
+# ---------------------------------
+# Customer ID: A2X5DP7XUVYR4P
+# Yet another test of worker inquiry.
+# ---------------------------------
+
 HIT_PATTERN = r"^.+ HIT\s+(?P<hitid>[a-zA-Z0-9]+)\s*$"
 HIT_RE = re.compile(HIT_PATTERN)
-#---------------------------------
-#Customer ID: A2X5DP7XUVYR4P
-#Yet another test of worker inquiry.
-#---------------------------------
+FROM_PATTERN = r"^\s*Message from\s+.*\((?P<from>[^)]+)\)\s*$"
+FROM_RE = re.compile(FROM_PATTERN)
 WORKER_PATTERN = r"^\s*Customer ID:\s+(?P<workerid>[a-zA-Z0-9]+)\s*$"
 WORKER_RE = re.compile(WORKER_PATTERN)
 DASHES_PATTERN = r"^\s*-+\s*$"
@@ -59,7 +64,6 @@ message = ''
 try:
     msg = email.message_from_file(sys.stdin)
     e.write(str(msg))
-    sender = msg.get('from')
     subject = msg.get('subject')
     hitId = HIT_RE.search(subject)
     hitId = str(hitId.group('hitid'))
@@ -69,12 +73,16 @@ try:
             continue
 
         for line in part.get_payload(decode=True).split('\n'):
+            # Search for from address
+            fl = FROM_RE.search(line)
             # Search for MTurk Worker ID
             widl = WORKER_RE.search(line)
             # Search for dashed line
             dl = DASHES_RE.search(line)
 
-            if widl:
+            if fl:
+                    sender = str(fl.group('from'))
+            elif widl:
                     workerId = str(widl.group('workerid'))
                     #print("Worker ID = '%s'" % workerId)
             elif workerId:
