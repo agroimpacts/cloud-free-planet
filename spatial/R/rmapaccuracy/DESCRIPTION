@@ -9,10 +9,12 @@ Description: This package provides the functions used in Mapping Africa
 Depends:
     R (>= 2.15),
     RPostgreSQL,
-    sp
+    sp,
+    rgdal
 Imports:
-    rgdal,
+    RPostgreSQL,
     rgeos,
-    DBI
+    DBI,
+    rgdal
 License: GPL
 RoxygenNote: 5.0.1

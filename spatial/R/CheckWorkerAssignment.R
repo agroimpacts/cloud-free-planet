@@ -1,5 +1,5 @@
 #! /usr/bin/Rscript
-##############################################################################################################
+################################################################################
 # Title      : CheckWorkerAssignment.R
 # Purpose    : Script for retrieving worker assignments
 # Author     : Lyndon Estes
@@ -7,14 +7,14 @@
 # Used by    : 
 # Notes      : Created 8/10/2013
 #              To help respond to Turker tickets
-#              Usage: (from terminal) Rscript CheckWorkerAssignment.R kmlid workerid [Y/N]
+#              Usage: (from terminal) Rscript CheckWorkerAssignment.R kmlid 
+#               workerid [Y/N]
 #               Y or N for testing location/working directory
-##############################################################################################################
+################################################################################
 
 # Libraries
-suppressMessages(library(RPostgreSQL))
-suppressMessages(library(rgdal))
-suppressMessages(library(rgeos))
+# suppressMessages(library(RPostgreSQL))
+suppressMessages(library(rmapaccuracy))
 
 # Hardcoded variables
 prjsrid <- 97490  # EPSG identifier for equal area project
@@ -22,42 +22,51 @@ prjsrid <- 97490  # EPSG identifier for equal area project
 # Get HIT ID, assignment ID
 args <- commandArgs(TRUE)
 if(length(args) < 3) stop("Need at least 3 arguments")
-hit.id <- args[1]  # "24192NJKM05BS8R9TNN2OTP9E1HFAW" hit.id <- "231TUHYW2GTPFG8M4UNM469Y3YOQL3"
-worker.id <- args[2] #  "A1NJ1IJLKAS0Y4" worker.id <- "A2X5DP7XUVYR4P"
-test.root <- args[3]
+hit.id <- args[1]  # hit.id <- '3SNR5F7R92TY0D6DE7O1VJ1MKE5IEK'
+worker.id <- args[2] #  worker.id <- "A2X5DP7XUVYR4P"
+test.root <- args[3]  # test.root <- "Y"
 
 # Find working location
+dinfo <- getDBName()  # pull working environment
+
 initial.options <- commandArgs(trailingOnly = FALSE)
-arg.name <- "--file="
-script.name <- sub(arg.name, "", initial.options[grep(arg.name, initial.options)])
-script.dir <- dirname(script.name)
-source(paste(script.dir, "getDBName.R", sep="/"))
-kml.path <- paste0(project.root, "/maps/")
-kml.root <- strsplit(project.root, "/")[[1]][3]   
+# arg.name <- "--file="
+# script.name <- sub(arg.name, "", 
+#                    initial.options[grep(arg.name, initial.options)])
+# script.dir <- dirname(script.name)
+# source(paste(script.dir, "getDBName.R", sep="/"))
+kml.path <- paste0(dinfo["project.root"], "/maps/")
+kml.root <- strsplit(dinfo["project.root"], "/")[[1]][3]   
 
 if(test.root == "Y") {
-  print(paste("database =", db.name, "; kml.root =", kml.root, "; worker kml directory =", kml.path, 
-              "; hit =", hit.id))
-  print("Stopping here: Just making sure we are working and writing to the right places")
+  print(paste("database =", dinfo["db.name"], "; kml.root =", kml.root, 
+              "; worker kml directory =", kml.path, "; hit =", hit.id))
+  print(paste("Stopping here: Just making sure we are working and writing to", 
+              "the right places"))
 } 
 
 if(test.root == "N") {
-  source(paste(script.dir, "KMLAccuracyFunctions.R", sep="/"))
+#   source(paste(script.dir, "KMLAccuracyFunctions.R", sep="/"))
 
   # Paths and connections
   drv <- dbDriver("PostgreSQL")
-  con <- dbConnect(drv, dbname = db.name, user = "***REMOVED***", password = "***REMOVED***")
+  con <- dbConnect(drv, dbname = dinfo["db.name"], user = "***REMOVED***", 
+                   password = "***REMOVED***")
   
-  hit.sql <- paste("select name from hit_data where hit_id='", hit.id, "'", sep = "")
+  hit.sql <- paste0("select name from hit_data where hit_id='", hit.id, "'")
   hits <- dbGetQuery(con, hit.sql)
-  ass.sql <- paste("select assignment_id, score from assignment_data where hit_id=", "'", hit.id, 
-                   "' and worker_id='", worker.id, "'", sep = "")  
+  ass.sql <- paste0("select assignment_id, score from assignment_data where ", 
+                   "hit_id=", "'", hit.id, "' and worker_id='", worker.id, "'")  
   assignments <- dbGetQuery(con, ass.sql)
-  if(nrow(assignments) > 1) stop("More than one assignment for this worker for this HIT")
+  if(nrow(assignments) > 1) {
+    stop("More than one assignment for this worker for this HIT")
+  }
   
-  prj.sql <- paste("select proj4text from spatial_ref_sys where srid=", prjsrid, sep = "")
+  prj.sql <- paste0("select proj4text from spatial_ref_sys where srid=", 
+                    prjsrid)
   prjstr <- dbGetQuery(con, prj.sql)$proj4text
-  gcs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"  # Always this one
+  # Always this one
+  gcs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
   
   # Collect QAQC fields (if there are any; if not then "N" value will be returned). This should work for both
   # training and test sites
@@ -66,24 +75,24 @@ if(test.root == "N") {
   qaqc.hasfields <- ifelse(nrow(qaqc.geom.tab) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
     qaqc.geom.tab[, 2] <- gsub("^SRID=*.*;", "", qaqc.geom.tab[, 2])
-    qaqc.poly.list <- createCleanTempPolyfromWKT(geom.tab = qaqc.geom.tab, crs = prjstr)
-    qaqc.poly <- qaqc.poly.list[[1]]
-    qaqc.poly@data$ID <- rep(qaqc.geom.tab[1, 1], nrow(qaqc.poly))
+    qaqc.poly <- polyfromWKT(geom.tab = qaqc.geom.tab, crs = prjstr)
+    # qaqc.poly <- qaqc.poly.list[[1]]
+    qaqc.poly@data$ID <- rep(1, nrow(qaqc.poly))
     qaqc.poly@data$fld <- 1:nrow(qaqc.poly@data)
     qaqc.poly@data <- qaqc.poly@data[, -1]
   } 
 
   # Read in user data
-  user.sql <- paste("select name,ST_AsEWKT(geom) from user_maps where assignment_id=", "'", 
-                    assignments$assignment_id, "'", " order by name", sep = "")  
-  user.geom.tab <- dbGetQuery(con, user.sql)  # Collect user data and fields geometries
-  #user.geom.tab <- user.geom.tab[grep(hits$name, user.geom.tab$name), ]  # added to drop other training results
-  user.hasfields <- ifelse(nrow(user.geom.tab) > 0, "Y", "N")  # Need to get this right
+  user.sql <- paste0("select name,ST_AsEWKT(geom) from user_maps where ", 
+                     "assignment_id=", "'", assignments$assignment_id, "'", 
+                     " order by name")  
+  user.geom.tab <- dbGetQuery(con, user.sql)  # Collect user data & field geoms
+  user.hasfields <- ifelse(nrow(user.geom.tab) > 0, "Y", "N")  # get this right
   if(user.hasfields == "Y") {  # Read in user fields if there are any
     user.geom.tab[, 2] <- gsub("^SRID=*.*;", "", user.geom.tab[, 2])
-    user.poly.list <- createCleanTempPolyfromWKT(geom.tab = user.geom.tab, crs = gcs)
-    user.poly <- user.poly.list[[1]]
-    user.poly@data$ID <- rep(user.geom.tab[1, 1], nrow(user.poly))
+    user.poly <- polyFromWkt(geom.tab = user.geom.tab, crs = gcs)
+    # user.poly <- user.poly.list[[1]]
+    user.poly@data$ID <- rep(1, nrow(user.poly))
     user.poly@data$fld <- 1:nrow(user.poly@data)
     user.poly@data <- user.poly@data[, -1]
   }
@@ -94,20 +103,22 @@ if(test.root == "N") {
   
   # Write KMLs out to worker specific directory
   setwd(worker.path)
-  if(exists("user.poly")) {
+  if(exists("user.poly")) {  # Write it
     user.poly@data$kmlname <- paste(hits$name, "_w", sep = "")  
     writeOGR(user.poly, dsn = paste(user.poly@data$kmlname, "kml", sep = "."), 
-             layer = user.poly@data$kmlname, driver = "KML", dataset_options = c("NameField = name"), 
-             overwrite = TRUE)  # Write it
+             layer = user.poly@data$kmlname, driver = "KML", 
+             dataset_options = c("NameField = name"), overwrite = TRUE)  
   }
-  if(exists("qaqc.poly")) {
-    qaqc.poly.gcs <- spTransform(x = qaqc.poly, CRSobj = CRS(gcs))  # First convert to geographic coords
+  if(exists("qaqc.poly")) {  # First convert to geographic coords
+    qaqc.poly.gcs <- spTransform(x = qaqc.poly, CRSobj = CRS(gcs))  
     qaqc.poly.gcs@data$kmlname <- paste(hits$name, "_r", sep = "")
-    writeOGR(qaqc.poly.gcs, dsn = paste(qaqc.poly.gcs@data$kmlname[1], "kml", sep = "."), 
-             layer = qaqc.poly.gcs@data$kmlname, driver = "KML", dataset_options = c("NameField = name"), 
-             overwrite = TRUE)  # Write it
+    writeOGR(qaqc.poly.gcs,  # Write it
+             dsn = paste(qaqc.poly.gcs@data$kmlname[1], "kml", sep = "."), 
+             layer = qaqc.poly.gcs@data$kmlname, driver = "KML", 
+             dataset_options = c("NameField = name"), overwrite = TRUE) 
   }
-  worker.url <- paste("http://", kml.root, ".princeton.edu/api/getkml?workerId=", worker.id, "&kmlName=", 
-                      hits$name, sep = "")
+  worker.url <- paste0("http://", kml.root, 
+                       ".princeton.edu/api/getkml?workerId=", worker.id, 
+                       "&kmlName=", hits$name)
   cat(worker.url, "\n") # Return details
 }
