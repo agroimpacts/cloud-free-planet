@@ -64,6 +64,16 @@ message = ''
 try:
     msg = email.message_from_file(sys.stdin)
     e.write(str(msg))
+
+    # Get the from adddress. Since MTurk has changed this in the past, 
+    # we will check the Reply-to field first. If not present, then we'll
+    # use the From header if the domain is not '@amazon.com'. Otherwise,
+    # we'll use the sender email address embedded in the body of the message.
+    sender = msg.get('reply-to')
+    if sender is None:
+        sender = msg.get('from')
+        if '@amazon.com' in sender:
+            sender = None
     subject = msg.get('subject')
     hitId = HIT_RE.search(subject)
     hitId = str(hitId.group('hitid'))
@@ -81,7 +91,8 @@ try:
             dl = DASHES_RE.search(line)
 
             if fl:
-                    sender = str(fl.group('from'))
+                    if sender is None:
+                        sender = str(fl.group('from'))
             elif widl:
                     workerId = str(widl.group('workerid'))
                     #print("Worker ID = '%s'" % workerId)
