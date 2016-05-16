@@ -93,4 +93,4 @@ UPDATE configuration SET value = '0.6' WHERE key = 'Qual_RevocationThreshold'
 -- Instructional video file name
 UPDATE configuration SET value = 'Mapping_09102013.swf' WHERE key = 'QualTest_InstructionalVideo'
 -- Introductory video file name
-UPDATE configuration SET value = 'Mapping_Africa_Lyndon_10102013.swf' WHERE key = 'QualTest_IntroVideo'
+UPDATE configuration SET value = 'mapping_africa_intro.swf' WHERE key = 'QualTest_IntroVideo'
