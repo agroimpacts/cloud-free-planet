@@ -10,11 +10,12 @@ from MTurkMappingAfrica import MTurkMappingAfrica
 # Row class used in HIT validation logic.
 class Row:
     def __init__(self, status=None, assignments_completed=None, create_time=None, 
-            delete_time=None, kml_type=None):
+            delete_time=None, max_assignments=None, kml_type=None):
         self.status = status
         self.assignments_completed = assignments_completed
         self.create_time = create_time
         self.delete_time = delete_time
+        self.max_assignments = max_assignments
         self.kml_type = kml_type
 
 # Email function used when there are validation failures.
@@ -61,6 +62,8 @@ while True:
     fqaqcHitPercentage = int(mtma.getConfiguration('FqaqcHitPercentage'))
     availHitTarget = int(mtma.getConfiguration('AvailHitTarget'))
     hitMaxAssignmentsMT = int(mtma.getConfiguration('Hit_MaxAssignmentsMT'))
+    hitActiveAssignPercentF = int(mtma.getConfiguration('HitActiveAssignPercentF'))
+    hitActiveAssignPercentN = int(mtma.getConfiguration('HitActiveAssignPercentN'))
 
     k = open(logFilePath + "/createHit.log", "a+")
     now = str(datetime.today())
@@ -87,7 +90,7 @@ while True:
     # Note: active HITs are always unverified, 
     #       as are HITs that were deleted since the last poll cycle.
     mtma.cur.execute("""
-        select hit_id, create_time, delete_time, kml_type
+        select hit_id, create_time, delete_time, max_assignments, kml_type
         from hit_data
         inner join kml_data using (name)
         where not hit_verified
@@ -95,11 +98,12 @@ while True:
     dbhits = mtma.cur.fetchall()
     for hit in dbhits:
         if hit[0] not in hits:
-            hits[hit[0]] = Row(create_time=hit[1], delete_time=hit[2], kml_type=hit[3])
+            hits[hit[0]] = Row(create_time=hit[1], delete_time=hit[2], max_assignments=hit[3], kml_type=hit[4])
         else:
             hits[hit[0]].create_time = hit[1]
             hits[hit[0]].delete_time = hit[2]
-            hits[hit[0]].kml_type = hit[3]
+            hits[hit[0]].max_assignments = hit[3]
+            hits[hit[0]].kml_type = hit[4]
 
     # Do the verification.
     numMturkQaqcHits = 0
@@ -107,7 +111,7 @@ while True:
     numMturkNonQaqcHits = 0
     for hitId, row in hits.iteritems():
         #print hitId, row.status, row.assignments_completed, row.create_time, 
-        #        row.delete_time, row.kml_type
+        #        row.delete_time, row.max_assignments, row.kml_type
 
         # If HIT on Mturk but not in DB: should never happen.
         if row.status and not row.create_time:
@@ -139,15 +143,20 @@ while True:
                     fatalErrorMsg += ("Fatal Error: Deleted DB HIT '%s' still exists on Mturk!\r\n" % hitId)
                 fatalError = True
             else:
-                # Calculate the current number of assignable QAQC and non-QAQC HITs 
+                # Calculate the number of assignable QAQC, FQAQC, and non-QAQC HITs 
                 # currently active on the MTurk server. For HITs with multiple assignments,
-                # only count HITs that have no completed assignments.
-                if row.status == 'Assignable' and row.assignments_completed == 0:
-                    if row.kml_type == MTurkMappingAfrica.KmlQAQC:
+                # only count HITs whose number of completed assignments does not exceed
+                # the configured threshold.
+                if row.kml_type == MTurkMappingAfrica.KmlQAQC:
+                    if row.status == 'Assignable':
                         numMturkQaqcHits = numMturkQaqcHits + 1
-                    if row.kml_type == MTurkMappingAfrica.KmlFQAQC:
+                elif row.kml_type == MTurkMappingAfrica.KmlFQAQC:
+                    threshold = int(round(float(hitActiveAssignPercentF * row.max_assignments) / 100.))
+                    if row.status == 'Assignable' and row.assignments_completed <= threshold:
                         numMturkFqaqcHits = numMturkFqaqcHits + 1
-                    elif row.kml_type == MTurkMappingAfrica.KmlNormal:
+                elif row.kml_type == MTurkMappingAfrica.KmlNormal:
+                    threshold = int(round(float(hitActiveAssignPercentN * row.max_assignments) / 100.))
+                    if row.status == 'Assignable' and row.assignments_completed <= threshold:
                         numMturkNonQaqcHits = numMturkNonQaqcHits + 1
 
     # Commit any uncommitted changes
