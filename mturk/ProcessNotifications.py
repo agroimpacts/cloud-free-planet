@@ -79,6 +79,41 @@ class ProcessNotifications(object):
             where assignment_id = '%s'""" % (eventTime, MTurkMappingAfrica.HITAbandoned, assignmentId))
         k.write("ProcessNotifications: assignment has been marked as abandoned\n")
 
+        # Delete the HIT if all assignments have been submitted and have a final status
+        # (i.e., there are no assignments in pending or accepted status).
+        try:
+            hitStatus = mtma.getHitStatus(hitId)
+        except MTurkRequestError as e:
+            k.write("ProcessNotifications: getHitStatus failed for HIT ID %s:\n%s\n%s\n" % 
+                (hitId, e.error_code, e.error_message))
+            return
+        except AssertionError:
+            k.write("ProcessNotifications: Bad getHitStatus status for HIT ID %s:\n" % hitId)
+            return
+        if hitStatus == 'Reviewable':
+            nonFinalAssignCount = int(mtma.querySingleValue("""select count(*) from assignment_data
+                where hit_id = '%s' and status in ('%s','%s')""" %
+                (hitId, MTurkMappingAfrica.HITPending, MTurkMappingAfrica.HITAccepted)))
+            if nonFinalAssignCount == 0:
+                try:
+                    mtma.disposeHit(hitId)
+                except MTurkRequestError as e:
+                    k.write("ProcessNotifications: disposeHit failed for HIT ID %s:\n%s\n%s\n" % 
+                        (hitId, e.error_code, e.error_message))
+                    return
+                except AssertionError:
+                    k.write("ProcessNotifications: Bad disposeHit status for HIT ID %s:\n" % hitId)
+                    return
+                # Record the HIT deletion time.
+                mtma.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % 
+                        (eventTime, hitId))
+                mtma.dbcon.commit()
+                k.write("ProcessNotifications: hit has no remaining assignments and has been deleted\n")
+            else:
+                k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
+        else:
+            k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
+
     def AssignmentReturned(self, mtma, k, hitId, assignmentId, eventTime):
         # Record the return in order to compute a return rate.
         mtma.pushReturn(assignmentId, True)
@@ -87,6 +122,41 @@ class ProcessNotifications(object):
         mtma.cur.execute("""update assignment_data set completion_time = '%s', status = '%s'
             where assignment_id = '%s'""" % (eventTime, MTurkMappingAfrica.HITReturned, assignmentId))
         k.write("ProcessNotifications: assignment has been marked as returned\n")
+
+        # Delete the HIT if all assignments have been submitted and have a final status
+        # (i.e., there are no assignments in pending or accepted status).
+        try:
+            hitStatus = mtma.getHitStatus(hitId)
+        except MTurkRequestError as e:
+            k.write("ProcessNotifications: getHitStatus failed for HIT ID %s:\n%s\n%s\n" % 
+                (hitId, e.error_code, e.error_message))
+            return
+        except AssertionError:
+            k.write("ProcessNotifications: Bad getHitStatus status for HIT ID %s:\n" % hitId)
+            return
+        if hitStatus == 'Reviewable':
+            nonFinalAssignCount = int(mtma.querySingleValue("""select count(*) from assignment_data
+                where hit_id = '%s' and status in ('%s','%s')""" %
+                (hitId, MTurkMappingAfrica.HITPending, MTurkMappingAfrica.HITAccepted)))
+            if nonFinalAssignCount == 0:
+                try:
+                    mtma.disposeHit(hitId)
+                except MTurkRequestError as e:
+                    k.write("ProcessNotifications: disposeHit failed for HIT ID %s:\n%s\n%s\n" % 
+                        (hitId, e.error_code, e.error_message))
+                    return
+                except AssertionError:
+                    k.write("ProcessNotifications: Bad disposeHit status for HIT ID %s:\n" % hitId)
+                    return
+                # Record the HIT deletion time.
+                mtma.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % 
+                        (eventTime, hitId))
+                mtma.dbcon.commit()
+                k.write("ProcessNotifications: hit has no remaining assignments and has been deleted\n")
+            else:
+                k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
+        else:
+            k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
 
     def AssignmentSubmitted(self, mtma, k, hitId, assignmentId, eventTime):
         # Record the submission in order to compute a return rate.
@@ -113,7 +183,7 @@ class ProcessNotifications(object):
             self.QAQCSubmission(mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params, hitStatus)
         # Else, if FQAQC HIT or non-QAQC HIT, then post-process it or mark it as pending post-processing.
         elif kmlType == MTurkMappingAfrica.KmlNormal or kmlType == MTurkMappingAfrica.KmlFQAQC:
-            self.NormalSubmission(mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params)
+            self.NormalSubmission(mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params, hitStatus)
 
     def QAQCSubmission(self, mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params, hitStatus):
         # Get the kml name, save status, and worker comment.
@@ -223,14 +293,15 @@ class ProcessNotifications(object):
             # Record the HIT deletion time.
             mtma.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % (eventTime, hitId))
             mtma.dbcon.commit()
-            k.write("ProcessNotifications: hit has no remaining assignments and has been deleted\n")
+            k.write("ProcessNotifications: QAQC hit has no remaining assignments and has been deleted\n")
         else:
-            k.write("ProcessNotifications: hit still has remaining assignments and cannot be deleted\n")
+            k.write("ProcessNotifications: Error: QAQC hit is in %s state and cannot be deleted\n" %
+                    hitStatus)
 
         # Post-process any pending FQAQC or non-QAQC HITs for this worker.
         self.NormalPostProcessing(mtma, k, eventTime, workerId)
 
-    def NormalSubmission(self, mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params):
+    def NormalSubmission(self, mtma, k, hitId, assignmentId, eventTime, workerId, submitTime, params, hitStatus):
         # Get the save status and worker comment.
         try:
             kmlName = params['kmlName']
@@ -280,33 +351,33 @@ class ProcessNotifications(object):
         except AssertionError:
             k.write("ProcessNotifications: Bad approveAssignment status for assignment ID %s:\n" % assignmentId)
             return
-        k.write("ProcessNotifications: non-QAQC assignment has been approved on Mturk and marked in DB as %s\n" % 
+        k.write("ProcessNotifications: FQAQC or non-QAQC assignment has been approved on Mturk and marked in DB as %s\n" % 
             assignmentStatus.lower())
         mtma.dbcon.commit()
 
         # Delete the HIT if all assignments have been submitted and have a final status
-        # (i.e., there are no assignments in pending, abandoned, or return status).
-        hitStatusFinal = int(mtma.querySingleValue("""select count(*) from hit_data
-            where hit_id = '%s' and max_assignments =
-            (select count(*) from hit_data inner join assignment_data using (hit_id)
-            where hit_id = '%s' and status not in ('%s','%s','%s'))""" %
-            (hitId, hitId, MTurkMappingAfrica.HITPending, MTurkMappingAfrica.HITAbandoned, 
-            MTurkMappingAfrica.HITReturned)))
-        if hitStatusFinal:
-            try:
-                mtma.disposeHit(hitId)
-            except MTurkRequestError as e:
-                k.write("ProcessNotifications: disposeHit failed for HIT ID %s:\n%s\n%s\n" % 
-                    (hitId, e.error_code, e.error_message))
-                return
-            except AssertionError:
-                k.write("ProcessNotifications: Bad disposeHit status for HIT ID %s:\n" % hitId)
-                return
-            # Record the HIT deletion time.
-            mtma.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % 
-                (eventTime, hitId))
-            mtma.dbcon.commit()
-            k.write("ProcessNotifications: hit has no remaining Mturk or pending assignments and has been deleted\n")
+        # (i.e., there are no assignments in pending or accepted status).
+        if hitStatus == 'Reviewable':
+            nonFinalAssignCount = int(mtma.querySingleValue("""select count(*) from assignment_data
+                where hit_id = '%s' and status in ('%s','%s')""" %
+                (hitId, MTurkMappingAfrica.HITPending, MTurkMappingAfrica.HITAccepted)))
+            if nonFinalAssignCount == 0:
+                try:
+                    mtma.disposeHit(hitId)
+                except MTurkRequestError as e:
+                    k.write("ProcessNotifications: disposeHit failed for HIT ID %s:\n%s\n%s\n" % 
+                        (hitId, e.error_code, e.error_message))
+                    return
+                except AssertionError:
+                    k.write("ProcessNotifications: Bad disposeHit status for HIT ID %s:\n" % hitId)
+                    return
+                # Record the HIT deletion time.
+                mtma.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % 
+                        (eventTime, hitId))
+                mtma.dbcon.commit()
+                k.write("ProcessNotifications: hit has no remaining assignments and has been deleted\n")
+            else:
+                k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
         else:
             k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
 
@@ -357,14 +428,63 @@ class ProcessNotifications(object):
                 assignmentStatus.lower())
 
             # Delete the HIT if all assignments have been submitted and have a final status
-            # (i.e., there are no assignments in pending, abandoned, or return status).
-            hitStatusFinal = int(mtma.querySingleValue("""select count(*) from hit_data
-                where hit_id = '%s' and max_assignments =
-                (select count(*) from hit_data inner join assignment_data using (hit_id)
-                where hit_id = '%s' and status not in ('%s','%s','%s'))""" %
-                (hitId, hitId, MTurkMappingAfrica.HITPending, MTurkMappingAfrica.HITAbandoned, 
-                MTurkMappingAfrica.HITReturned)))
-            if hitStatusFinal:
+            # (i.e., there are no assignments in pending or accepted status).
+            try:
+                hitStatus = mtma.getHitStatus(hitId)
+            except MTurkRequestError as e:
+                k.write("ProcessNotifications: getHitStatus failed for HIT ID %s:\n%s\n%s\n" % 
+                    (hitId, e.error_code, e.error_message))
+                return
+            except AssertionError:
+                k.write("ProcessNotifications: Bad getHitStatus status for HIT ID %s:\n" % hitId)
+                return
+            if hitStatus == 'Reviewable':
+                nonFinalAssignCount = int(mtma.querySingleValue("""select count(*) from assignment_data
+                    where hit_id = '%s' and status in ('%s','%s')""" %
+                    (hitId, MTurkMappingAfrica.HITPending, MTurkMappingAfrica.HITAccepted)))
+                if nonFinalAssignCount == 0:
+                    try:
+                        mtma.disposeHit(hitId)
+                    except MTurkRequestError as e:
+                        k.write("ProcessNotifications: disposeHit failed for HIT ID %s:\n%s\n%s\n" % 
+                            (hitId, e.error_code, e.error_message))
+                        return
+                    except AssertionError:
+                        k.write("ProcessNotifications: Bad disposeHit status for HIT ID %s:\n" % hitId)
+                        return
+                    # Record the HIT deletion time.
+                    mtma.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % 
+                            (eventTime, hitId))
+                    mtma.dbcon.commit()
+                    k.write("ProcessNotifications: hit has no remaining assignments and has been deleted\n")
+                else:
+                    k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
+            else:
+                k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
+
+    # Delete HIT if it expires with no assignments in the Pending or Accepted state.
+    def HITExpired(self, mtma, k, hitId, assignmentId, eventTime):
+        # Record the HIT expiration status.
+        mtma.cur.execute("""update hit_data set hit_expired = True where hit_id = '%s'""" % 
+                hitId)
+        k.write("ProcessNotifications: hit has been marked as expired\n")
+
+        # Delete the HIT if all assignments have been submitted and have a final status
+        # (i.e., there are no assignments in pending or accepted status).
+        try:
+            hitStatus = mtma.getHitStatus(hitId)
+        except MTurkRequestError as e:
+            k.write("ProcessNotifications: getHitStatus failed for HIT ID %s:\n%s\n%s\n" % 
+                (hitId, e.error_code, e.error_message))
+            return
+        except AssertionError:
+            k.write("ProcessNotifications: Bad getHitStatus status for HIT ID %s:\n" % hitId)
+            return
+        if hitStatus == 'Reviewable':
+            nonFinalAssignCount = int(mtma.querySingleValue("""select count(*) from assignment_data
+                where hit_id = '%s' and status in ('%s','%s')""" %
+                (hitId, MTurkMappingAfrica.HITPending, MTurkMappingAfrica.HITAccepted)))
+            if nonFinalAssignCount == 0:
                 try:
                     mtma.disposeHit(hitId)
                 except MTurkRequestError as e:
@@ -376,28 +496,13 @@ class ProcessNotifications(object):
                     return
                 # Record the HIT deletion time.
                 mtma.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % 
-                    (eventTime, hitId))
+                        (eventTime, hitId))
                 mtma.dbcon.commit()
-                k.write("ProcessNotifications: hit has no remaining Mturk or pending assignments and has been deleted\n")
+                k.write("ProcessNotifications: hit has no remaining assignments and has been deleted\n")
             else:
                 k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
-
-    # Delete HIT if it expires with outstanding assignments left unsubmitted.
-    def HITExpired(self, mtma, k, hitId, assignmentId, eventTime):
-        try:
-            mtma.disposeHit(hitId)
-        except MTurkRequestError as e:
-            k.write("ProcessNotifications: disposeHit failed for HIT ID %s:\n%s\n%s\n" % 
-                (hitId, e.error_code, e.error_message))
-            return
-        except AssertionError:
-            k.write("ProcessNotifications: Bad disposeHit status for HIT ID %s:\n" % hitId)
-            return
-        # Record the HIT deletion time and expiration status.
-        mtma.cur.execute("""update hit_data set delete_time = '%s', hit_expired = True where hit_id = '%s'""" % 
-            (eventTime, hitId))
-        mtma.dbcon.commit()
-        k.write("ProcessNotifications: hit has expired and has been deleted\n")
+        else:
+            k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
 
     def HITReviewable(self, mtma, k, hitId, assignmentId, eventTime):
         pass
