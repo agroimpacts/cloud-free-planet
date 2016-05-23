@@ -106,9 +106,13 @@ sqlrt2 <-  paste0("('", xy_tabs$name, "', ", "'", kml_type,"','",
                   xy_tabs$fwts,"')", collapse = ",")
 sql <- paste("insert into kml_data (name, kml_type, fwts) values ", sqlrt2)
 dbSendQuery(con, sql)
+dbSendQuery(con, "VACUUM ANALYZE kml_data")
 
 # Update master_grid_counter
-sql <- paste0("UPDATE master_grid_counter SET counter=", fqaqc_n, 
+num <- dbGetQuery(con, 
+                  "SELECT COUNT(avail) FROM master_grid WHERE avail='F'")$count
+sql <- paste0("UPDATE master_grid_counter SET counter=", num, 
               " WHERE block=1")
+dbSendQuery(con, "VACUUM ANALYZE master_grid_counter")
 dbSendQuery(con, sql)
 dbDisconnect(con)

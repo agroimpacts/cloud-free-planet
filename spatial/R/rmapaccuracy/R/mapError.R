@@ -22,11 +22,13 @@ mapError <- function(maps, truth, region) {
     tn <- null  # True negative area is null - user gets credit for this area
   }
   if(!is.null(truth) & !is.null(maps)) {
-    null <- gDifference(spgeom1 = region, spgeom2 = truth, byid = TRUE)
+    null <- gDifference(spgeom1 = gBuffer(region, width = 0), spgeom2 = truth, 
+                        byid = TRUE)
     tp <- gIntersection(spgeom1 = truth, spgeom2 = maps, byid = TRUE)  
     fp <- gDifference(spgeom1 = maps, spgeom2 = truth, byid = TRUE)  
     fn <- gDifference(spgeom1 = truth, spgeom2 = maps, byid = TRUE)  
-    tn <- gDifference(spgeom1 = null, spgeom2 = maps, byid = TRUE)
+    tn <- gDifference(spgeom1 = gBuffer(null, width = 0), spgeom2 = maps, 
+                      byid = TRUE)
   }
   tflist <- c("tp", "fp", "fn", "tn") 
   areas <- sapply(tflist, function(x) {

@@ -242,6 +242,7 @@ dbSendQuery(con, sql)
 sqlrt2 <- paste0(" (", paste0("'", xy_tzzm$name, "'", collapse = ","), ")")
 sql2 <- paste0("UPDATE kml_data SET kml_type='F' WHERE name in ", sqlrt2)
 dbSendQuery(con, sql2)
+dbSendQuery(con, "VACUUM ANALYZE kml_data")
 
 # Update master grid so that these are no longer available for random selection
 sqlrt <- paste0(" (", paste0("'", xy_all$name, "'", collapse = ","), ")")
@@ -255,4 +256,5 @@ num <- dbGetQuery(con,
 sql <- paste0("UPDATE master_grid_counter SET counter=", num, 
               " WHERE block=1")
 dbSendQuery(con, sql)
+dbSendQuery(con, "VACUUM ANALYZE master_grid_counter")
 dbDisconnect(con)
