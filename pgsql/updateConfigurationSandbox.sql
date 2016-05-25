@@ -1,5 +1,5 @@
-*** The parameters in this section are set for production. ***
-*** They will be applied to the configuration table in the Africa database. ***
+*** The parameters in this section are set for the sandbox system. ***
+*** They will be applied to the configuration table in the AfricaSandbox database. ***
 
 -- Relative URL to python scripts on Mapping Africa server
 UPDATE configuration SET value = '/api' WHERE key = 'APIUrl'
@@ -38,15 +38,15 @@ UPDATE configuration SET value = '0.99' WHERE key = 'Bonus_Threshold4'
 -- Percentage of hits on MTurk server that are Future QAQC sites
 UPDATE configuration SET value = '25' WHERE key = 'FqaqcHitPercentage'
 -- Percentage of completed assignments a FQAQC HIT may not exceed to be considered active on MTurk and hence not be replaced. Range=0-99
-UPDATE configuration SET value = '99' WHERE key = 'HitActiveAssignPercentF'
+UPDATE configuration SET value = '50' WHERE key = 'HitActiveAssignPercentF'
 -- Percentage of completed assignments a non-QAQC HIT may not exceed to be considered active on MTurk and hence not be replaced. Range=0-99
 UPDATE configuration SET value = '0' WHERE key = 'HitActiveAssignPercentN'
 -- (1 year) lifetime of standard Mapping Africa HIT
 UPDATE configuration SET value = '31536000' WHERE key = 'Hit_Lifetime'
 -- Max assignments of Future QAQC Mapping Africa HITs
-UPDATE configuration SET value = '20' WHERE key = 'Hit_MaxAssignmentsF'
+UPDATE configuration SET value = '2' WHERE key = 'Hit_MaxAssignmentsF'
 -- Max number of assignments a HIT can have without incurring the MTurk HIT surcharge. Limit was 9 effective 7/21/2016. To ignore this limit, set this parameter >= to Hit_MaxAssignmentsF and Hit_MaxAssignmentsN.
-UPDATE configuration SET value = '100' WHERE key = 'Hit_MaxAssignmentsMT'
+UPDATE configuration SET value = '10' WHERE key = 'Hit_MaxAssignmentsMT'
 -- Max assignments of standard Normal Mapping Africa HITs 
 UPDATE configuration SET value = '1' WHERE key = 'Hit_MaxAssignmentsN'
 -- Quality score a worker must achieve to have his non-QAQC HITs be marked as 'trusted'
@@ -88,7 +88,7 @@ UPDATE configuration SET value = '700' WHERE key = 'MTurkFrameHeight'
 -- Script to notify mapper that there were not polygons mapped at HIT submission time
 UPDATE configuration SET value = 'putkml' WHERE key = 'MTurkNoPolygonScript'
 -- Address for delivering MTurk email notifications to the mapper server
-UPDATE configuration SET value = 'mapper@princeton.edu' WHERE key = 'MTurkNotificationEmail'
+UPDATE configuration SET value = 'sandbox@princeton.edu' WHERE key = 'MTurkNotificationEmail'
 -- Script for delivering MTurk REST notifications to the mapper server
 UPDATE configuration SET value = 'process_notifications' WHERE key = 'MTurkNotificationScript'
 -- Script for posting polygons at HIT submission time.
@@ -158,6 +158,6 @@ UPDATE configuration SET value = 'Qualification Test for the Mapping Africa Proj
 -- Master training script.
 UPDATE configuration SET value = 'trainingframe' WHERE key = 'QualTest_TrainingScript'
 -- MappingAfrica server name (for building absolute URLs)
-UPDATE configuration SET value = 'mapper.princeton.edu' WHERE key = 'ServerName'
+UPDATE configuration SET value = 'sandbox.princeton.edu' WHERE key = 'ServerName'
 -- Relative URL to videos on Mapping Africa server
 UPDATE configuration SET value = '/videos' WHERE key = 'VideoUrl'
