@@ -47,6 +47,7 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid,
   if(qaqc.hasfields == "Y") {
     qaqc.geom.tab[, 2] <- gsub("^SRID=*.*;", "", qaqc.geom.tab[, 2])
     qaqc.polys <- polyFromWkt(geom.tab = qaqc.geom.tab, crs = prjstr)
+    qaqc.polys <- gBuffer(qaqc.polys, width = 0)
     qaqc.nfields <- nrow(qaqc.polys)
     qaqc.poly <- gUnaryUnion(qaqc.polys)    
   } 

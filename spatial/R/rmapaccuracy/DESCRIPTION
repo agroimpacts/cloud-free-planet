@@ -10,7 +10,8 @@ Depends:
     R (>= 2.15),
     RPostgreSQL,
     sp,
-    rgdal
+    rgdal,
+    rgeos
 Imports:
     RPostgreSQL,
     rgeos,
