@@ -99,8 +99,8 @@ avg_rates <- rates %*% pfwts
 
 ## Calculate costs for current project
 # Model worker skill level using geometric distribution
-# skill_fit <- dgeom(seq(0, 4), 0.5) / sum(dgeom(seq(0, 4), 0.5))
-skill_fit <- c(0, 0, 0, 0, 1)
+skill_fit <- dgeom(seq(0, 4), 0.5) / sum(dgeom(seq(0, 4), 0.5))
+# skill_fit <- c(0, 0, 0, 0, 1)
 
 # Calculate costs
 # hist(ffwts$wgt)
