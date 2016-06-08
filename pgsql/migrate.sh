@@ -75,6 +75,12 @@ if [[ $? != 0 ]]; then
     exit 1
 fi
 
+# Update the configuration parameters with the production values.
+psql -f $SDIR/updateConfiguration.sql -U ***REMOVED*** $DDB
+if [[ $? != 0 ]]; then
+    exit 1
+fi
+
 # Revoke superuser role from DB user ***REMOVED***.
 psql -f $SDIR/role_normal.sql -U postgres postgres
 if [[ $? != 0 ]]; then
