@@ -1,10 +1,10 @@
-*** The parameters in this section are set for the sandbox system. ***
-*** They will be applied to the configuration table in the AfricaSandbox database. ***
+-- *** The parameters in this section are set for the sandbox system. ***
+-- *** They will be applied to the configuration table in the AfricaSandbox database. ***
 
 -- Relative URL to python scripts on Mapping Africa server
 UPDATE configuration SET value = '/api' WHERE key = 'APIUrl'
 -- On Mturk server: total number of available HITs to be maintained. Probably needs to be closer to 100 in production.
-UPDATE configuration SET value = '8' WHERE key = 'AvailHitTarget'
+UPDATE configuration SET value = '20' WHERE key = 'AvailHitTarget'
 -- Bonus amount in dollars.
 UPDATE configuration SET value = '0.2' WHERE key = 'Bonus_Amount1'
 -- Bonus amount in dollars.
@@ -24,7 +24,7 @@ UPDATE configuration SET value = 'Congratulations! You have earned accuracy bonu
 -- Text provided as the reason for granting the level 4 bonus.
 UPDATE configuration SET value = 'Congratulations! You have earned accuracy bonus level 4.' WHERE key = 'Bonus_Reason4'
 -- Text provided as the reason for a bonus that varies with the estimated difficulty of each HIT.
-UPDATE configuration SET value = 'This is your difficulty bonus for the above HIT. This bonus varies with the estimated difficulty of the HIT. Note that estimates may result in overpayment or underpayment for individual HITs, but should average out over a day's work.' WHERE key = 'Bonus_ReasonDifficulty'
+UPDATE configuration SET value = 'This is your difficulty bonus for the above HIT. This bonus varies with the estimated difficulty of the HIT. Note that estimates may result in overpayment or underpayment for individual HITs.' WHERE key = 'Bonus_ReasonDifficulty'
 -- Text provided as the reason for granting the training bonus.
 UPDATE configuration SET value = 'Congratulations on your successful qualification for Mapping Africa! To thank you for your time, effort, and interest in qualifying, we are crediting this bonus to your account.' WHERE key = 'Bonus_ReasonTraining'
 -- Moving average score worker must achieve to receive this bonus. May be set to 'ignore'.
@@ -70,7 +70,9 @@ UPDATE configuration SET value = 'Africa, Farm, Agriculture, Development, Sustai
 -- Reward in dollars of standard Mapping Africa HIT
 UPDATE configuration SET value = '0.05' WHERE key = 'HitType_Reward'
 -- Reward increment amount based on hit type
-UPDATE configuration SET value = '0.05' WHERE key = 'HitType_RewardIncrement'
+UPDATE configuration SET value = '0.17' WHERE key = 'HitType_RewardIncrement'
+-- Reward increment amount based on hit type, polynomial term
+UPDATE configuration SET value = '-0.016' WHERE key = 'HitType_RewardIncrement2'
 -- Title of standard Mapping Africa HIT
 UPDATE configuration SET value = 'Mapping Crop Fields in Africa' WHERE key = 'HitType_Title'
 -- In seconds: for Normal KML generation script.

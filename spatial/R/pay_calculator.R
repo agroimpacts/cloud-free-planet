@@ -51,7 +51,6 @@ setnames(br_dt, old = colnames(br_dt)[3:7],
 br_dt <- br_dt[!is.na(ID)]
 pfwts_af <- hist(br_dt$fwts, breaks = seq(0, 10), plot = FALSE)$density
 
-
 # Retrive time data from trials
 setkey(mtdat_dt, wgt_geow)
 times <- mtdat_dt[, mean(atime2, na.rm = TRUE), by = wgt_geow] # min
@@ -98,34 +97,33 @@ for(i in 1: length(bonus)) {  # i <- 1
 # Calculate average hourly rate by bonus
 avg_rates <- rates %*% pfwts
 
-
 ## Calculate costs for current project
 # Model worker skill level using geometric distribution
-#skill_fit <- dgeom(seq(0, 4), 0.5) / sum(dgeom(seq(0, 4), 0.5))
+# skill_fit <- dgeom(seq(0, 4), 0.5) / sum(dgeom(seq(0, 4), 0.5))
 skill_fit <- c(0, 0, 0, 0, 1)
 
 # Calculate costs
 # hist(ffwts$wgt)
 # hist(diff_fees(nfwts$wgt, method))
-ncost <- flat_fee * nrow(nfwts) + sum(diff_fees(nfwts$wgt, method))
-fcost <- flat_fee * frep * nrow(ffwts) + 
-  sum(diff_fees(rep(ffwts$wgt, frep), method))
+ncost <- (flat_fee * nrow(nfwts) + sum(diff_fees(nfwts$wgt, method))) * 1.2
+fcost <- (flat_fee * frep * nrow(ffwts) + 
+  sum(diff_fees(rep(ffwts$wgt, frep), method))) * 1.4
 # qcost <- flat_fee * ceiling(nqsites / nrow(qfwts)) * nrow(qfwts) + 
 #   sum(diff_fees(rep(qfwts$wgt, ceiling(nqsites / nrow(qfwts))), method)) + 
 #   sum(sample(x = bonus, size = ceiling(nqsites / nrow(qfwts)) * nrow(qfwts), 
 #          prob = skill_fit, replace = TRUE))
 
 # N Q sites
-nq <- (nrow(nfwts) + frep * nrow(ffwts)) * 0.25  # n qsites
+qpct <- 0.2
+bonus <- c(0, seq(0.2, 0.8, 0.2))
+nq <- (nrow(nfwts) + frep * nrow(ffwts)) * qpct  # n qsites
 nqw <- round(nq * (table(qfwts$wgt) / nrow(qfwts)))  # by fwts
 nqwv <- unlist(sapply(1:9, function(x) rep(as.numeric(names(nqw)[x]), nqw[x])))
-qcost <- flat_fee * nq + sum(diff_fees(nqwv, method)) + 
-  sum(sample(x = bonus, size = nq, prob = skill_fit, replace = TRUE))
+qcost <- (flat_fee * nq + sum(diff_fees(nqwv, method)) + 
+  sum(sample(x = bonus, size = nq, prob = skill_fit, replace = TRUE))) * 1.2
 
 icost <- qual_fee * workers
 tcost <- ncost + fcost + qcost + icost
-
-diff_fees(1:10, method)
-
+tcost
 
 

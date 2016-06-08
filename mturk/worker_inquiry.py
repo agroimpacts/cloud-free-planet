@@ -116,12 +116,16 @@ if msgOK:
     k.write("worker_inquiry: Worker ID: %s\n" % workerId)
     k.write("worker_inquiry: Map URL: %s\n" % url)
     k.write("worker_inquiry: Worker message: %s\n" % message)
-    send_email(mtma, sender, subject, """HIT ID: %s
-Worker ID: %s
-Map URL: %s
+    send_email(mtma, sender, subject, """Thanks for your inquiry, regarding:
 
-Worker's message:\n%s
-""" % (hitId, workerId, url, message))
+HIT ID: %s
+Worker ID: %s
+Your message:\n%s
+
+Please follow the URL below, which shows your map in relation to ours. This comparison may help address your inquiry.
+If not, please reply to this email with further questions.  
+Map URL: %s
+""" % (hitId, workerId, message, url))
 
 now = str(datetime.today())
 k.write("worker_inquiry: processing completed = %s\n" % now)

@@ -194,6 +194,7 @@ class MTurkMappingAfrica(object):
 
         # Pay the difficulty bonus if KML's fwts > 1.
         self.hitTypeRewardIncrement = self.getConfiguration('HitType_RewardIncrement')
+        self.hitTypeRewardIncrement2 = self.getConfiguration('HitType_RewardIncrement2')
         self.cur.execute("""select fwts, name, worker_id, bonus_paid 
             from assignment_data inner join hit_data using (hit_id) 
             inner join kml_data using (name) inner join worker_data using (worker_id) 
@@ -201,7 +202,9 @@ class MTurkMappingAfrica(object):
         (fwts, name, workerId, bonusPaid) = self.cur.fetchone()
         bonusAmount = Decimal("0.00")
         if fwts > 1:
-            bonusAmount = (int(fwts) - 1) * Decimal(self.hitTypeRewardIncrement)
+            bonusAmount = round(Decimal(self.hitTypeRewardIncrement) * \
+            (int(fwts) - 1) + Decimal(self.hitTypeRewardIncrement2) * \
+            (int(fwts) - 1)**2, 2)
             bonusReason = self.getConfiguration('Bonus_ReasonDifficulty')
             self.grantBonus(assignmentId, workerId, bonusAmount, bonusReason)
 

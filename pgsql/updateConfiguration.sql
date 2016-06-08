@@ -1,10 +1,10 @@
-*** The parameters in this section are set for production. ***
-*** They will be applied to the configuration table in the Africa database. ***
+-- *** The parameters in this section are set for production. ***
+-- *** They will be applied to the configuration table in the Africa database. ***
 
 -- Relative URL to python scripts on Mapping Africa server
 UPDATE configuration SET value = '/api' WHERE key = 'APIUrl'
 -- On Mturk server: total number of available HITs to be maintained. Probably needs to be closer to 100 in production.
-UPDATE configuration SET value = '8' WHERE key = 'AvailHitTarget'
+UPDATE configuration SET value = '100' WHERE key = 'AvailHitTarget'
 -- Bonus amount in dollars.
 UPDATE configuration SET value = '0.2' WHERE key = 'Bonus_Amount1'
 -- Bonus amount in dollars.
@@ -24,7 +24,7 @@ UPDATE configuration SET value = 'Congratulations! You have earned accuracy bonu
 -- Text provided as the reason for granting the level 4 bonus.
 UPDATE configuration SET value = 'Congratulations! You have earned accuracy bonus level 4.' WHERE key = 'Bonus_Reason4'
 -- Text provided as the reason for a bonus that varies with the estimated difficulty of each HIT.
-UPDATE configuration SET value = 'This is your difficulty bonus for the above HIT. This bonus varies with the estimated difficulty of the HIT. Note that estimates may result in overpayment or underpayment for individual HITs, but should average out over a day's work.' WHERE key = 'Bonus_ReasonDifficulty'
+UPDATE configuration SET value = 'This is your difficulty bonus for the above HIT. This bonus varies with the estimated difficulty of the HIT. Note that estimates may result in overpayment or underpayment for individual HITs.' WHERE key = 'Bonus_ReasonDifficulty'
 -- Text provided as the reason for granting the training bonus.
 UPDATE configuration SET value = 'Congratulations on your successful qualification for Mapping Africa! To thank you for your time, effort, and interest in qualifying, we are crediting this bonus to your account.' WHERE key = 'Bonus_ReasonTraining'
 -- Moving average score worker must achieve to receive this bonus. May be set to 'ignore'.
@@ -36,7 +36,7 @@ UPDATE configuration SET value = '0.975' WHERE key = 'Bonus_Threshold3'
 -- Moving average score worker must achieve to receive this bonus. May be set to 'ignore'.
 UPDATE configuration SET value = '0.99' WHERE key = 'Bonus_Threshold4'
 -- Percentage of hits on MTurk server that are Future QAQC sites
-UPDATE configuration SET value = '25' WHERE key = 'FqaqcHitPercentage'
+UPDATE configuration SET value = '20' WHERE key = 'FqaqcHitPercentage'
 -- Percentage of completed assignments a FQAQC HIT may not exceed to be considered active on MTurk and hence not be replaced. Range=0-99
 UPDATE configuration SET value = '99' WHERE key = 'HitActiveAssignPercentF'
 -- Percentage of completed assignments a non-QAQC HIT may not exceed to be considered active on MTurk and hence not be replaced. Range=0-99
@@ -70,7 +70,9 @@ UPDATE configuration SET value = 'Africa, Farm, Agriculture, Development, Sustai
 -- Reward in dollars of standard Mapping Africa HIT
 UPDATE configuration SET value = '0.05' WHERE key = 'HitType_Reward'
 -- Reward increment amount based on hit type
-UPDATE configuration SET value = '0.05' WHERE key = 'HitType_RewardIncrement'
+UPDATE configuration SET value = '0.17' WHERE key = 'HitType_RewardIncrement'
+-- Reward increment amount based on hit type, polynomial term
+UPDATE configuration SET value = '-0.016' WHERE key = 'HitType_RewardIncrement2'
 -- Title of standard Mapping Africa HIT
 UPDATE configuration SET value = 'Mapping Crop Fields in Africa' WHERE key = 'HitType_Title'
 -- In seconds: for Normal KML generation script.
@@ -98,7 +100,7 @@ UPDATE configuration SET value = '500' WHERE key = 'NKMLBatchSize'
 -- For QAQC kmls, the ratio of field to non-field kmls.
 UPDATE configuration SET value = '3' WHERE key = 'QaqcFieldRatio'
 -- On Mturk server: percentage of total KMLs that are QAQC: default will be 20.
-UPDATE configuration SET value = '25' WHERE key = 'QaqcHitPercentage'
+UPDATE configuration SET value = '20' WHERE key = 'QaqcHitPercentage'
 -- Number of notifications to use for computing % return of HITs for quality score. Should be 10 in production.
 UPDATE configuration SET value = '10' WHERE key = 'Quality_ReturnHistDepth'
 -- Value from 0.0 to 1.0 to indicate the weight that a return should have in the quality score. Should be 1.0 in production.
