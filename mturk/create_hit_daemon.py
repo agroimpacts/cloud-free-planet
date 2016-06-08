@@ -45,6 +45,9 @@ Subject: create_hit_daemon problem
 daemonStarted = False
 fatalError = False
 fatalErrorMsg = ""
+fqaqcEmailCount = 0
+nqaqcEmailCount = 0
+emailFrequency = 60 * 60 * 12  # 12 hours
 
 mtma = MTurkMappingAfrica()
 
@@ -268,11 +271,12 @@ while True:
         # If we have no kmls left, all kmls in the kml_data table have been 
         # successfully processed. Notify Lyndon that more kmls are needed.
         if not row:
-            # Set notification delay to 12 hours.
-            hitPollingInterval = 43200
-            k.write("createHit: Alert: all FQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.\n")
-            email(mtma, "Alert: all FQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
+            if (fqaqcEmailCount % (emailFrequency / hitPollingInterval)) == 0:
+                k.write("createHit: Alert: all FQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.\n")
+                email(mtma, "Alert: all FQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
+            fqaqcEmailCount += 1
             break
+        fqaqcEmailCount = 0
         nextKml = row[0]
         fwts = row[2]
         remainingAssignments = hitMaxAssignmentsF - row[1]
@@ -331,11 +335,12 @@ while True:
         # If we have no kmls left, all kmls in the kml_data table have been 
         # successfully processed. Notify Lyndon that more kmls are needed.
         if not row:
-            # Set notification delay to 12 hours.
-            hitPollingInterval = 43200
-            k.write("createHit: Alert: all non-QAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.\n")
-            email(mtma, "Alert: all non-QAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
+            if (nqaqcEmailCount % (emailFrequency / hitPollingInterval)) == 0:
+                k.write("createHit: Alert: all non-QAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.\n")
+                email(mtma, "Alert: all non-QAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
+            nqaqcEmailCount += 1
             break
+        nqaqcEmailCount = 0
         nextKml = row[0]
         fwts = row[2]
         remainingAssignments = hitMaxAssignmentsN - row[1]
