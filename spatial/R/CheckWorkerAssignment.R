@@ -17,7 +17,7 @@
 suppressMessages(library(rmapaccuracy))
 
 # Hardcoded variables
-prjsrid <- 97490  # EPSG identifier for equal area project
+prjsrid <- 102022  # EPSG identifier for equal area project
 
 # Get HIT ID, assignment ID
 args <- commandArgs(TRUE)
@@ -68,14 +68,16 @@ if(test.root == "N") {
   # Always this one
   gcs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
   
-  # Collect QAQC fields (if there are any; if not then "N" value will be returned). This should work for both
+  # Collect QAQC fields (if there are any; if not then "N" value will be 
+  # returned). This should work for both
   # training and test sites
-  qaqc.sql <- paste("select id,ST_AsEWKT(geom) from qaqcfields where name=", "'", hits$name, "'", sep = "")
+  qaqc.sql <- paste("select id,ST_AsEWKT(geom) from qaqcfields", "
+                    where name=", "'", hits$name, "'", sep = "")
   qaqc.geom.tab <- dbGetQuery(con, qaqc.sql)
   qaqc.hasfields <- ifelse(nrow(qaqc.geom.tab) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
     qaqc.geom.tab[, 2] <- gsub("^SRID=*.*;", "", qaqc.geom.tab[, 2])
-    qaqc.poly <- polyfromWKT(geom.tab = qaqc.geom.tab, crs = prjstr)
+    qaqc.poly <- polyFromWkt(geom.tab = qaqc.geom.tab, crs = prjstr)
     # qaqc.poly <- qaqc.poly.list[[1]]
     qaqc.poly@data$ID <- rep(1, nrow(qaqc.poly))
     qaqc.poly@data$fld <- 1:nrow(qaqc.poly@data)
@@ -104,17 +106,17 @@ if(test.root == "N") {
   # Write KMLs out to worker specific directory
   setwd(worker.path)
   if(exists("user.poly")) {  # Write it
-    user.poly@data$kmlname <- paste(hits$name, "_w", sep = "")  
-    writeOGR(user.poly, dsn = paste(user.poly@data$kmlname, "kml", sep = "."), 
-             layer = user.poly@data$kmlname, driver = "KML", 
+    user.poly@data$kmlname <- paste0(hits$name, "_w")  
+    writeOGR(user.poly, dsn = paste0(hits$name, "_w.kml"), 
+             layer = paste0(hits$name, "_w"), driver = "KML", 
              dataset_options = c("NameField = name"), overwrite = TRUE)  
   }
   if(exists("qaqc.poly")) {  # First convert to geographic coords
     qaqc.poly.gcs <- spTransform(x = qaqc.poly, CRSobj = CRS(gcs))  
-    qaqc.poly.gcs@data$kmlname <- paste(hits$name, "_r", sep = "")
+    qaqc.poly.gcs@data$kmlname <- paste0(hits$name, "_r")
     writeOGR(qaqc.poly.gcs,  # Write it
-             dsn = paste(qaqc.poly.gcs@data$kmlname[1], "kml", sep = "."), 
-             layer = qaqc.poly.gcs@data$kmlname, driver = "KML", 
+             dsn = paste0(hits$name, "_r.kml"), 
+             layer = paste0(hits$name, "_r"), driver = "KML", 
              dataset_options = c("NameField = name"), overwrite = TRUE) 
   }
   worker.url <- paste0("http://", kml.root, 

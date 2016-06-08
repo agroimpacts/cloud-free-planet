@@ -1,13 +1,13 @@
+#! /usr/bin/Rscript
 # update-master.R
 # Create/update master grid in database
 # Note: script needs to be run from terminal as user sandbox/mapper, not 
 # Rstudioserver, as psql with password only works from command line
-
-suppressMessages(library(RPostgreSQL))
+rm(list = ls())
 suppressMessages(library(rmapaccuracy))
 # library(devtools)
 # install_github('wrswoR', 'krlmlr')
-suppressMessages(require(wrswoR))
+# suppressMessages(require(wrswoR))
 suppressMessages(require(data.table))
 
 # Determine working directory and database
@@ -45,6 +45,22 @@ if(!dbExistsTable(con, "master_grid")) {
 
 sql <- paste("SELECT * from master_grid_counter ORDER BY block")
 count_tab <- data.table(dbGetQuery(con, sql), key = "block")
+# if rows were killed by clear_db.sh, news values for counter are needed
+if(nrow(count_tab) == 0) {  
+  gcount <- length(dir(paste0(dinfo["project.root"],"/spatial/data/gridfiles/"), 
+                       pattern = "africa_master_grid_sub"))
+  gridnr <- c(rep(1495676, 20), 1495664)  # nrows in each sub-grid, hard-coded
+  for(i in 1:gcount) {  # i <- 1
+    sql <- paste0("INSERT into master_grid_counter (block, nrows, counter)", 
+                  " values ", paste0("(", i, ",", gridnr[i], ",", 0, ")", 
+                                     collapse = ","))
+    dbSendQuery(con, sql)
+  }
+  sql <- paste("SELECT * from master_grid_counter ORDER BY block")
+  count_tab <- data.table(dbGetQuery(con, sql), key = "block")
+} 
+
+# Determine active block 
 if(count_tab[, sum(counter)] == 0) {
   active_block <- count_tab[1, ]
 } else {

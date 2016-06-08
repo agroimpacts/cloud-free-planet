@@ -13,6 +13,7 @@ diam <- 500
 library(RPostgreSQL)
 library(rmapaccuracy)
 library(data.table)
+library(raster)
 
 # Determine working directory and database
 dinfo <- getDBName()  # pull working environment
@@ -147,7 +148,7 @@ repeat {
     } else {
       active_block <- count_tab[counter < max(nrows), .SD[1]]
     }
-    newcount <- active_block[, counter] + 500
+    newcount <- active_block[, counter] + kml_batch_size
     sql <- paste0("UPDATE master_grid_counter SET counter=", newcount, 
                   " WHERE block=", active_block[, block])
     ret3 <- dbSendQuery(con, sql)

@@ -4,24 +4,25 @@
 ## Clear console and load required packages
 rm(list=ls(all=TRUE))
 library(raster)
-library(rgdal)
-library(rgeos)
-library(gdalUtils)
+# library(rgdal)
+# library(rgeos)
+# library(gdalUtils)
 library(data.table)
-library(RPostgreSQL)
+# library(RPostgreSQL)
 library(rmapaccuracy)
+library(sp)
 
 
 ## Set working directory
-setwd(paste0(getDBName()[2], "/spatial/data"))
-
+dinfo <- getDBName()  # pull working environment
+b_path <- paste0(dinfo["project.root"], "/spatial/data")
+setwd(b_path)
 
 ## Set hardcoded Values 
 diam <- 500
 gcs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 alb <- paste0("+proj=aea +lat_1=20 +lat_2=-23 +lat_0=0 +lon_0=25 ", 
               "+x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs")
-
 
 ## Connect to database
 dinfo <- getDBName()  # pull working environment
@@ -37,9 +38,10 @@ prjstr <- dbGetQuery(con, sql)$proj4text
 
 ## Import data
 # Zambia data
-dir_path <- paste0(getwd(), "/zambia/SP_field_boundaries/")
+# The following are ground-mapped field boundaries (for F site selection)
+dir_path <- paste0(b_path, "/zambia/SP_field_boundaries/")
 flds_olzm <- readOGR(dsn = paste0(dir_path, "SP_FieldBoundaries_UTM35S_WGS84.shp"), 
-                   layer = "SP_FieldBoundaries_UTM35S_WGS84")
+                     layer = "SP_FieldBoundaries_UTM35S_WGS84")
 dir_path <- paste0(getwd(), "/zambia/SP_field_boundaries_new/")
 flds_nwzm <- readOGR(dsn = paste0(dir_path, "fldbnds.316.cleaned.shp"), 
                    layer = "fldbnds.316.cleaned")
@@ -47,13 +49,14 @@ dir_path <- paste0(getwd(), "/zambia/EP_field_boundaries/")
 flds_epzm <- readOGR(dsn = paste0(dir_path, "EP_FieldBoundaries_UTM36S_WGS84.shp"), 
                      layer = "EP_FieldBoundaries_UTM36S_WGS84")
 dir_path <- paste0(getwd(), "/zambia/SP/")
+# The following define the boundaries for deliberately selected N sites
 sea_spzm <- readOGR(dsn = paste0(dir_path, "Southern_seas.shp"), 
-                  layer = "Southern_seas")
-crs(sea_sp) <- gcs
+                    layer = "Southern_seas")
+proj4string(sea_spzm) <- gcs
 hhpnts <- read.csv(paste0(getwd(), "/zambia/p_for_f_sites-2.csv"), 
-                   header = TRUE, sep = ",")
+                   header = TRUE, sep = ",")  # household points
 
-# Tanzania data
+# Tanzania data (F sites only)
 dir_path <- paste0(getwd(), "/tanzania/field-boundaries/")
 flds_gotz <- readOGR(dsn = paste0(dir_path, "L2KilS1Gon_AMU-Boundaries.shp"), 
                      layer = "L2KilS1Gon_AMU-Boundaries")
@@ -93,7 +96,6 @@ flds_iwtz@data$Id <- as.character(paste0("IWTZ", seq(1, length(flds_iwtz))))
 flds_iwtz <- spChFIDs(flds_iwtz, flds_iwtz@data$Id)
 sea_spzm@data$Id <- as.character(paste0("SEZM", seq(1, length(sea_spzm))))
 sea_spzm <- spChFIDs(sea_spzm, sea_spzm@data$Id)
-crs(sea_spzm) <- gcs
 
 # Transform to Albers Africa
 flds_olzm_alb <- spTransform(flds_olzm, CRS(alb))
@@ -103,13 +105,14 @@ flds_gotz_alb <- spTransform(flds_gotz, CRS(alb))
 flds_mbtz_alb <- spTransform(flds_mbtz, CRS(alb))
 flds_iktz_alb <- spTransform(flds_iktz, CRS(alb))
 flds_iwtz_alb <- spTransform(flds_iwtz, CRS(alb))
-sea_spzm_alb <- spTransform(sea_spzm, CRS(alb))
+sea_spzm_alb <- spTransform(sea_spzm, CRS(alb)) 
 
 # Combine Tanzania and Zambia sites
+# F select sites
 flds_tzzm_alb <- rbind(flds_olzm_alb, flds_nwzm_alb, flds_epzm_alb, flds_gotz_alb, 
                        flds_mbtz_alb, flds_iktz_alb, flds_iwtz_alb)
+# N select sites
 flds_spzm_alb <- rbind(flds_olzm_alb, flds_nwzm_alb)
-
 
 ## Create boundary shapes
 # Create shape for field boundaries
@@ -144,6 +147,7 @@ test <- gContains(fbnds_spzm_alb, hh_spzm_alb)
 # Find intersecting area
 index <- gIntersects(fbnds_spzm_alb, sea_spzm_alb, byid = TRUE)
 int_spzm_alb <- sea_spzm_alb[which(index[index=TRUE]), ]
+# plot(int_spzm_alb)
 
 # Crop and find ids of intersection cells 
 afgridr <- brick(paste0(getwd(), "/shapes/africa_master_brick.tif"))[[1]]
@@ -154,15 +158,38 @@ ids_tzzm <- sort(unique(unlist(extract(crop_tzzm, flds_tzzm_alb,
                                        small = TRUE))))
 ids_all <- unique(c(ids_spzm, ids_tzzm))
 
+# checks
+# r <- Which(crop_spzm %in% ids_spzm)
+# r[r == 0] <- NA
+# plot(int_spzm_alb)
+# points(rasterToPoints(r), cex = 0.1, pch = 20, col = "red")
+# plot(rasterToPoints(r), pch = 20, cex = 0.1)
+# r <- Which(crop_tzzm %in% ids_tzzm)
+# r[r == 0] <- NA
+# plot(flds_tzzm_alb)
+# points(rasterToPoints(r), cex = 0.1, pch = 20, col = "red")
+
 # Create table of mastergrid entries
 mgrid <- fread(paste0(getwd(),"/gridfiles/africa_master_grid.csv"))
-xy_spzm <- mgrid[ID %in% ids_spzm, ]
-xy_spzm <- xy_spzm[sample(nrow(xy_spzm)), ] # shuffle row order
-xy_tzzm <- mgrid[ID %in% ids_tzzm, ]
-xy_tzzm <- xy_tzzm[sample(nrow(xy_tzzm)), ] # shuffle row order
-xy_all <- mgrid[ID %in% ids_all, ]
-xy_all <- xy_all[sample(nrow(xy_all)), ] # shuffle row order
+xy_spzm <- copy(mgrid[ID %in% ids_spzm, ])
+xy_tzzm <- copy(mgrid[ID %in% ids_tzzm, ])
 
+# first remove n_select sites that are common to f_select, followed by 
+# removal of any names in Q sites
+xy_spzm <- xy_spzm[which(!xy_spzm$name %in% xy_tzzm$name), ]  # f_select
+qnms <- dbGetQuery(con, "SELECT name FROM kml_data")$name
+xy_spzm <- xy_spzm[which(!xy_spzm$name %in% qnms), ]  # Q sites
+
+ids_all <- unique(c(xy_spzm$ID, xy_tzzm$ID))
+
+# now combine and shuffle row order
+xy_all <- copy(mgrid[ID %in% ids_all, ])
+set.seed(234)
+xy_spzm <- xy_spzm[sample(nrow(xy_spzm)), ] # shuffle row order
+set.seed(234)
+xy_tzzm <- xy_tzzm[sample(nrow(xy_tzzm)), ] # shuffle row order
+set.seed(234)
+xy_all <- xy_all[sample(nrow(xy_all)), ] # shuffle row order
 
 ## Process points into kmls
 # Convert point data to proper projections
@@ -196,18 +223,19 @@ gpols_all_gcs <- sapply(1:length(gpols_all), function(i) {
 })
 gpols_all_gcs <- do.call(rbind, gpols_all_gcs)
 
-
 ## Update databases
-# Create new table for selected Zambia sites
-dbRemoveTable(con, "n_select")
-sql <- paste("CREATE TABLE n_select",
-             "(gid integer PRIMARY KEY,",
-             "id integer, x double precision,",
-             "y double precision, name varchar,",
-             "fwts integer, zone integer)")
-dbSendQuery(con, sql)
+# Check if table exists for selected Zambia sites, create if doesn't exist
+# dbRemoveTable(con, "n_select")
+if(!dbExistsTable(con, "n_select")) {
+  sql <- paste("CREATE TABLE n_select",
+               "(gid integer PRIMARY KEY,",
+               "id integer, x double precision,",
+               "y double precision, name varchar,",
+               "fwts integer, zone integer)")
+  dbSendQuery(con, sql)
+}
 
-# Upload data n_select data
+# Upload n_select data
 sqlv <-  paste0("('", seq(1, length(ids_spzm)), "','", xy_spzm$ID, "','", 
                 xy_spzm$x, "','", xy_spzm$y,"','", xy_spzm$name,"','", 
                 xy_spzm$fwts,"','", xy_spzm$zone,"')", collapse = ",")
@@ -216,14 +244,16 @@ sql <- paste0("insert into n_select (gid, id, x, y, name, fwts, zone)
 dbSendQuery(con, sql)
 dbSendQuery(con, "VACUUM ANALYZE n_select")
 
-# Create new table for fqaqc sites
-dbRemoveTable(con, "f_select")
-sql <- paste("CREATE TABLE f_select",
-             "(gid integer PRIMARY KEY,",
-             "id integer, x double precision,",
-             "y double precision, name varchar,",
-             "fwts integer, zone integer)")
-dbSendQuery(con, sql)
+# check for f_select table, create if doesn't exist
+# dbRemoveTable(con, "f_select")
+if(!dbExistsTable(con, "f_select")) {
+  sql <- paste("CREATE TABLE f_select",
+               "(gid integer PRIMARY KEY,",
+               "id integer, x double precision,",
+               "y double precision, name varchar,",
+               "fwts integer, zone integer)")
+  dbSendQuery(con, sql)
+}
 
 # Upload f_select data
 sqlv <-  paste0("('", seq(1,length(ids_tzzm)), "','", xy_tzzm$ID, "','", 
@@ -234,13 +264,19 @@ sql <- paste0("INSERT into f_select (gid, id, x, y, name, fwts, zone)
 dbSendQuery(con, sql)
 dbSendQuery(con, "VACUUM ANALYZE f_select")
 
+# check if duplicated entries
+if(any(xy_tzzm$name %in% xy_spzm$name)){
+  stop("Duplicated F/N entries", call. = FALSE)
+} 
+
 # Update kml_data
-sqlrt <-  paste0("('", xy_all$name, "', ", "'", "N","','", 
-                 xy_all$fwts,"')", collapse = ",")
+sqlrt <-  paste0("('", xy_spzm$name, "', ", "'", "N","','", 
+                 xy_spzm$fwts,"')", collapse = ",")
 sql <- paste0("INSERT into kml_data (name, kml_type, fwts) values ", sqlrt)
 dbSendQuery(con, sql)
-sqlrt2 <- paste0(" (", paste0("'", xy_tzzm$name, "'", collapse = ","), ")")
-sql2 <- paste0("UPDATE kml_data SET kml_type='F' WHERE name in ", sqlrt2)
+sqlrt2 <-  paste0("('", xy_tzzm$name, "', ", "'", "F","','", 
+                 xy_tzzm$fwts,"')", collapse = ",")
+sql2 <- paste0("INSERT into kml_data (name, kml_type, fwts) values ", sqlrt2)
 dbSendQuery(con, sql2)
 dbSendQuery(con, "VACUUM ANALYZE kml_data")
 

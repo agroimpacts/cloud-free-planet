@@ -1,14 +1,11 @@
+
 # load_f_random.R
 # Choose and load random fqaqc sites
 
 ## Clear console and load required packages
 rm(list=ls(all=TRUE))
 library(raster)
-library(rgdal)
-library(rgeos)
-library(gdalUtils)
 library(data.table)
-library(RPostgreSQL)
 library(rmapaccuracy)
 
 
@@ -36,12 +33,11 @@ sql <- "select id, x, y, name, fwts, zone from master_grid where avail = 'T'"
 xy_tab <- data.table(dbGetQuery(con, sql))
 
 # Draw weighted random sample
-fqaqc_n <- round(nrow(xy_tab) * 20 * 0.00002)  
+fqaqc_n <- round(nrow(xy_tab) * 20 * 0.000005)  
 set.seed(2)
 xy_tabs <- xy_tab[{name %in% sample(name, size = fqaqc_n, replace = FALSE)}]
-# xy_tabs[, hist(fwts, breaks = brks)]
+# xy_tabs[, hist(fwts, breaks = 0:10)]
 # xy_tabs[fwts == 1, .N] / xy_tabs[fwts > 1, .N]
-
 
 ## Process points into kmls
 # Convert point data to proper projections
