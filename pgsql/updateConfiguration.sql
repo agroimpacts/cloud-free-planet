@@ -69,9 +69,9 @@ UPDATE configuration SET value = '86400' WHERE key = 'HitType_Duration';
 UPDATE configuration SET value = 'Africa, Farm, Agriculture, Development, Sustainability, Princeton, Crop, Field, Map, Digitize, Satellite, Image, Border, Boundary, Cartography, Ecology, Science' WHERE key = 'HitType_Keywords';
 -- Reward in dollars of standard Mapping Africa HIT
 UPDATE configuration SET value = '0.05' WHERE key = 'HitType_Reward';
--- Reward increment amount based on hit type
+-- Reward increment amount based on hit type. This is the first of two terms in a linear or polynomial reward increment function.
 UPDATE configuration SET value = '0.17' WHERE key = 'HitType_RewardIncrement';
--- Reward increment amount based on hit type, polynomial term
+-- Reward increment. This is the second of two terms in a linear or polynomial reward increment function. If linear, value should be set to 0.
 UPDATE configuration SET value = '-0.016' WHERE key = 'HitType_RewardIncrement2';
 -- Title of standard Mapping Africa HIT
 UPDATE configuration SET value = 'Mapping Crop Fields in Africa' WHERE key = 'HitType_Title';
