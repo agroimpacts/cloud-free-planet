@@ -31,7 +31,8 @@ for row in mtma.cur:
     if workerId != workerIdPrev:
         print("\nWorker ID: %s" % workerId)
         workerIdPrev = workerId
-    print("%s: (%s)%-9s %-9s %4.02f %s" % (CompletionTime, kmlType, kmlName, status, score, assignmentId))
+    score=float(-1 if score is None else score)
+    print("%s: (%s)%-9s %-9s %5.02f %s" % (CompletionTime, kmlType, kmlName, status, score, assignmentId))
     lines = textwrap.wrap(comment, 65)
     first = "Comment:"
     for line in lines:
