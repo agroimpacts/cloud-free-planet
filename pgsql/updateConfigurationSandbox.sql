@@ -38,7 +38,7 @@ UPDATE configuration SET value = '0.99' WHERE key = 'Bonus_Threshold4';
 -- Percentage of hits on MTurk server that are Future QAQC sites
 UPDATE configuration SET value = '20' WHERE key = 'FqaqcHitPercentage';
 -- Percentage of completed assignments a FQAQC HIT may not exceed to be considered active on MTurk and hence not be replaced. Range=0-99
-UPDATE configuration SET value = '50' WHERE key = 'HitActiveAssignPercentF';
+UPDATE configuration SET value = '99' WHERE key = 'HitActiveAssignPercentF';
 -- Percentage of completed assignments a non-QAQC HIT may not exceed to be considered active on MTurk and hence not be replaced. Range=0-99
 UPDATE configuration SET value = '0' WHERE key = 'HitActiveAssignPercentN';
 -- (1 year) lifetime of standard Mapping Africa HIT
@@ -46,7 +46,7 @@ UPDATE configuration SET value = '31536000' WHERE key = 'Hit_Lifetime';
 -- Max assignments of Future QAQC Mapping Africa HITs
 UPDATE configuration SET value = '20' WHERE key = 'Hit_MaxAssignmentsF';
 -- Max number of assignments a HIT can have without incurring the MTurk HIT surcharge. Limit was 9 effective 7/21/2016. To ignore this limit, set this parameter >= to Hit_MaxAssignmentsF and Hit_MaxAssignmentsN.
-UPDATE configuration SET value = '10' WHERE key = 'Hit_MaxAssignmentsMT';
+UPDATE configuration SET value = '20' WHERE key = 'Hit_MaxAssignmentsMT';
 -- Max assignments of standard Normal Mapping Africa HITs 
 UPDATE configuration SET value = '1' WHERE key = 'Hit_MaxAssignmentsN';
 -- Quality score a worker must achieve to have his non-QAQC HITs be marked as 'trusted'
@@ -126,23 +126,23 @@ UPDATE configuration SET value = 'This is the Mapping Africa Qualification Test.
 -- Qualification test duration in seconds
 UPDATE configuration SET value = '3600' WHERE key = 'QualTest_Duration';
 -- Instructional video file name
-UPDATE configuration SET value = 'Mapping_09102013.swf' WHERE key = 'QualTest_InstructionalVideo';
+UPDATE configuration SET value = 'mappingafrica_tutorial.swf' WHERE key = 'QualTest_InstructionalVideo';
 -- Instructional video height in pixels
-UPDATE configuration SET value = '450' WHERE key = 'QualTest_InstructionalVideoHeight';
+UPDATE configuration SET value = '480' WHERE key = 'QualTest_InstructionalVideoHeight';
 -- Instructional video width in pixels
-UPDATE configuration SET value = '800' WHERE key = 'QualTest_InstructionalVideoWidth';
+UPDATE configuration SET value = '640' WHERE key = 'QualTest_InstructionalVideoWidth';
 -- Introductory video file name
 UPDATE configuration SET value = 'mapping_africa_intro.swf' WHERE key = 'QualTest_IntroVideo';
 -- Intro video height in pixels
-UPDATE configuration SET value = '365' WHERE key = 'QualTest_IntroVideoHeight';
+UPDATE configuration SET value = '480' WHERE key = 'QualTest_IntroVideoHeight';
 -- Intro video width in pixels
-UPDATE configuration SET value = '650' WHERE key = 'QualTest_IntroVideoWidth';
+UPDATE configuration SET value = '640' WHERE key = 'QualTest_IntroVideoWidth';
 -- Qualification test name
 UPDATE configuration SET value = 'Mapping Africa' WHERE key = 'QualTest_Name';
 -- Qualification test overview text preceding the intro video.
-UPDATE configuration SET value = '<p>The video below provides an overview of the Mapping Africa project and qualification test.<br/>Please click the play button to watch this video, and then watch the training video below this one.</p>' WHERE key = 'QualTest_Overview1';
+UPDATE configuration SET value = '<p>The video below provides an overview of the Mapping Africa project and qualification test.<br/>Please click the play button to watch this video, and then watch the training video below this one.<br/>(Please wait a few moments for video to load.) </p>' WHERE key = 'QualTest_Overview1';
 -- Qualification test overview text to go between the intro and instructional videos.
-UPDATE configuration SET value = '<p>Please view the training video below where you will learn how to map and identify agricultural fields;<br/>then click on the qualification test link located below the video.</p>' WHERE key = 'QualTest_Overview2';
+UPDATE configuration SET value = '<p>Please view the training video below where you will learn how to map and identify agricultural fields;<br/>then click on the qualification test link located below the video. (Please wait a few moments for video to load.)</p>' WHERE key = 'QualTest_Overview2';
 -- Qualification test overview text following the instructional video. Precedes the link to the test.
 UPDATE configuration SET value = '<p>Please click on the link below (which will open a new window) and map any fields present in the images shown.</p>' WHERE key = 'QualTest_Overview3';
 -- Qualification test overview text following the instructional video. Follows the link to the test, and specifies the Training ID pasting instructions.
