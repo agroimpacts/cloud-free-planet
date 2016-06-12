@@ -9,7 +9,7 @@ export PATH="/usr/pgsql-9.4/bin:$PATH"
 3) Add Apache http/https WSGI configurations for sandbox and mapper virtual hosts:
 see configuration file examples in the .../afmap/apache subdirectory.
 
-4) Merge changes from the .../afmap/etc/aliases file into the system's aliases file.
+4) Append changes from the .../afmap/etc/aliases file into the system's aliases file.
 
 5) Add the following lines to .bashrc for sandbox and mapper users:
 a) For sandbox user:
@@ -23,4 +23,5 @@ NOTE: This allows MTurkMappingAfrica.py to be imported from scripts running in
       Cron daemons always need to run from the .../afmap/mturk directory
       because crontab ignores the .bashrc settings.
 
-6) Build processmail by cd'ing to .../afmap/processmail, and typing 'make' as user mapper or sandbox, and then 'make install' as root. This is necesary to process incoming emails from MTurk.
+6) a) Build processmail by cd'ing to ~/afmap/processmail/src, and typing 'make' as user mapper or sandbox, and then 'make install' as root. This is necesary to process incoming emails from MTurk.
+   b) Change permssions of ~/afmap/processmail directory: chmod o+rx ~/afmap/processmail
