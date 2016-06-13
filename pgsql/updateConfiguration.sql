@@ -28,13 +28,13 @@ UPDATE configuration SET value = 'This is your difficulty bonus for the above HI
 -- Text provided as the reason for granting the training bonus.
 UPDATE configuration SET value = 'Congratulations on your successful qualification for Mapping Africa! To thank you for your time, effort, and interest in qualifying, we are crediting this bonus to your account.' WHERE key = 'Bonus_ReasonTraining';
 -- Moving average score worker must achieve to receive this bonus. May be set to 'ignore'.
-UPDATE configuration SET value = '0.85' WHERE key = 'Bonus_Threshold1';
+UPDATE configuration SET value = '0.80' WHERE key = 'Bonus_Threshold1';
 -- Moving average score worker must achieve to receive this bonus. May be set to 'ignore'.
-UPDATE configuration SET value = '0.95' WHERE key = 'Bonus_Threshold2';
+UPDATE configuration SET value = '0.85' WHERE key = 'Bonus_Threshold2';
 -- Moving average score worker must achieve to receive this bonus. May be set to 'ignore'.
-UPDATE configuration SET value = '0.975' WHERE key = 'Bonus_Threshold3';
+UPDATE configuration SET value = '0.90' WHERE key = 'Bonus_Threshold3';
 -- Moving average score worker must achieve to receive this bonus. May be set to 'ignore'.
-UPDATE configuration SET value = '0.99' WHERE key = 'Bonus_Threshold4';
+UPDATE configuration SET value = '0.95' WHERE key = 'Bonus_Threshold4';
 -- Percentage of hits on MTurk server that are Future QAQC sites
 UPDATE configuration SET value = '20' WHERE key = 'FqaqcHitPercentage';
 -- Percentage of completed assignments a FQAQC HIT may not exceed to be considered active on MTurk and hence not be replaced. Range=0-99
@@ -105,14 +105,14 @@ UPDATE configuration SET value = '20' WHERE key = 'QaqcHitPercentage';
 UPDATE configuration SET value = '10' WHERE key = 'Quality_ReturnHistDepth';
 -- Value from 0.0 to 1.0 to indicate the weight that a return should have in the quality score. Should be 1.0 in production.
 UPDATE configuration SET value = '1.0' WHERE key = 'Quality_ReturnWeight';
--- Number of scores to use for computing moving average of scores for quality score. Should be 10 in production.
-UPDATE configuration SET value = '4' WHERE key = 'Quality_ScoreHistDepth';
+-- Number of scores to use for computing moving average of scores for quality score. Should be 5-10 in production.
+UPDATE configuration SET value = '5' WHERE key = 'Quality_ScoreHistDepth';
 -- Qualification for standard Mapping Africa HIT: threshold number or 'ignore'. Should be set to 1000 in production.
-UPDATE configuration SET value = 'ignore' WHERE key = 'Qual_NumberHitsApproved';
+UPDATE configuration SET value = '1000' WHERE key = 'Qual_NumberHitsApproved';
 -- Qualification for standard Mapping Africa HIT: 0-100 or 'ignore'. Should be set to 'ignore' in production.
 UPDATE configuration SET value = 'ignore' WHERE key = 'Qual_PercentAssignmentsAbandoned';
 -- Qualification for standard Mapping Africa HIT: 0-100 or 'ignore'. Should be set to 95 in production.
-UPDATE configuration SET value = '0' WHERE key = 'Qual_PercentAssignmentsApproved';
+UPDATE configuration SET value = '95' WHERE key = 'Qual_PercentAssignmentsApproved';
 -- Qualification for standard Mapping Africa HIT: 0-100 or 'ignore'. Should be set to 'ignore' in production.
 UPDATE configuration SET value = 'ignore' WHERE key = 'Qual_PercentAssignmentsReturned';
 -- Qualification for standard Mapping Africa HIT: 1 or 'ignore'. Should be set to 1 (i.e., true) in production.
@@ -140,7 +140,7 @@ UPDATE configuration SET value = '640' WHERE key = 'QualTest_IntroVideoWidth';
 -- Qualification test name
 UPDATE configuration SET value = 'Mapping Africa' WHERE key = 'QualTest_Name';
 -- Qualification test overview text preceding the intro video.
-UPDATE configuration SET value = '<p>The video below provides an overview of the Mapping Africa project and qualification test.<br/>Please click the play button to watch this video, and then watch the training video below this one. <br/>(Please wait a few moments for video to load.) </p>' WHERE key = 'QualTest_Overview1';
+UPDATE configuration SET value = '<p>The video below provides an overview of the Mapping Africa project and qualification test.<br/>Please click the play button to watch this video, and then watch the training video below this one.<br/> For additional information on the project, including our variable payments (beyond the fixed base rate) for <br/> mapping effort and quality, please visit the <a href="http://mappingafrica.princeton.edu" target="_blank">project website</a>. (Please wait a few moments for video to load.) </p>' WHERE key = 'QualTest_Overview1';
 -- Qualification test overview text to go between the intro and instructional videos.
 UPDATE configuration SET value = '<p>Please view the training video below where you will learn how to map and identify agricultural fields;<br/>then click on the qualification test link located below the video. (Please wait a few moments for video to load.) </p>' WHERE key = 'QualTest_Overview2';
 -- Qualification test overview text following the instructional video. Precedes the link to the test.

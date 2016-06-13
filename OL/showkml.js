@@ -40,7 +40,7 @@ var sty = new OpenLayers.Style({
 });
 var stymap = new OpenLayers.StyleMap({ 'default': sty });
 kmlLayer = new OpenLayers.Layer.Vector(
-    "One Square Km in South Africa", 
+    "One Square Km in Africa", 
     {
         styleMap: stymap,
         protocol: new OpenLayers.Protocol.HTTP({
@@ -132,7 +132,7 @@ fieldsLayer = new OpenLayers.Layer.Vector(
             })
         }),
         strategies: [saveStrategy],
-        displayInLayerSwitcher: false
+        displayInLayerSwitcher: true
     }
 );
 // Special callback to catch completions after each POST to send a new polygon

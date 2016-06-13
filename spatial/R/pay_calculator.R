@@ -24,7 +24,7 @@ workers <- 100
 qual_fee <- 1.2 # $
 flat_fee <- 0.05 # $
 diff_inc <- 0.05 # $
-bon_inc <- 0.25 # $
+bon_inc <- 0.2 # $
 cf <- c(0.17, -0.016)  # polynomial coefficients
 
 # Retrieve preliminary N and F site weights
@@ -99,8 +99,8 @@ avg_rates <- rates %*% pfwts
 
 ## Calculate costs for current project
 # Model worker skill level using geometric distribution
-skill_fit <- dgeom(seq(0, 4), 0.5) / sum(dgeom(seq(0, 4), 0.5))
-# skill_fit <- c(0, 0, 0, 0, 1)
+# skill_fit <- dgeom(seq(0, 4), 0.5) / sum(dgeom(seq(0, 4), 0.5))
+skill_fit <- c(0, 0, 0, 0, 1)
 
 # Calculate costs
 # hist(ffwts$wgt)
