@@ -3,6 +3,7 @@
 import sys
 import os
 import re
+from datetime import datetime
 from MTurkMappingAfrica import MTurkMappingAfrica
 
 if len(sys.argv) != 3:
@@ -15,6 +16,11 @@ if len(filename) == 0:
 filename += '/emails/' + sys.argv[2]
 
 mtma = MTurkMappingAfrica()
+logFilePath = mtma.projectRoot + "/log"
+k = open(logFilePath + "/miscellaneous.log", "a+")
+
+now = str(datetime.today())
+k.write("\nnotify_workers: datetime = %s\n" % now)
 
 if workerIds.lower() == 'all':
     mtma.cur.execute('select worker_id from worker_data')
@@ -26,7 +32,10 @@ else:
 try:
     lines = [line.rstrip() for line in open(filename)]
 except:
+    k.write("notify_workers: Error: File %s not found\n" % filename)
     print "Error: File %s not found" % filename
+    k.close()
+    del mtma
     quit()
 
 # Extract the subject (assumed to be line 0).
@@ -38,15 +47,26 @@ while len(lines[i]) == 0:
     i = i + 1
 body = '\n'.join(lines[i:])
 
+k.write("notify_workers: Now sending to workers:\n")
 print "Now sending to workers:"
 for worker in workers:
+    k.write("notify_workers: %s\n" % worker)
     print worker
 failures = mtma.notifyWorkers(workers, subject, body)
 
 # Loop through the ResultSet looking for NotifyWorkersFailureStatus objects.
 success = True
 for f in failures:
-    print 'Worker %s was not notified: Error reported was:\n%s' % (f.workerId, f.failureMessage)
+    k.write("notify_workers: Worker %s was not notified: Error reported was:\n%s\n" % 
+            (f.workerId, f.failureMessage))
+    print 'Worker %s was not notified: Error reported was:\n%s' % \
+            (f.workerId, f.failureMessage)
     success = False
 if success:
+    k.write("notify_workers: All workers have been notified.\n")
     print "All workers have been notified."
+
+k.close()
+
+# Destroy mtma object.
+del mtma
