@@ -209,7 +209,7 @@ while True:
         if not row:
             curQaqcGid = 0
             mtma.cur.execute("""
-                select name, gid from kml_data k 
+                select name, gid, fwts from kml_data k 
                 where not exists (select true from hit_data h 
                     where h.name = k.name and delete_time is null)
                 and  kml_type = '%s' 
