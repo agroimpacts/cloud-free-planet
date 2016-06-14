@@ -9,7 +9,10 @@ if len(sys.argv) != 3:
     print "Error: Usage %s <worker_id[,...] | ALL> <filename_in_emails_directory>" % sys.argv[0]
     quit()
 workerIds = sys.argv[1]
-filename = os.path.dirname(sys.argv[0]) + '/emails/' + sys.argv[2]
+filename = os.path.dirname(sys.argv[0])
+if len(filename) == 0:
+    filename = '.'
+filename += '/emails/' + sys.argv[2]
 
 mtma = MTurkMappingAfrica()
 
