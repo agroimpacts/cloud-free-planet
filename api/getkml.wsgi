@@ -187,12 +187,31 @@ def application(environ, start_response):
                     # Insert the assignment data.
                     mtma.cur.execute("""INSERT INTO assignment_data 
                         (assignment_id, hit_id, worker_id, accept_time, status) 
-                        VALUES ('%s' , '%s', '%s', '%s', '%s')""" % (assignmentId, hitId, workerId, now, MTurkMappingAfrica.HITAccepted))
-                    k.write("getkml: MTurk ACCEPT request fetched %s kml = %s\n" % (kmlType, kmlName))
+                        VALUES ('%s' , '%s', '%s', '%s', '%s')""" % \
+                        (assignmentId, hitId, workerId, now, MTurkMappingAfrica.HITAccepted))
+                    k.write("getkml: MTurk ACCEPT request fetched %s kml = %s\n" % \
+                            (kmlType, kmlName))
                     mtma.dbcon.commit()
-                # Else, this is the continuation of a previously accepted HIT.
+                # Else, this might be the continuation of a previously accepted HIT,
+                # or a handoff of a returned or abandoned assignment to another worker.
                 else:
-                    k.write("getkml: MTurk CONTINUE request fetched %s kml = %s\n" % (kmlType, kmlName))
+                    mtma.cur.execute("SELECT worker_id FROM assignment_data WHERE assignment_id = '%s'" % assignmentId)
+                    prevWorkerId = mtma.cur.fetchone()[0]
+                    # If same worker, then its just a continuation.
+                    if workerId == prevWorkerId:
+                        k.write("getkml: MTurk CONTINUE request fetched %s kml = %s\n" % \
+                                (kmlType, kmlName))
+                    # Otherwise, it's an assignment transfer to a new worker.
+                    else:
+                        mtma.cur.execute("""UPDATE assignment_data 
+                            SET worker_id = '%s', accept_time = '%s', status = '%s' 
+                            WHERE assignment_id = '%s'""" % \
+                            (workerId, now, MTurkMappingAfrica.HITAccepted, assignmentId))
+                        k.write("getkml: MTurk ACCEPT request fetched %s kml = %s\n" % \
+                                (kmlType, kmlName))
+                        k.write("getkml: *** Assignment transfer to new worker ***\n")
+                        mtma.dbcon.commit()
+
                 k.write("getkml: MTurk provided hitId = %s\n" % hitId)
                 k.write("getkml: MTurk provided assignmentId = %s\n" % assignmentId)
                 k.write("getkml: MTurk provided workerId = %s\n" % workerId)
