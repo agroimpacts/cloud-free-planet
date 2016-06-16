@@ -20,7 +20,7 @@ def application(environ, start_response):
 
     polygonUrl = apiUrl + '/' + mturkPostPolygonScript
     noPolygonUrl = apiUrl + '/' + mturkNoPolygonScript
-    headerHeight = 75
+    headerHeight = 80
     mapHeight = mturkFrameHeight - headerHeight
 
     k = open(logFilePath + "/OL.log", "a")
@@ -40,7 +40,7 @@ def application(environ, start_response):
         elif kmlType == MTurkMappingAfrica.KmlTraining:
             kmlType = 'training'
 
-        instructions = "Please use the toolbar below to map all crop fields that are wholly or partially inside the white square (map the entire field, even the part that falls outside the box). <br/> Then save your changes by clicking on the disk icon to complete the HIT. (Note: if you see a multi-world map, you can reset it by either zooming in (and then out)<br/> by one click, panning the map slightly, or (somewhat slower) refreshing your browser.)"
+        instructions = 'Please use the toolbar below to map all crop fields that are wholly or partially inside the white square (map the entire field, even the part that falls outside the box). <br/> Then save your changes by clicking on the disk icon to complete the HIT. (Note: if you see a multi-world map, you can reset it by either zooming in (and then out)<br/> by one click, panning the map slightly, or (somewhat slower) refreshing your browser. Please visit our <a href="http://mappingafrica.princeton.edu/blog.html#!/blog/posts/Frequently-Asked-Questions/6" target="_blank">FAQ</a> for tips on dealing with no imagery and for other advice.)'
 
         # MTurk cases.
         try:
