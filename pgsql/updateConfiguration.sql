@@ -1,6 +1,3 @@
--- *** The parameters in this section are set for production. ***
--- *** They will be applied to the configuration table in the Africa database. ***
-
 -- Relative URL to python scripts on Mapping Africa server
 UPDATE configuration SET value = '/api' WHERE key = 'APIUrl';
 -- On Mturk server: total number of available HITs to be maintained. Probably needs to be closer to 100 in production.
@@ -28,19 +25,21 @@ UPDATE configuration SET value = 'This is your difficulty bonus for the above HI
 -- Text provided as the reason for granting the training bonus.
 UPDATE configuration SET value = 'Congratulations on your successful qualification for Mapping Africa! To thank you for your time, effort, and interest in qualifying, we are crediting this bonus to your account.' WHERE key = 'Bonus_ReasonTraining';
 -- Moving average score worker must achieve to receive this bonus. May be set to 'ignore'.
-UPDATE configuration SET value = '0.80' WHERE key = 'Bonus_Threshold1';
+UPDATE configuration SET value = '0.75' WHERE key = 'Bonus_Threshold1';
 -- Moving average score worker must achieve to receive this bonus. May be set to 'ignore'.
-UPDATE configuration SET value = '0.85' WHERE key = 'Bonus_Threshold2';
+UPDATE configuration SET value = '0.8' WHERE key = 'Bonus_Threshold2';
 -- Moving average score worker must achieve to receive this bonus. May be set to 'ignore'.
-UPDATE configuration SET value = '0.90' WHERE key = 'Bonus_Threshold3';
+UPDATE configuration SET value = '0.85' WHERE key = 'Bonus_Threshold3';
 -- Moving average score worker must achieve to receive this bonus. May be set to 'ignore'.
-UPDATE configuration SET value = '0.95' WHERE key = 'Bonus_Threshold4';
+UPDATE configuration SET value = '0.9' WHERE key = 'Bonus_Threshold4';
 -- Percentage of hits on MTurk server that are Future QAQC sites
 UPDATE configuration SET value = '20' WHERE key = 'FqaqcHitPercentage';
 -- Percentage of completed assignments a FQAQC HIT may not exceed to be considered active on MTurk and hence not be replaced. Range=0-99
 UPDATE configuration SET value = '99' WHERE key = 'HitActiveAssignPercentF';
 -- Percentage of completed assignments a non-QAQC HIT may not exceed to be considered active on MTurk and hence not be replaced. Range=0-99
 UPDATE configuration SET value = '0' WHERE key = 'HitActiveAssignPercentN';
+-- Score a training HIT must achieve to be accepted.
+UPDATE configuration SET value = '0.6' WHERE key = 'HitIAcceptThreshold';
 -- (1 year) lifetime of standard Mapping Africa HIT
 UPDATE configuration SET value = '31536000' WHERE key = 'Hit_Lifetime';
 -- Max assignments of Future QAQC Mapping Africa HITs
@@ -52,13 +51,17 @@ UPDATE configuration SET value = '1' WHERE key = 'Hit_MaxAssignmentsN';
 -- Quality score a worker must achieve to have his non-QAQC HITs be marked as 'trusted'
 UPDATE configuration SET value = '0.65' WHERE key = 'HitNTrustThreshold';
 -- Max time in seconds that an assignment can remain in the Pending state before assuming that the worker may have quit.
-UPDATE configuration SET value = '86400' WHERE key = 'HitPendingAssignLimit';
+UPDATE configuration SET value = '172800' WHERE key = 'HitPendingAssignLimit';
 -- In seconds: for HIT-creation and other daemons.
 UPDATE configuration SET value = '10' WHERE key = 'HitPollingInterval';
--- Score a QAQC HIT must achieve to be accepted and worker paid
-UPDATE configuration SET value = '0.6' WHERE key = 'HitQAcceptThreshold';
+-- Score a QAQC HIT must achieve to be accepted and worker paid, possibly with a warning.
+UPDATE configuration SET value = '0' WHERE key = 'HitQAcceptThreshold';
+-- Score a QAQC HIT meeting the accept threshold must achieve for worker to be paid without a warning.
+UPDATE configuration SET value = '0.6' WHERE key = 'HitQNoWarningThreshold';
+-- This is the warning workers get when their score is >= the accept threshold but < no-warning threshold.
+UPDATE configuration SET value = 'Just FYI, this map is below the minimum desired accuracy, which is %s. If you submit too many maps below this level of accuracy, you will reduce your average score below the level required to maintain your qualification.' WHERE key = 'HitQWarningDescription';
 -- Message sent to user in the event of a HIT assignment score below threshold
-UPDATE configuration SET value = 'We are sorry, but your accuracy score was too low (<0.6) to accept your results.' WHERE key = 'HitRejectDescription';
+UPDATE configuration SET value = 'We are sorry, but your accuracy score was too low (<%s) to accept your results.' WHERE key = 'HitRejectDescription';
 -- (3 days) Approval delay in seconds of standard Mapping Africa HIT
 UPDATE configuration SET value = '259200' WHERE key = 'HitType_ApprovalDelay';
 -- Description of standard Mapping Africa HIT
@@ -71,7 +74,7 @@ UPDATE configuration SET value = 'Africa, Farm, Agriculture, Development, Sustai
 UPDATE configuration SET value = '0.05' WHERE key = 'HitType_Reward';
 -- Reward increment amount based on hit type. This is the first of two terms in a linear or polynomial reward increment function.
 UPDATE configuration SET value = '0.17' WHERE key = 'HitType_RewardIncrement';
--- Reward increment. This is the second of two terms in a linear or polynomial reward increment function. If linear, value should be set to 0.
+-- Reward increment. This is the second of two terms in a linear or polynomial reward increment function. If linear, value should be set to 0. 
 UPDATE configuration SET value = '-0.016' WHERE key = 'HitType_RewardIncrement2';
 -- Title of standard Mapping Africa HIT
 UPDATE configuration SET value = 'Mapping Crop Fields in Africa' WHERE key = 'HitType_Title';
@@ -104,11 +107,11 @@ UPDATE configuration SET value = '20' WHERE key = 'QaqcHitPercentage';
 -- Number of notifications to use for computing % return of HITs for quality score. Should be 10 in production.
 UPDATE configuration SET value = '10' WHERE key = 'Quality_ReturnHistDepth';
 -- Value from 0.0 to 1.0 to indicate the weight that a return should have in the quality score. Should be 1.0 in production.
-UPDATE configuration SET value = '1.0' WHERE key = 'Quality_ReturnWeight';
--- Number of scores to use for computing moving average of scores for quality score. Should be 5-10 in production.
+UPDATE configuration SET value = '0.25' WHERE key = 'Quality_ReturnWeight';
+-- Number of scores to use for computing moving average of scores for quality score. Should be 10 in production.
 UPDATE configuration SET value = '5' WHERE key = 'Quality_ScoreHistDepth';
 -- Qualification for standard Mapping Africa HIT: threshold number or 'ignore'. Should be set to 1000 in production.
-UPDATE configuration SET value = '1000' WHERE key = 'Qual_NumberHitsApproved';
+UPDATE configuration SET value = 'ignore' WHERE key = 'Qual_NumberHitsApproved';
 -- Qualification for standard Mapping Africa HIT: 0-100 or 'ignore'. Should be set to 'ignore' in production.
 UPDATE configuration SET value = 'ignore' WHERE key = 'Qual_PercentAssignmentsAbandoned';
 -- Qualification for standard Mapping Africa HIT: 0-100 or 'ignore'. Should be set to 95 in production.
@@ -142,7 +145,7 @@ UPDATE configuration SET value = 'Mapping Africa' WHERE key = 'QualTest_Name';
 -- Qualification test overview text preceding the intro video.
 UPDATE configuration SET value = '<p>The video below provides an overview of the Mapping Africa project and qualification test.<br/>Please click the play button to watch this video, and then watch the training video below this one.<br/> For additional information on the project, including our variable payments (beyond the fixed base rate) for <br/> mapping effort and quality, please visit the <a href="http://mappingafrica.princeton.edu" target="_blank">project website</a>. (Please wait a few moments for video to load.) </p>' WHERE key = 'QualTest_Overview1';
 -- Qualification test overview text to go between the intro and instructional videos.
-UPDATE configuration SET value = '<p>Please view the training video below where you will learn how to map and identify agricultural fields;<br/>then click on the qualification test link located below the video. (Please wait a few moments for video to load.) </p>' WHERE key = 'QualTest_Overview2';
+UPDATE configuration SET value = '<p>Please view the training video below where you will learn how to map and identify agricultural fields;<br/>then click on the qualification test link located below the video. (Please wait a few moments for video to load.)</p>' WHERE key = 'QualTest_Overview2';
 -- Qualification test overview text following the instructional video. Precedes the link to the test.
 UPDATE configuration SET value = '<p>Please click on the link below (which will open a new window) and map any fields present in the images shown.</p>' WHERE key = 'QualTest_Overview3';
 -- Qualification test overview text following the instructional video. Follows the link to the test, and specifies the Training ID pasting instructions.
