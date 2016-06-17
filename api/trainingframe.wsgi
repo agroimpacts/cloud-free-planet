@@ -16,7 +16,7 @@ def application(environ, start_response):
     serverName = mtma.getConfiguration('ServerName')
     apiUrl = mtma.getConfiguration('APIUrl')
     mturkExtQuestionScript = mtma.getConfiguration('MTurkExtQuestionScript')
-    hitAcceptThreshold = float(mtma.getConfiguration('HitQAcceptThreshold'))
+    hitAcceptThreshold = float(mtma.getConfiguration('HitIAcceptThreshold'))
     qualTestTfTextStart = mtma.getConfiguration('QualTest_TF_TextStart')
     qualTestTfTextMiddle = mtma.getConfiguration('QualTest_TF_TextMiddle')
     qualTestTfTextEnd = mtma.getConfiguration('QualTest_TF_TextEnd')
@@ -52,13 +52,13 @@ def application(environ, start_response):
             (training_id, first_time, last_time) 
             VALUES ('%s', '%s', '%s')""" % (trainingId, now, now))
     totCount = int(mtma.querySingleValue("""select count(*) from kml_data 
-        where kml_type = 'I' """))
+        where kml_type = MTurkMappingAfrica.KmlTraining"""))
     if doneCount < totCount:
         mtma.cur.execute("""select name, hint from kml_data
             left outer join 
                 (select * from qual_assignment_data where training_id = '%s') qad 
                 using (name)
-            where kml_type = 'I'
+            where kml_type = MTurkMappingAfrica.KmlTraining
                 and (completion_time is null
                     or score < %s)
             order by gid

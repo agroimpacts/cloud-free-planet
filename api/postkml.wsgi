@@ -114,7 +114,7 @@ def application(environ, start_response):
                 score = 1.          # Give worker the benefit of the doubt
                 k.write("postkml: Invalid value '%s' returned from R scoring script; assigning a score of %.2f\n" % 
                     (scoreString, score))
-            hitAcceptThreshold = float(mtma.getConfiguration('HitQAcceptThreshold'))
+            hitAcceptThreshold = float(mtma.getConfiguration('HitIAcceptThreshold'))
             k.write("postkml: training assignment has been scored as: %.2f/%.2f\n" %
                 (score, hitAcceptThreshold))
             if score < hitAcceptThreshold:

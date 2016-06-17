@@ -25,7 +25,7 @@ k.close()
 # Execute loop based on polling interval
 while True:
     hitPollingInterval = int(mtma.getConfiguration('HitPollingInterval'))
-    hitAcceptThreshold = float(mtma.getConfiguration('HitQAcceptThreshold'))
+    hitAcceptThreshold = float(mtma.getConfiguration('HitIAcceptThreshold'))
 
     k = open(logFilePath + "/processQualReqs.log", "a+")
     now = str(datetime.today())
@@ -106,7 +106,7 @@ while True:
 
         # Check if user is trying to get qualification before completing all the training maps.
         totCount = int(mtma.querySingleValue("""select count(*) from kml_data
-            where kml_type = 'I'"""))
+            where kml_type = MTurkMappingAfrica.KmlTraining"""))
         if doneCount < totCount:
             mtma.dbcon.rollback()
             mtma.rejectQualificationRequest(qualificationRequestId, "Incomplete test")
