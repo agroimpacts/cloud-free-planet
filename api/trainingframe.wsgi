@@ -52,17 +52,17 @@ def application(environ, start_response):
             (training_id, first_time, last_time) 
             VALUES ('%s', '%s', '%s')""" % (trainingId, now, now))
     totCount = int(mtma.querySingleValue("""select count(*) from kml_data 
-        where kml_type = MTurkMappingAfrica.KmlTraining"""))
+        where kml_type = '%s'""" % MTurkMappingAfrica.KmlTraining))
     if doneCount < totCount:
         mtma.cur.execute("""select name, hint from kml_data
             left outer join 
                 (select * from qual_assignment_data where training_id = '%s') qad 
                 using (name)
-            where kml_type = MTurkMappingAfrica.KmlTraining
+            where kml_type = '%s'
                 and (completion_time is null
                     or score < %s)
             order by gid
-            limit 1""" % (trainingId, hitAcceptThreshold))
+            limit 1""" % (trainingId, MTurkMappingAfrica.KmlTraining, hitAcceptThreshold))
         nextKml, hint = mtma.cur.fetchone()
         # Get the type for this kml.
         mtma.cur.execute("select kml_type from kml_data where name = '%s'" % nextKml)

@@ -106,7 +106,7 @@ while True:
 
         # Check if user is trying to get qualification before completing all the training maps.
         totCount = int(mtma.querySingleValue("""select count(*) from kml_data
-            where kml_type = MTurkMappingAfrica.KmlTraining"""))
+            where kml_type = '%s'""" % MTurkMappingAfrica.KmlTraining))
         if doneCount < totCount:
             mtma.dbcon.rollback()
             mtma.rejectQualificationRequest(qualificationRequestId, "Incomplete test")
