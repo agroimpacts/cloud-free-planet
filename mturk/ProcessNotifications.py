@@ -233,12 +233,17 @@ class ProcessNotifications(object):
             k.write("ProcessNotifications: Mapping Africa Qualification revoked from worker %s\n" % workerId)
 
         hitAcceptThreshold = float(mtma.getConfiguration('HitQAcceptThreshold'))
+        hitNoWarningThreshold = float(mtma.getConfiguration('HitQNoWarningThreshold'))
 
         # If the worker's results could not be saved or scored, or if their score meets 
         # the acceptance threshold, notify worker that his HIT was accepted.
         if assignmentStatus != None or score >= hitAcceptThreshold:
             try:
-                (fwts, bonusAmount, kmlName, trainBonusPaid) = mtma.approveAssignment(assignmentId)
+                # if score was above the no-warning thresholdm, then don't include a warning.
+                if score >= hitNoWarningThreshold:
+                    (fwts, bonusAmount, kmlName, trainBonusPaid) = mtma.approveAssignment(assignmentId)
+                else:
+                    (fwts, bonusAmount, kmlName, trainBonusPaid) = mtma.approveAssignment(assignmentId, warning=True)
                 if fwts > 1:
                     k.write("ProcessNotifications: Difficulty bonus of $%s paid for level %s KML %s to worker %s\n" % (bonusAmount, fwts, kmlName, workerId))
                 if trainBonusPaid:
@@ -276,8 +281,8 @@ class ProcessNotifications(object):
             comment = %s, score = '%s', save_status_code = %s where assignment_id = '%s'""" % 
             (submitTime, assignmentStatus, adapt(comment), score, saveStatusCode, assignmentId))
         mtma.dbcon.commit()
-        k.write("ProcessNotifications: QAQC assignment has been marked on Mturk and DB as %s: %.2f/%.2f\n" % 
-            (assignmentStatus.lower(), score, hitAcceptThreshold))
+        k.write("ProcessNotifications: QAQC assignment has been marked on Mturk and DB as %s: %.2f/%.2f/%.2f\n" % 
+            (assignmentStatus.lower(), score, hitAcceptThreshold, hitNoWarningThreshold))
 
         # Delete the HIT if all assignments have been submitted.
         if hitStatus == 'Reviewable':

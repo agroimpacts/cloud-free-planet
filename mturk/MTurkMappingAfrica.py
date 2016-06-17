@@ -186,10 +186,17 @@ class MTurkMappingAfrica(object):
                 self.hitStatus = r.HITStatus
         return (self.workerId, self.submitTime, self.params, self.hitStatus)
 
-    def approveAssignment(self, assignmentId):
-        self.approveAssignmentRS = self.mtcon.approve_assignment(
-            assignment_id = assignmentId
-        )
+    def approveAssignment(self, assignmentId, warning=False):
+        if warning:
+            hitWarningDescription = self.getConfiguration('HitQWarningDescription')
+            self.approveAssignmentRS = self.mtcon.approve_assignment(
+                assignment_id = assignmentId,
+                feedback = hitWarningDescription
+            )
+        else:
+            self.approveAssignmentRS = self.mtcon.approve_assignment(
+                assignment_id = assignmentId
+            )
         assert self.approveAssignmentRS.status
 
         # Pay the difficulty bonus if KML's fwts > 1.
