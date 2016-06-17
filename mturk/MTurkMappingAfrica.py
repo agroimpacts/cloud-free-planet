@@ -189,9 +189,10 @@ class MTurkMappingAfrica(object):
     def approveAssignment(self, assignmentId, warning=False):
         if warning:
             hitWarningDescription = self.getConfiguration('HitQWarningDescription')
+            hitNoWarningThreshold = float(self.getConfiguration('HitQNoWarningThreshold'))
             self.approveAssignmentRS = self.mtcon.approve_assignment(
                 assignment_id = assignmentId,
-                feedback = hitWarningDescription
+                feedback = (hitWarningDescription % hitNoWarningThreshold)
             )
         else:
             self.approveAssignmentRS = self.mtcon.approve_assignment(
@@ -230,9 +231,10 @@ class MTurkMappingAfrica(object):
         return (fwts, bonusAmount, name, trainBonusPaid)
 
     def rejectAssignment(self, assignmentId):
+        hitAcceptThreshold = float(self.getConfiguration('HitQAcceptThreshold'))
         self.rejectAssignmentRS = self.mtcon.reject_assignment(
             assignment_id = assignmentId,
-            feedback = self.getConfiguration('HitRejectDescription')
+            feedback = (self.getConfiguration('HitRejectDescription') % hitAcceptThreshold)
         )
         assert self.rejectAssignmentRS.status
 
