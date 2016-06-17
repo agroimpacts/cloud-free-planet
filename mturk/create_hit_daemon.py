@@ -112,27 +112,36 @@ while True:
     numMturkQaqcHits = 0
     numMturkFqaqcHits = 0
     numMturkNonQaqcHits = 0
+    header = False
     for hitId, row in hits.iteritems():
         #print hitId, row.status, row.assignments_completed, row.create_time, 
         #        row.delete_time, row.max_assignments, row.kml_type
 
         # If HIT on Mturk but not in DB: should never happen.
         if row.status and not row.create_time:
+            if not header:
+                k.write("\ncreateHit: datetime = %s\n" % now)
             k.write("createHit: Fatal Error: Mturk HIT '%s' not in database!\n" % hitId)
             if daemonStarted:
+                if not header:
+                    fatalErrorMsg += ("\r\ncreateHit: datetime = %s\r\n" % now)
                 fatalErrorMsg += ("Fatal Error: Mturk HIT '%s' not in database!\r\n" % hitId)
             fatalError = True
+            header = True
         # if HIT in DB but not on Mturk,
         elif not row.status and row.create_time:
             # If DB says HIT still exists: should never happen.
             if not row.delete_time:
                 # Record the HIT deletion time.
-                mtma.cur.execute("""update hit_data set hit_verified = True, delete_time = '%s' 
-                    where hit_id = '%s'""" % (now, hitId))
-                k.write("createHit: Fatal Error: Active DB HIT '%s' not found on Mturk!\ncreateHit: Now marked as deleted in DB.\n" % hitId)
+                if not header:
+                    k.write("\ncreateHit: datetime = %s\n" % now)
+                k.write("createHit: Fatal Error: Active DB HIT '%s' not found on Mturk!\n" % hitId)
                 if daemonStarted:
-                    fatalErrorMsg += ("Fatal Error: Active DB HIT '%s' not found on Mturk!\r\nNow marked as deleted in DB.\r\n" % hitId)
+                    if not header:
+                        fatalErrorMsg += ("\r\ncreateHit: datetime = %s\r\n" % now)
+                    fatalErrorMsg += ("Fatal Error: Active DB HIT '%s' not found on Mturk!\r\n" % hitId)
                 fatalError = True
+                header = True
             # If DB says HIT has been deleted, then mark it as verified.
             else:
                 mtma.cur.execute("""update hit_data set hit_verified = True 
@@ -141,10 +150,15 @@ while True:
         elif row.status and row.create_time:
             # if DB says HIT no longer exists: should never happen.
             if row.delete_time:
+                if not header:
+                    k.write("\ncreateHit: datetime = %s\n" % now)
                 k.write("createHit: Fatal Error: Deleted DB HIT '%s' still exists on Mturk!\n" % hitId)
                 if daemonStarted:
+                    if not header:
+                        fatalErrorMsg += ("\r\ncreateHit: datetime = %s\r\n" % now)
                     fatalErrorMsg += ("Fatal Error: Deleted DB HIT '%s' still exists on Mturk!\r\n" % hitId)
                 fatalError = True
+                header = True
             else:
                 # Calculate the number of assignable QAQC, FQAQC, and non-QAQC HITs 
                 # currently active on the MTurk server. For HITs with multiple assignments,

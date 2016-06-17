@@ -26,6 +26,9 @@ while True:
     k = open(logFilePath + "/cleanupAbsentWorker.log", "a+")
     now = str(datetime.today())
 
+    # Get serialization lock.
+    mtma.getSerializationLock()
+
     # Commit the transaction just to refresh the value of localtimestamp below.
     mtma.dbcon.commit()
     # Search for all Pending assignments that have been in that state longer than 
@@ -40,6 +43,7 @@ while True:
 
     # If none then there's nothing to do for this polling cycle.
     if len(assignments) > 0:
+        k.write("\ncleanupAbsentWorker: datetime = %s\n" % now)
         k.write("cleanupAbsentWorker: Checking for abandoned Pending assignments: found %d\n" % 
                 len(assignments))
 
@@ -51,8 +55,7 @@ while True:
             workerId = assignment[2]
             completionTime = assignment[3];
 
-            k.write("\ncleanupAbsentWorker: datetime = %s\n" % now)
-            k.write("cleanupAbsentWorker: Cleaning up Pending assignmentId = %s\n" % assignmentId)
+            k.write("\ncleanupAbsentWorker: Cleaning up Pending assignmentId = %s\n" % assignmentId)
             k.write("cleanupAbsentWorker: Abandoned by workerId %s on %s\n" % 
                     (workerId, completionTime))
 
@@ -102,6 +105,9 @@ while True:
                     k.write("cleanupAbsentWorker: HIT %s still has remaining Mturk or pending assignments and cannot be deleted\n % hitId")
             else:
                 k.write("cleanupAbsentWorker: HIT %s still has remaining Mturk or pending assignments and cannot be deleted\n" % hitId)
+
+    # Release serialization lock.
+    mtma.releaseSerializationLock()
 
     # Sleep for specified polling interval
     k.close()

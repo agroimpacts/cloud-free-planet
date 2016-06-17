@@ -473,8 +473,8 @@ class MTurkMappingAfrica(object):
             else:
                 raise
 
-    # Obtain serialization lock to allow create_hit_daemon.py and individual 
-    # ProcessNotifications.py threads to access Mturk and database records
+    # Obtain serialization lock to allow create_hit_daemon.py, cleanup_absent_worker.py, and 
+    # individual ProcessNotifications.py threads to access Mturk and database records
     # without interfering with each other.
     def getSerializationLock(self):
         self.lock = lock('%s/mturk/%s' % (self.projectRoot, MTurkMappingAfrica.lockFile))
