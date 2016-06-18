@@ -52,16 +52,23 @@ print "Now sending to workers:"
 for worker in workers:
     k.write("notify_workers: %s\n" % worker)
     print worker
-failures = mtma.notifyWorkers(workers, subject, body)
+k.write("notify_workers: Subject: %s\n" % subject)
+k.write("notify_workers: Message from %s:\n" % filename)
+k.write("notify_workers: %s\n" % body)
 
-# Loop through the ResultSet looking for NotifyWorkersFailureStatus objects.
+# Mturk can't handle a list of more than 100 workers, so we split up the list.
 success = True
-for f in failures:
-    k.write("notify_workers: Worker %s was not notified: Error reported was:\n%s\n" % 
-            (f.workerId, f.failureMessage))
-    print 'Worker %s was not notified: Error reported was:\n%s' % \
-            (f.workerId, f.failureMessage)
-    success = False
+workerSublists = [workers[i:i+100] for i in xrange(0, len(workers), 100)]
+for workerSublist in workerSublists:
+    failures = mtma.notifyWorkers(workerSublist, subject, body)
+
+    # Loop through the ResultSet looking for NotifyWorkersFailureStatus objects.
+    for f in failures:
+        k.write("notify_workers: Worker %s was not notified: Error reported was:\n%s\n" % 
+                (f.workerId, f.failureMessage))
+        print 'Worker %s was not notified: Error reported was:\n%s' % \
+                (f.workerId, f.failureMessage)
+        success = False
 if success:
     k.write("notify_workers: All workers have been notified.\n")
     print "All workers have been notified."
