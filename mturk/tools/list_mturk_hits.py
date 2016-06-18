@@ -34,7 +34,7 @@ for hit in hits:
         print hit.HITId, kmlType, hit.FormattedPrice, hit.HITStatus, hit.NumberOfAssignmentsAvailable, \
             hit.NumberOfAssignmentsCompleted, hit.NumberOfAssignmentsPending, \
             hit.Title
-        asmts = mtma.mtcon.get_assignments(hit_id=hit.HITId)
+        asmts = mtma.mtcon.get_assignments(hit_id=hit.HITId, page_size=40)
         for asmt in asmts:
             print asmt.AssignmentId
 print 'Total HITs: %d; # assignable HITs: %d; QAQC HITs: %d; FQAQC HITs: %d; non-QAQC HITs: %d' % (nh, nah, nqh, nfh, nnh)
