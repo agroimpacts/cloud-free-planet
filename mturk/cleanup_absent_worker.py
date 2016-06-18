@@ -47,7 +47,7 @@ while True:
         k.write("cleanupAbsentWorker: Checking for abandoned Pending assignments: found %d\n" % 
                 len(assignments))
 
-        # Loop on all the abadoned Pending assignments, and set their status to Untrusted;
+        # Loop on all the abandoned Pending assignments, and set their status to Untrusted;
         # then delete their associated HIT if appropriate.
         for assignment in assignments:
             hitId = assignment[0]
@@ -102,7 +102,7 @@ while True:
                     mtma.dbcon.commit()
                     k.write("cleanupAbsentWorker: HIT %s has no remaining assignments and has been deleted\n" % hitId)
                 else:
-                    k.write("cleanupAbsentWorker: HIT %s still has remaining Mturk or pending assignments and cannot be deleted\n % hitId")
+                    k.write("cleanupAbsentWorker: HIT %s still has remaining Mturk or pending assignments and cannot be deleted\n" % hitId)
             else:
                 k.write("cleanupAbsentWorker: HIT %s still has remaining Mturk or pending assignments and cannot be deleted\n" % hitId)
 

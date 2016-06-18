@@ -189,7 +189,10 @@ class ProcessNotifications(object):
         # Get the kml name, save status, and worker comment.
         try:
             kmlName = params['kmlName']
-            saveStatusCode = int(params['save_status_code'])
+            saveStatusCode = params['save_status_code']
+            if len(saveStatusCode) == 0:
+                saveStatusCode = 0
+            saveStatusCode = int(saveStatusCode)
             resultsSaved = (saveStatusCode >= 200 and saveStatusCode < 300)
             comment = params['comment'].strip()
         except:
@@ -310,7 +313,10 @@ class ProcessNotifications(object):
         # Get the save status and worker comment.
         try:
             kmlName = params['kmlName']
-            saveStatusCode = int(params['save_status_code'])
+            saveStatusCode = params['save_status_code']
+            if len(saveStatusCode) == 0:
+                saveStatusCode = 0
+            saveStatusCode = int(saveStatusCode)
             resultsSaved = (saveStatusCode >= 200 and saveStatusCode < 300)
             comment = params['comment'].strip()
         except:
