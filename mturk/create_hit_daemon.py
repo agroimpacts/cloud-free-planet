@@ -290,7 +290,11 @@ while True:
                 email(mtma, "Alert: all FQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
             fqaqcEmailCount += 1
             break
-        fqaqcEmailCount = 0
+        else:
+            if (fqaqcEmailCount % (emailFrequency / hitPollingInterval)) == 0:
+                fqaqcEmailCount = 0
+            else:
+                fqaqcEmailCount += 1
         nextKml = row[0]
         fwts = row[2]
         remainingAssignments = hitMaxAssignmentsF - row[1]
@@ -354,7 +358,11 @@ while True:
                 email(mtma, "Alert: all non-QAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
             nqaqcEmailCount += 1
             break
-        nqaqcEmailCount = 0
+        else:
+            if (nqaqcEmailCount % (emailFrequency / hitPollingInterval)) == 0:
+                nqaqcEmailCount = 0
+            else:
+                nqaqcEmailCount += 1
         nextKml = row[0]
         fwts = row[2]
         remainingAssignments = hitMaxAssignmentsN - row[1]

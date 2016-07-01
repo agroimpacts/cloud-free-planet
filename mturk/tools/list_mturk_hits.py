@@ -29,7 +29,6 @@ for hit in hits:
                 nnh = nnh + 1
         else:
             kmlType = 'U'       # Unknown
-            nh = nh + 1
         
         print hit.HITId, kmlType, hit.FormattedPrice, hit.HITStatus, hit.NumberOfAssignmentsAvailable, \
             hit.NumberOfAssignmentsCompleted, hit.NumberOfAssignmentsPending, \
