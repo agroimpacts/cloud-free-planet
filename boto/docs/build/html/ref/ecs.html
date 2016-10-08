@@ -1,0 +1,225 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ECS &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="up" title="API Reference" href="index.html" />
+    <link rel="next" title="EMR" href="emr.html" />
+    <link rel="prev" title="EC2" href="ec2.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="emr.html" title="EMR"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ec2.html" title="EC2"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="ecs">
+<h1>ECS<a class="headerlink" href="#ecs" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-boto.ecs">
+<span id="boto-ecs"></span><h2>boto.ecs<a class="headerlink" href="#module-boto.ecs" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.ecs.ECSConnection">
+<em class="property">class </em><tt class="descclassname">boto.ecs.</tt><tt class="descname">ECSConnection</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>is_secure=True</em>, <em>port=None</em>, <em>proxy=None</em>, <em>proxy_port=None</em>, <em>proxy_user=None</em>, <em>proxy_pass=None</em>, <em>host='ecs.amazonaws.com'</em>, <em>debug=0</em>, <em>https_connection_factory=None</em>, <em>path='/'</em><big>)</big><a class="headerlink" href="#boto.ecs.ECSConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>ECommerce Connection</p>
+<p>For more information on how to use this module see:</p>
+<p><a class="reference external" href="http://blog.coredumped.org/2010/09/search-for-books-on-amazon-using-boto.html">http://blog.coredumped.org/2010/09/search-for-books-on-amazon-using-boto.html</a></p>
+<dl class="method">
+<dt id="boto.ecs.ECSConnection.get_response">
+<tt class="descname">get_response</tt><big>(</big><em>action</em>, <em>params</em>, <em>page=0</em>, <em>itemSet=None</em><big>)</big><a class="headerlink" href="#boto.ecs.ECSConnection.get_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility method to handle calls to ECS and parsing of responses.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ecs.ECSConnection.item_search">
+<tt class="descname">item_search</tt><big>(</big><em>search_index</em>, <em>**params</em><big>)</big><a class="headerlink" href="#boto.ecs.ECSConnection.item_search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns items that satisfy the search criteria, including one or more search 
+indices.</p>
+<p>For a full list of search terms, 
+:see: <a class="reference external" href="http://docs.amazonwebservices.com/AWSECommerceService/2010-09-01/DG/index.html?ItemSearch.html">http://docs.amazonwebservices.com/AWSECommerceService/2010-09-01/DG/index.html?ItemSearch.html</a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.ecs.item">
+<span id="boto-ecs-item"></span><h2>boto.ecs.item<a class="headerlink" href="#module-boto.ecs.item" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.ecs.item.Item">
+<em class="property">class </em><tt class="descclassname">boto.ecs.item.</tt><tt class="descname">Item</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.ecs.item.Item" title="Permalink to this definition">¶</a></dt>
+<dd><p>A single Item</p>
+<p>Initialize this Item</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.ecs.item.ItemSet">
+<em class="property">class </em><tt class="descclassname">boto.ecs.item.</tt><tt class="descname">ItemSet</tt><big>(</big><em>connection</em>, <em>action</em>, <em>params</em>, <em>page=0</em><big>)</big><a class="headerlink" href="#boto.ecs.item.ItemSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>A special ResponseGroup that has built-in paging, and
+only creates new Items on the &#8220;Item&#8221; tag</p>
+<dl class="method">
+<dt id="boto.ecs.item.ItemSet.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ecs.item.ItemSet.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ecs.item.ItemSet.next">
+<tt class="descname">next</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.ecs.item.ItemSet.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Special paging functionality</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ecs.item.ItemSet.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ecs.item.ItemSet.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ecs.item.ItemSet.to_xml">
+<tt class="descname">to_xml</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.ecs.item.ItemSet.to_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override to first fetch everything</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.ecs.item.ResponseGroup">
+<em class="property">class </em><tt class="descclassname">boto.ecs.item.</tt><tt class="descname">ResponseGroup</tt><big>(</big><em>connection=None</em>, <em>nodename=None</em><big>)</big><a class="headerlink" href="#boto.ecs.item.ResponseGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Generic &#8220;Response Group&#8221;, which can
+be anything from the entire list of Items to 
+specific response elements within an item</p>
+<p>Initialize this Item</p>
+<dl class="method">
+<dt id="boto.ecs.item.ResponseGroup.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ecs.item.ResponseGroup.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ecs.item.ResponseGroup.get">
+<tt class="descname">get</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#boto.ecs.item.ResponseGroup.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ecs.item.ResponseGroup.set">
+<tt class="descname">set</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="headerlink" href="#boto.ecs.item.ResponseGroup.set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ecs.item.ResponseGroup.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ecs.item.ResponseGroup.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ecs.item.ResponseGroup.to_xml">
+<tt class="descname">to_xml</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.ecs.item.ResponseGroup.to_xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ECS</a><ul>
+<li><a class="reference internal" href="#module-boto.ecs">boto.ecs</a></li>
+<li><a class="reference internal" href="#module-boto.ecs.item">boto.ecs.item</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ec2.html"
+                        title="previous chapter">EC2</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="emr.html"
+                        title="next chapter">EMR</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/ecs.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="emr.html" title="EMR"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ec2.html" title="EC2"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" >API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

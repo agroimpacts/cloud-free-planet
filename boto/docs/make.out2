@@ -1,0 +1,204 @@
+sphinx-build -b html -d build/doctrees   source build/html
+Running Sphinx v1.0.8
+HEAD
+loading pickled environment... done
+loading intersphinx inventory from http://docs.python.org/objects.inv...
+building [html]: targets for 56 source files that are out of date
+updating environment: 1 added, 50 changed, 0 removed
+reading sources... [  1%] autoscale_tut
+reading sources... [  3%] boto_config_tut
+reading sources... [  5%] cloudsearch_tut
+reading sources... [  7%] cloudwatch_tut
+reading sources... [  9%] dynamodb_tut
+reading sources... [ 11%] ec2_tut
+reading sources... [ 13%] elb_tut
+reading sources... [ 15%] emr_tut
+reading sources... [ 17%] index
+reading sources... [ 19%] rds_tut
+reading sources... [ 21%] ref/autoscale
+reading sources... [ 23%] ref/beanstalk
+reading sources... [ 25%] ref/boto
+reading sources... [ 27%] ref/cloudformation
+reading sources... [ 29%] ref/cloudfront
+reading sources... [ 31%] ref/cloudsearch
+reading sources... [ 33%] ref/cloudwatch
+reading sources... [ 35%] ref/contrib
+Traceback (most recent call last):
+  File "/usr/lib/python2.6/site-packages/Sphinx-1.0.8-py2.6.egg/sphinx/ext/autodoc.py", line 329, in import_object
+    __import__(self.modname)
+ImportError: No module named m2helpers
+reading sources... [ 37%] ref/datapipeline
+reading sources... [ 39%] ref/dynamodb
+reading sources... [ 41%] ref/ec2
+reading sources... [ 43%] ref/ecs
+reading sources... [ 45%] ref/elasticache
+reading sources... [ 47%] ref/elastictranscoder
+reading sources... [ 49%] ref/elb
+reading sources... [ 50%] ref/emr
+reading sources... [ 52%] ref/file
+reading sources... [ 54%] ref/fps
+reading sources... [ 56%] ref/glacier
+reading sources... [ 58%] ref/gs
+reading sources... [ 60%] ref/iam
+reading sources... [ 62%] ref/manage
+reading sources... [ 64%] ref/mturk
+reading sources... [ 66%] ref/mws
+reading sources... [ 68%] ref/pyami
+reading sources... [ 70%] ref/rds
+reading sources... [ 72%] ref/route53
+reading sources... [ 74%] ref/s3
+reading sources... [ 76%] ref/sdb
+reading sources... [ 78%] ref/sdb_db
+Traceback (most recent call last):
+  File "/usr/lib/python2.6/site-packages/Sphinx-1.0.8-py2.6.egg/sphinx/ext/autodoc.py", line 329, in import_object
+    __import__(self.modname)
+ImportError: No module named pgmanager
+reading sources... [ 80%] ref/services
+reading sources... [ 82%] ref/ses
+reading sources... [ 84%] ref/sns
+reading sources... [ 86%] ref/sqs
+reading sources... [ 88%] ref/sts
+reading sources... [ 90%] ref/swf
+reading sources... [ 92%] ref/vpc
+reading sources... [ 94%] s3_tut
+reading sources... [ 96%] ses_tut
+reading sources... [ 98%] simpledb_tut
+reading sources... [100%] sqs_tut
+
+/var/local/as/home/dmcr/software/boto/boto/docs/source/ref/contrib.rst:23: WARNING: autodoc can't import/find module 'boto.contrib.m2helpers', it reported error: "No module named m2helpers", please check your spelling and sys.path
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/elastictranscoder/layer1.py:docstring of boto.elastictranscoder.layer1.ElasticTranscoderConnection.update_pipeline_notifications:14: WARNING: Field list ends without a blank line; unexpected unindent.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/gs/bucket.py:docstring of boto.gs.bucket.Bucket.get_logging_config_with_xml:10: WARNING: Enumerated list ends without a blank line; unexpected unindent.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/gs/bucket.py:docstring of boto.gs.bucket.Bucket.get_website_configuration_with_xml:10: WARNING: Enumerated list ends without a blank line; unexpected unindent.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/gs/key.py:docstring of boto.gs.key.Key.close:5: WARNING: Field list ends without a blank line; unexpected unindent.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mturk/notification.py:docstring of boto.mturk.notification.NotificationMessage.verify:10: WARNING: Inline strong start-string without end-string.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mturk/notification.py:docstring of boto.mturk.notification.NotificationMessage.verify:8: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mturk/notification.py:docstring of boto.mturk.notification.NotificationMessage.verify:9: WARNING: Block quote ends without a blank line; unexpected unindent.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mturk/notification.py:docstring of boto.mturk.notification.NotificationMessage.verify:9: WARNING: Inline strong start-string without end-string.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mturk/notification.py:docstring of boto.mturk.notification.NotificationMessage.verify:9: WARNING: Inline emphasis start-string without end-string.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.cancel_feed_submissions:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.cancel_fulfillment_order:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.cancel_report_requests:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.create_fulfillment_order:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_competitive_pricing_for_asin:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_competitive_pricing_for_sku:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_feed_submission_list:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_fulfillment_order:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_fulfillment_preview:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_inbound_service_status:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_inventory_service_status:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_lowest_offer_listings_for_asin:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_lowest_offer_listings_for_sku:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_matching_product:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_matching_product_for_id:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_outbound_service_status:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_report_count:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_report_list:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_report_list_by_next_token:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_report_request_count:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_report_request_list:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_report_request_list_by_next_token:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_report_schedule_count:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_report_schedule_list:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.get_report_schedule_list_by_next_token:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_all_fulfillment_orders:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_all_fulfillment_orders_by_next_token:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_inbound_shipment_items:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_inbound_shipment_items_by_next_token:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_inbound_shipments:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_inbound_shipments_by_next_token:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_inventory_supply:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_inventory_supply_by_next_token:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_marketplace_participations:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_marketplace_participations_by_next_token:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_matching_products:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_order_items:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_order_items_by_next_token:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_orders:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.list_orders_by_next_token:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.manage_report_schedule:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/mws/connection.py:docstring of boto.mws.connection.MWSConnection.update_inbound_shipment:3: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/s3/bucket.py:docstring of boto.s3.bucket.Bucket.get_website_configuration_with_xml:6: WARNING: Field list ends without a blank line; unexpected unindent.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/s3/bucket.py:docstring of boto.s3.bucket.Bucket.get_website_configuration_with_xml:8: WARNING: Enumerated list ends without a blank line; unexpected unindent.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/s3/bucket.py:docstring of boto.s3.bucket.Bucket.get_website_configuration_with_xml:10: ERROR: Unexpected indentation.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/s3/bucket.py:docstring of boto.s3.bucket.Bucket.get_website_configuration_with_xml:14: WARNING: Block quote ends without a blank line; unexpected unindent.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/s3/cors.py:docstring of boto.s3.cors.CORSConfiguration.add_rule:13: WARNING: Inline emphasis start-string without end-string.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/s3/cors.py:docstring of boto.s3.cors.CORSRule:12: WARNING: Inline emphasis start-string without end-string.
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/s3/key.py:docstring of boto.s3.key.Key.close:5: WARNING: Field list ends without a blank line; unexpected unindent.
+/var/local/as/home/dmcr/software/boto/boto/docs/source/ref/s3.rst:: SEVERE: Duplicate ID: "module-boto.s3.prefix".
+/var/local/as/home/dmcr/software/boto/boto/docs/source/ref/sdb_db.rst:46: WARNING: autodoc can't import/find module 'boto.sdb.db.manager.pgmanager', it reported error: "No module named pgmanager", please check your spelling and sys.path
+/usr/lib/python2.6/site-packages/boto-2.8.0_dev-py2.6.egg/boto/swf/layer1.py:docstring of boto.swf.layer1.Layer1.start_workflow_execution:66: WARNING: Field list ends without a blank line; unexpected unindent.
+/var/local/as/home/dmcr/software/boto/boto/docs/source/s3_tut.rst:387: WARNING: Literal block ends without a blank line; unexpected unindent.
+looking for now-outdated files... none found
+pickling environment... done
+checking consistency... /var/local/as/home/dmcr/software/boto/boto/docs/source/contributing.rst:: WARNING: document isn't included in any toctree
+/var/local/as/home/dmcr/software/boto/boto/docs/source/ref/datapipeline.rst:: WARNING: document isn't included in any toctree
+/var/local/as/home/dmcr/software/boto/boto/docs/source/ref/elasticache.rst:: WARNING: document isn't included in any toctree
+/var/local/as/home/dmcr/software/boto/boto/docs/source/ref/elastictranscoder.rst:: WARNING: document isn't included in any toctree
+done
+preparing documents... done
+writing output... [  1%] autoscale_tut
+writing output... [  3%] boto_config_tut
+writing output... [  5%] cloudfront_tut
+writing output... [  7%] cloudsearch_tut
+writing output... [  8%] cloudwatch_tut
+writing output... [ 10%] contributing
+writing output... [ 12%] documentation
+writing output... [ 14%] dynamodb_tut
+writing output... [ 15%] ec2_tut
+writing output... [ 17%] elb_tut
+writing output... [ 19%] emr_tut
+writing output... [ 21%] index
+writing output... [ 22%] rds_tut
+writing output... [ 24%] ref/autoscale
+writing output... [ 26%] ref/beanstalk
+writing output... [ 28%] ref/boto
+writing output... [ 29%] ref/cloudformation
+writing output... [ 31%] ref/cloudfront
+writing output... [ 33%] ref/cloudsearch
+writing output... [ 35%] ref/cloudwatch
+writing output... [ 36%] ref/contrib
+writing output... [ 38%] ref/datapipeline
+writing output... [ 40%] ref/dynamodb
+writing output... [ 42%] ref/ec2
+writing output... [ 43%] ref/ecs
+writing output... [ 45%] ref/elasticache
+writing output... [ 47%] ref/elastictranscoder
+writing output... [ 49%] ref/elb
+writing output... [ 50%] ref/emr
+writing output... [ 52%] ref/file
+writing output... [ 54%] ref/fps
+writing output... [ 56%] ref/glacier
+writing output... [ 57%] ref/gs
+writing output... [ 59%] ref/iam
+writing output... [ 61%] ref/index
+writing output... [ 63%] ref/manage
+writing output... [ 64%] ref/mturk
+writing output... [ 66%] ref/mws
+writing output... [ 68%] ref/pyami
+writing output... [ 70%] ref/rds
+writing output... [ 71%] ref/route53
+writing output... [ 73%] ref/s3
+writing output... [ 75%] ref/sdb
+writing output... [ 77%] ref/sdb_db
+writing output... [ 78%] ref/services
+writing output... [ 80%] ref/ses
+writing output... [ 82%] ref/sns
+writing output... [ 84%] ref/sqs
+writing output... [ 85%] ref/sts
+writing output... [ 87%] ref/swf
+writing output... [ 89%] ref/vpc
+writing output... [ 91%] s3_tut
+writing output... [ 92%] security_groups
+writing output... [ 94%] ses_tut
+writing output... [ 96%] simpledb_tut
+writing output... [ 98%] sqs_tut
+writing output... [100%] vpc_tut
+
+writing additional files... genindex py-modindex search
+copying static files... WARNING: html_static_path entry '/var/local/as/home/dmcr/software/boto/boto/docs/source/_static' does not exist
+done
+dumping search index... done
+dumping object inventory... done
+build succeeded, 68 warnings.
+
+Build finished. The HTML pages are in build/html.

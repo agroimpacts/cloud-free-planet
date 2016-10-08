@@ -1,0 +1,390 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>API Reference &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="next" title="boto" href="boto.html" />
+    <link rel="prev" title="Boto Config" href="../boto_config_tut.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="boto.html" title="boto"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../boto_config_tut.html" title="Boto Config"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="api-reference">
+<span id="ref-index"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="boto.html">boto</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="boto.html#id1">boto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boto.html#module-boto.connection">boto.connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boto.html#module-boto.exception">boto.exception</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boto.html#module-boto.handler">boto.handler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boto.html#module-boto.resultset">boto.resultset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boto.html#module-boto.utils">boto.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="beanstalk.html">Elastic Beanstalk</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="beanstalk.html#module-boto.beanstalk">boto.beanstalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="beanstalk.html#module-boto.beanstalk.layer1">boto.beanstalk.layer1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="beanstalk.html#module-boto.beanstalk.response">boto.beanstalk.response</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cloudformation.html">cloudformation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cloudformation.html#module-boto.cloudformation">boto.cloudformation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudformation.html#module-boto.cloudformation.connection">boto.cloudformation.connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudformation.html#module-boto.cloudformation.stack">boto.cloudformation.stack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudformation.html#module-boto.cloudformation.template">boto.cloudformation.template</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cloudfront.html">CloudFront</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cloudfront.html#module-boto.cloudfront">boto.cloudfront</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudfront.html#module-boto.cloudfront.distribution">boto.cloudfront.distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudfront.html#module-boto.cloudfront.origin">boto.cloudfront.origin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudfront.html#module-boto.cloudfront.identity">boto.cloudfront.identity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudfront.html#module-boto.cloudfront.signers">boto.cloudfront.signers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudfront.html#module-boto.cloudfront.invalidation">boto.cloudfront.invalidation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudfront.html#module-boto.cloudfront.object">boto.cloudfront.object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudfront.html#module-boto.cloudfront.logging">boto.cloudfront.logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudfront.html#module-boto.cloudfront.exception">boto.cloudfront.exception</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cloudsearch.html">Cloudsearch</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cloudsearch.html#module-boto.cloudsearch">boto.cloudsearch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudsearch.html#module-boto.cloudsearch.domain">boto.cloudsearch.domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudsearch.html#module-boto.cloudsearch.layer1">boto.cloudsearch.layer1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudsearch.html#module-boto.cloudsearch.layer2">boto.cloudsearch.layer2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudsearch.html#module-boto.cloudsearch.optionstatus">boto.cloudsearch.optionstatus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudsearch.html#module-boto.cloudsearch.search">boto.cloudsearch.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cloudsearch.html#module-boto.cloudsearch.document">boto.cloudsearch.document</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contrib.html">contrib</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contrib.html#module-boto.contrib">boto.contrib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contrib.html#boto-contrib-m2helpers">boto.contrib.m2helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contrib.html#module-boto.contrib.ymlmessage">boto.contrib.ymlmessage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dynamodb.html">DynamoDB</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dynamodb.html#module-boto.dynamodb">boto.dynamodb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamodb.html#module-boto.dynamodb.layer1">boto.dynamodb.layer1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamodb.html#module-boto.dynamodb.layer2">boto.dynamodb.layer2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamodb.html#module-boto.dynamodb.table">boto.dynamodb.table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamodb.html#module-boto.dynamodb.schema">boto.dynamodb.schema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamodb.html#module-boto.dynamodb.item">boto.dynamodb.item</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamodb.html#module-boto.dynamodb.batch">boto.dynamodb.batch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamodb.html#module-boto.dynamodb.types">boto.dynamodb.types</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ec2.html">EC2</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2">boto.ec2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.address">boto.ec2.address</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#boto-ec2-autoscale">boto.ec2.autoscale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.buyreservation">boto.ec2.buyreservation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#boto-ec2-cloudwatch">boto.ec2.cloudwatch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.connection">boto.ec2.connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.ec2object">boto.ec2.ec2object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#boto-ec2-elb">boto.ec2.elb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.image">boto.ec2.image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.instance">boto.ec2.instance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.instanceinfo">boto.ec2.instanceinfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.instancestatus">boto.ec2.instancestatus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.keypair">boto.ec2.keypair</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.regioninfo">boto.ec2.regioninfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.reservedinstance">boto.ec2.reservedinstance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.securitygroup">boto.ec2.securitygroup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.snapshot">boto.ec2.snapshot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.spotinstancerequest">boto.ec2.spotinstancerequest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.volume">boto.ec2.volume</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ec2.html#module-boto.ec2.zone">boto.ec2.zone</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ecs.html">ECS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ecs.html#module-boto.ecs">boto.ecs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ecs.html#module-boto.ecs.item">boto.ecs.item</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="emr.html">EMR</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="emr.html#module-boto.emr">boto.emr</a></li>
+<li class="toctree-l2"><a class="reference internal" href="emr.html#module-boto.emr.connection">boto.emr.connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="emr.html#module-boto.emr.step">boto.emr.step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="emr.html#module-boto.emr.emrobject">boto.emr.emrobject</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="file.html">file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file.html#module-boto.file.bucket">boto.file.bucket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file.html#module-boto.file.simpleresultset">boto.file.simpleresultset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file.html#module-boto.file.connection">boto.file.connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file.html#module-boto.file.key">boto.file.key</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fps.html">fps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fps.html#module-boto.fps">boto.fps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fps.html#module-boto.fps.connection">boto.fps.connection</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glacier.html">Glacier</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="glacier.html#module-boto.glacier">boto.glacier</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glacier.html#module-boto.glacier.layer1">boto.glacier.layer1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glacier.html#module-boto.glacier.layer2">boto.glacier.layer2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glacier.html#module-boto.glacier.vault">boto.glacier.vault</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glacier.html#module-boto.glacier.job">boto.glacier.job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glacier.html#module-boto.glacier.writer">boto.glacier.writer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glacier.html#module-boto.glacier.concurrent">boto.glacier.concurrent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glacier.html#module-boto.glacier.exceptions">boto.glacier.exceptions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gs.html">GS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gs.html#module-boto.gs.acl">boto.gs.acl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gs.html#module-boto.gs.bucket">boto.gs.bucket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gs.html#module-boto.gs.bucketlistresultset">boto.gs.bucketlistresultset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gs.html#module-boto.gs.connection">boto.gs.connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gs.html#module-boto.gs.cors">boto.gs.cors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gs.html#module-boto.gs.key">boto.gs.key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gs.html#module-boto.gs.user">boto.gs.user</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gs.html#module-boto.gs.resumable_upload_handler">boto.gs.resumable_upload_handler</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="iam.html">IAM</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="iam.html#module-boto.iam">boto.iam</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iam.html#module-boto.iam.connection">boto.iam.connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iam.html#module-boto.iam.summarymap">boto.iam.summarymap</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manage.html">manage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manage.html#module-boto.manage">boto.manage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manage.html#module-boto.manage.cmdshell">boto.manage.cmdshell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manage.html#module-boto.manage.propget">boto.manage.propget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manage.html#module-boto.manage.server">boto.manage.server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manage.html#module-boto.manage.task">boto.manage.task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manage.html#module-boto.manage.volume">boto.manage.volume</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mturk.html">mturk</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mturk.html#module-boto.mturk">boto.mturk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mturk.html#module-boto.mturk.connection">boto.mturk.connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mturk.html#module-boto.mturk.layoutparam">boto.mturk.layoutparam</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mturk.html#module-boto.mturk.notification">boto.mturk.notification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mturk.html#module-boto.mturk.price">boto.mturk.price</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mturk.html#module-boto.mturk.qualification">boto.mturk.qualification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mturk.html#module-boto.mturk.question">boto.mturk.question</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mws.html">mws</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mws.html#module-boto.mws">boto.mws</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mws.html#module-boto.mws.connection">boto.mws.connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mws.html#module-boto.mws.exception">boto.mws.exception</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mws.html#module-boto.mws.response">boto.mws.response</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pyami.html">pyami</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami">boto.pyami</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami.bootstrap">boto.pyami.bootstrap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami.config">boto.pyami.config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami.copybot">boto.pyami.copybot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami.installers">boto.pyami.installers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami.installers.ubuntu">boto.pyami.installers.ubuntu</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami.installers.ubuntu.apache">boto.pyami.installers.ubuntu.apache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami.installers.ubuntu.ebs">boto.pyami.installers.ubuntu.ebs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami.installers.ubuntu.installer">boto.pyami.installers.ubuntu.installer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami.installers.ubuntu.mysql">boto.pyami.installers.ubuntu.mysql</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami.installers.ubuntu.trac">boto.pyami.installers.ubuntu.trac</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami.launch_ami">boto.pyami.launch_ami</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami.scriptbase">boto.pyami.scriptbase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyami.html#module-boto.pyami.startup">boto.pyami.startup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rds.html">RDS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rds.html#module-boto.rds">boto.rds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rds.html#module-boto.rds.dbinstance">boto.rds.dbinstance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rds.html#module-boto.rds.dbsecuritygroup">boto.rds.dbsecuritygroup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rds.html#module-boto.rds.dbsnapshot">boto.rds.dbsnapshot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rds.html#module-boto.rds.event">boto.rds.event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rds.html#module-boto.rds.parametergroup">boto.rds.parametergroup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="route53.html">route53</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="route53.html#module-boto.route53.connection">boto.route53.connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="route53.html#module-boto.route53.hostedzone">boto.route53.hostedzone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="route53.html#module-boto.route53.record">boto.route53.record</a></li>
+<li class="toctree-l2"><a class="reference internal" href="route53.html#module-boto.route53.exception">boto.route53.exception</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">S3</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.acl">boto.s3.acl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.bucket">boto.s3.bucket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.bucketlistresultset">boto.s3.bucketlistresultset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.connection">boto.s3.connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.cors">boto.s3.cors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.deletemarker">boto.s3.deletemarker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.key">boto.s3.key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.prefix">boto.s3.prefix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.multipart">boto.s3.multipart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.multidelete">boto.s3.multidelete</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.resumable_download_handler">boto.s3.resumable_download_handler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.lifecycle">boto.s3.lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#id5">boto.s3.prefix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.tagging">boto.s3.tagging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="s3.html#module-boto.s3.user">boto.s3.user</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sdb.html">SDB Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sdb.html#module-boto.sdb">boto.sdb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sdb.html#module-boto.sdb.connection">boto.sdb.connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sdb.html#module-boto.sdb.domain">boto.sdb.domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sdb.html#module-boto.sdb.item">boto.sdb.item</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sdb.html#module-boto.sdb.queryresultset">boto.sdb.queryresultset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">services</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-boto.services">boto.services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-boto.services.bs">boto.services.bs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-boto.services.message">boto.services.message</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-boto.services.result">boto.services.result</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-boto.services.service">boto.services.service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-boto.services.servicedef">boto.services.servicedef</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-boto.services.sonofmmm">boto.services.sonofmmm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-boto.services.submit">boto.services.submit</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ses.html">SES</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ses.html#module-boto.ses">boto.ses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ses.html#module-boto.ses.connection">boto.ses.connection</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sns.html">SNS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sns.html#module-boto.sns">boto.sns</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sqs.html">SQS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sqs.html#module-boto.sqs">boto.sqs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqs.html#module-boto.sqs.attributes">boto.sqs.attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqs.html#module-boto.sqs.connection">boto.sqs.connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqs.html#module-boto.sqs.jsonmessage">boto.sqs.jsonmessage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqs.html#module-boto.sqs.message">boto.sqs.message</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqs.html#module-boto.sqs.queue">boto.sqs.queue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqs.html#module-boto.sqs.regioninfo">boto.sqs.regioninfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sqs.html#module-boto.sqs.batchresults">boto.sqs.batchresults</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sts.html">STS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sts.html#module-boto.sts">boto.sts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sts.html#module-boto.sts.credentials">boto.sts.credentials</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="swf.html">SWF</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="swf.html#module-boto.swf">boto.swf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="swf.html#module-boto.swf.layer1">boto.swf.layer1</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vpc.html">VPC</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vpc.html#module-boto.vpc">boto.vpc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vpc.html#module-boto.vpc.customergateway">boto.vpc.customergateway</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vpc.html#module-boto.vpc.dhcpoptions">boto.vpc.dhcpoptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vpc.html#module-boto.vpc.subnet">boto.vpc.subnet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vpc.html#module-boto.vpc.vpc">boto.vpc.vpc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vpc.html#module-boto.vpc.vpnconnection">boto.vpc.vpnconnection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vpc.html#module-boto.vpc.vpngateway">boto.vpc.vpngateway</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../boto_config_tut.html"
+                        title="previous chapter">Boto Config</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="boto.html"
+                        title="next chapter">boto</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="boto.html" title="boto"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../boto_config_tut.html" title="Boto Config"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

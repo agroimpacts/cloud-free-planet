@@ -1,0 +1,1324 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>SQS &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="up" title="API Reference" href="index.html" />
+    <link rel="next" title="STS" href="sts.html" />
+    <link rel="prev" title="SNS" href="sns.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sts.html" title="STS"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sns.html" title="SNS"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="sqs">
+<h1>SQS<a class="headerlink" href="#sqs" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-boto.sqs">
+<span id="boto-sqs"></span><h2>boto.sqs<a class="headerlink" href="#module-boto.sqs" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="boto.sqs.connect_to_region">
+<tt class="descclassname">boto.sqs.</tt><tt class="descname">connect_to_region</tt><big>(</big><em>region_name</em>, <em>**kw_params</em><big>)</big><a class="headerlink" href="#boto.sqs.connect_to_region" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.sqs.regions">
+<tt class="descclassname">boto.sqs.</tt><tt class="descname">regions</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sqs.regions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all available regions for the SQS service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list of <tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.regioninfo.RegionInfo</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.sqs.attributes">
+<span id="boto-sqs-attributes"></span><h2>boto.sqs.attributes<a class="headerlink" href="#module-boto.sqs.attributes" title="Permalink to this headline">¶</a></h2>
+<p>Represents an SQS Attribute Name/Value set</p>
+<dl class="class">
+<dt id="boto.sqs.attributes.Attributes">
+<em class="property">class </em><tt class="descclassname">boto.sqs.attributes.</tt><tt class="descname">Attributes</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#boto.sqs.attributes.Attributes" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.sqs.attributes.Attributes.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sqs.attributes.Attributes.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.attributes.Attributes.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sqs.attributes.Attributes.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.sqs.connection">
+<span id="boto-sqs-connection"></span><h2>boto.sqs.connection<a class="headerlink" href="#module-boto.sqs.connection" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.sqs.connection.SQSConnection">
+<em class="property">class </em><tt class="descclassname">boto.sqs.connection.</tt><tt class="descname">SQSConnection</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>is_secure=True</em>, <em>port=None</em>, <em>proxy=None</em>, <em>proxy_port=None</em>, <em>proxy_user=None</em>, <em>proxy_pass=None</em>, <em>debug=0</em>, <em>https_connection_factory=None</em>, <em>region=None</em>, <em>path='/'</em>, <em>security_token=None</em>, <em>validate_certs=True</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Connection to the SQS Service.</p>
+<dl class="attribute">
+<dt id="boto.sqs.connection.SQSConnection.ResponseError">
+<tt class="descname">ResponseError</tt><a class="headerlink" href="#boto.sqs.connection.SQSConnection.ResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">SQSError</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.add_permission">
+<tt class="descname">add_permission</tt><big>(</big><em>queue</em>, <em>label</em>, <em>aws_account_id</em>, <em>action_name</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.add_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a permission to a queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>queue</strong> (<a class="reference internal" href="#boto.sqs.queue.Queue" title="boto.sqs.queue.Queue"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.queue.Queue</span></tt></a>) &#8211; The queue object</li>
+<li><strong>label</strong> (<em>str or unicode</em>) &#8211; A unique identification of the permission you are setting.
+Maximum of 80 characters <tt class="docutils literal"><span class="pre">[0-9a-zA-Z_-]</span></tt>
+Example, AliceSendMessage</li>
+<li><strong>principal_id</strong> &#8211; The AWS account number of the principal
+who will be given permission.  The principal must have an
+AWS account, but does not need to be signed up for Amazon
+SQS. For information about locating the AWS account
+identification.</li>
+<li><strong>action_name</strong> (<em>str or unicode</em>) &#8211; The action.  Valid choices are:
+* *
+* SendMessage
+* ReceiveMessage
+* DeleteMessage
+* ChangeMessageVisibility
+* GetQueueAttributes</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful, False otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.change_message_visibility">
+<tt class="descname">change_message_visibility</tt><big>(</big><em>queue</em>, <em>receipt_handle</em>, <em>visibility_timeout</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.change_message_visibility" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extends the read lock timeout for the specified message from
+the specified queue to the specified value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>queue</strong> (A <a class="reference internal" href="#boto.sqs.queue.Queue" title="boto.sqs.queue.Queue"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.queue.Queue</span></tt></a> object) &#8211; The Queue from which messages are read.</li>
+<li><strong>queue</strong> &#8211; The receipt handle associated with the message whose
+visibility timeout will be changed.</li>
+<li><strong>visibility_timeout</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The new value of the message&#8217;s visibility
+timeout in seconds.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.change_message_visibility_batch">
+<tt class="descname">change_message_visibility_batch</tt><big>(</big><em>queue</em>, <em>messages</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.change_message_visibility_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A batch version of change_message_visibility that can act
+on up to 10 messages at a time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>queue</strong> (A <a class="reference internal" href="#boto.sqs.queue.Queue" title="boto.sqs.queue.Queue"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.queue.Queue</span></tt></a> object.) &#8211; The Queue to which the messages will be written.</li>
+<li><strong>messages</strong> (<em>List of tuples.</em>) &#8211; A list of tuples where each tuple consists
+of a <a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a> object and an integer
+that represents the new visibility timeout for that message.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.create_queue">
+<tt class="descname">create_queue</tt><big>(</big><em>queue_name</em>, <em>visibility_timeout=None</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.create_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an SQS Queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>queue_name</strong> (<em>str or unicode</em>) &#8211; The name of the new queue.  Names are
+scoped to an account and need to be unique within that
+account.  Calling this method on an existing queue name
+will not return an error from SQS unless the value for
+visibility_timeout is different than the value of the
+existing queue of that name.  This is still an expensive
+operation, though, and not the preferred way to check for
+the existence of a queue.  See the
+<a class="reference internal" href="#boto.sqs.connection.SQSConnection.lookup" title="boto.sqs.connection.SQSConnection.lookup"><tt class="xref py py-func docutils literal"><span class="pre">boto.sqs.connection.SQSConnection.lookup()</span></tt></a> method.</li>
+<li><strong>visibility_timeout</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The default visibility timeout for
+all messages written in the queue.  This can be overridden
+on a per-message.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.sqs.queue.Queue" title="boto.sqs.queue.Queue"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.queue.Queue</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The newly created queue.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.delete_message">
+<tt class="descname">delete_message</tt><big>(</big><em>queue</em>, <em>message</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.delete_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a message from a queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>queue</strong> (A <a class="reference internal" href="#boto.sqs.queue.Queue" title="boto.sqs.queue.Queue"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.queue.Queue</span></tt></a> object) &#8211; The Queue from which messages are read.</li>
+<li><strong>message</strong> (A <a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a> object) &#8211; The Message to be deleted</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful, False otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.delete_message_batch">
+<tt class="descname">delete_message_batch</tt><big>(</big><em>queue</em>, <em>messages</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.delete_message_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes a list of messages from a queue in a single request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>queue</strong> (A <a class="reference internal" href="#boto.sqs.queue.Queue" title="boto.sqs.queue.Queue"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.queue.Queue</span></tt></a> object.) &#8211; The Queue to which the messages will be written.</li>
+<li><strong>messages</strong> (List of <a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a> objects.) &#8211; A list of message objects.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.delete_message_from_handle">
+<tt class="descname">delete_message_from_handle</tt><big>(</big><em>queue</em>, <em>receipt_handle</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.delete_message_from_handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a message from a queue, given a receipt handle.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>queue</strong> (A <a class="reference internal" href="#boto.sqs.queue.Queue" title="boto.sqs.queue.Queue"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.queue.Queue</span></tt></a> object) &#8211; The Queue from which messages are read.</li>
+<li><strong>receipt_handle</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The receipt handle for the message</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful, False otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.delete_queue">
+<tt class="descname">delete_queue</tt><big>(</big><em>queue</em>, <em>force_deletion=False</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.delete_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete an SQS Queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>queue</strong> (<em>A Queue object</em>) &#8211; The SQS queue to be deleted</li>
+<li><strong>force_deletion</strong> (<em>Boolean</em>) &#8211; A deprecated parameter that is no longer used by
+SQS&#8217;s API.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if the command succeeded, False otherwise</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.get_all_queues">
+<tt class="descname">get_all_queues</tt><big>(</big><em>prefix=''</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.get_all_queues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves all queues.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>prefix</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Optionally, only return queues that start with
+this value.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list of <a class="reference internal" href="#boto.sqs.queue.Queue" title="boto.sqs.queue.Queue"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.queue.Queue</span></tt></a> instances.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.get_queue">
+<tt class="descname">get_queue</tt><big>(</big><em>queue_name</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.get_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the queue with the given name, or <tt class="xref docutils literal"><span class="pre">None</span></tt> if no match
+was found.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>queue_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the queue to retrieve.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.sqs.queue.Queue" title="boto.sqs.queue.Queue"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.queue.Queue</span></tt></a> or <tt class="xref docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The requested queue, or <tt class="xref docutils literal"><span class="pre">None</span></tt> if no match was found.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.get_queue_attributes">
+<tt class="descname">get_queue_attributes</tt><big>(</big><em>queue</em>, <em>attribute='All'</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.get_queue_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets one or all attributes of a Queue</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>queue</strong> (<em>A Queue object</em>) &#8211; The SQS queue to be deleted</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.sqs.attributes.Attributes" title="boto.sqs.attributes.Attributes"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.attributes.Attributes</span></tt></a></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">An Attributes object containing request value(s).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.lookup">
+<tt class="descname">lookup</tt><big>(</big><em>queue_name</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.lookup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the queue with the given name, or <tt class="xref docutils literal"><span class="pre">None</span></tt> if no match
+was found.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>queue_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the queue to retrieve.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.sqs.queue.Queue" title="boto.sqs.queue.Queue"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.queue.Queue</span></tt></a> or <tt class="xref docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The requested queue, or <tt class="xref docutils literal"><span class="pre">None</span></tt> if no match was found.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.receive_message">
+<tt class="descname">receive_message</tt><big>(</big><em>queue</em>, <em>number_messages=1</em>, <em>visibility_timeout=None</em>, <em>attributes=None</em>, <em>wait_time_seconds=None</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.receive_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read messages from an SQS Queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>queue</strong> (<em>A Queue object</em>) &#8211; The Queue from which messages are read.</li>
+<li><strong>number_messages</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of messages to read
+(default=1)</li>
+<li><strong>visibility_timeout</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of seconds the message should
+remain invisible to other queue readers
+(default=None which uses the Queues default)</li>
+<li><strong>attributes</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of additional attribute to return
+with response or All if you want all attributes.  The
+default is to return no additional attributes.  Valid
+values:
+* All
+* SenderId
+* SentTimestamp
+* ApproximateReceiveCount
+* ApproximateFirstReceiveTimestamp</li>
+<li><strong>wait_time_seconds</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The duration (in seconds) for which the call
+will wait for a message to arrive in the queue before returning.
+If a message is available, the call will return sooner than
+wait_time_seconds.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">list</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of <a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a> objects.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.remove_permission">
+<tt class="descname">remove_permission</tt><big>(</big><em>queue</em>, <em>label</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.remove_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a permission from a queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>queue</strong> (<a class="reference internal" href="#boto.sqs.queue.Queue" title="boto.sqs.queue.Queue"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.queue.Queue</span></tt></a>) &#8211; The queue object</li>
+<li><strong>label</strong> (<em>str or unicode</em>) &#8211; The unique label associated with the permission
+being removed.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful, False otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.send_message">
+<tt class="descname">send_message</tt><big>(</big><em>queue</em>, <em>message_content</em>, <em>delay_seconds=None</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.send_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.send_message_batch">
+<tt class="descname">send_message_batch</tt><big>(</big><em>queue</em>, <em>messages</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.send_message_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delivers up to 10 messages to a queue in a single request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>queue</strong> (A <a class="reference internal" href="#boto.sqs.queue.Queue" title="boto.sqs.queue.Queue"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.queue.Queue</span></tt></a> object.) &#8211; The Queue to which the messages will be written.</li>
+<li><strong>messages</strong> (<em>List of lists.</em>) &#8211; A list of lists or tuples.  Each inner
+tuple represents a single message to be written
+and consists of and ID (string) that must be unique
+within the list of messages, the message body itself
+which can be a maximum of 64K in length, and an
+integer which represents the delay time (in seconds)
+for the message (0-900) before the message will
+be delivered to the queue.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.connection.SQSConnection.set_queue_attribute">
+<tt class="descname">set_queue_attribute</tt><big>(</big><em>queue</em>, <em>attribute</em>, <em>value</em><big>)</big><a class="headerlink" href="#boto.sqs.connection.SQSConnection.set_queue_attribute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.sqs.jsonmessage">
+<span id="boto-sqs-jsonmessage"></span><h2>boto.sqs.jsonmessage<a class="headerlink" href="#module-boto.sqs.jsonmessage" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.sqs.jsonmessage.JSONMessage">
+<em class="property">class </em><tt class="descclassname">boto.sqs.jsonmessage.</tt><tt class="descname">JSONMessage</tt><big>(</big><em>queue=None</em>, <em>body=None</em>, <em>xml_attrs=None</em><big>)</big><a class="headerlink" href="#boto.sqs.jsonmessage.JSONMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acts like a dictionary but encodes it&#8217;s data as a Base64 encoded JSON payload.</p>
+<dl class="method">
+<dt id="boto.sqs.jsonmessage.JSONMessage.decode">
+<tt class="descname">decode</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.sqs.jsonmessage.JSONMessage.decode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.jsonmessage.JSONMessage.encode">
+<tt class="descname">encode</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.sqs.jsonmessage.JSONMessage.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.sqs.message">
+<span id="boto-sqs-message"></span><h2>boto.sqs.message<a class="headerlink" href="#module-boto.sqs.message" title="Permalink to this headline">¶</a></h2>
+<p>SQS Message</p>
+<p>A Message represents the data stored in an SQS queue.  The rules for what is allowed within an SQS
+Message are here:</p>
+<blockquote>
+<div><a class="reference external" href="http://docs.amazonwebservices.com/AWSSimpleQueueService/2008-01-01/SQSDeveloperGuide/Query_QuerySendMessage.html">http://docs.amazonwebservices.com/AWSSimpleQueueService/2008-01-01/SQSDeveloperGuide/Query_QuerySendMessage.html</a></div></blockquote>
+<p>So, at it&#8217;s simplest level a Message just needs to allow a developer to store bytes in it and get the bytes
+back out.  However, to allow messages to have richer semantics, the Message class must support the 
+following interfaces:</p>
+<p>The constructor for the Message class must accept a keyword parameter &#8220;queue&#8221; which is an instance of a
+boto Queue object and represents the queue that the message will be stored in.  The default value for
+this parameter is None.</p>
+<p>The constructor for the Message class must accept a keyword parameter &#8220;body&#8221; which represents the
+content or body of the message.  The format of this parameter will depend on the behavior of the
+particular Message subclass.  For example, if the Message subclass provides dictionary-like behavior to the
+user the body passed to the constructor should be a dict-like object that can be used to populate
+the initial state of the message.</p>
+<p>The Message class must provide an encode method that accepts a value of the same type as the body
+parameter of the constructor and returns a string of characters that are able to be stored in an
+SQS message body (see rules above).</p>
+<p>The Message class must provide a decode method that accepts a string of characters that can be
+stored (and probably were stored!) in an SQS message and return an object of a type that is consistent
+with the &#8220;body&#8221; parameter accepted on the class constructor.</p>
+<p>The Message class must provide a __len__ method that will return the size of the encoded message
+that would be stored in SQS based on the current state of the Message object.</p>
+<p>The Message class must provide a get_body method that will return the body of the message in the
+same format accepted in the constructor of the class.</p>
+<p>The Message class must provide a set_body method that accepts a message body in the same format
+accepted by the constructor of the class.  This method should alter to the internal state of the
+Message object to reflect the state represented in the message body parameter.</p>
+<p>The Message class must provide a get_body_encoded method that returns the current body of the message
+in the format in which it would be stored in SQS.</p>
+<dl class="class">
+<dt id="boto.sqs.message.EncodedMHMessage">
+<em class="property">class </em><tt class="descclassname">boto.sqs.message.</tt><tt class="descname">EncodedMHMessage</tt><big>(</big><em>queue=None</em>, <em>body=None</em>, <em>xml_attrs=None</em><big>)</big><a class="headerlink" href="#boto.sqs.message.EncodedMHMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>The EncodedMHMessage class provides a message that provides RFC821-like
+headers like this:</p>
+<p>HeaderName: HeaderValue</p>
+<p>This variation encodes/decodes the body of the message in base64 automatically.
+The message instance can be treated like a mapping object,
+i.e. m[&#8216;HeaderName&#8217;] would return &#8216;HeaderValue&#8217;.</p>
+<dl class="method">
+<dt id="boto.sqs.message.EncodedMHMessage.decode">
+<tt class="descname">decode</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.sqs.message.EncodedMHMessage.decode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.EncodedMHMessage.encode">
+<tt class="descname">encode</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.sqs.message.EncodedMHMessage.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.sqs.message.MHMessage">
+<em class="property">class </em><tt class="descclassname">boto.sqs.message.</tt><tt class="descname">MHMessage</tt><big>(</big><em>queue=None</em>, <em>body=None</em>, <em>xml_attrs=None</em><big>)</big><a class="headerlink" href="#boto.sqs.message.MHMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>The MHMessage class provides a message that provides RFC821-like
+headers like this:</p>
+<p>HeaderName: HeaderValue</p>
+<p>The encoding/decoding of this is handled automatically and after
+the message body has been read, the message instance can be treated
+like a mapping object, i.e. m[&#8216;HeaderName&#8217;] would return &#8216;HeaderValue&#8217;.</p>
+<dl class="method">
+<dt id="boto.sqs.message.MHMessage.decode">
+<tt class="descname">decode</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.sqs.message.MHMessage.decode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.MHMessage.encode">
+<tt class="descname">encode</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.sqs.message.MHMessage.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.MHMessage.get">
+<tt class="descname">get</tt><big>(</big><em>key</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#boto.sqs.message.MHMessage.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.MHMessage.has_key">
+<tt class="descname">has_key</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#boto.sqs.message.MHMessage.has_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.MHMessage.items">
+<tt class="descname">items</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sqs.message.MHMessage.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.MHMessage.keys">
+<tt class="descname">keys</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sqs.message.MHMessage.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.MHMessage.update">
+<tt class="descname">update</tt><big>(</big><em>d</em><big>)</big><a class="headerlink" href="#boto.sqs.message.MHMessage.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.MHMessage.values">
+<tt class="descname">values</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sqs.message.MHMessage.values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.sqs.message.Message">
+<em class="property">class </em><tt class="descclassname">boto.sqs.message.</tt><tt class="descname">Message</tt><big>(</big><em>queue=None</em>, <em>body=''</em><big>)</big><a class="headerlink" href="#boto.sqs.message.Message" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default Message class used for SQS queues.  This class automatically
+encodes/decodes the message body using Base64 encoding to avoid any
+illegal characters in the message body.  See:</p>
+<p><a class="reference external" href="http://developer.amazonwebservices.com/connect/thread.jspa?messageID=49680%EC%88%90">http://developer.amazonwebservices.com/connect/thread.jspa?messageID=49680%EC%88%90</a></p>
+<p>for details on why this is a good idea.  The encode/decode is meant to
+be transparent to the end-user.</p>
+<dl class="method">
+<dt id="boto.sqs.message.Message.decode">
+<tt class="descname">decode</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.sqs.message.Message.decode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.Message.encode">
+<tt class="descname">encode</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.sqs.message.Message.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.sqs.message.RawMessage">
+<em class="property">class </em><tt class="descclassname">boto.sqs.message.</tt><tt class="descname">RawMessage</tt><big>(</big><em>queue=None</em>, <em>body=''</em><big>)</big><a class="headerlink" href="#boto.sqs.message.RawMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for SQS messages.  RawMessage does not encode the message
+in any way.  Whatever you store in the body of the message is what
+will be written to SQS and whatever is returned from SQS is stored
+directly into the body of the message.</p>
+<dl class="method">
+<dt id="boto.sqs.message.RawMessage.change_visibility">
+<tt class="descname">change_visibility</tt><big>(</big><em>visibility_timeout</em><big>)</big><a class="headerlink" href="#boto.sqs.message.RawMessage.change_visibility" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.RawMessage.decode">
+<tt class="descname">decode</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.sqs.message.RawMessage.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform seralized byte array into any object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.RawMessage.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sqs.message.RawMessage.delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.RawMessage.encode">
+<tt class="descname">encode</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.sqs.message.RawMessage.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform body object into serialized byte array format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.RawMessage.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sqs.message.RawMessage.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.RawMessage.get_body">
+<tt class="descname">get_body</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sqs.message.RawMessage.get_body" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.RawMessage.get_body_encoded">
+<tt class="descname">get_body_encoded</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sqs.message.RawMessage.get_body_encoded" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is really a semi-private method used by the Queue.write
+method when writing the contents of the message to SQS.
+You probably shouldn&#8217;t need to call this method in the normal course of events.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.RawMessage.set_body">
+<tt class="descname">set_body</tt><big>(</big><em>body</em><big>)</big><a class="headerlink" href="#boto.sqs.message.RawMessage.set_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override the current body for this object, using decoded format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.message.RawMessage.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sqs.message.RawMessage.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.sqs.queue">
+<span id="boto-sqs-queue"></span><h2>boto.sqs.queue<a class="headerlink" href="#module-boto.sqs.queue" title="Permalink to this headline">¶</a></h2>
+<p>Represents an SQS Queue</p>
+<dl class="class">
+<dt id="boto.sqs.queue.Queue">
+<em class="property">class </em><tt class="descclassname">boto.sqs.queue.</tt><tt class="descname">Queue</tt><big>(</big><em>connection=None</em>, <em>url=None</em>, <em>message_class=&lt;class boto.sqs.message.Message at 0x46429b0&gt;</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.sqs.queue.Queue.add_permission">
+<tt class="descname">add_permission</tt><big>(</big><em>label</em>, <em>aws_account_id</em>, <em>action_name</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.add_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a permission to a queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>label</strong> (<em>str or unicode</em>) &#8211; A unique identification of the permission you are setting.
+Maximum of 80 characters <tt class="docutils literal"><span class="pre">[0-9a-zA-Z_-]</span></tt>
+Example, AliceSendMessage</li>
+<li><strong>principal_id</strong> &#8211; The AWS account number of the principal who
+will be given permission.  The principal must have an AWS account,
+but does not need to be signed up for Amazon SQS. For information
+about locating the AWS account identification.</li>
+<li><strong>action_name</strong> (<em>str or unicode</em>) &#8211; The action.  Valid choices are:
+SendMessage|ReceiveMessage|DeleteMessage|
+ChangeMessageVisibility|GetQueueAttributes|*</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful, False otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.sqs.queue.Queue.arn">
+<tt class="descname">arn</tt><a class="headerlink" href="#boto.sqs.queue.Queue.arn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.change_message_visibility_batch">
+<tt class="descname">change_message_visibility_batch</tt><big>(</big><em>messages</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.change_message_visibility_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A batch version of change_message_visibility that can act
+on up to 10 messages at a time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>messages</strong> (<em>List of tuples.</em>) &#8211; A list of tuples where each tuple consists
+of a <a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a> object and an integer
+that represents the new visibility timeout for that message.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.clear">
+<tt class="descname">clear</tt><big>(</big><em>page_size=10</em>, <em>vtimeout=10</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to remove all messages from a queue</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.count">
+<tt class="descname">count</tt><big>(</big><em>page_size=10</em>, <em>vtimeout=10</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to count the number of messages in a queue.
+Note: This function now calls GetQueueAttributes to obtain
+an &#8216;approximate&#8217; count of the number of messages in a queue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.count_slow">
+<tt class="descname">count_slow</tt><big>(</big><em>page_size=10</em>, <em>vtimeout=10</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.count_slow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deprecated.  This is the old &#8216;count&#8217; method that actually counts
+the messages by reading them all.  This gives an accurate count but
+is very slow for queues with non-trivial number of messasges.
+Instead, use get_attribute(&#8216;ApproximateNumberOfMessages&#8217;) to take
+advantage of the new SQS capability.  This is retained only for
+the unit tests.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the queue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.delete_message">
+<tt class="descname">delete_message</tt><big>(</big><em>message</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.delete_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a message from the queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a>) &#8211; The <a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a> object to delete.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True if successful, False otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.delete_message_batch">
+<tt class="descname">delete_message_batch</tt><big>(</big><em>messages</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.delete_message_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes a list of messages in a single request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>messages</strong> (List of <a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a> objects.) &#8211; A list of message objects.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.dump">
+<tt class="descname">dump</tt><big>(</big><em>file_name</em>, <em>page_size=10</em>, <em>vtimeout=10</em>, <em>sep='n'</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to dump the messages in a queue to a file
+NOTE: Page size must be &lt; 10 else SQS errors</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.get_attributes">
+<tt class="descname">get_attributes</tt><big>(</big><em>attributes='All'</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.get_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves attributes about this queue object and returns
+them in an Attribute instance (subclass of a Dictionary).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>attributes</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; String containing one of:
+ApproximateNumberOfMessages,
+ApproximateNumberOfMessagesNotVisible,
+VisibilityTimeout,
+CreatedTimestamp,
+LastModifiedTimestamp,
+Policy
+ReceiveMessageWaitTimeSeconds</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">Attribute object</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">An Attribute object which is a mapping type holding the
+requested name/value pairs</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.get_messages">
+<tt class="descname">get_messages</tt><big>(</big><em>num_messages=1</em>, <em>visibility_timeout=None</em>, <em>attributes=None</em>, <em>wait_time_seconds=None</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.get_messages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a variable number of messages.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num_messages</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of messages to read from
+the queue.</li>
+<li><strong>visibility_timeout</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The VisibilityTimeout for the messages read.</li>
+<li><strong>attributes</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of additional attribute to return
+with response or All if you want all attributes.  The
+default is to return no additional attributes.  Valid
+values: All SenderId SentTimestamp ApproximateReceiveCount
+ApproximateFirstReceiveTimestamp</li>
+<li><strong>wait_time_seconds</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The duration (in seconds) for which the call
+will wait for a message to arrive in the queue before returning.
+If a message is available, the call will return sooner than
+wait_time_seconds.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">list</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of <a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a> objects.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.get_timeout">
+<tt class="descname">get_timeout</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.get_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the visibility timeout for the queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The number of seconds as an integer.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.sqs.queue.Queue.id">
+<tt class="descname">id</tt><a class="headerlink" href="#boto.sqs.queue.Queue.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.load">
+<tt class="descname">load</tt><big>(</big><em>file_name</em>, <em>sep='n'</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to load messages from a local filename to a queue</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.load_from_file">
+<tt class="descname">load_from_file</tt><big>(</big><em>fp</em>, <em>sep='n'</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.load_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to load messages from a file-like object to a queue</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.load_from_filename">
+<tt class="descname">load_from_filename</tt><big>(</big><em>file_name</em>, <em>sep='n'</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.load_from_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to load messages from a local filename to a queue</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.load_from_s3">
+<tt class="descname">load_from_s3</tt><big>(</big><em>bucket</em>, <em>prefix=None</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.load_from_s3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load messages previously saved to S3.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.sqs.queue.Queue.name">
+<tt class="descname">name</tt><a class="headerlink" href="#boto.sqs.queue.Queue.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.new_message">
+<tt class="descname">new_message</tt><big>(</big><em>body=''</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.new_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new message of appropriate class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>body</strong> (<em>message body</em>) &#8211; The body of the newly created message (optional).</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A new Message object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.read">
+<tt class="descname">read</tt><big>(</big><em>visibility_timeout=None</em>, <em>wait_time_seconds=None</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a single message from the queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>visibility_timeout</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The timeout for this message in seconds</li>
+<li><strong>wait_time_seconds</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The duration (in seconds) for which the call
+will wait for a message to arrive in the queue before returning.
+If a message is available, the call will return sooner than
+wait_time_seconds.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A single message or None if queue is empty</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.remove_permission">
+<tt class="descname">remove_permission</tt><big>(</big><em>label</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.remove_permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a permission from a queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>label</strong> (<em>str or unicode</em>) &#8211; The unique label associated with the permission
+being removed.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True if successful, False otherwise.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.save">
+<tt class="descname">save</tt><big>(</big><em>file_name</em>, <em>sep='n'</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read all messages from the queue and persist them to local file.
+Messages are written to the file and the &#8216;sep&#8217; string is written
+in between messages.  Messages are deleted from the queue after
+being written to the file.
+Returns the number of messages saved.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.save_to_file">
+<tt class="descname">save_to_file</tt><big>(</big><em>fp</em>, <em>sep='n'</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.save_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read all messages from the queue and persist them to file-like object.
+Messages are written to the file and the &#8216;sep&#8217; string is written
+in between messages.  Messages are deleted from the queue after
+being written to the file.
+Returns the number of messages saved.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.save_to_filename">
+<tt class="descname">save_to_filename</tt><big>(</big><em>file_name</em>, <em>sep='n'</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.save_to_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read all messages from the queue and persist them to local file.
+Messages are written to the file and the &#8216;sep&#8217; string is written
+in between messages.  Messages are deleted from the queue after
+being written to the file.
+Returns the number of messages saved.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.save_to_s3">
+<tt class="descname">save_to_s3</tt><big>(</big><em>bucket</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.save_to_s3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read all messages from the queue and persist them to S3.
+Messages are stored in the S3 bucket using a naming scheme of:</p>
+<div class="highlight-python"><pre>&lt;queue_id&gt;/&lt;message_id&gt;</pre>
+</div>
+<p>Messages are deleted from the queue after being saved to S3.
+Returns the number of messages saved.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.set_attribute">
+<tt class="descname">set_attribute</tt><big>(</big><em>attribute</em>, <em>value</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.set_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a new value for an attribute of the Queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>attribute</strong> (<em>String</em>) &#8211; The name of the attribute you want to set.  The
+only valid value at this time is: VisibilityTimeout</li>
+<li><strong>value</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The new value for the attribute.
+For VisibilityTimeout the value must be an
+integer number of seconds from 0 to 86400.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful, otherwise False.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.set_message_class">
+<tt class="descname">set_message_class</tt><big>(</big><em>message_class</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.set_message_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the message class that should be used when instantiating
+messages read from the queue.  By default, the class
+<a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a> is used but this can be overriden
+with any class that behaves like a message.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message_class</strong> (<em>Message-like class</em>) &#8211; The new Message class</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.set_timeout">
+<tt class="descname">set_timeout</tt><big>(</big><em>visibility_timeout</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.set_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the visibility timeout for the queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>visibility_timeout</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The desired timeout in seconds</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.write">
+<tt class="descname">write</tt><big>(</big><em>message</em>, <em>delay_seconds=None</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a single message to the queue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>Message</em>) &#8211; The message to be written to the queue</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The <a class="reference internal" href="#boto.sqs.message.Message" title="boto.sqs.message.Message"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.message.Message</span></tt></a> object that was written.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.queue.Queue.write_batch">
+<tt class="descname">write_batch</tt><big>(</big><em>messages</em><big>)</big><a class="headerlink" href="#boto.sqs.queue.Queue.write_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delivers up to 10 messages in a single request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>messages</strong> (<em>List of lists.</em>) &#8211; A list of lists or tuples.  Each inner
+tuple represents a single message to be written
+and consists of and ID (string) that must be unique
+within the list of messages, the message body itself
+which can be a maximum of 64K in length, and an
+integer which represents the delay time (in seconds)
+for the message (0-900) before the message will
+be delivered to the queue.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.sqs.regioninfo">
+<span id="boto-sqs-regioninfo"></span><h2>boto.sqs.regioninfo<a class="headerlink" href="#module-boto.sqs.regioninfo" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.sqs.regioninfo.SQSRegionInfo">
+<em class="property">class </em><tt class="descclassname">boto.sqs.regioninfo.</tt><tt class="descname">SQSRegionInfo</tt><big>(</big><em>connection=None</em>, <em>name=None</em>, <em>endpoint=None</em><big>)</big><a class="headerlink" href="#boto.sqs.regioninfo.SQSRegionInfo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-boto.sqs.batchresults">
+<span id="boto-sqs-batchresults"></span><h2>boto.sqs.batchresults<a class="headerlink" href="#module-boto.sqs.batchresults" title="Permalink to this headline">¶</a></h2>
+<p>A set of results returned by SendMessageBatch.</p>
+<dl class="class">
+<dt id="boto.sqs.batchresults.BatchResults">
+<em class="property">class </em><tt class="descclassname">boto.sqs.batchresults.</tt><tt class="descname">BatchResults</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#boto.sqs.batchresults.BatchResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>A container for the results of a send_message_batch request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>results</strong> &#8211; A list of successful results.  Each item in the
+list will be an instance of <a class="reference internal" href="#boto.sqs.batchresults.ResultEntry" title="boto.sqs.batchresults.ResultEntry"><tt class="xref py py-class docutils literal"><span class="pre">ResultEntry</span></tt></a>.</li>
+<li><strong>errors</strong> &#8211; A list of unsuccessful results.  Each item in the
+list will be an instance of <a class="reference internal" href="#boto.sqs.batchresults.ResultEntry" title="boto.sqs.batchresults.ResultEntry"><tt class="xref py py-class docutils literal"><span class="pre">ResultEntry</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.sqs.batchresults.BatchResults.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sqs.batchresults.BatchResults.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.batchresults.BatchResults.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sqs.batchresults.BatchResults.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.sqs.batchresults.ResultEntry">
+<em class="property">class </em><tt class="descclassname">boto.sqs.batchresults.</tt><tt class="descname">ResultEntry</tt><a class="headerlink" href="#boto.sqs.batchresults.ResultEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>The result (successful or unsuccessful) of a single
+message within a send_message_batch request.</p>
+<p>In the case of a successful result, this dict-like
+object will contain the following items:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://docs.python.org/library/functions.html#id" title="(in Python v2.7)"><strong>id</strong></a> &#8211; A string containing the user-supplied ID of the message.</li>
+<li><strong>message_id</strong> &#8211; A string containing the SQS ID of the new message.</li>
+<li><strong>message_md5</strong> &#8211; A string containing the MD5 hash of the message body.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>In the case of an error, this object will contain the following
+items:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://docs.python.org/library/functions.html#id" title="(in Python v2.7)"><strong>id</strong></a> &#8211; A string containing the user-supplied ID of the message.</li>
+<li><strong>sender_fault</strong> &#8211; A boolean value.</li>
+<li><strong>error_code</strong> &#8211; A string containing a short description of the error.</li>
+<li><strong>error_message</strong> &#8211; A string containing a description of the error.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.sqs.batchresults.ResultEntry.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sqs.batchresults.ResultEntry.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sqs.batchresults.ResultEntry.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sqs.batchresults.ResultEntry.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">SQS</a><ul>
+<li><a class="reference internal" href="#module-boto.sqs">boto.sqs</a></li>
+<li><a class="reference internal" href="#module-boto.sqs.attributes">boto.sqs.attributes</a></li>
+<li><a class="reference internal" href="#module-boto.sqs.connection">boto.sqs.connection</a></li>
+<li><a class="reference internal" href="#module-boto.sqs.jsonmessage">boto.sqs.jsonmessage</a></li>
+<li><a class="reference internal" href="#module-boto.sqs.message">boto.sqs.message</a></li>
+<li><a class="reference internal" href="#module-boto.sqs.queue">boto.sqs.queue</a></li>
+<li><a class="reference internal" href="#module-boto.sqs.regioninfo">boto.sqs.regioninfo</a></li>
+<li><a class="reference internal" href="#module-boto.sqs.batchresults">boto.sqs.batchresults</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sns.html"
+                        title="previous chapter">SNS</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sts.html"
+                        title="next chapter">STS</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/sqs.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sts.html" title="STS"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sns.html" title="SNS"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" >API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

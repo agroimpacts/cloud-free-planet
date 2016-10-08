@@ -1,0 +1,1207 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>SDB Reference &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="up" title="API Reference" href="index.html" />
+    <link rel="next" title="services" href="services.html" />
+    <link rel="prev" title="S3" href="s3.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="services.html" title="services"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="s3.html" title="S3"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="sdb-reference">
+<h1>SDB Reference<a class="headerlink" href="#sdb-reference" title="Permalink to this headline">¶</a></h1>
+<p>In addition to what is seen below, boto includes an abstraction
+layer for SimpleDB that may be used:</p>
+<ul class="simple">
+<li><a class="reference internal" href="sdb_db.html"><em>SimpleDB DB</em></a> (Maintained, but little documentation)</li>
+</ul>
+<div class="section" id="module-boto.sdb">
+<span id="boto-sdb"></span><h2>boto.sdb<a class="headerlink" href="#module-boto.sdb" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="boto.sdb.connect_to_region">
+<tt class="descclassname">boto.sdb.</tt><tt class="descname">connect_to_region</tt><big>(</big><em>region_name</em>, <em>**kw_params</em><big>)</big><a class="headerlink" href="#boto.sdb.connect_to_region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a valid region name, return a
+<a class="reference internal" href="#boto.sdb.connection.SDBConnection" title="boto.sdb.connection.SDBConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.connection.SDBConnection</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Type :</th><td class="field-body">str</td>
+</tr>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>region_name</strong> &#8211; The name of the region to connect to.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.sdb.connection.SDBConnection" title="boto.sdb.connection.SDBConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.connection.SDBConnection</span></tt></a> or <tt class="xref docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A connection to the given region, or None if an invalid region
+name is given</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.sdb.regions">
+<tt class="descclassname">boto.sdb.</tt><tt class="descname">regions</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sdb.regions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all available regions for the SDB service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list of <tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.regioninfo.RegionInfo</span></tt> instances</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.sdb.connection">
+<span id="boto-sdb-connection"></span><h2>boto.sdb.connection<a class="headerlink" href="#module-boto.sdb.connection" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.sdb.connection.ItemThread">
+<em class="property">class </em><tt class="descclassname">boto.sdb.connection.</tt><tt class="descname">ItemThread</tt><big>(</big><em>name</em>, <em>domain_name</em>, <em>item_names</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.ItemThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>A threaded <a class="reference internal" href="#boto.sdb.item.Item" title="boto.sdb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">Item</span></tt></a> retriever utility class.
+Retrieved <a class="reference internal" href="#boto.sdb.item.Item" title="boto.sdb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">Item</span></tt></a> objects are stored in the
+<tt class="docutils literal"><span class="pre">items</span></tt> instance variable after <a class="reference internal" href="#boto.sdb.connection.ItemThread.run" title="boto.sdb.connection.ItemThread.run"><tt class="xref py py-meth docutils literal"><span class="pre">run()</span></tt></a> is called.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">The item retrieval will not start until
+the <a class="reference internal" href="#boto.sdb.connection.ItemThread.run" title="boto.sdb.connection.ItemThread.run"><tt class="xref py py-func docutils literal"><span class="pre">run()</span></tt></a> method is called.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; A thread name. Used for identification.</li>
+<li><strong>domain_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of a SimpleDB
+<a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">Domain</span></tt></a></li>
+<li><strong>item_names</strong> (<em>string or list of strings</em>) &#8211; The name(s) of the items to retrieve from the specified
+<a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">Domain</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><p class="first last"><strong>items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of items retrieved. Starts as empty list.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.sdb.connection.ItemThread.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sdb.connection.ItemThread.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the threaded retrieval of items. Populates the
+<tt class="docutils literal"><span class="pre">items</span></tt> list with <a class="reference internal" href="#boto.sdb.item.Item" title="boto.sdb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">Item</span></tt></a> objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.sdb.connection.SDBConnection">
+<em class="property">class </em><tt class="descclassname">boto.sdb.connection.</tt><tt class="descname">SDBConnection</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>is_secure=True</em>, <em>port=None</em>, <em>proxy=None</em>, <em>proxy_port=None</em>, <em>proxy_user=None</em>, <em>proxy_pass=None</em>, <em>debug=0</em>, <em>https_connection_factory=None</em>, <em>region=None</em>, <em>path='/'</em>, <em>converter=None</em>, <em>security_token=None</em>, <em>validate_certs=True</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class serves as a gateway to your SimpleDB region (defaults to
+us-east-1). Methods within allow access to SimpleDB
+<a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">Domain</span></tt></a> objects and their associated
+<a class="reference internal" href="#boto.sdb.item.Item" title="boto.sdb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">Item</span></tt></a> objects.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">While you may instantiate this class directly, it may be easier to
+go through <a class="reference internal" href="boto.html#boto.connect_sdb" title="boto.connect_sdb"><tt class="xref py py-func docutils literal"><span class="pre">boto.connect_sdb()</span></tt></a>.</p>
+</div>
+<p>For any keywords that aren&#8217;t documented, refer to the parent class,
+<a class="reference internal" href="boto.html#boto.connection.AWSAuthConnection" title="boto.connection.AWSAuthConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.connection.AWSAuthConnection</span></tt></a>. You can avoid having
+to worry about these keyword arguments by instantiating these objects
+via <a class="reference internal" href="boto.html#boto.connect_sdb" title="boto.connect_sdb"><tt class="xref py py-func docutils literal"><span class="pre">boto.connect_sdb()</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>region</strong> (<tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.regioninfo.SDBRegionInfo</span></tt>) &#8211; <p>Explicitly specify a region. Defaults to <tt class="docutils literal"><span class="pre">us-east-1</span></tt>
+if not specified. You may also specify the region in your <tt class="docutils literal"><span class="pre">boto.cfg</span></tt>:</p>
+<div class="highlight-cfg"><div class="highlight"><pre><span class="k">[SDB]</span>
+<span class="na">region</span> <span class="o">=</span> <span class="s">eu-west-1</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="boto.sdb.connection.SDBConnection.ResponseError">
+<tt class="descname">ResponseError</tt><a class="headerlink" href="#boto.sdb.connection.SDBConnection.ResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">SDBResponseError</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.batch_delete_attributes">
+<tt class="descname">batch_delete_attributes</tt><big>(</big><em>domain_or_name</em>, <em>items</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.batch_delete_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete multiple items in a domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain_or_name</strong> (string or <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> object.) &#8211; Either the name of a domain or a Domain object</li>
+<li><strong>items</strong> (<em>dict or dict-like object</em>) &#8211; <p>A dictionary-like object.  The keys of the dictionary are
+the item names and the values are either:</p>
+<blockquote>
+<div><ul>
+<li>dictionaries of attribute names/values, exactly the
+same as the attribute_names parameter of the scalar
+put_attributes call.  The attribute name/value pairs
+will only be deleted if they match the name/value
+pairs passed in.</li>
+<li>None which means that all attributes associated
+with the item should be deleted.</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.batch_put_attributes">
+<tt class="descname">batch_put_attributes</tt><big>(</big><em>domain_or_name</em>, <em>items</em>, <em>replace=True</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.batch_put_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store attributes for multiple items in a domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain_or_name</strong> (string or <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> object.) &#8211; Either the name of a domain or a Domain object</li>
+<li><strong>items</strong> (<em>dict or dict-like object</em>) &#8211; A dictionary-like object.  The keys of the dictionary are
+the item names and the values are themselves dictionaries
+of attribute names/values, exactly the same as the
+attribute_names parameter of the scalar put_attributes
+call.</li>
+<li><strong>replace</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether the attribute values passed in will replace
+existing values or will be added as addition values.
+Defaults to True.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.create_domain">
+<tt class="descname">create_domain</tt><big>(</big><em>domain_name</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.create_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a SimpleDB domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>domain_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the new domain</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> object</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The newly created domain</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.delete_attributes">
+<tt class="descname">delete_attributes</tt><big>(</big><em>domain_or_name</em>, <em>item_name</em>, <em>attr_names=None</em>, <em>expected_value=None</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.delete_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete attributes from a given item in a domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain_or_name</strong> (string or <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> object.) &#8211; Either the name of a domain or a Domain object</li>
+<li><strong>item_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the item whose attributes are being
+deleted.</li>
+<li><strong>attributes</strong> (dict, list or <a class="reference internal" href="#boto.sdb.item.Item" title="boto.sdb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.item.Item</span></tt></a>) &#8211; Either a list containing attribute names which
+will cause all values associated with that attribute
+name to be deleted or a dict or Item containing the
+attribute names and keys and list of values to
+delete as the value.  If no value is supplied,
+all attribute name/values for the item will be
+deleted.</li>
+<li><strong>expected_value</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; <p>If supplied, this is a list or tuple consisting
+of a single attribute name and expected value. The list can be
+of the form:</p>
+<blockquote>
+<div><ul>
+<li>[&#8216;name&#8217;, &#8216;value&#8217;]</li>
+</ul>
+</div></blockquote>
+<p>In which case the call will first verify that the attribute &#8220;name&#8221;
+of this item has a value of &#8220;value&#8221;.  If it does, the delete
+will proceed, otherwise a ConditionalCheckFailed error will be
+returned. The list can also be of the form:</p>
+<blockquote>
+<div><ul>
+<li>[&#8216;name&#8217;, True|False]</li>
+</ul>
+</div></blockquote>
+<p>which will simply check for the existence (True) or
+non-existence (False) of the attribute.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.delete_domain">
+<tt class="descname">delete_domain</tt><big>(</big><em>domain_or_name</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.delete_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a SimpleDB domain.</p>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">This will delete the domain and all items within the domain.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>domain_or_name</strong> (string or <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> object.) &#8211; Either the name of a domain or a Domain object</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True if successful</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.domain_metadata">
+<tt class="descname">domain_metadata</tt><big>(</big><em>domain_or_name</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.domain_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Metadata for a SimpleDB domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>domain_or_name</strong> (string or <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> object.) &#8211; Either the name of a domain or a Domain object</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.sdb.domain.DomainMetaData" title="boto.sdb.domain.DomainMetaData"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.DomainMetaData</span></tt></a> object</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The newly created domain metadata object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.get_all_domains">
+<tt class="descname">get_all_domains</tt><big>(</big><em>max_domains=None</em>, <em>next_token=None</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.get_all_domains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <a class="reference internal" href="boto.html#boto.resultset.ResultSet" title="boto.resultset.ResultSet"><tt class="xref py py-class docutils literal"><span class="pre">boto.resultset.ResultSet</span></tt></a> containing
+all <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> objects associated with
+this connection&#8217;s Access Key ID.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_domains</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Limit the returned
+<a class="reference internal" href="boto.html#boto.resultset.ResultSet" title="boto.resultset.ResultSet"><tt class="xref py py-class docutils literal"><span class="pre">ResultSet</span></tt></a> to the specified
+number of members.</li>
+<li><strong>next_token</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; A token string that was returned in an
+earlier call to this method as the <tt class="docutils literal"><span class="pre">next_token</span></tt> attribute
+on the returned <a class="reference internal" href="boto.html#boto.resultset.ResultSet" title="boto.resultset.ResultSet"><tt class="xref py py-class docutils literal"><span class="pre">ResultSet</span></tt></a>
+object. This attribute is set if there are more than Domains than
+the value specified in the <tt class="docutils literal"><span class="pre">max_domains</span></tt> keyword. Pass the
+<tt class="docutils literal"><span class="pre">next_token</span></tt> value from you earlier query in this keyword to
+get the next &#8216;page&#8217; of domains.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.get_attributes">
+<tt class="descname">get_attributes</tt><big>(</big><em>domain_or_name</em>, <em>item_name</em>, <em>attribute_names=None</em>, <em>consistent_read=False</em>, <em>item=None</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.get_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve attributes for a given item in a domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain_or_name</strong> (string or <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> object.) &#8211; Either the name of a domain or a Domain object</li>
+<li><strong>item_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the item whose attributes are
+being retrieved.</li>
+<li><strong>attribute_names</strong> (<em>string or list of strings</em>) &#8211; An attribute name or list of attribute names.
+This parameter is optional.  If not supplied, all attributes will
+be retrieved for the item.</li>
+<li><strong>consistent_read</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; When set to true, ensures that the most recent
+data is returned.</li>
+<li><strong>item</strong> (<a class="reference internal" href="#boto.sdb.item.Item" title="boto.sdb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.item.Item</span></tt></a>) &#8211; Instead of instantiating a new Item object, you may
+specify one to update.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.sdb.item.Item" title="boto.sdb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.item.Item</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An Item with the requested attribute name/values set on it</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.get_domain">
+<tt class="descname">get_domain</tt><big>(</big><em>domain_name</em>, <em>validate=True</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.get_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves a <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> object whose name
+matches <tt class="docutils literal"><span class="pre">domain_name</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the domain to retrieve</li>
+<li><strong>validate</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; When <tt class="xref docutils literal"><span class="pre">True</span></tt>, check to see if the domain
+actually exists. If <tt class="xref docutils literal"><span class="pre">False</span></tt>, blindly return a
+<a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">Domain</span></tt></a> object with the
+specified name set.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first"><a class="reference internal" href="boto.html#boto.exception.SDBResponseError" title="boto.exception.SDBResponseError"><tt class="xref py py-class docutils literal"><span class="pre">boto.exception.SDBResponseError</span></tt></a> if <tt class="docutils literal"><span class="pre">validate</span></tt> is
+<tt class="xref docutils literal"><span class="pre">True</span></tt> and no match could be found.</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The requested domain</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.get_domain_and_name">
+<tt class="descname">get_domain_and_name</tt><big>(</big><em>domain_or_name</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.get_domain_and_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a <tt class="docutils literal"><span class="pre">str</span></tt> or <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a>, return a
+<tt class="docutils literal"><span class="pre">tuple</span></tt> with the following members (in order):</p>
+<blockquote>
+<div><ul class="simple">
+<li>In instance of <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> for the requested
+domain</li>
+<li>The domain&#8217;s name as a <tt class="docutils literal"><span class="pre">str</span></tt></li>
+</ul>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>domain_or_name</strong> (<tt class="docutils literal"><span class="pre">str</span></tt> or <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a>) &#8211; The domain or domain name to get the domain
+and name for.</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><a class="reference internal" href="boto.html#boto.exception.SDBResponseError" title="boto.exception.SDBResponseError"><tt class="xref py py-class docutils literal"><span class="pre">boto.exception.SDBResponseError</span></tt></a> when an invalid
+domain name is specified.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A <tt class="docutils literal"><span class="pre">tuple</span></tt> with contents outlined as per above.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.get_usage">
+<tt class="descname">get_usage</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.get_usage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the BoxUsage (in USD) accumulated on this specific SDBConnection
+instance.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">This can be out of date, and should only be treated as a
+rough estimate. Also note that this estimate only applies to the
+requests made on this specific connection instance. It is by
+no means an account-wide estimate.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The accumulated BoxUsage of all requests made on the connection.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.lookup">
+<tt class="descname">lookup</tt><big>(</big><em>domain_name</em>, <em>validate=True</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.lookup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lookup an existing SimpleDB domain. This differs from
+<a class="reference internal" href="#boto.sdb.connection.SDBConnection.get_domain" title="boto.sdb.connection.SDBConnection.get_domain"><tt class="xref py py-meth docutils literal"><span class="pre">get_domain()</span></tt></a> in that <tt class="xref docutils literal"><span class="pre">None</span></tt> is returned if <tt class="docutils literal"><span class="pre">validate</span></tt> is
+<tt class="xref docutils literal"><span class="pre">True</span></tt> and no match was found (instead of raising an exception).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the domain to retrieve</li>
+<li><strong>validate</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If <tt class="xref docutils literal"><span class="pre">True</span></tt>, a <tt class="xref docutils literal"><span class="pre">None</span></tt> value will be returned
+if the specified domain can&#8217;t be found. If <tt class="xref docutils literal"><span class="pre">False</span></tt>, a
+<a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">Domain</span></tt></a> object will be dumbly
+returned, regardless of whether it actually exists.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> object or <tt class="xref docutils literal"><span class="pre">None</span></tt></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The Domain object or <tt class="xref docutils literal"><span class="pre">None</span></tt> if the domain does not exist.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.print_usage">
+<tt class="descname">print_usage</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.print_usage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the BoxUsage and approximate costs of all requests made on
+this specific SDBConnection instance.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">This can be out of date, and should only be treated as a
+rough estimate. Also note that this estimate only applies to the
+requests made on this specific connection instance. It is by
+no means an account-wide estimate.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.put_attributes">
+<tt class="descname">put_attributes</tt><big>(</big><em>domain_or_name</em>, <em>item_name</em>, <em>attributes</em>, <em>replace=True</em>, <em>expected_value=None</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.put_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store attributes for a given item in a domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain_or_name</strong> (string or <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> object.) &#8211; Either the name of a domain or a Domain object</li>
+<li><strong>item_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the item whose attributes are being
+stored.</li>
+<li><strong>attribute_names</strong> (<em>dict or dict-like object</em>) &#8211; The name/value pairs to store as attributes</li>
+<li><strong>expected_value</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; <p>If supplied, this is a list or tuple consisting
+of a single attribute name and expected value. The list can be
+of the form:</p>
+<blockquote>
+<div><ul>
+<li>[&#8216;name&#8217;, &#8216;value&#8217;]</li>
+</ul>
+</div></blockquote>
+<p>In which case the call will first verify that the attribute &#8220;name&#8221;
+of this item has a value of &#8220;value&#8221;.  If it does, the delete
+will proceed, otherwise a ConditionalCheckFailed error will be
+returned. The list can also be of the form:</p>
+<blockquote>
+<div><ul>
+<li>[&#8216;name&#8217;, True|False]</li>
+</ul>
+</div></blockquote>
+<p>which will simply check for the existence (True) or
+non-existence (False) of the attribute.</p>
+</li>
+<li><strong>replace</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether the attribute values passed in will replace
+existing values or will be added as addition values.
+Defaults to True.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.select">
+<tt class="descname">select</tt><big>(</big><em>domain_or_name</em>, <em>query=''</em>, <em>next_token=None</em>, <em>consistent_read=False</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a set of Attributes for item names within domain_name that
+match the query.  The query must be expressed in using the SELECT
+style syntax rather than the original SimpleDB query language.
+Even though the select request does not require a domain object,
+a domain object must be passed into this method so the Item objects
+returned can point to the appropriate domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain_or_name</strong> (string or <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> object) &#8211; Either the name of a domain or a Domain object</li>
+<li><strong>query</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The SimpleDB query to be performed.</li>
+<li><strong>consistent_read</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; When set to true, ensures that the most recent
+data is returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">ResultSet</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An iterator containing the results.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.connection.SDBConnection.set_item_cls">
+<tt class="descname">set_item_cls</tt><big>(</big><em>cls</em><big>)</big><a class="headerlink" href="#boto.sdb.connection.SDBConnection.set_item_cls" title="Permalink to this definition">¶</a></dt>
+<dd><p>While the default item class is <a class="reference internal" href="#boto.sdb.item.Item" title="boto.sdb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.item.Item</span></tt></a>, this
+default may be overridden. Use this method to change a connection&#8217;s
+item class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cls</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><em>object</em></a>) &#8211; The new class to set as this connection&#8217;s item
+class. See the default item class for inspiration as to what your
+replacement should/could look like.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.sdb.domain">
+<span id="boto-sdb-domain"></span><h2>boto.sdb.domain<a class="headerlink" href="#module-boto.sdb.domain" title="Permalink to this headline">¶</a></h2>
+<p>Represents an SDB Domain</p>
+<dl class="class">
+<dt id="boto.sdb.domain.Domain">
+<em class="property">class </em><tt class="descclassname">boto.sdb.domain.</tt><tt class="descname">Domain</tt><big>(</big><em>connection=None</em>, <em>name=None</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.sdb.domain.Domain.batch_delete_attributes">
+<tt class="descname">batch_delete_attributes</tt><big>(</big><em>items</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.batch_delete_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete multiple items in this domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>items</strong> (<em>dict or dict-like object</em>) &#8211; <p>A dictionary-like object.  The keys of the dictionary are
+the item names and the values are either:</p>
+<blockquote>
+<div><ul class="simple">
+<li>dictionaries of attribute names/values, exactly the
+same as the attribute_names parameter of the scalar
+put_attributes call.  The attribute name/value pairs
+will only be deleted if they match the name/value
+pairs passed in.</li>
+<li>None which means that all attributes associated
+with the item should be deleted.</li>
+</ul>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True if successful</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.batch_put_attributes">
+<tt class="descname">batch_put_attributes</tt><big>(</big><em>items</em>, <em>replace=True</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.batch_put_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store attributes for multiple items.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>items</strong> (<em>dict or dict-like object</em>) &#8211; A dictionary-like object.  The keys of the dictionary are
+the item names and the values are themselves dictionaries
+of attribute names/values, exactly the same as the
+attribute_names parameter of the scalar put_attributes
+call.</li>
+<li><strong>replace</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether the attribute values passed in will replace
+existing values or will be added as addition values.
+Defaults to True.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete this domain, and all items under it</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.delete_attributes">
+<tt class="descname">delete_attributes</tt><big>(</big><em>item_name</em>, <em>attributes=None</em>, <em>expected_values=None</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.delete_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete attributes from a given item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>item_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the item whose attributes are being deleted.</li>
+<li><strong>attributes</strong> (dict, list or <a class="reference internal" href="#boto.sdb.item.Item" title="boto.sdb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.item.Item</span></tt></a>) &#8211; Either a list containing attribute names which will cause
+all values associated with that attribute name to be deleted or
+a dict or Item containing the attribute names and keys and list
+of values to delete as the value.  If no value is supplied,
+all attribute name/values for the item will be deleted.</li>
+<li><strong>expected_value</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; <p>If supplied, this is a list or tuple consisting
+of a single attribute name and expected value. The list can be of 
+the form:</p>
+<blockquote>
+<div><ul>
+<li>[&#8216;name&#8217;, &#8216;value&#8217;]</li>
+</ul>
+</div></blockquote>
+<p>In which case the call will first verify that the attribute &#8220;name&#8221;
+of this item has a value of &#8220;value&#8221;.  If it does, the delete
+will proceed, otherwise a ConditionalCheckFailed error will be 
+returned. The list can also be of the form:</p>
+<blockquote>
+<div><ul>
+<li>[&#8216;name&#8217;, True|False]</li>
+</ul>
+</div></blockquote>
+<p>which will simply check for the existence (True) or 
+non-existence (False) of the attribute.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.delete_item">
+<tt class="descname">delete_item</tt><big>(</big><em>item</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.delete_item" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.from_xml">
+<tt class="descname">from_xml</tt><big>(</big><em>doc</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load this domain based on an XML document</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.get_attributes">
+<tt class="descname">get_attributes</tt><big>(</big><em>item_name</em>, <em>attribute_name=None</em>, <em>consistent_read=False</em>, <em>item=None</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.get_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve attributes for a given item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>item_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the item whose attributes are being retrieved.</li>
+<li><strong>attribute_names</strong> (<em>string or list of strings</em>) &#8211; An attribute name or list of attribute names.  This
+parameter is optional.  If not supplied, all attributes
+will be retrieved for the item.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.sdb.item.Item" title="boto.sdb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.item.Item</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An Item mapping type containing the requested attribute name/values</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.get_item">
+<tt class="descname">get_item</tt><big>(</big><em>item_name</em>, <em>consistent_read=False</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.get_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves an item from the domain, along with all of its attributes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>item_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the item to retrieve.</li>
+<li><strong>consistent_read</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; When set to true, ensures that the most 
+recent data is returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.sdb.item.Item" title="boto.sdb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.item.Item</span></tt></a> or <tt class="xref docutils literal"><span class="pre">None</span></tt></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The requested item, or <tt class="xref docutils literal"><span class="pre">None</span></tt> if there was no match found</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.get_metadata">
+<tt class="descname">get_metadata</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.get_metadata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.new_item">
+<tt class="descname">new_item</tt><big>(</big><em>item_name</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.new_item" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.put_attributes">
+<tt class="descname">put_attributes</tt><big>(</big><em>item_name</em>, <em>attributes</em>, <em>replace=True</em>, <em>expected_value=None</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.put_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store attributes for a given item.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>item_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the item whose attributes are being stored.</li>
+<li><strong>attribute_names</strong> (<em>dict or dict-like object</em>) &#8211; The name/value pairs to store as attributes</li>
+<li><strong>expected_value</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; <p>If supplied, this is a list or tuple consisting
+of a single attribute name and expected value. The list can be 
+of the form:</p>
+<blockquote>
+<div><ul>
+<li>[&#8216;name&#8217;, &#8216;value&#8217;]</li>
+</ul>
+</div></blockquote>
+<p>In which case the call will first verify that the attribute 
+&#8220;name&#8221; of this item has a value of &#8220;value&#8221;.  If it does, the delete
+will proceed, otherwise a ConditionalCheckFailed error will be 
+returned. The list can also be of the form:</p>
+<blockquote>
+<div><ul>
+<li>[&#8216;name&#8217;, True|False]</li>
+</ul>
+</div></blockquote>
+<p>which will simply check for the existence (True) or non-existence 
+(False) of the attribute.</p>
+</li>
+<li><strong>replace</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether the attribute values passed in will replace
+existing values or will be added as addition values.
+Defaults to True.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.select">
+<tt class="descname">select</tt><big>(</big><em>query=''</em>, <em>next_token=None</em>, <em>consistent_read=False</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a set of Attributes for item names within domain_name that match the query.
+The query must be expressed in using the SELECT style syntax rather than the
+original SimpleDB query language.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>query</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The SimpleDB query to be performed.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">iter</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">An iterator containing the results.  This is actually a generator
+function that will iterate across all search results, not just the
+first page.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.Domain.to_xml">
+<tt class="descname">to_xml</tt><big>(</big><em>f=None</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.Domain.to_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get this domain as an XML DOM Document
+:param f: Optional File to dump directly to
+:type f: File or Stream</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">File object where the XML has been dumped to</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.sdb.domain.DomainDumpParser">
+<em class="property">class </em><tt class="descclassname">boto.sdb.domain.</tt><tt class="descname">DomainDumpParser</tt><big>(</big><em>domain</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.DomainDumpParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>SAX parser for a domain that has been dumped</p>
+<dl class="method">
+<dt id="boto.sdb.domain.DomainDumpParser.characters">
+<tt class="descname">characters</tt><big>(</big><em>ch</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.DomainDumpParser.characters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.DomainDumpParser.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.DomainDumpParser.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.DomainDumpParser.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.DomainDumpParser.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.sdb.domain.DomainMetaData">
+<em class="property">class </em><tt class="descclassname">boto.sdb.domain.</tt><tt class="descname">DomainMetaData</tt><big>(</big><em>domain=None</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.DomainMetaData" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.sdb.domain.DomainMetaData.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.DomainMetaData.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.domain.DomainMetaData.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.DomainMetaData.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.sdb.domain.UploaderThread">
+<em class="property">class </em><tt class="descclassname">boto.sdb.domain.</tt><tt class="descname">UploaderThread</tt><big>(</big><em>domain</em><big>)</big><a class="headerlink" href="#boto.sdb.domain.UploaderThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uploader Thread</p>
+<dl class="method">
+<dt id="boto.sdb.domain.UploaderThread.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sdb.domain.UploaderThread.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.sdb.item">
+<span id="boto-sdb-item"></span><h2>boto.sdb.item<a class="headerlink" href="#module-boto.sdb.item" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.sdb.item.Item">
+<em class="property">class </em><tt class="descclassname">boto.sdb.item.</tt><tt class="descname">Item</tt><big>(</big><em>domain</em>, <em>name=''</em>, <em>active=False</em><big>)</big><a class="headerlink" href="#boto.sdb.item.Item" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <tt class="docutils literal"><span class="pre">dict</span></tt> sub-class that serves as an object representation of a
+SimpleDB item. An item in SDB is similar to a row in a relational
+database. Items belong to a <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">Domain</span></tt></a>,
+which is similar to a table in a relational database.</p>
+<p>The keys on instances of this object correspond to attributes that are
+stored on the SDB item.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">While it is possible to instantiate this class directly, you may
+want to use the convenience methods on <a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a>
+for that purpose. For example, <a class="reference internal" href="#boto.sdb.domain.Domain.get_item" title="boto.sdb.domain.Domain.get_item"><tt class="xref py py-meth docutils literal"><span class="pre">boto.sdb.domain.Domain.get_item()</span></tt></a>.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>domain</strong> (<a class="reference internal" href="#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a>) &#8211; The domain that this item belongs to.</li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of this item. This name will be used when
+querying for items using methods like 
+<a class="reference internal" href="#boto.sdb.domain.Domain.get_item" title="boto.sdb.domain.Domain.get_item"><tt class="xref py py-meth docutils literal"><span class="pre">boto.sdb.domain.Domain.get_item()</span></tt></a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.sdb.item.Item.add_value">
+<tt class="descname">add_value</tt><big>(</big><em>key</em>, <em>value</em><big>)</big><a class="headerlink" href="#boto.sdb.item.Item.add_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helps set or add to attributes on this item. If you are adding a new
+attribute that has yet to be set, it will simply create an attribute
+named <tt class="docutils literal"><span class="pre">key</span></tt> with your given <tt class="docutils literal"><span class="pre">value</span></tt> as its value. If you are
+adding a value to an existing attribute, this method will convert the
+attribute to a list (if it isn&#8217;t already) and append your new value 
+to said list.</p>
+<p>For clarification, consider the following interactive session:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">some_domain</span><span class="o">.</span><span class="n">get_item</span><span class="p">(</span><span class="s">&#39;some_item&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="s">&#39;some_attr&#39;</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">add_value</span><span class="p">(</span><span class="s">&#39;some_attr&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="p">[</span><span class="s">&#39;some_attr&#39;</span><span class="p">]</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">add_value</span><span class="p">(</span><span class="s">&#39;some_attr&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="p">[</span><span class="s">&#39;some_attr&#39;</span><span class="p">]</span>
+<span class="go">[1, 2]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>key</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The attribute to add a value to.</li>
+<li><strong>value</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><em>object</em></a>) &#8211; The value to set or append to the attribute.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.item.Item.decode_value">
+<tt class="descname">decode_value</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.sdb.item.Item.decode_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.item.Item.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sdb.item.Item.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes this item in SDB.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This local Python object remains in its current state
+after deletion, this only deletes the remote item in SDB.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.item.Item.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sdb.item.Item.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.item.Item.load">
+<tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sdb.item.Item.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads or re-loads this item&#8217;s attributes from SDB.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">If you have changed attribute values on an Item instance,
+this method will over-write the values if they are different in
+SDB. For any local attributes that don&#8217;t yet exist in SDB,
+they will be safe.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.item.Item.save">
+<tt class="descname">save</tt><big>(</big><em>replace=True</em><big>)</big><a class="headerlink" href="#boto.sdb.item.Item.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves this item to SDB.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>replace</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If <tt class="xref docutils literal"><span class="pre">True</span></tt>, delete any attributes on the remote
+SDB item that have a <tt class="xref docutils literal"><span class="pre">None</span></tt> value on this object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.sdb.item.Item.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.sdb.item.Item.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.sdb.queryresultset">
+<span id="boto-sdb-queryresultset"></span><h2>boto.sdb.queryresultset<a class="headerlink" href="#module-boto.sdb.queryresultset" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.sdb.queryresultset.QueryResultSet">
+<em class="property">class </em><tt class="descclassname">boto.sdb.queryresultset.</tt><tt class="descname">QueryResultSet</tt><big>(</big><em>domain=None</em>, <em>query=''</em>, <em>max_items=None</em>, <em>attr_names=None</em><big>)</big><a class="headerlink" href="#boto.sdb.queryresultset.QueryResultSet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="boto.sdb.queryresultset.SelectResultSet">
+<em class="property">class </em><tt class="descclassname">boto.sdb.queryresultset.</tt><tt class="descname">SelectResultSet</tt><big>(</big><em>domain=None</em>, <em>query=''</em>, <em>max_items=None</em>, <em>next_token=None</em>, <em>consistent_read=False</em><big>)</big><a class="headerlink" href="#boto.sdb.queryresultset.SelectResultSet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.sdb.queryresultset.SelectResultSet.next">
+<tt class="descname">next</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.sdb.queryresultset.SelectResultSet.next" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.sdb.queryresultset.query_lister">
+<tt class="descclassname">boto.sdb.queryresultset.</tt><tt class="descname">query_lister</tt><big>(</big><em>domain</em>, <em>query=''</em>, <em>max_items=None</em>, <em>attr_names=None</em><big>)</big><a class="headerlink" href="#boto.sdb.queryresultset.query_lister" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.sdb.queryresultset.select_lister">
+<tt class="descclassname">boto.sdb.queryresultset.</tt><tt class="descname">select_lister</tt><big>(</big><em>domain</em>, <em>query=''</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.sdb.queryresultset.select_lister" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">SDB Reference</a><ul>
+<li><a class="reference internal" href="#module-boto.sdb">boto.sdb</a></li>
+<li><a class="reference internal" href="#module-boto.sdb.connection">boto.sdb.connection</a></li>
+<li><a class="reference internal" href="#module-boto.sdb.domain">boto.sdb.domain</a></li>
+<li><a class="reference internal" href="#module-boto.sdb.item">boto.sdb.item</a></li>
+<li><a class="reference internal" href="#module-boto.sdb.queryresultset">boto.sdb.queryresultset</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="s3.html"
+                        title="previous chapter">S3</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="services.html"
+                        title="next chapter">services</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/sdb.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="services.html" title="services"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="s3.html" title="S3"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" >API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

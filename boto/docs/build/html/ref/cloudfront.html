@@ -1,0 +1,1050 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>CloudFront &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="up" title="API Reference" href="index.html" />
+    <link rel="next" title="Cloudsearch" href="cloudsearch.html" />
+    <link rel="prev" title="cloudformation" href="cloudformation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cloudsearch.html" title="Cloudsearch"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cloudformation.html" title="cloudformation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="cloudfront">
+<h1>CloudFront<a class="headerlink" href="#cloudfront" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-boto.cloudfront">
+<span id="boto-cloudfront"></span><h2>boto.cloudfront<a class="headerlink" href="#module-boto.cloudfront" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.cloudfront.CloudFrontConnection">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.</tt><tt class="descname">CloudFrontConnection</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>port=None</em>, <em>proxy=None</em>, <em>proxy_port=None</em>, <em>host='cloudfront.amazonaws.com'</em>, <em>debug=0</em>, <em>security_token=None</em>, <em>validate_certs=True</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.create_distribution">
+<tt class="descname">create_distribution</tt><big>(</big><em>origin</em>, <em>enabled</em>, <em>caller_reference=''</em>, <em>cnames=None</em>, <em>comment=''</em>, <em>trusted_signers=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.create_distribution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.create_invalidation_request">
+<tt class="descname">create_invalidation_request</tt><big>(</big><em>distribution_id</em>, <em>paths</em>, <em>caller_reference=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.create_invalidation_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new invalidation request
+:see: <a class="reference external" href="http://goo.gl/8vECq">http://goo.gl/8vECq</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.create_origin_access_identity">
+<tt class="descname">create_origin_access_identity</tt><big>(</big><em>caller_reference=''</em>, <em>comment=''</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.create_origin_access_identity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.create_streaming_distribution">
+<tt class="descname">create_streaming_distribution</tt><big>(</big><em>origin</em>, <em>enabled</em>, <em>caller_reference=''</em>, <em>cnames=None</em>, <em>comment=''</em>, <em>trusted_signers=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.create_streaming_distribution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.delete_distribution">
+<tt class="descname">delete_distribution</tt><big>(</big><em>distribution_id</em>, <em>etag</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.delete_distribution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.delete_origin_access_identity">
+<tt class="descname">delete_origin_access_identity</tt><big>(</big><em>access_id</em>, <em>etag</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.delete_origin_access_identity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.delete_streaming_distribution">
+<tt class="descname">delete_streaming_distribution</tt><big>(</big><em>distribution_id</em>, <em>etag</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.delete_streaming_distribution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.get_all_distributions">
+<tt class="descname">get_all_distributions</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.get_all_distributions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.get_all_origin_access_identity">
+<tt class="descname">get_all_origin_access_identity</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.get_all_origin_access_identity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.get_all_streaming_distributions">
+<tt class="descname">get_all_streaming_distributions</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.get_all_streaming_distributions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.get_distribution_config">
+<tt class="descname">get_distribution_config</tt><big>(</big><em>distribution_id</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.get_distribution_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.get_distribution_info">
+<tt class="descname">get_distribution_info</tt><big>(</big><em>distribution_id</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.get_distribution_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.get_etag">
+<tt class="descname">get_etag</tt><big>(</big><em>response</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.get_etag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.get_invalidation_requests">
+<tt class="descname">get_invalidation_requests</tt><big>(</big><em>distribution_id</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.get_invalidation_requests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all invalidation requests for a given CloudFront distribution.
+This returns an instance of an InvalidationListResultSet that
+automatically handles all of the result paging, etc. from CF - you just
+need to keep iterating until there are no more results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>distribution_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The id of the CloudFront distribution</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this only when paginating results and only in
+follow-up request after you&#8217;ve received a response where
+the results are truncated. Set this to the value of the
+Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this only when paginating results and only in a
+follow-up request to indicate the maximum number of
+invalidation requests you want in the response. You
+will need to pass the next_marker property from the
+previous InvalidationListResultSet response in the
+follow-up request in order to get the next &#8216;page&#8217; of
+results.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.cloudfront.invalidation.InvalidationListResultSet" title="boto.cloudfront.invalidation.InvalidationListResultSet"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.invalidation.InvalidationListResultSet</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An InvalidationListResultSet iterator that lists invalidation
+requests for a given CloudFront distribution. Automatically
+handles paging the results.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.get_origin_access_identity_config">
+<tt class="descname">get_origin_access_identity_config</tt><big>(</big><em>access_id</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.get_origin_access_identity_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.get_origin_access_identity_info">
+<tt class="descname">get_origin_access_identity_info</tt><big>(</big><em>access_id</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.get_origin_access_identity_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.get_streaming_distribution_config">
+<tt class="descname">get_streaming_distribution_config</tt><big>(</big><em>distribution_id</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.get_streaming_distribution_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.get_streaming_distribution_info">
+<tt class="descname">get_streaming_distribution_info</tt><big>(</big><em>distribution_id</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.get_streaming_distribution_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.invalidation_request_status">
+<tt class="descname">invalidation_request_status</tt><big>(</big><em>distribution_id</em>, <em>request_id</em>, <em>caller_reference=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.invalidation_request_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.set_distribution_config">
+<tt class="descname">set_distribution_config</tt><big>(</big><em>distribution_id</em>, <em>etag</em>, <em>config</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.set_distribution_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.set_origin_access_identity_config">
+<tt class="descname">set_origin_access_identity_config</tt><big>(</big><em>access_id</em>, <em>etag</em>, <em>config</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.set_origin_access_identity_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.CloudFrontConnection.set_streaming_distribution_config">
+<tt class="descname">set_streaming_distribution_config</tt><big>(</big><em>distribution_id</em>, <em>etag</em>, <em>config</em><big>)</big><a class="headerlink" href="#boto.cloudfront.CloudFrontConnection.set_streaming_distribution_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.cloudfront.distribution">
+<span id="boto-cloudfront-distribution"></span><h2>boto.cloudfront.distribution<a class="headerlink" href="#module-boto.cloudfront.distribution" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.cloudfront.distribution.Distribution">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.distribution.</tt><tt class="descname">Distribution</tt><big>(</big><em>connection=None</em>, <em>config=None</em>, <em>domain_name=''</em>, <em>id=''</em>, <em>last_modified_time=None</em>, <em>status=''</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.Distribution" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.distribution.Distribution.add_object">
+<tt class="descname">add_object</tt><big>(</big><em>name</em>, <em>content</em>, <em>headers=None</em>, <em>replace=True</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.Distribution.add_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new content object to the Distribution.  The content
+for the object will be copied to a new Key in the S3 Bucket
+and the permissions will be set appropriately for the type
+of Distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<em>str or unicode</em>) &#8211; The name or key of the new object.</li>
+<li><strong>content</strong> (<em>file-like object</em>) &#8211; A file-like object that contains the content
+for the new object.</li>
+<li><strong>headers</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A dictionary containing additional headers
+you would like associated with the new
+object in S3.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.cloudfront.object.Object" title="boto.cloudfront.object.Object"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.object.Object</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The newly created object.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.Distribution.create_signed_url">
+<tt class="descname">create_signed_url</tt><big>(</big><em>url</em>, <em>keypair_id</em>, <em>expire_time=None</em>, <em>valid_after_time=None</em>, <em>ip_address=None</em>, <em>policy_url=None</em>, <em>private_key_file=None</em>, <em>private_key_string=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.Distribution.create_signed_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a signed CloudFront URL that is only valid within the specified
+parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The URL of the protected object.</li>
+<li><strong>keypair_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The keypair ID of the Amazon KeyPair used to sign
+theURL.  This ID MUST correspond to the private key
+specified with private_key_file or private_key_string.</li>
+<li><strong>expire_time</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The expiry time of the URL. If provided, the URL
+will expire after the time has passed. If not provided the URL will
+never expire. Format is a unix epoch.
+Use time.time() + duration_in_sec.</li>
+<li><strong>valid_after_time</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; If provided, the URL will not be valid until
+after valid_after_time. Format is a unix epoch.
+Use time.time() + secs_until_valid.</li>
+<li><strong>ip_address</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; If provided, only allows access from the specified
+IP address.  Use &#8216;192.168.0.10&#8217; for a single IP or
+use &#8216;192.168.0.0/24&#8217; CIDR notation for a subnet.</li>
+<li><strong>policy_url</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; If provided, allows the signature to contain
+wildcard globs in the URL.  For example, you could
+provide: &#8216;<a class="reference external" href="http://example.com/media/*">http://example.com/media/*</a>&#8216; and the policy
+and signature would allow access to all contents of
+the media subdirectory. If not specified, only
+allow access to the exact url provided in &#8216;url&#8217;.</li>
+<li><strong>private_key_file</strong> (<em>str or file object.</em>) &#8211; If provided, contains the filename of the
+private key file used for signing or an open
+file object containing the private key
+contents.  Only one of private_key_file or
+private_key_string can be provided.</li>
+<li><strong>private_key_string</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; If provided, contains the private key string
+used for signing. Only one of private_key_file or
+private_key_string can be provided.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">str</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The signed URL.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.Distribution.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.Distribution.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete this CloudFront Distribution.  The content
+associated with the Distribution is not deleted from
+the underlying Origin bucket in S3.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.Distribution.disable">
+<tt class="descname">disable</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.Distribution.disable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activate the Distribution.  A convenience wrapper around
+the update method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.Distribution.enable">
+<tt class="descname">enable</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.Distribution.enable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deactivate the Distribution.  A convenience wrapper around
+the update method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.Distribution.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.Distribution.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.Distribution.get_objects">
+<tt class="descname">get_objects</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.Distribution.get_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of all content objects in this distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list of <a class="reference internal" href="#boto.cloudfront.object.Object" title="boto.cloudfront.object.Object"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.object.Object</span></tt></a></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The content objects</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.Distribution.set_permissions">
+<tt class="descname">set_permissions</tt><big>(</big><em>object</em>, <em>replace=False</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.Distribution.set_permissions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the S3 ACL grants for the given object to the appropriate
+value based on the type of Distribution.  If the Distribution
+is serving private content the ACL will be set to include the
+Origin Access Identity associated with the Distribution.  If
+the Distribution is serving public content the content will
+be set up with &#8220;public-read&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>enabled</strong> &#8211; The Object whose ACL is being set</li>
+<li><strong>replace</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If False, the Origin Access Identity will be
+appended to the existing ACL for the object.
+If True, the ACL for the object will be
+completely replaced with one that grants
+READ permission to the Origin Access Identity.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.Distribution.set_permissions_all">
+<tt class="descname">set_permissions_all</tt><big>(</big><em>replace=False</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.Distribution.set_permissions_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the S3 ACL grants for all objects in the Distribution
+to the appropriate value based on the type of Distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>replace</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If False, the Origin Access Identity will be
+appended to the existing ACL for the object.
+If True, the ACL for the object will be
+completely replaced with one that grants
+READ permission to the Origin Access Identity.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.Distribution.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.Distribution.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.Distribution.update">
+<tt class="descname">update</tt><big>(</big><em>enabled=None</em>, <em>cnames=None</em>, <em>comment=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.Distribution.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the configuration of the Distribution.  The only values
+of the DistributionConfig that can be directly updated are:</p>
+<blockquote>
+<div><ul class="simple">
+<li>CNAMES</li>
+<li>Comment</li>
+<li>Whether the Distribution is enabled or not</li>
+</ul>
+</div></blockquote>
+<p>Any changes to the <tt class="docutils literal"><span class="pre">trusted_signers</span></tt> or <tt class="docutils literal"><span class="pre">origin</span></tt> properties of
+this distribution&#8217;s current config object will also be included in
+the update. Therefore, to set the origin access identity for this
+distribution, set <tt class="docutils literal"><span class="pre">Distribution.config.origin.origin_access_identity</span></tt>
+before calling this update method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>enabled</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether the Distribution is active or not.</li>
+<li><strong>cnames</strong> (<em>list of str</em>) &#8211; The DNS CNAME&#8217;s associated with this
+Distribution.  Maximum of 10 values.</li>
+<li><strong>comment</strong> (<em>str or unicode</em>) &#8211; The comment associated with the Distribution.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.cloudfront.distribution.DistributionConfig">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.distribution.</tt><tt class="descname">DistributionConfig</tt><big>(</big><em>connection=None</em>, <em>origin=None</em>, <em>enabled=False</em>, <em>caller_reference=''</em>, <em>cnames=None</em>, <em>comment=''</em>, <em>trusted_signers=None</em>, <em>default_root_object=None</em>, <em>logging=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.DistributionConfig" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>origin</strong> (<a class="reference internal" href="#boto.cloudfront.origin.S3Origin" title="boto.cloudfront.origin.S3Origin"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.origin.S3Origin</span></tt></a> or
+<a class="reference internal" href="#boto.cloudfront.origin.CustomOrigin" title="boto.cloudfront.origin.CustomOrigin"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.origin.CustomOrigin</span></tt></a>) &#8211; Origin information to associate with the
+distribution.  If your distribution will use
+an Amazon S3 origin, then this should be an
+S3Origin object. If your distribution will use
+a custom origin (non Amazon S3), then this
+should be a CustomOrigin object.</li>
+<li><strong>enabled</strong> (<em>array of str</em>) &#8211; Whether the distribution is enabled to accept
+end user requests for content.</li>
+<li><strong>caller_reference</strong> &#8211; A unique number that ensures the
+request can&#8217;t be replayed.  If no
+caller_reference is provided, boto
+will generate a type 4 UUID for use
+as the caller reference.</li>
+<li><strong>cnames</strong> &#8211; A CNAME alias you want to associate with this
+distribution. You can have up to 10 CNAME aliases
+per distribution.</li>
+<li><strong>comment</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Any comments you want to include about the
+distribution.</li>
+<li><strong>trusted_signers</strong> (<em>:class`boto.cloudfront.signers.TrustedSigners`</em>) &#8211; Specifies any AWS accounts you want to
+permit to create signed URLs for private
+content. If you want the distribution to
+use signed URLs, this should contain a
+TrustedSigners object; if you want the
+distribution to use basic URLs, leave
+this None.</li>
+<li><strong>default_root_object</strong> &#8211; Designates a default root object.
+Only include a DefaultRootObject value
+if you are going to assign a default
+root object for the distribution.</li>
+<li><strong>logging</strong> (<em>:class`boto.cloudfront.logging.LoggingInfo`</em>) &#8211; Controls whether access logs are written for the
+distribution. If you want to turn on access logs,
+this should contain a LoggingInfo object; otherwise
+it should contain None.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.cloudfront.distribution.DistributionConfig.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.DistributionConfig.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.DistributionConfig.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.DistributionConfig.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.DistributionConfig.to_xml">
+<tt class="descname">to_xml</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.DistributionConfig.to_xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.cloudfront.distribution.DistributionSummary">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.distribution.</tt><tt class="descname">DistributionSummary</tt><big>(</big><em>connection=None</em>, <em>domain_name=''</em>, <em>id=''</em>, <em>last_modified_time=None</em>, <em>status=''</em>, <em>origin=None</em>, <em>cname=''</em>, <em>comment=''</em>, <em>enabled=False</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.DistributionSummary" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.distribution.DistributionSummary.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.DistributionSummary.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.DistributionSummary.get_distribution">
+<tt class="descname">get_distribution</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.DistributionSummary.get_distribution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.DistributionSummary.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.DistributionSummary.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.cloudfront.distribution.StreamingDistribution">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.distribution.</tt><tt class="descname">StreamingDistribution</tt><big>(</big><em>connection=None</em>, <em>config=None</em>, <em>domain_name=''</em>, <em>id=''</em>, <em>last_modified_time=None</em>, <em>status=''</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.StreamingDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.distribution.StreamingDistribution.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.StreamingDistribution.delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.StreamingDistribution.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.StreamingDistribution.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.distribution.StreamingDistribution.update">
+<tt class="descname">update</tt><big>(</big><em>enabled=None</em>, <em>cnames=None</em>, <em>comment=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.StreamingDistribution.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the configuration of the StreamingDistribution.  The only values
+of the StreamingDistributionConfig that can be directly updated are:</p>
+<blockquote>
+<div><ul class="simple">
+<li>CNAMES</li>
+<li>Comment</li>
+<li>Whether the Distribution is enabled or not</li>
+</ul>
+</div></blockquote>
+<p>Any changes to the <tt class="docutils literal"><span class="pre">trusted_signers</span></tt> or <tt class="docutils literal"><span class="pre">origin</span></tt> properties of
+this distribution&#8217;s current config object will also be included in
+the update. Therefore, to set the origin access identity for this
+distribution, set
+<tt class="docutils literal"><span class="pre">StreamingDistribution.config.origin.origin_access_identity</span></tt>
+before calling this update method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>enabled</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether the StreamingDistribution is active or not.</li>
+<li><strong>cnames</strong> (<em>list of str</em>) &#8211; The DNS CNAME&#8217;s associated with this
+Distribution.  Maximum of 10 values.</li>
+<li><strong>comment</strong> (<em>str or unicode</em>) &#8211; The comment associated with the Distribution.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.cloudfront.distribution.StreamingDistributionConfig">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.distribution.</tt><tt class="descname">StreamingDistributionConfig</tt><big>(</big><em>connection=None</em>, <em>origin=''</em>, <em>enabled=False</em>, <em>caller_reference=''</em>, <em>cnames=None</em>, <em>comment=''</em>, <em>trusted_signers=None</em>, <em>logging=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.StreamingDistributionConfig" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.distribution.StreamingDistributionConfig.to_xml">
+<tt class="descname">to_xml</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.StreamingDistributionConfig.to_xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.cloudfront.distribution.StreamingDistributionSummary">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.distribution.</tt><tt class="descname">StreamingDistributionSummary</tt><big>(</big><em>connection=None</em>, <em>domain_name=''</em>, <em>id=''</em>, <em>last_modified_time=None</em>, <em>status=''</em>, <em>origin=None</em>, <em>cname=''</em>, <em>comment=''</em>, <em>enabled=False</em><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.StreamingDistributionSummary" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.distribution.StreamingDistributionSummary.get_distribution">
+<tt class="descname">get_distribution</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.distribution.StreamingDistributionSummary.get_distribution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.cloudfront.origin">
+<span id="boto-cloudfront-origin"></span><h2>boto.cloudfront.origin<a class="headerlink" href="#module-boto.cloudfront.origin" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.cloudfront.origin.CustomOrigin">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.origin.</tt><tt class="descname">CustomOrigin</tt><big>(</big><em>dns_name=None</em>, <em>http_port=80</em>, <em>https_port=443</em>, <em>origin_protocol_policy=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.origin.CustomOrigin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Origin information to associate with the distribution.
+If your distribution will use a non-Amazon S3 origin,
+then you use the CustomOrigin element.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dns_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The DNS name of your Amazon S3 bucket to
+associate with the distribution.
+For example: mybucket.s3.amazonaws.com.</li>
+<li><strong>http_port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The HTTP port the custom origin listens on.</li>
+<li><strong>https_port</strong> &#8211; The HTTPS port the custom origin listens on.</li>
+<li><strong>origin_protocol_policy</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The origin protocol policy to
+apply to your origin. If you
+specify http-only, CloudFront
+will use HTTP only to access the origin.
+If you specify match-viewer, CloudFront
+will fetch from your origin using HTTP
+or HTTPS, based on the protocol of the
+viewer request.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.cloudfront.origin.CustomOrigin.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.origin.CustomOrigin.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.origin.CustomOrigin.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.origin.CustomOrigin.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.origin.CustomOrigin.to_xml">
+<tt class="descname">to_xml</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.origin.CustomOrigin.to_xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.cloudfront.origin.S3Origin">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.origin.</tt><tt class="descname">S3Origin</tt><big>(</big><em>dns_name=None</em>, <em>origin_access_identity=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.origin.S3Origin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Origin information to associate with the distribution.
+If your distribution will use an Amazon S3 origin,
+then you use the S3Origin element.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dns_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The DNS name of your Amazon S3 bucket to
+associate with the distribution.
+For example: mybucket.s3.amazonaws.com.</li>
+<li><strong>origin_access_identity</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The CloudFront origin access
+identity to associate with the
+distribution. If you want the
+distribution to serve private content,
+include this element; if you want the
+distribution to serve public content,
+remove this element.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.cloudfront.origin.S3Origin.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.origin.S3Origin.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.origin.S3Origin.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.origin.S3Origin.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.origin.S3Origin.to_xml">
+<tt class="descname">to_xml</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.origin.S3Origin.to_xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.cloudfront.origin.get_oai_value">
+<tt class="descclassname">boto.cloudfront.origin.</tt><tt class="descname">get_oai_value</tt><big>(</big><em>origin_access_identity</em><big>)</big><a class="headerlink" href="#boto.cloudfront.origin.get_oai_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-boto.cloudfront.identity">
+<span id="boto-cloudfront-identity"></span><h2>boto.cloudfront.identity<a class="headerlink" href="#module-boto.cloudfront.identity" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.cloudfront.identity.OriginAccessIdentity">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.identity.</tt><tt class="descname">OriginAccessIdentity</tt><big>(</big><em>connection=None</em>, <em>config=None</em>, <em>id=''</em>, <em>s3_user_id=''</em>, <em>comment=''</em><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentity" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.identity.OriginAccessIdentity.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentity.delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.identity.OriginAccessIdentity.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentity.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.identity.OriginAccessIdentity.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentity.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.identity.OriginAccessIdentity.update">
+<tt class="descname">update</tt><big>(</big><em>comment=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentity.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.identity.OriginAccessIdentity.uri">
+<tt class="descname">uri</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentity.uri" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.cloudfront.identity.OriginAccessIdentityConfig">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.identity.</tt><tt class="descname">OriginAccessIdentityConfig</tt><big>(</big><em>connection=None</em>, <em>caller_reference=''</em>, <em>comment=''</em><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentityConfig" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.identity.OriginAccessIdentityConfig.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentityConfig.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.identity.OriginAccessIdentityConfig.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentityConfig.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.identity.OriginAccessIdentityConfig.to_xml">
+<tt class="descname">to_xml</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentityConfig.to_xml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.cloudfront.identity.OriginAccessIdentitySummary">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.identity.</tt><tt class="descname">OriginAccessIdentitySummary</tt><big>(</big><em>connection=None</em>, <em>id=''</em>, <em>s3_user_id=''</em>, <em>comment=''</em><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentitySummary" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.identity.OriginAccessIdentitySummary.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentitySummary.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.identity.OriginAccessIdentitySummary.get_origin_access_identity">
+<tt class="descname">get_origin_access_identity</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentitySummary.get_origin_access_identity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.identity.OriginAccessIdentitySummary.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.identity.OriginAccessIdentitySummary.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.cloudfront.signers">
+<span id="boto-cloudfront-signers"></span><h2>boto.cloudfront.signers<a class="headerlink" href="#module-boto.cloudfront.signers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.cloudfront.signers.ActiveTrustedSigners">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.signers.</tt><tt class="descname">ActiveTrustedSigners</tt><a class="headerlink" href="#boto.cloudfront.signers.ActiveTrustedSigners" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.signers.ActiveTrustedSigners.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.signers.ActiveTrustedSigners.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.signers.ActiveTrustedSigners.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.signers.ActiveTrustedSigners.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.cloudfront.signers.Signer">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.signers.</tt><tt class="descname">Signer</tt><a class="headerlink" href="#boto.cloudfront.signers.Signer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.signers.Signer.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.signers.Signer.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.signers.Signer.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.signers.Signer.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.cloudfront.signers.TrustedSigners">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.signers.</tt><tt class="descname">TrustedSigners</tt><a class="headerlink" href="#boto.cloudfront.signers.TrustedSigners" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.signers.TrustedSigners.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.signers.TrustedSigners.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.signers.TrustedSigners.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.signers.TrustedSigners.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.cloudfront.invalidation">
+<span id="boto-cloudfront-invalidation"></span><h2>boto.cloudfront.invalidation<a class="headerlink" href="#module-boto.cloudfront.invalidation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.cloudfront.invalidation.InvalidationBatch">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.invalidation.</tt><tt class="descname">InvalidationBatch</tt><big>(</big><em>paths=None</em>, <em>connection=None</em>, <em>distribution=None</em>, <em>caller_reference=''</em><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationBatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>A simple invalidation request.
+:see: <a class="reference external" href="http://docs.amazonwebservices.com/AmazonCloudFront/2010-08-01/APIReference/index.html?InvalidationBatchDatatype.html">http://docs.amazonwebservices.com/AmazonCloudFront/2010-08-01/APIReference/index.html?InvalidationBatchDatatype.html</a></p>
+<p>Create a new invalidation request:
+:paths: An array of paths to invalidate</p>
+<dl class="method">
+<dt id="boto.cloudfront.invalidation.InvalidationBatch.add">
+<tt class="descname">add</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationBatch.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add another path to this invalidation request</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.invalidation.InvalidationBatch.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationBatch.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.invalidation.InvalidationBatch.escape">
+<tt class="descname">escape</tt><big>(</big><em>p</em><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationBatch.escape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Escape a path, make sure it begins with a slash and contains no invalid characters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.invalidation.InvalidationBatch.remove">
+<tt class="descname">remove</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationBatch.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a path from this invalidation request</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.invalidation.InvalidationBatch.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationBatch.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.invalidation.InvalidationBatch.to_xml">
+<tt class="descname">to_xml</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationBatch.to_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get this batch as XML</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.cloudfront.invalidation.InvalidationListResultSet">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.invalidation.</tt><tt class="descname">InvalidationListResultSet</tt><big>(</big><em>markers=None</em>, <em>connection=None</em>, <em>distribution_id=None</em>, <em>invalidations=None</em>, <em>marker=''</em>, <em>next_marker=None</em>, <em>max_items=None</em>, <em>is_truncated=False</em><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationListResultSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>A resultset for listing invalidations on a given CloudFront distribution.
+Implements the iterator interface and transparently handles paging results
+from CF so even if you have many thousands of invalidations on the
+distribution you can iterate over all invalidations in a reasonably
+efficient manner.</p>
+<dl class="method">
+<dt id="boto.cloudfront.invalidation.InvalidationListResultSet.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationListResultSet.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.invalidation.InvalidationListResultSet.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationListResultSet.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.invalidation.InvalidationListResultSet.to_boolean">
+<tt class="descname">to_boolean</tt><big>(</big><em>value</em>, <em>true_value='true'</em><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationListResultSet.to_boolean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.cloudfront.invalidation.InvalidationSummary">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.invalidation.</tt><tt class="descname">InvalidationSummary</tt><big>(</big><em>connection=None</em>, <em>distribution_id=None</em>, <em>id=''</em>, <em>status=''</em><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationSummary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents InvalidationSummary complex type in CloudFront API that lists
+the id and status of a given invalidation request.</p>
+<dl class="method">
+<dt id="boto.cloudfront.invalidation.InvalidationSummary.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationSummary.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.invalidation.InvalidationSummary.get_distribution">
+<tt class="descname">get_distribution</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationSummary.get_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a Distribution object representing the parent CloudFront
+distribution of the invalidation request listed in the
+InvalidationSummary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.cloudfront.distribution.Distribution" title="boto.cloudfront.distribution.Distribution"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.distribution.Distribution</span></tt></a></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A Distribution object representing the parent CloudFront
+distribution  of the invalidation request listed in the
+InvalidationSummary</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.invalidation.InvalidationSummary.get_invalidation_request">
+<tt class="descname">get_invalidation_request</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationSummary.get_invalidation_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an InvalidationBatch object representing the invalidation
+request referred to in the InvalidationSummary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.cloudfront.invalidation.InvalidationBatch" title="boto.cloudfront.invalidation.InvalidationBatch"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.invalidation.InvalidationBatch</span></tt></a></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">An InvalidationBatch object representing the invalidation
+request referred to by the InvalidationSummary</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.invalidation.InvalidationSummary.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.invalidation.InvalidationSummary.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.cloudfront.object">
+<span id="boto-cloudfront-object"></span><h2>boto.cloudfront.object<a class="headerlink" href="#module-boto.cloudfront.object" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.cloudfront.object.Object">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.object.</tt><tt class="descname">Object</tt><big>(</big><em>bucket</em>, <em>name=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.object.Object" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.object.Object.url">
+<tt class="descname">url</tt><big>(</big><em>scheme='http'</em><big>)</big><a class="headerlink" href="#boto.cloudfront.object.Object.url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.cloudfront.object.StreamingObject">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.object.</tt><tt class="descname">StreamingObject</tt><big>(</big><em>bucket</em>, <em>name=None</em><big>)</big><a class="headerlink" href="#boto.cloudfront.object.StreamingObject" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.object.StreamingObject.url">
+<tt class="descname">url</tt><big>(</big><em>scheme='rtmp'</em><big>)</big><a class="headerlink" href="#boto.cloudfront.object.StreamingObject.url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.cloudfront.logging">
+<span id="boto-cloudfront-logging"></span><h2>boto.cloudfront.logging<a class="headerlink" href="#module-boto.cloudfront.logging" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.cloudfront.logging.LoggingInfo">
+<em class="property">class </em><tt class="descclassname">boto.cloudfront.logging.</tt><tt class="descname">LoggingInfo</tt><big>(</big><em>bucket=''</em>, <em>prefix=''</em><big>)</big><a class="headerlink" href="#boto.cloudfront.logging.LoggingInfo" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.cloudfront.logging.LoggingInfo.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.logging.LoggingInfo.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.cloudfront.logging.LoggingInfo.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.cloudfront.logging.LoggingInfo.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.cloudfront.exception">
+<span id="boto-cloudfront-exception"></span><h2>boto.cloudfront.exception<a class="headerlink" href="#module-boto.cloudfront.exception" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="boto.cloudfront.exception.CloudFrontServerError">
+<em class="property">exception </em><tt class="descclassname">boto.cloudfront.exception.</tt><tt class="descname">CloudFrontServerError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.cloudfront.exception.CloudFrontServerError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">CloudFront</a><ul>
+<li><a class="reference internal" href="#module-boto.cloudfront">boto.cloudfront</a></li>
+<li><a class="reference internal" href="#module-boto.cloudfront.distribution">boto.cloudfront.distribution</a></li>
+<li><a class="reference internal" href="#module-boto.cloudfront.origin">boto.cloudfront.origin</a></li>
+<li><a class="reference internal" href="#module-boto.cloudfront.identity">boto.cloudfront.identity</a></li>
+<li><a class="reference internal" href="#module-boto.cloudfront.signers">boto.cloudfront.signers</a></li>
+<li><a class="reference internal" href="#module-boto.cloudfront.invalidation">boto.cloudfront.invalidation</a></li>
+<li><a class="reference internal" href="#module-boto.cloudfront.object">boto.cloudfront.object</a></li>
+<li><a class="reference internal" href="#module-boto.cloudfront.logging">boto.cloudfront.logging</a></li>
+<li><a class="reference internal" href="#module-boto.cloudfront.exception">boto.cloudfront.exception</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cloudformation.html"
+                        title="previous chapter">cloudformation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cloudsearch.html"
+                        title="next chapter">Cloudsearch</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/cloudfront.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cloudsearch.html" title="Cloudsearch"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cloudformation.html" title="cloudformation"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" >API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

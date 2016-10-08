@@ -1,0 +1,313 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>CloudFront &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="index.html" />
+    <link rel="next" title="CloudFront" href="ref/cloudfront.html" />
+    <link rel="prev" title="Auto Scaling Reference" href="ref/autoscale.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ref/cloudfront.html" title="CloudFront"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ref/autoscale.html" title="Auto Scaling Reference"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="cloudfront">
+<span id="cloudfront-tut"></span><h1>CloudFront<a class="headerlink" href="#cloudfront" title="Permalink to this headline">¶</a></h1>
+<p>This new boto module provides an interface to Amazon&#8217;s Content Service,
+CloudFront.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This module is not well tested.  Paging of distributions is not yet
+supported. CNAME support is completely untested.  Use with caution.
+Feedback and bug reports are greatly appreciated.</p>
+</div>
+<div class="section" id="creating-a-cloudfront-connection">
+<h2>Creating a CloudFront connection<a class="headerlink" href="#creating-a-cloudfront-connection" title="Permalink to this headline">¶</a></h2>
+<p>If you&#8217;ve placed your credentials in your <tt class="docutils literal"><span class="pre">$HOME/.boto</span></tt> config file then you
+can simply create a CloudFront connection using:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">boto</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">boto</span><span class="o">.</span><span class="n">connect_cloudfront</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If you do not have this file you will need to specify your AWS access key and
+secret access key:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">boto</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">boto</span><span class="o">.</span><span class="n">connect_cloudfront</span><span class="p">(</span><span class="s">&#39;your-aws-access-key-id&#39;</span><span class="p">,</span> <span class="s">&#39;your-aws-secret-access-key&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="working-with-cloudfront-distributions">
+<h2>Working with CloudFront Distributions<a class="headerlink" href="#working-with-cloudfront-distributions" title="Permalink to this headline">¶</a></h2>
+<p>Create a new <a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.distribution.Distribution" title="boto.cloudfront.distribution.Distribution"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.distribution.Distribution</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">distro</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">create_distribution</span><span class="p">(</span><span class="n">origin</span><span class="o">=</span><span class="s">&#39;mybucket.s3.amazonaws.com&#39;</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s">&#39;My new Distribution&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">domain_name</span>
+<span class="go">u&#39;d2oxf3980lnb8l.cloudfront.net&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">id</span>
+<span class="go">u&#39;ECH69MOIW7613&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">status</span>
+<span class="go">u&#39;InProgress&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">comment</span>
+<span class="go">u&#39;My new distribution&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">origin</span>
+<span class="go">&lt;S3Origin: mybucket.s3.amazonaws.com&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">caller_reference</span>
+<span class="go">u&#39;31b8d9cf-a623-4a28-b062-a91856fac6d0&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">enabled</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<p>Note that a new caller reference is created automatically, using
+uuid.uuid4(). The <a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.distribution.Distribution" title="boto.cloudfront.distribution.Distribution"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.distribution.Distribution</span></tt></a>,
+<a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.distribution.DistributionConfig" title="boto.cloudfront.distribution.DistributionConfig"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.distribution.DistributionConfig</span></tt></a> and
+<a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.distribution.DistributionSummary" title="boto.cloudfront.distribution.DistributionSummary"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.distribution.DistributionSummary</span></tt></a> objects are defined
+in the <a class="reference internal" href="ref/cloudfront.html#module-boto.cloudfront.distribution" title="boto.cloudfront.distribution"><tt class="xref py py-mod docutils literal"><span class="pre">boto.cloudfront.distribution</span></tt></a> module.</p>
+<p>To get a listing of all current distributions:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rs</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_all_distributions</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rs</span>
+<span class="go">[&lt;boto.cloudfront.distribution.DistributionSummary instance at 0xe8d4e0&gt;,</span>
+<span class="go"> &lt;boto.cloudfront.distribution.DistributionSummary instance at 0xe8d788&gt;]</span>
+</pre></div>
+</div>
+<p>This returns a list of <a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.distribution.DistributionSummary" title="boto.cloudfront.distribution.DistributionSummary"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.distribution.DistributionSummary</span></tt></a>
+objects. Note that paging is not yet supported! To get a
+<tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.distribution.DistributionObject</span></tt> from a
+<a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.distribution.DistributionSummary" title="boto.cloudfront.distribution.DistributionSummary"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.distribution.DistributionSummary</span></tt></a> object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">rs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">distro</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_distribution</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">distro</span><span class="o">.</span><span class="n">domain_name</span>
+<span class="go">u&#39;d2oxf3980lnb8l.cloudfront.net&#39;</span>
+</pre></div>
+</div>
+<p>To change a property of a distribution object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">distro</span><span class="o">.</span><span class="n">comment</span>
+<span class="go">u&#39;My new distribution&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">distro</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">comment</span><span class="o">=</span><span class="s">&#39;This is a much better comment&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">distro</span><span class="o">.</span><span class="n">comment</span>
+<span class="go">&#39;This is a much better comment&#39;</span>
+</pre></div>
+</div>
+<p>You can also enable/disable a distribution using the following
+convenience methods:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">distro</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>  <span class="c"># just calls distro.update(enabled=True)</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">distro</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span>  <span class="c"># just calls distro.update(enabled=False)</span>
+</pre></div>
+</div>
+<p>The only attributes that can be updated for a Distribution are
+comment, enabled and cnames.</p>
+<p>To delete a <a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.distribution.Distribution" title="boto.cloudfront.distribution.Distribution"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.distribution.Distribution</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">distro</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="invalidating-cloudfront-distribution-paths">
+<h2>Invalidating CloudFront Distribution Paths<a class="headerlink" href="#invalidating-cloudfront-distribution-paths" title="Permalink to this headline">¶</a></h2>
+<p>Invalidate a list of paths in a CloudFront distribution:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;/path/to/file1.html&#39;</span><span class="p">,</span> <span class="s">&#39;/path/to/file2.html&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inval_req</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">create_invalidation_request</span><span class="p">(</span><span class="s">u&#39;ECH69MOIW7613&#39;</span><span class="p">,</span> <span class="n">paths</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">inval_req</span>
+<span class="go">&lt;InvalidationBatch: IFCT7K03VUETK&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">inval_req</span><span class="o">.</span><span class="n">id</span>
+<span class="go">u&#39;IFCT7K03VUETK&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">inval_req</span><span class="o">.</span><span class="n">paths</span>
+<span class="go">[u&#39;/path/to/file1.html&#39;, u&#39;/path/to/file2.html&#39;, ..]</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Each CloudFront invalidation request can only specify up to 1000 paths. If
+you need to invalidate more than 1000 paths you will need to split up the
+paths into groups of 1000 or less and create multiple invalidation requests.</p>
+</div>
+<p>This will return a <a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.invalidation.InvalidationBatch" title="boto.cloudfront.invalidation.InvalidationBatch"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.invalidation.InvalidationBatch</span></tt></a>
+object representing the invalidation request. You can also fetch a single
+invalidaton request for a given distribution using
+<tt class="docutils literal"><span class="pre">invalidation_request_status</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">inval_req</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">invalidation_request_status</span><span class="p">(</span><span class="s">u&#39;ECH69MOIW7613&#39;</span><span class="p">,</span> <span class="s">u&#39;IFCT7K03VUETK&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">inval_req</span>
+<span class="go">&lt;InvalidationBatch: IFCT7K03VUETK&gt;</span>
+</pre></div>
+</div>
+<p>The first parameter is the CloudFront distribution id the request belongs to
+and the second parameter is the invalidation request id.</p>
+<p>It&#8217;s also possible to get <em>all</em> invalidations for a given CloudFront
+distribution:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">invals</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_invalidation_requests</span><span class="p">(</span><span class="s">u&#39;ECH69MOIW7613&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">invals</span>
+<span class="go">&lt;boto.cloudfront.invalidation.InvalidationListResultSet instance at 0x15d28d0&gt;</span>
+</pre></div>
+</div>
+<p>This will return an instance of
+<a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.invalidation.InvalidationListResultSet" title="boto.cloudfront.invalidation.InvalidationListResultSet"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.invalidation.InvalidationListResultSet</span></tt></a> which is an
+iterable object that contains a list of
+<a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.invalidation.InvalidationSummary" title="boto.cloudfront.invalidation.InvalidationSummary"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.invalidation.InvalidationSummary</span></tt></a> objects that describe
+each invalidation request and its status:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">inval</span> <span class="ow">in</span> <span class="n">invals</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">print</span> <span class="s">&#39;Object: </span><span class="si">%s</span><span class="s">, ID: </span><span class="si">%s</span><span class="s">, Status: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">inval</span><span class="p">,</span> <span class="n">inval</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">inval</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+<span class="go">Object: &lt;InvalidationSummary: ICXT2K02SUETK&gt;, ID: ICXT2K02SUETK, Status: Completed</span>
+<span class="go">Object: &lt;InvalidationSummary: ITV9SV0PDNY1Y&gt;, ID: ITV9SV0PDNY1Y, Status: Completed</span>
+<span class="go">Object: &lt;InvalidationSummary: I1X3F6N0PLGJN5&gt;, ID: I1X3F6N0PLGJN5, Status: Completed</span>
+<span class="go">Object: &lt;InvalidationSummary: I1F3G9N0ZLGKN2&gt;, ID: I1F3G9N0ZLGKN2, Status: Completed</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+<p>Simply iterating over the
+<a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.invalidation.InvalidationListResultSet" title="boto.cloudfront.invalidation.InvalidationListResultSet"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.invalidation.InvalidationListResultSet</span></tt></a> object will
+automatically paginate the results on-the-fly as needed by repeatedly
+requesting more results from CloudFront until there are none left.</p>
+<p>If you wish to paginate the results manually you can do so by specifying the
+<tt class="docutils literal"><span class="pre">max_items</span></tt> option when calling <tt class="docutils literal"><span class="pre">get_invalidation_requests</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">invals</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_invalidation_requests</span><span class="p">(</span><span class="s">u&#39;ECH69MOIW7613&#39;</span><span class="p">,</span> <span class="n">max_items</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">invals</span><span class="p">))</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">inval</span> <span class="ow">in</span> <span class="n">invals</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">print</span> <span class="s">&#39;Object: </span><span class="si">%s</span><span class="s">, ID: </span><span class="si">%s</span><span class="s">, Status: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">inval</span><span class="p">,</span> <span class="n">inval</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">inval</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+<span class="go">Object: &lt;InvalidationSummary: ICXT2K02SUETK&gt;, ID: ICXT2K02SUETK, Status: Completed</span>
+<span class="go">Object: &lt;InvalidationSummary: ITV9SV0PDNY1Y&gt;, ID: ITV9SV0PDNY1Y, Status: Completed</span>
+</pre></div>
+</div>
+<p>In this case, iterating over the
+<a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.invalidation.InvalidationListResultSet" title="boto.cloudfront.invalidation.InvalidationListResultSet"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.invalidation.InvalidationListResultSet</span></tt></a> object will
+<em>only</em> make a single request to CloudFront and <em>only</em> <tt class="docutils literal"><span class="pre">max_items</span></tt>
+invalidation requests are returned by the iterator. To get the next &#8220;page&#8221; of
+results pass the <tt class="docutils literal"><span class="pre">next_marker</span></tt> attribute of the previous
+<a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.invalidation.InvalidationListResultSet" title="boto.cloudfront.invalidation.InvalidationListResultSet"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.invalidation.InvalidationListResultSet</span></tt></a> object as the
+<tt class="docutils literal"><span class="pre">marker</span></tt> option to the next call to <tt class="docutils literal"><span class="pre">get_invalidation_requests</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">invals</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_invalidation_requests</span><span class="p">(</span><span class="s">u&#39;ECH69MOIW7613&#39;</span><span class="p">,</span> <span class="n">max_items</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="n">invals</span><span class="o">.</span><span class="n">next_marker</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">invals</span><span class="p">))</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">inval</span> <span class="ow">in</span> <span class="n">invals</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">print</span> <span class="s">&#39;Object: </span><span class="si">%s</span><span class="s">, ID: </span><span class="si">%s</span><span class="s">, Status: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">inval</span><span class="p">,</span> <span class="n">inval</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">inval</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+<span class="go">Object: &lt;InvalidationSummary: I1X3F6N0PLGJN5&gt;, ID: I1X3F6N0PLGJN5, Status: Completed</span>
+<span class="go">Object: &lt;InvalidationSummary: I1F3G9N0ZLGKN2&gt;, ID: I1F3G9N0ZLGKN2, Status: Completed</span>
+</pre></div>
+</div>
+<p>You can get the <a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.invalidation.InvalidationBatch" title="boto.cloudfront.invalidation.InvalidationBatch"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.invalidation.InvalidationBatch</span></tt></a> object
+representing the invalidation request pointed to by a
+<a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.invalidation.InvalidationSummary" title="boto.cloudfront.invalidation.InvalidationSummary"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.invalidation.InvalidationSummary</span></tt></a> object using:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">inval_req</span> <span class="o">=</span> <span class="n">inval</span><span class="o">.</span><span class="n">get_invalidation_request</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">inval_req</span>
+<span class="go">&lt;InvalidationBatch: IFCT7K03VUETK&gt;</span>
+</pre></div>
+</div>
+<p>Simiarly you can get the parent
+<a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.distribution.Distribution" title="boto.cloudfront.distribution.Distribution"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.distribution.Distribution</span></tt></a> object for the invalidation
+request from a <a class="reference internal" href="ref/cloudfront.html#boto.cloudfront.invalidation.InvalidationSummary" title="boto.cloudfront.invalidation.InvalidationSummary"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudfront.invalidation.InvalidationSummary</span></tt></a> object
+using:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">dist</span> <span class="o">=</span> <span class="n">inval</span><span class="o">.</span><span class="n">get_distribution</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">dist</span>
+<span class="go">&lt;boto.cloudfront.distribution.Distribution instance at 0x304a7e8&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">CloudFront</a><ul>
+<li><a class="reference internal" href="#creating-a-cloudfront-connection">Creating a CloudFront connection</a></li>
+<li><a class="reference internal" href="#working-with-cloudfront-distributions">Working with CloudFront Distributions</a></li>
+<li><a class="reference internal" href="#invalidating-cloudfront-distribution-paths">Invalidating CloudFront Distribution Paths</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ref/autoscale.html"
+                        title="previous chapter">Auto Scaling Reference</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ref/cloudfront.html"
+                        title="next chapter">CloudFront</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/cloudfront_tut.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ref/cloudfront.html" title="CloudFront"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ref/autoscale.html" title="Auto Scaling Reference"
+             >previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,317 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>An Introduction to boto’s SimpleDB interface &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="index.html" />
+    <link rel="next" title="SDB Reference" href="ref/sdb.html" />
+    <link rel="prev" title="CloudFront" href="ref/cloudfront.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ref/sdb.html" title="SDB Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ref/cloudfront.html" title="CloudFront"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="an-introduction-to-boto-s-simpledb-interface">
+<h1>An Introduction to boto&#8217;s SimpleDB interface<a class="headerlink" href="#an-introduction-to-boto-s-simpledb-interface" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial focuses on the boto interface to AWS&#8217; <a class="reference external" href="http://aws.amazon.com/simpledb/">SimpleDB</a>. This tutorial
+assumes that you have boto already downloaded and installed.</p>
+<div class="section" id="creating-a-connection">
+<h2>Creating a Connection<a class="headerlink" href="#creating-a-connection" title="Permalink to this headline">¶</a></h2>
+<p>The first step in accessing SimpleDB is to create a connection to the service.
+To do so, the most straight forward way is the following:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">boto.sdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span> <span class="o">=</span> <span class="n">boto</span><span class="o">.</span><span class="n">sdb</span><span class="o">.</span><span class="n">connect_to_region</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s">&#39;us-west-2&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">aws_access_key_id</span><span class="o">=</span><span class="s">&#39;&lt;YOUR_AWS_KEY_ID&gt;&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">aws_secret_access_key</span><span class="o">=</span><span class="s">&#39;&lt;YOUR_AWS_SECRET_KEY&gt;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span>
+<span class="go">SDBConnection:sdb.amazonaws.com</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>Bear in mind that if you have your credentials in boto config in your home
+directory, the two keyword arguments in the call above are not needed. Also
+important to note is that just as any other AWS service, SimpleDB is
+region-specific and as such you might want to specify which region to connect
+to, by default, it&#8217;ll connect to the US-EAST-1 region.</p>
+</div>
+<div class="section" id="creating-domains">
+<h2>Creating Domains<a class="headerlink" href="#creating-domains" title="Permalink to this headline">¶</a></h2>
+<p>Arguably, once you have your connection established, you&#8217;ll want to create one or more dmains.
+Creating new domains is a fairly straight forward operation. To do so, you can proceed as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">create_domain</span><span class="p">(</span><span class="s">&#39;test-domain&#39;</span><span class="p">)</span>
+<span class="go">Domain:test-domain</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">create_domain</span><span class="p">(</span><span class="s">&#39;test-domain-2&#39;</span><span class="p">)</span>
+<span class="go">Domain:test-domain</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>Please note that SimpleDB, unlike its newest sibling DynamoDB, is truly and completely schema-less.
+Thus, there&#8217;s no need specify domain keys or ranges.</p>
+</div>
+<div class="section" id="listing-all-domains">
+<h2>Listing All Domains<a class="headerlink" href="#listing-all-domains" title="Permalink to this headline">¶</a></h2>
+<p>Unlike DynamoDB or other database systems, SimpleDB uses the concept of &#8216;domains&#8217; instead of tables.
+So, to list all your domains for your account in a region, you can simply do as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">domains</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_all_domains</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">domains</span>
+<span class="go">[Domain:test-domain, Domain:test-domain-2]</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>The get_all_domains() method returns a <a class="reference internal" href="ref/boto.html#boto.resultset.ResultSet" title="boto.resultset.ResultSet"><tt class="xref py py-class docutils literal"><span class="pre">boto.resultset.ResultSet</span></tt></a> containing
+all <a class="reference internal" href="ref/sdb.html#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.domain.Domain</span></tt></a> objects associated with
+this connection&#8217;s Access Key ID for that region.</p>
+</div>
+<div class="section" id="retrieving-a-domain-by-name">
+<h2>Retrieving a Domain (by name)<a class="headerlink" href="#retrieving-a-domain-by-name" title="Permalink to this headline">¶</a></h2>
+<p>If you wish to retrieve a specific domain whose name is known, you can do so as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">dom</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_domain</span><span class="p">(</span><span class="s">&#39;test-domain&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dom</span>
+<span class="go">Domain:test-domain</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>The get_domain call has an optional validate parameter, which defaults to True. This will make sure to raise
+an exception if the domain you are looking for doesn&#8217;t exist. If you set it to false, it will return a
+<a class="reference internal" href="ref/sdb.html#boto.sdb.domain.Domain" title="boto.sdb.domain.Domain"><tt class="xref py py-class docutils literal"><span class="pre">Domain</span></tt></a> object blindly regardless of its existence.</p>
+</div>
+<div class="section" id="getting-domain-metadata">
+<h2>Getting Domain Metadata<a class="headerlink" href="#getting-domain-metadata" title="Permalink to this headline">¶</a></h2>
+<p>There are times when you might want to know your domains&#8217; machine usage, aprox. item count and other such data.
+To this end, boto offers a simple and convenient way to do so as shown below:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">domain_meta</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">domain_metadata</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">domain_meta</span>
+<span class="go">&lt;boto.sdb.domain.DomainMetaData instance at 0x23cd440&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">dir</span><span class="p">(</span><span class="n">domain_meta</span><span class="p">)</span>
+<span class="go">[&#39;BoxUsage&#39;, &#39;DomainMetadataResponse&#39;, &#39;DomainMetadataResult&#39;, &#39;RequestId&#39;, &#39;ResponseMetadata&#39;,</span>
+<span class="go">&#39;__doc__&#39;, &#39;__init__&#39;, &#39;__module__&#39;, &#39;attr_name_count&#39;, &#39;attr_names_size&#39;, &#39;attr_value_count&#39;, &#39;attr_values_size&#39;,</span>
+<span class="go">&#39;domain&#39;, &#39;endElement&#39;, &#39;item_count&#39;, &#39;item_names_size&#39;, &#39;startElement&#39;, &#39;timestamp&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">domain_meta</span><span class="o">.</span><span class="n">item_count</span>
+<span class="go">0</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>Please bear in mind that while in the example above we used a previously retrieved domain object as the parameter, you
+can retrieve the domain metadata via its name (string).</p>
+</div>
+<div class="section" id="adding-items-and-attributes">
+<h2>Adding Items (and attributes)<a class="headerlink" href="#adding-items-and-attributes" title="Permalink to this headline">¶</a></h2>
+<p>Once you have your domain setup, presumably, you&#8217;ll want to start adding items to it.
+In its most straight forward form, you need to provide a name for the item &#8211; think of it
+as a record id &#8211; and a collection of the attributes you want to store in the item (often a Dictionary-like object).
+So, adding an item to a domain looks as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">item_name</span> <span class="o">=</span> <span class="s">&#39;ABC_123&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item_attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;Artist&#39;</span><span class="p">:</span> <span class="s">&#39;The Jackson 5&#39;</span><span class="p">,</span> <span class="s">&#39;Genera&#39;</span><span class="p">:</span><span class="s">&#39;Pop&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dom</span><span class="o">.</span><span class="n">put_attributes</span><span class="p">(</span><span class="n">item_name</span><span class="p">,</span> <span class="n">item_attrs</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>Now let&#8217;s check if it worked:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">domain_meta</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">domain_metadata</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">domain_meta</span><span class="o">.</span><span class="n">item_count</span>
+<span class="go">1</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="batch-adding-items-and-attributes">
+<h2>Batch Adding Items (and attributes)<a class="headerlink" href="#batch-adding-items-and-attributes" title="Permalink to this headline">¶</a></h2>
+<p>You can also add a number of items at the same time in a similar fashion. All you have to provide to the batch_put_attributes() method
+is a Dictionary-like object with your items and their respective attributes, as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;item1&#39;</span><span class="p">:{</span><span class="s">&#39;attr1&#39;</span><span class="p">:</span><span class="s">&#39;val1&#39;</span><span class="p">},</span><span class="s">&#39;item2&#39;</span><span class="p">:{</span><span class="s">&#39;attr2&#39;</span><span class="p">:</span><span class="s">&#39;val2&#39;</span><span class="p">}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dom</span><span class="o">.</span><span class="n">batch_put_attributes</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>Now, let&#8217;s check the item count once again:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">domain_meta</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">domain_metadata</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">domain_meta</span><span class="o">.</span><span class="n">item_count</span>
+<span class="go">3</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>A few words of warning: both batch_put_attributes() and put_item(), by default, will overwrite the values of the attributes if both
+the item and attribute already exist. If the item exists, but not the attributes, it will append the new attributes to the
+attribute list of that item. If you do not wish these methods to behave in that manner, simply supply them with a &#8216;replace=False&#8217;
+parameter.</p>
+</div>
+<div class="section" id="retrieving-items">
+<h2>Retrieving Items<a class="headerlink" href="#retrieving-items" title="Permalink to this headline">¶</a></h2>
+<p>To retrieve an item along with its attributes is a fairly straight forward operation and can be accomplished as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">dom</span><span class="o">.</span><span class="n">get_item</span><span class="p">(</span><span class="s">&#39;item1&#39;</span><span class="p">)</span>
+<span class="go">{u&#39;attr1&#39;: u&#39;val1&#39;}</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>Since SimpleDB works in an &#8220;eventual consistency&#8221; manner, we can also request a forced consistent read (though this will
+invariably adversely affect read performance). The way to accomplish that is as shown below:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">dom</span><span class="o">.</span><span class="n">get_item</span><span class="p">(</span><span class="s">&#39;item1&#39;</span><span class="p">,</span> <span class="n">consistent_read</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="go">{u&#39;attr1&#39;: u&#39;val1&#39;}</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="retrieving-one-or-more-items">
+<h2>Retrieving One or More Items<a class="headerlink" href="#retrieving-one-or-more-items" title="Permalink to this headline">¶</a></h2>
+<p>Another way to retrieve items is through boto&#8217;s select() method. This method, at the bare minimum, requires a standard SQL select query string
+and you would do something along the lines of:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="s">&#39;select * from `test-domain` where attr1=&quot;val1&quot;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rs</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">rs</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="k">print</span> <span class="s">&#39;o hai&#39;</span>
+<span class="gp">...</span>
+<span class="go">o hai</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>This method returns a ResultSet collection you can iterate over.</p>
+</div>
+<div class="section" id="updating-item-attributes">
+<h2>Updating Item Attributes<a class="headerlink" href="#updating-item-attributes" title="Permalink to this headline">¶</a></h2>
+<p>The easiest way to modify an item&#8217;s attributes is by manipulating the item&#8217;s attributes and then saving those changes. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">get_item</span><span class="p">(</span><span class="s">&#39;item1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="p">[</span><span class="s">&#39;attr1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;val_changed&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="deleting-items-and-its-attributes">
+<h2>Deleting Items (and its attributes)<a class="headerlink" href="#deleting-items-and-its-attributes" title="Permalink to this headline">¶</a></h2>
+<p>Deleting an item is a very simple operation. All you are required to provide is either the name of the item or an item object to the
+delete_item() method, boto will take care of the rest:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="go">&gt;&gt;&gt;dom.delete_item(item)</span>
+<span class="go">&gt;&gt;&gt;True</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="deleting-domains">
+<h2>Deleting Domains<a class="headerlink" href="#deleting-domains" title="Permalink to this headline">¶</a></h2>
+<p>To delete a domain and all items under it (i.e. be very careful), you can do it as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">delete_domain</span><span class="p">(</span><span class="s">&#39;test-domain&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">An Introduction to boto&#8217;s SimpleDB interface</a><ul>
+<li><a class="reference internal" href="#creating-a-connection">Creating a Connection</a></li>
+<li><a class="reference internal" href="#creating-domains">Creating Domains</a></li>
+<li><a class="reference internal" href="#listing-all-domains">Listing All Domains</a></li>
+<li><a class="reference internal" href="#retrieving-a-domain-by-name">Retrieving a Domain (by name)</a></li>
+<li><a class="reference internal" href="#getting-domain-metadata">Getting Domain Metadata</a></li>
+<li><a class="reference internal" href="#adding-items-and-attributes">Adding Items (and attributes)</a></li>
+<li><a class="reference internal" href="#batch-adding-items-and-attributes">Batch Adding Items (and attributes)</a></li>
+<li><a class="reference internal" href="#retrieving-items">Retrieving Items</a></li>
+<li><a class="reference internal" href="#retrieving-one-or-more-items">Retrieving One or More Items</a></li>
+<li><a class="reference internal" href="#updating-item-attributes">Updating Item Attributes</a></li>
+<li><a class="reference internal" href="#deleting-items-and-its-attributes">Deleting Items (and its attributes)</a></li>
+<li><a class="reference internal" href="#deleting-domains">Deleting Domains</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ref/cloudfront.html"
+                        title="previous chapter">CloudFront</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ref/sdb.html"
+                        title="next chapter">SDB Reference</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/simpledb_tut.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ref/sdb.html" title="SDB Reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ref/cloudfront.html" title="CloudFront"
+             >previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

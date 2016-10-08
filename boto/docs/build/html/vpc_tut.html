@@ -1,0 +1,231 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>An Introduction to boto’s VPC interface &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="index.html" />
+    <link rel="next" title="VPC" href="ref/vpc.html" />
+    <link rel="prev" title="route53" href="ref/route53.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ref/vpc.html" title="VPC"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ref/route53.html" title="route53"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="an-introduction-to-boto-s-vpc-interface">
+<span id="vpc-tut"></span><h1>An Introduction to boto&#8217;s VPC interface<a class="headerlink" href="#an-introduction-to-boto-s-vpc-interface" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial is based on the examples in the Amazon Virtual Private
+Cloud Getting Started Guide (<a class="reference external" href="http://docs.amazonwebservices.com/AmazonVPC/latest/GettingStartedGuide/">http://docs.amazonwebservices.com/AmazonVPC/latest/GettingStartedGuide/</a>).
+In each example, it tries to show the boto request that correspond to
+the AWS command line tools.</p>
+<div class="section" id="creating-a-vpc-connection">
+<h2>Creating a VPC connection<a class="headerlink" href="#creating-a-vpc-connection" title="Permalink to this headline">¶</a></h2>
+<p>First, we need to create a new VPC connection:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">boto.vpc</span> <span class="kn">import</span> <span class="n">VPCConnection</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">VPCConnection</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="to-create-a-vpc">
+<h2>To create a VPC<a class="headerlink" href="#to-create-a-vpc" title="Permalink to this headline">¶</a></h2>
+<p>Now that we have a VPC connection, we can create our first VPC.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">vpc</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">create_vpc</span><span class="p">(</span><span class="s">&#39;10.0.0.0/24&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vpc</span>
+<span class="go">VPC:vpc-6b1fe402</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vpc</span><span class="o">.</span><span class="n">id</span>
+<span class="go">u&#39;vpc-6b1fe402&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vpc</span><span class="o">.</span><span class="n">state</span>
+<span class="go">u&#39;pending&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vpc</span><span class="o">.</span><span class="n">cidr_block</span>
+<span class="go">u&#39;10.0.0.0/24&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vpc</span><span class="o">.</span><span class="n">dhcp_options_id</span>
+<span class="go">u&#39;default&#39;</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="to-create-a-subnet">
+<h2>To create a subnet<a class="headerlink" href="#to-create-a-subnet" title="Permalink to this headline">¶</a></h2>
+<p>The next step is to create a subnet to associate with your VPC.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">subnet</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">create_subnet</span><span class="p">(</span><span class="n">vpc</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s">&#39;10.0.0.0/25&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">subnet</span><span class="o">.</span><span class="n">id</span>
+<span class="go">u&#39;subnet-6a1fe403&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">subnet</span><span class="o">.</span><span class="n">state</span>
+<span class="go">u&#39;pending&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">subnet</span><span class="o">.</span><span class="n">cidr_block</span>
+<span class="go">u&#39;10.0.0.0/25&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">subnet</span><span class="o">.</span><span class="n">available_ip_address_count</span>
+<span class="go">123</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">subnet</span><span class="o">.</span><span class="n">availability_zone</span>
+<span class="go">u&#39;us-east-1b&#39;</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="to-create-a-customer-gateway">
+<h2>To create a customer gateway<a class="headerlink" href="#to-create-a-customer-gateway" title="Permalink to this headline">¶</a></h2>
+<p>Next, we create a customer gateway.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">cg</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">create_customer_gateway</span><span class="p">(</span><span class="s">&#39;ipsec.1&#39;</span><span class="p">,</span> <span class="s">&#39;12.1.2.3&#39;</span><span class="p">,</span> <span class="mi">65534</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cg</span><span class="o">.</span><span class="n">id</span>
+<span class="go">u&#39;cgw-b6a247df&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cg</span><span class="o">.</span><span class="n">type</span>
+<span class="go">u&#39;ipsec.1&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cg</span><span class="o">.</span><span class="n">state</span>
+<span class="go">u&#39;available&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cg</span><span class="o">.</span><span class="n">ip_address</span>
+<span class="go">u&#39;12.1.2.3&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cg</span><span class="o">.</span><span class="n">bgp_asn</span>
+<span class="go">u&#39;65534&#39;</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="to-create-a-vpn-gateway">
+<h2>To create a VPN gateway<a class="headerlink" href="#to-create-a-vpn-gateway" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">vg</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">create_vpn_gateway</span><span class="p">(</span><span class="s">&#39;ipsec.1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vg</span><span class="o">.</span><span class="n">id</span>
+<span class="go">u&#39;vgw-44ad482d&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vg</span><span class="o">.</span><span class="n">type</span>
+<span class="go">u&#39;ipsec.1&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vg</span><span class="o">.</span><span class="n">state</span>
+<span class="go">u&#39;pending&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vg</span><span class="o">.</span><span class="n">availability_zone</span>
+<span class="go">u&#39;us-east-1b&#39;</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="attaching-a-vpn-gateway-to-a-vpc">
+<h2>Attaching a VPN Gateway to a VPC<a class="headerlink" href="#attaching-a-vpn-gateway-to-a-vpc" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">vg</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">vpc</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="associating-an-elastic-ip-with-a-vpc-instance">
+<h2>Associating an Elastic IP with a VPC Instance<a class="headerlink" href="#associating-an-elastic-ip-with-a-vpc-instance" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ec2</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">associate_address</span><span class="p">(</span><span class="s">&#39;i-71b2f60b&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;eipalloc-35cf685d&#39;</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="releasing-an-elastic-ip-attached-to-a-vpc-instance">
+<h2>Releasing an Elastic IP Attached to a VPC Instance<a class="headerlink" href="#releasing-an-elastic-ip-attached-to-a-vpc-instance" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ec2</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">release_address</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">&#39;eipalloc-35cf685d&#39;</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">An Introduction to boto&#8217;s VPC interface</a><ul>
+<li><a class="reference internal" href="#creating-a-vpc-connection">Creating a VPC connection</a></li>
+<li><a class="reference internal" href="#to-create-a-vpc">To create a VPC</a></li>
+<li><a class="reference internal" href="#to-create-a-subnet">To create a subnet</a></li>
+<li><a class="reference internal" href="#to-create-a-customer-gateway">To create a customer gateway</a></li>
+<li><a class="reference internal" href="#to-create-a-vpn-gateway">To create a VPN gateway</a></li>
+<li><a class="reference internal" href="#attaching-a-vpn-gateway-to-a-vpc">Attaching a VPN Gateway to a VPC</a></li>
+<li><a class="reference internal" href="#associating-an-elastic-ip-with-a-vpc-instance">Associating an Elastic IP with a VPC Instance</a></li>
+<li><a class="reference internal" href="#releasing-an-elastic-ip-attached-to-a-vpc-instance">Releasing an Elastic IP Attached to a VPC Instance</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ref/route53.html"
+                        title="previous chapter">route53</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ref/vpc.html"
+                        title="next chapter">VPC</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/vpc_tut.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ref/vpc.html" title="VPC"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ref/route53.html" title="route53"
+             >previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

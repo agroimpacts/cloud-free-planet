@@ -1,0 +1,1328 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>SWF &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="up" title="API Reference" href="index.html" />
+    <link rel="next" title="VPC" href="vpc.html" />
+    <link rel="prev" title="STS" href="sts.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vpc.html" title="VPC"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sts.html" title="STS"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="swf">
+<h1>SWF<a class="headerlink" href="#swf" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-boto.swf">
+<span id="boto-swf"></span><h2>boto.swf<a class="headerlink" href="#module-boto.swf" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="boto.swf.connect_to_region">
+<tt class="descclassname">boto.swf.</tt><tt class="descname">connect_to_region</tt><big>(</big><em>region_name</em>, <em>**kw_params</em><big>)</big><a class="headerlink" href="#boto.swf.connect_to_region" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.swf.regions">
+<tt class="descclassname">boto.swf.</tt><tt class="descname">regions</tt><big>(</big><em>**kw_params</em><big>)</big><a class="headerlink" href="#boto.swf.regions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all available regions for the Amazon Simple Workflow service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list of <tt class="xref py py-class docutils literal"><span class="pre">boto.regioninfo.RegionInfo</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.swf.layer1">
+<span id="boto-swf-layer1"></span><h2>boto.swf.layer1<a class="headerlink" href="#module-boto.swf.layer1" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.swf.layer1.Layer1">
+<em class="property">class </em><tt class="descclassname">boto.swf.layer1.</tt><tt class="descname">Layer1</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>is_secure=True</em>, <em>port=None</em>, <em>proxy=None</em>, <em>proxy_port=None</em>, <em>debug=0</em>, <em>session_token=None</em>, <em>region=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Low-level interface to Simple WorkFlow Service.</p>
+<dl class="attribute">
+<dt id="boto.swf.layer1.Layer1.DefaultRegionName">
+<tt class="descname">DefaultRegionName</tt><a class="headerlink" href="#boto.swf.layer1.Layer1.DefaultRegionName" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default region name for Simple Workflow.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.swf.layer1.Layer1.ResponseError">
+<tt class="descname">ResponseError</tt><a class="headerlink" href="#boto.swf.layer1.Layer1.ResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">SWFResponseError</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.swf.layer1.Layer1.ServiceName">
+<tt class="descname">ServiceName</tt><a class="headerlink" href="#boto.swf.layer1.Layer1.ServiceName" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the Service</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.count_closed_workflow_executions">
+<tt class="descname">count_closed_workflow_executions</tt><big>(</big><em>domain</em>, <em>start_latest_date=None</em>, <em>start_oldest_date=None</em>, <em>close_latest_date=None</em>, <em>close_oldest_date=None</em>, <em>close_status=None</em>, <em>tag=None</em>, <em>workflow_id=None</em>, <em>workflow_name=None</em>, <em>workflow_version=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.count_closed_workflow_executions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of closed workflow executions within the
+given domain that meet the specified filtering criteria.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain containing the
+workflow executions to count.</li>
+<li><strong>start_latest_date</strong> (<em>timestamp</em>) &#8211; If specified, only workflow executions
+that meet the start time criteria of the filter are counted.</li>
+<li><strong>start_oldest_date</strong> (<em>timestamp</em>) &#8211; If specified, only workflow executions
+that meet the start time criteria of the filter are counted.</li>
+<li><strong>close_latest_date</strong> (<em>timestamp</em>) &#8211; If specified, only workflow executions
+that meet the close time criteria of the filter are counted.</li>
+<li><strong>close_oldest_date</strong> (<em>timestamp</em>) &#8211; If specified, only workflow executions
+that meet the close time criteria of the filter are counted.</li>
+<li><strong>close_status</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; <p>The close status that must match the close status
+of an execution for it to meet the criteria of this filter.
+Valid values are:</p>
+<ul>
+<li>COMPLETED</li>
+<li>FAILED</li>
+<li>CANCELED</li>
+<li>TERMINATED</li>
+<li>CONTINUED_AS_NEW</li>
+<li>TIMED_OUT</li>
+</ul>
+</li>
+<li><strong>tag</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If specified, only executions that have a tag
+that matches the filter are counted.</li>
+<li><strong>workflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If specified, only workflow executions
+matching the workflow_id are counted.</li>
+<li><strong>workflow_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the workflow type to filter on.</li>
+<li><strong>workflow_version</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Version of the workflow type to filter on.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.count_open_workflow_executions">
+<tt class="descname">count_open_workflow_executions</tt><big>(</big><em>domain</em>, <em>latest_date</em>, <em>oldest_date</em>, <em>tag=None</em>, <em>workflow_id=None</em>, <em>workflow_name=None</em>, <em>workflow_version=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.count_open_workflow_executions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of open workflow executions within the
+given domain that meet the specified filtering criteria.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain containing the
+workflow executions to count.</li>
+<li><strong>latest_date</strong> (<em>timestamp</em>) &#8211; Specifies the latest start or close date
+and time to return.</li>
+<li><strong>oldest_date</strong> (<em>timestamp</em>) &#8211; Specifies the oldest start or close date
+and time to return.</li>
+<li><strong>workflow_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the workflow type to filter on.</li>
+<li><strong>workflow_version</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Version of the workflow type to filter on.</li>
+<li><strong>tag</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If specified, only executions that have a tag
+that matches the filter are counted.</li>
+<li><strong>workflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If specified, only workflow executions
+matching the workflow_id are counted.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.count_pending_activity_tasks">
+<tt class="descname">count_pending_activity_tasks</tt><big>(</big><em>domain</em>, <em>task_list</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.count_pending_activity_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the estimated number of activity tasks in the
+specified task list. The count returned is an approximation
+and is not guaranteed to be exact. If you specify a task list
+that no activity task was ever scheduled in then 0 will be
+returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain that contains the task list.</li>
+<li><strong>task_list</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the task list.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.count_pending_decision_tasks">
+<tt class="descname">count_pending_decision_tasks</tt><big>(</big><em>domain</em>, <em>task_list</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.count_pending_decision_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the estimated number of decision tasks in the
+specified task list. The count returned is an approximation
+and is not guaranteed to be exact. If you specify a task list
+that no decision task was ever scheduled in then 0 will be
+returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain that contains the task list.</li>
+<li><strong>task_list</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the task list.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.deprecate_activity_type">
+<tt class="descname">deprecate_activity_type</tt><big>(</big><em>domain</em>, <em>activity_name</em>, <em>activity_version</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.deprecate_activity_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about the specified activity type. This
+includes configuration settings provided at registration time
+as well as other general information about the type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain in which the activity
+type is registered.</li>
+<li><strong>activity_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of this activity.</li>
+<li><strong>activity_version</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The version of this activity.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, TypeDeprecatedFault,
+SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.deprecate_domain">
+<tt class="descname">deprecate_domain</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.deprecate_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deprecates the specified domain. After a domain has been
+deprecated it cannot be used to create new workflow executions
+or register new types. However, you can still use visibility
+actions on this domain. Deprecating a domain also deprecates
+all activity and workflow types registered in the
+domain. Executions that were started before the domain was
+deprecated will continue to run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain to deprecate.</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body">UnknownResourceFault, DomainDeprecatedFault,
+SWFOperationNotPermittedError</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.deprecate_workflow_type">
+<tt class="descname">deprecate_workflow_type</tt><big>(</big><em>domain</em>, <em>workflow_name</em>, <em>workflow_version</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.deprecate_workflow_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deprecates the specified workflow type. After a workflow type
+has been deprecated, you cannot create new executions of that
+type. Executions that were started before the type was
+deprecated will continue to run. A deprecated workflow type
+may still be used when calling visibility actions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain in which the workflow
+type is registered.</li>
+<li><strong>workflow_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the workflow type.</li>
+<li><strong>workflow_version</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The version of the workflow type.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, TypeDeprecatedFault,
+SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.describe_activity_type">
+<tt class="descname">describe_activity_type</tt><big>(</big><em>domain</em>, <em>activity_name</em>, <em>activity_version</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.describe_activity_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about the specified activity type. This
+includes configuration settings provided at registration time
+as well as other general information about the type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain in which the activity
+type is registered.</li>
+<li><strong>activity_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of this activity.</li>
+<li><strong>activity_version</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The version of this activity.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.describe_domain">
+<tt class="descname">describe_domain</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.describe_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about the specified domain including
+description and status.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain to describe.</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body">UnknownResourceFault, SWFOperationNotPermittedError</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.describe_workflow_execution">
+<tt class="descname">describe_workflow_execution</tt><big>(</big><em>domain</em>, <em>run_id</em>, <em>workflow_id</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.describe_workflow_execution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about the specified workflow execution
+including its type and some statistics.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain containing the
+workflow execution.</li>
+<li><strong>run_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; A system generated unique identifier for the
+workflow execution.</li>
+<li><strong>workflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The user defined identifier associated
+with the workflow execution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.describe_workflow_type">
+<tt class="descname">describe_workflow_type</tt><big>(</big><em>domain</em>, <em>workflow_name</em>, <em>workflow_version</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.describe_workflow_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about the specified workflow type. This
+includes configuration settings specified when the type was
+registered and other information such as creation date,
+current status, etc.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain in which this workflow
+type is registered.</li>
+<li><strong>workflow_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the workflow type.</li>
+<li><strong>workflow_version</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The version of the workflow type.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.get_workflow_execution_history">
+<tt class="descname">get_workflow_execution_history</tt><big>(</big><em>domain</em>, <em>run_id</em>, <em>workflow_id</em>, <em>maximum_page_size=None</em>, <em>next_page_token=None</em>, <em>reverse_order=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.get_workflow_execution_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the history of the specified workflow execution. The
+results may be split into multiple pages. To retrieve
+subsequent pages, make the call again using the nextPageToken
+returned by the initial call.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain containing the
+workflow execution.</li>
+<li><strong>run_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; A system generated unique identifier for the
+workflow execution.</li>
+<li><strong>workflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The user defined identifier associated
+with the workflow execution.</li>
+<li><strong>maximum_page_size</strong> (<em>integer</em>) &#8211; Specifies the maximum number of
+history events returned in one page. The next page in the
+result is identified by the NextPageToken returned. By default
+100 history events are returned in a page but the caller can
+override this value to a page size smaller than the
+default. You cannot specify a page size larger than 100.</li>
+<li><strong>next_page_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If a NextPageToken is returned, the
+result has more than one pages. To get the next page, repeat
+the call and specify the nextPageToken with all other
+arguments unchanged.</li>
+<li><strong>reverse_order</strong> (<em>boolean</em>) &#8211; When set to true, returns the events in
+reverse order. By default the results are returned in
+ascending order of the eventTimeStamp of the events.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.json_request">
+<tt class="descname">json_request</tt><big>(</big><em>action</em>, <em>data</em>, <em>object_hook=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.json_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method wraps around make_request() to normalize and serialize the
+dictionary with request parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>action</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Specifies an SWF action.</li>
+<li><strong>data</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; Specifies request parameters associated with the action.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.list_activity_types">
+<tt class="descname">list_activity_types</tt><big>(</big><em>domain</em>, <em>registration_status</em>, <em>name=None</em>, <em>maximum_page_size=None</em>, <em>next_page_token=None</em>, <em>reverse_order=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.list_activity_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about all activities registered in the
+specified domain that match the specified name and
+registration status. The result includes information like
+creation date, current status of the activity, etc. The
+results may be split into multiple pages. To retrieve
+subsequent pages, make the call again using the nextPageToken
+returned by the initial call.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain in which the activity
+types have been registered.</li>
+<li><strong>registration_status</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; <p>Specifies the registration status
+of the activity types to list.  Valid values are:</p>
+<ul>
+<li>REGISTERED</li>
+<li>DEPRECATED</li>
+</ul>
+</li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If specified, only lists the activity types that
+have this name.</li>
+<li><strong>maximum_page_size</strong> (<em>integer</em>) &#8211; The maximum number of results
+returned in each page. The default is 100, but the caller can
+override this value to a page size smaller than the
+default. You cannot specify a page size greater than 100.</li>
+<li><strong>next_page_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If on a previous call to this method a
+NextResultToken was returned, the results have more than one
+page. To get the next page of results, repeat the call with
+the nextPageToken and keep all other arguments unchanged.</li>
+<li><strong>reverse_order</strong> (<em>boolean</em>) &#8211; When set to true, returns the results in
+reverse order. By default the results are returned in
+ascending alphabetical order of the name of the activity
+types.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">SWFOperationNotPermittedError, UnknownResourceFault</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.list_closed_workflow_executions">
+<tt class="descname">list_closed_workflow_executions</tt><big>(</big><em>domain</em>, <em>start_latest_date=None</em>, <em>start_oldest_date=None</em>, <em>close_latest_date=None</em>, <em>close_oldest_date=None</em>, <em>close_status=None</em>, <em>tag=None</em>, <em>workflow_id=None</em>, <em>workflow_name=None</em>, <em>workflow_version=None</em>, <em>maximum_page_size=None</em>, <em>next_page_token=None</em>, <em>reverse_order=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.list_closed_workflow_executions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of closed workflow executions within the
+given domain that meet the specified filtering criteria.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain containing the
+workflow executions to count.</li>
+<li><strong>start_latest_date</strong> (<em>timestamp</em>) &#8211; If specified, only workflow executions
+that meet the start time criteria of the filter are counted.</li>
+<li><strong>start_oldest_date</strong> (<em>timestamp</em>) &#8211; If specified, only workflow executions
+that meet the start time criteria of the filter are counted.</li>
+<li><strong>close_latest_date</strong> (<em>timestamp</em>) &#8211; If specified, only workflow executions
+that meet the close time criteria of the filter are counted.</li>
+<li><strong>close_oldest_date</strong> (<em>timestamp</em>) &#8211; If specified, only workflow executions
+that meet the close time criteria of the filter are counted.</li>
+<li><strong>close_status</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; <p>The close status that must match the close status
+of an execution for it to meet the criteria of this filter.
+Valid values are:</p>
+<ul>
+<li>COMPLETED</li>
+<li>FAILED</li>
+<li>CANCELED</li>
+<li>TERMINATED</li>
+<li>CONTINUED_AS_NEW</li>
+<li>TIMED_OUT</li>
+</ul>
+</li>
+<li><strong>tag</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If specified, only executions that have a tag
+that matches the filter are counted.</li>
+<li><strong>workflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If specified, only workflow executions
+matching the workflow_id are counted.</li>
+<li><strong>workflow_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the workflow type to filter on.</li>
+<li><strong>workflow_version</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Version of the workflow type to filter on.</li>
+<li><strong>maximum_page_size</strong> (<em>integer</em>) &#8211; The maximum number of results
+returned in each page. The default is 100, but the caller can
+override this value to a page size smaller than the
+default. You cannot specify a page size greater than 100.</li>
+<li><strong>next_page_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If on a previous call to this method a
+NextPageToken was returned, the results are being
+paginated. To get the next page of results, repeat the call
+with the returned token and all other arguments unchanged.</li>
+<li><strong>reverse_order</strong> (<em>boolean</em>) &#8211; When set to true, returns the results in
+reverse order. By default the results are returned in
+descending order of the start or the close time of the
+executions.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.list_domains">
+<tt class="descname">list_domains</tt><big>(</big><em>registration_status</em>, <em>maximum_page_size=None</em>, <em>next_page_token=None</em>, <em>reverse_order=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.list_domains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of domains registered in the account. The
+results may be split into multiple pages. To retrieve
+subsequent pages, make the call again using the nextPageToken
+returned by the initial call.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>registration_status</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; <p>Specifies the registration status
+of the domains to list.  Valid Values:</p>
+<ul>
+<li>REGISTERED</li>
+<li>DEPRECATED</li>
+</ul>
+</li>
+<li><strong>maximum_page_size</strong> (<em>integer</em>) &#8211; The maximum number of results
+returned in each page. The default is 100, but the caller can
+override this value to a page size smaller than the
+default. You cannot specify a page size greater than 100.</li>
+<li><strong>next_page_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If on a previous call to this method a
+NextPageToken was returned, the result has more than one
+page. To get the next page of results, repeat the call with
+the returned token and all other arguments unchanged.</li>
+<li><strong>reverse_order</strong> (<em>boolean</em>) &#8211; When set to true, returns the results in
+reverse order. By default the results are returned in
+ascending alphabetical order of the name of the domains.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.list_open_workflow_executions">
+<tt class="descname">list_open_workflow_executions</tt><big>(</big><em>domain</em>, <em>oldest_date</em>, <em>latest_date=None</em>, <em>tag=None</em>, <em>workflow_id=None</em>, <em>workflow_name=None</em>, <em>workflow_version=None</em>, <em>maximum_page_size=None</em>, <em>next_page_token=None</em>, <em>reverse_order=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.list_open_workflow_executions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of open workflow executions within the
+given domain that meet the specified filtering criteria.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain containing the
+workflow executions to count.</li>
+<li><strong>latest_date</strong> (<em>timestamp</em>) &#8211; Specifies the latest start or close date
+and time to return.</li>
+<li><strong>oldest_date</strong> (<em>timestamp</em>) &#8211; Specifies the oldest start or close date
+and time to return.</li>
+<li><strong>tag</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If specified, only executions that have a tag
+that matches the filter are counted.</li>
+<li><strong>workflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If specified, only workflow executions
+matching the workflow_id are counted.</li>
+<li><strong>workflow_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the workflow type to filter on.</li>
+<li><strong>workflow_version</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Version of the workflow type to filter on.</li>
+<li><strong>maximum_page_size</strong> (<em>integer</em>) &#8211; The maximum number of results
+returned in each page. The default is 100, but the caller can
+override this value to a page size smaller than the
+default. You cannot specify a page size greater than 100.</li>
+<li><strong>next_page_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If on a previous call to this method a
+NextPageToken was returned, the results are being
+paginated. To get the next page of results, repeat the call
+with the returned token and all other arguments unchanged.</li>
+<li><strong>reverse_order</strong> (<em>boolean</em>) &#8211; When set to true, returns the results in
+reverse order. By default the results are returned in
+descending order of the start or the close time of the
+executions.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.list_workflow_types">
+<tt class="descname">list_workflow_types</tt><big>(</big><em>domain</em>, <em>registration_status</em>, <em>maximum_page_size=None</em>, <em>name=None</em>, <em>next_page_token=None</em>, <em>reverse_order=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.list_workflow_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about workflow types in the specified
+domain. The results may be split into multiple pages that can
+be retrieved by making the call repeatedly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain in which the workflow
+types have been registered.</li>
+<li><strong>registration_status</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; <p>Specifies the registration status
+of the activity types to list.  Valid values are:</p>
+<ul>
+<li>REGISTERED</li>
+<li>DEPRECATED</li>
+</ul>
+</li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If specified, lists the workflow type with this name.</li>
+<li><strong>maximum_page_size</strong> (<em>integer</em>) &#8211; The maximum number of results
+returned in each page. The default is 100, but the caller can
+override this value to a page size smaller than the
+default. You cannot specify a page size greater than 100.</li>
+<li><strong>next_page_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If on a previous call to this method a
+NextPageToken was returned, the results are being
+paginated. To get the next page of results, repeat the call
+with the returned token and all other arguments unchanged.</li>
+<li><strong>reverse_order</strong> (<em>boolean</em>) &#8211; When set to true, returns the results in
+reverse order. By default the results are returned in
+ascending alphabetical order of the name of the workflow
+types.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">SWFOperationNotPermittedError, UnknownResourceFault</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.make_request">
+<tt class="descname">make_request</tt><big>(</big><em>action</em>, <em>body=''</em>, <em>object_hook=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.make_request" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><tt class="docutils literal"><span class="pre">SWFResponseError</span></tt> if response status is not 200.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.poll_for_activity_task">
+<tt class="descname">poll_for_activity_task</tt><big>(</big><em>domain</em>, <em>task_list</em>, <em>identity=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.poll_for_activity_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used by workers to get an ActivityTask from the specified
+activity taskList. This initiates a long poll, where the
+service holds the HTTP connection open and responds as soon as
+a task becomes available. The maximum time the service holds
+on to the request before responding is 60 seconds. If no task
+is available within 60 seconds, the poll will return an empty
+result. An empty result, in this context, means that an
+ActivityTask is returned, but that the value of taskToken is
+an empty string. If a task is returned, the worker should use
+its type to identify and process it correctly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain that contains the task
+lists being polled.</li>
+<li><strong>task_list</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Specifies the task list to poll for activity tasks.</li>
+<li><strong>identity</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Identity of the worker making the request, which
+is recorded in the ActivityTaskStarted event in the workflow
+history. This enables diagnostic tracing when problems arise.
+The form of this identity is user defined.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.poll_for_decision_task">
+<tt class="descname">poll_for_decision_task</tt><big>(</big><em>domain</em>, <em>task_list</em>, <em>identity=None</em>, <em>maximum_page_size=None</em>, <em>next_page_token=None</em>, <em>reverse_order=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.poll_for_decision_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used by deciders to get a DecisionTask from the specified
+decision taskList. A decision task may be returned for any
+open workflow execution that is using the specified task
+list. The task includes a paginated view of the history of the
+workflow execution. The decider should use the workflow type
+and the history to determine how to properly handle the task.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain containing the task
+lists to poll.</li>
+<li><strong>task_list</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Specifies the task list to poll for decision tasks.</li>
+<li><strong>identity</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Identity of the decider making the request,
+which is recorded in the DecisionTaskStarted event in the
+workflow history. This enables diagnostic tracing when
+problems arise. The form of this identity is user defined.</li>
+<li><strong>next_page_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If on a previous call to this method a
+NextPageToken was returned, the results are being paginated.
+To get the next page of results, repeat the call with the
+returned token and all other arguments unchanged.</li>
+<li><strong>reverse_order</strong> (<em>boolean</em>) &#8211; When set to true, returns the events in
+reverse order. By default the results are returned in
+ascending order of the eventTimestamp of the events.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.record_activity_task_heartbeat">
+<tt class="descname">record_activity_task_heartbeat</tt><big>(</big><em>task_token</em>, <em>details=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.record_activity_task_heartbeat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used by activity workers to report to the service that the
+ActivityTask represented by the specified taskToken is still
+making progress. The worker can also (optionally) specify
+details of the progress, for example percent complete, using
+the details parameter. This action can also be used by the
+worker as a mechanism to check if cancellation is being
+requested for the activity task. If a cancellation is being
+attempted for the specified task, then the boolean
+cancelRequested flag returned by the service is set to true.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>task_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The taskToken of the ActivityTask.</li>
+<li><strong>details</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If specified, contains details about the
+progress of the task.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.register_activity_type">
+<tt class="descname">register_activity_type</tt><big>(</big><em>domain</em>, <em>name</em>, <em>version</em>, <em>task_list=None</em>, <em>default_task_heartbeat_timeout=None</em>, <em>default_task_schedule_to_close_timeout=None</em>, <em>default_task_schedule_to_start_timeout=None</em>, <em>default_task_start_to_close_timeout=None</em>, <em>description=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.register_activity_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a new activity type along with its configuration
+settings in the specified domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain in which this activity is
+to be registered.</li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the activity type within the domain.</li>
+<li><strong>version</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The version of the activity type.</li>
+<li><strong>task_list</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If set, specifies the default task list to
+use for scheduling tasks of this activity type. This default
+task list is used if a task list is not provided when a task
+is scheduled through the schedule_activity_task Decision.</li>
+<li><strong>default_task_heartbeat_timeout</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If set, specifies the
+default maximum time before which a worker processing a task
+of this type must report progress by calling
+RecordActivityTaskHeartbeat. If the timeout is exceeded, the
+activity task is automatically timed out. This default can be
+overridden when scheduling an activity task using the
+ScheduleActivityTask Decision. If the activity worker
+subsequently attempts to record a heartbeat or returns a
+result, the activity worker receives an UnknownResource
+fault. In this case, Amazon SWF no longer considers the
+activity task to be valid; the activity worker should clean up
+the activity task.no docs</li>
+<li><strong>default_task_schedule_to_close_timeout</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If set,
+specifies the default maximum duration for a task of this
+activity type. This default can be overridden when scheduling
+an activity task using the ScheduleActivityTask Decision.no
+docs</li>
+<li><strong>default_task_schedule_to_start_timeout</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If set,
+specifies the default maximum duration that a task of this
+activity type can wait before being assigned to a worker. This
+default can be overridden when scheduling an activity task
+using the ScheduleActivityTask Decision.</li>
+<li><strong>default_task_start_to_close_timeout</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If set, specifies
+the default maximum duration that a worker can take to process
+tasks of this activity type. This default can be overridden
+when scheduling an activity task using the
+ScheduleActivityTask Decision.</li>
+<li><strong>description</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; A textual description of the activity type.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">SWFTypeAlreadyExistsError, SWFLimitExceededError,
+UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.register_domain">
+<tt class="descname">register_domain</tt><big>(</big><em>name</em>, <em>workflow_execution_retention_period_in_days</em>, <em>description=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.register_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a new domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the domain to register. The name must be unique.</li>
+<li><strong>workflow_execution_retention_period_in_days</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Specifies
+the duration <em>in days</em> for which the record (including the
+history) of workflow executions in this domain should be kept
+by the service. After the retention period, the workflow
+execution will not be available in the results of visibility
+calls. If a duration of NONE is specified, the records for
+workflow executions in this domain are not retained at all.</li>
+<li><strong>description</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Textual description of the domain.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">SWFDomainAlreadyExistsError, SWFLimitExceededError,
+SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.register_workflow_type">
+<tt class="descname">register_workflow_type</tt><big>(</big><em>domain</em>, <em>name</em>, <em>version</em>, <em>task_list=None</em>, <em>default_child_policy=None</em>, <em>default_execution_start_to_close_timeout=None</em>, <em>default_task_start_to_close_timeout=None</em>, <em>description=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.register_workflow_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a new workflow type and its configuration settings
+in the specified domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain in which to register
+the workflow type.</li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the workflow type.</li>
+<li><strong>version</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The version of the workflow type.</li>
+<li><strong>task_list</strong> (<em>list of name, version of tasks</em>) &#8211; If set, specifies the default task list to use
+for scheduling decision tasks for executions of this workflow
+type. This default is used only if a task list is not provided
+when starting the execution through the StartWorkflowExecution
+Action or StartChildWorkflowExecution Decision.</li>
+<li><strong>default_child_policy</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; <p>If set, specifies the default
+policy to use for the child workflow executions when a
+workflow execution of this type is terminated, by calling the
+TerminateWorkflowExecution action explicitly or due to an
+expired timeout. This default can be overridden when starting
+a workflow execution using the StartWorkflowExecution action
+or the StartChildWorkflowExecution Decision. The supported
+child policies are:</p>
+<ul>
+<li>TERMINATE: the child executions will be terminated.</li>
+<li>REQUEST_CANCEL: a request to cancel will be attempted
+for each child execution by recording a
+WorkflowExecutionCancelRequested event in its
+history. It is up to the decider to take appropriate
+actions when it receives an execution history with this
+event.</li>
+<li>ABANDON: no action will be taken. The child executions
+will continue to run.no docs</li>
+</ul>
+</li>
+<li><strong>default_execution_start_to_close_timeout</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If set,
+specifies the default maximum duration for executions of this
+workflow type. You can override this default when starting an
+execution through the StartWorkflowExecution Action or
+StartChildWorkflowExecution Decision.</li>
+<li><strong>default_task_start_to_close_timeout</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If set, specifies
+the default maximum duration of decision tasks for this
+workflow type. This default can be overridden when starting a
+workflow execution using the StartWorkflowExecution action or
+the StartChildWorkflowExecution Decision.</li>
+<li><strong>description</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Textual description of the workflow type.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">SWFTypeAlreadyExistsError, SWFLimitExceededError,
+UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.request_cancel_workflow_execution">
+<tt class="descname">request_cancel_workflow_execution</tt><big>(</big><em>domain</em>, <em>workflow_id</em>, <em>run_id=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.request_cancel_workflow_execution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records a WorkflowExecutionCancelRequested event in the
+currently running workflow execution identified by the given
+domain, workflowId, and runId. This logically requests the
+cancellation of the workflow execution as a whole. It is up to
+the decider to take appropriate actions when it receives an
+execution history with this event.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain containing the workflow
+execution to cancel.</li>
+<li><strong>run_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The runId of the workflow execution to cancel.</li>
+<li><strong>workflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The workflowId of the workflow execution
+to cancel.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.respond_activity_task_canceled">
+<tt class="descname">respond_activity_task_canceled</tt><big>(</big><em>task_token</em>, <em>details=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.respond_activity_task_canceled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used by workers to tell the service that the ActivityTask
+identified by the taskToken was successfully
+canceled. Additional details can be optionally provided using
+the details argument.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>task_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The taskToken of the ActivityTask.</li>
+<li><strong>details</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Optional detailed information about the failure.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.respond_activity_task_completed">
+<tt class="descname">respond_activity_task_completed</tt><big>(</big><em>task_token</em>, <em>result=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.respond_activity_task_completed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used by workers to tell the service that the ActivityTask
+identified by the taskToken completed successfully with a
+result (if provided).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>task_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The taskToken of the ActivityTask.</li>
+<li><strong>result</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The result of the activity task. It is a free
+form string that is implementation specific.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.respond_activity_task_failed">
+<tt class="descname">respond_activity_task_failed</tt><big>(</big><em>task_token</em>, <em>details=None</em>, <em>reason=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.respond_activity_task_failed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used by workers to tell the service that the ActivityTask
+identified by the taskToken has failed with reason (if
+specified).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>task_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The taskToken of the ActivityTask.</li>
+<li><strong>details</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Optional detailed information about the failure.</li>
+<li><strong>reason</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Description of the error that may assist in diagnostics.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.respond_decision_task_completed">
+<tt class="descname">respond_decision_task_completed</tt><big>(</big><em>task_token</em>, <em>decisions=None</em>, <em>execution_context=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.respond_decision_task_completed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used by deciders to tell the service that the DecisionTask
+identified by the taskToken has successfully completed.
+The decisions argument specifies the list of decisions
+made while processing the task.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>task_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The taskToken of the ActivityTask.</li>
+<li><strong>decisions</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; The list of decisions (possibly empty) made by
+the decider while processing this decision task. See the docs
+for the Decision structure for details.</li>
+<li><strong>execution_context</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; User defined context to add to
+workflow execution.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.signal_workflow_execution">
+<tt class="descname">signal_workflow_execution</tt><big>(</big><em>domain</em>, <em>signal_name</em>, <em>workflow_id</em>, <em>input=None</em>, <em>run_id=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.signal_workflow_execution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records a WorkflowExecutionSignaled event in the workflow
+execution history and creates a decision task for the workflow
+execution identified by the given domain, workflowId and
+runId. The event is recorded with the specified user defined
+signalName and input (if provided).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain containing the workflow
+execution to signal.</li>
+<li><strong>signal_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the signal. This name must be
+meaningful to the target workflow.</li>
+<li><strong>workflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The workflowId of the workflow execution
+to signal.</li>
+<li><strong>input</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Data to attach to the WorkflowExecutionSignaled
+event in the target workflow execution&#8217;s history.</li>
+<li><strong>run_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The runId of the workflow execution to signal.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.start_workflow_execution">
+<tt class="descname">start_workflow_execution</tt><big>(</big><em>domain</em>, <em>workflow_id</em>, <em>workflow_name</em>, <em>workflow_version</em>, <em>task_list=None</em>, <em>child_policy=None</em>, <em>execution_start_to_close_timeout=None</em>, <em>input=None</em>, <em>tag_list=None</em>, <em>task_start_to_close_timeout=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.start_workflow_execution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts an execution of the workflow type in the specified
+domain using the provided workflowId and input data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the domain in which the workflow
+execution is created.</li>
+<li><strong>workflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The user defined identifier associated with
+the workflow execution. You can use this to associate a
+custom identifier with the workflow execution. You may
+specify the same identifier if a workflow execution is
+logically a restart of a previous execution. You cannot
+have two open workflow executions with the same workflowId
+at the same time.</li>
+<li><strong>workflow_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the workflow type.</li>
+<li><strong>workflow_version</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The version of the workflow type.</li>
+<li><strong>task_list</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The task list to use for the decision tasks
+generated for this workflow execution. This overrides the
+defaultTaskList specified when registering the workflow type.</li>
+<li><strong>child_policy</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; <p>If set, specifies the policy to use for the
+child workflow executions of this workflow execution if it
+is terminated, by calling the TerminateWorkflowExecution
+action explicitly or due to an expired timeout. This policy
+overrides the default child policy specified when registering
+the workflow type using RegisterWorkflowType. The supported
+child policies are:</p>
+<blockquote>
+<div><ul>
+<li>TERMINATE: the child executions will be terminated.</li>
+<li><dl class="first docutils">
+<dt>REQUEST_CANCEL: a request to cancel will be attempted</dt>
+<dd>for each child execution by recording a
+WorkflowExecutionCancelRequested event in its history.
+It is up to the decider to take appropriate actions
+when it receives an execution history with this event.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>ABANDON: no action will be taken. The child executions</dt>
+<dd>will continue to run.</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><strong>execution_start_to_close_timeout</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The total duration for
+this workflow execution. This overrides the
+defaultExecutionStartToCloseTimeout specified when
+registering the workflow type.</li>
+<li><strong>input</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The input for the workflow
+execution. This is a free form string which should be
+meaningful to the workflow you are starting. This input is
+made available to the new workflow execution in the
+WorkflowExecutionStarted history event.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>task_start_to_close_timeout: Specifies the maximum duration of</dt>
+<dd>decision tasks for this workflow execution. This parameter
+overrides the defaultTaskStartToCloseTimout specified when
+registering the workflow type using register_workflow_type.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body">UnknownResourceFault, TypeDeprecatedFault,
+SWFWorkflowExecutionAlreadyStartedError, SWFLimitExceededError,
+SWFOperationNotPermittedError, DefaultUndefinedFault</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.swf.layer1.Layer1.terminate_workflow_execution">
+<tt class="descname">terminate_workflow_execution</tt><big>(</big><em>domain</em>, <em>workflow_id</em>, <em>child_policy=None</em>, <em>details=None</em>, <em>reason=None</em>, <em>run_id=None</em><big>)</big><a class="headerlink" href="#boto.swf.layer1.Layer1.terminate_workflow_execution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records a WorkflowExecutionTerminated event and forces closure
+of the workflow execution identified by the given domain,
+runId, and workflowId. The child policy, registered with the
+workflow type or specified when starting this execution, is
+applied to any open child workflow executions of this workflow
+execution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The domain of the workflow execution to terminate.</li>
+<li><strong>workflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The workflowId of the workflow execution
+to terminate.</li>
+<li><strong>child_policy</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; <p>If set, specifies the policy to use for
+the child workflow executions of the workflow execution being
+terminated. This policy overrides the child policy specified
+for the workflow execution at registration time or when
+starting the execution. The supported child policies are:</p>
+<ul>
+<li>TERMINATE: the child executions will be terminated.</li>
+<li>REQUEST_CANCEL: a request to cancel will be attempted
+for each child execution by recording a
+WorkflowExecutionCancelRequested event in its
+history. It is up to the decider to take appropriate
+actions when it receives an execution history with this
+event.</li>
+<li>ABANDON: no action will be taken. The child executions
+will continue to run.</li>
+</ul>
+</li>
+<li><strong>details</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Optional details for terminating the
+workflow execution.</li>
+<li><strong>reason</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; An optional descriptive reason for terminating
+the workflow execution.</li>
+<li><strong>run_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The runId of the workflow execution to terminate.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">UnknownResourceFault, SWFOperationNotPermittedError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">SWF</a><ul>
+<li><a class="reference internal" href="#module-boto.swf">boto.swf</a></li>
+<li><a class="reference internal" href="#module-boto.swf.layer1">boto.swf.layer1</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sts.html"
+                        title="previous chapter">STS</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="vpc.html"
+                        title="next chapter">VPC</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/swf.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="vpc.html" title="VPC"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sts.html" title="STS"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" >API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

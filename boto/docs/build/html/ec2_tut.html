@@ -1,0 +1,293 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>An Introduction to boto’s EC2 interface &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="index.html" />
+    <link rel="next" title="EC2 Security Groups" href="security_groups.html" />
+    <link rel="prev" title="boto: A Python interface to Amazon Web Services" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="security_groups.html" title="EC2 Security Groups"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="boto: A Python interface to Amazon Web Services"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="an-introduction-to-boto-s-ec2-interface">
+<span id="ec2-tut"></span><h1>An Introduction to boto&#8217;s EC2 interface<a class="headerlink" href="#an-introduction-to-boto-s-ec2-interface" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial focuses on the boto interface to the Elastic Compute Cloud
+from Amazon Web Services.  This tutorial assumes that you have already
+downloaded and installed boto.</p>
+<div class="section" id="creating-a-connection">
+<h2>Creating a Connection<a class="headerlink" href="#creating-a-connection" title="Permalink to this headline">¶</a></h2>
+<p>The first step in accessing EC2 is to create a connection to the service.
+The recommended way of doing this in boto is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">boto.ec2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span> <span class="o">=</span> <span class="n">boto</span><span class="o">.</span><span class="n">ec2</span><span class="o">.</span><span class="n">connect_to_region</span><span class="p">(</span><span class="s">&quot;us-east-1&quot;</span><span class="p">,</span>
+<span class="gp">... </span>   <span class="n">aws_access_key_id</span><span class="o">=</span><span class="s">&#39;&lt;aws access key&gt;&#39;</span><span class="p">,</span>
+<span class="gp">... </span>   <span class="n">aws_secret_access_key</span><span class="o">=</span><span class="s">&#39;&lt;aws secret key&gt;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>At this point the variable <tt class="docutils literal"><span class="pre">conn</span></tt> will point to an EC2Connection object.  In
+this example, the AWS access key and AWS secret key are passed in to the method
+explicitly.  Alternatively, you can set the boto config environment variables
+and then simply specify which region you want as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span> <span class="o">=</span> <span class="n">boto</span><span class="o">.</span><span class="n">ec2</span><span class="o">.</span><span class="n">connect_to_region</span><span class="p">(</span><span class="s">&quot;us-east-1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In either case, conn will point to an EC2Connection object which we will
+use throughout the remainder of this tutorial.</p>
+</div>
+<div class="section" id="launching-instances">
+<h2>Launching Instances<a class="headerlink" href="#launching-instances" title="Permalink to this headline">¶</a></h2>
+<p>Possibly, the most important and common task you&#8217;ll use EC2 for is to launch,
+stop and terminate instances. In its most primitive form, you can launch an
+instance as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">run_instances</span><span class="p">(</span><span class="s">&#39;&lt;ami-image-id&gt;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will launch an instance in the specified region with the default parameters.
+You will not be able to SSH into this machine, as it doesn&#8217;t have a security
+group set. See <a class="reference internal" href="security_groups.html"><em>EC2 Security Groups</em></a> for details on creating one.</p>
+<p>Now, let&#8217;s say that you already have a key pair, want a specific type of
+instance, and you have your <a class="reference internal" href="security_groups.html"><em>security group</em></a> all setup.
+In this case we can use the keyword arguments to accomplish that:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">run_instances</span><span class="p">(</span>
+<span class="go">        &#39;&lt;ami-image-id&gt;&#39;,</span>
+<span class="go">        key_name=&#39;myKey&#39;,</span>
+<span class="go">        instance_type=&#39;c1.xlarge&#39;,</span>
+<span class="go">        security_groups=[&#39;your-security-group-here&#39;])</span>
+</pre></div>
+</div>
+<p>The main caveat with the above call is that it is possible to request an
+instance type that is not compatible with the provided AMI (for example, the
+instance was created for a 64-bit instance and you choose a m1.small instance_type).
+For more details on the plethora of possible keyword parameters, be sure to
+check out boto&#8217;s <a class="reference internal" href="ref/ec2.html"><em>EC2 API reference</em></a>.</p>
+</div>
+<div class="section" id="stopping-instances">
+<h2>Stopping Instances<a class="headerlink" href="#stopping-instances" title="Permalink to this headline">¶</a></h2>
+<p>Once you have your instances up and running, you might wish to shut them down
+if they&#8217;re not in use. Please note that this will only de-allocate virtual
+hardware resources (as well as instance store drives), but won&#8217;t destroy your
+EBS volumes &#8211; this means you&#8217;ll pay nominal provisioned EBS storage fees
+even if your instance is stopped. To do this, you can do so as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">stop_instances</span><span class="p">(</span><span class="n">instance_ids</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;instance-id-1&#39;</span><span class="p">,</span><span class="s">&#39;instance-id-2&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This will request a &#8216;graceful&#8217; stop of each of the specified instances. If you
+wish to request the equivalent of unplugging your instance(s), simply add
+<tt class="docutils literal"><span class="pre">force=True</span></tt> keyword argument to the call above. Please note that stop
+instance is not allowed with Spot instances.</p>
+</div>
+<div class="section" id="terminating-instances">
+<h2>Terminating Instances<a class="headerlink" href="#terminating-instances" title="Permalink to this headline">¶</a></h2>
+<p>Once you are completely done with your instance and wish to surrender both
+virtual hardware, root EBS volume and all other underlying components
+you can request instance termination. To do so you can use the call bellow:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">terminate_instances</span><span class="p">(</span><span class="n">instance_ids</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;instance-id-1&#39;</span><span class="p">,</span><span class="s">&#39;instance-id-2&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Please use with care since once you request termination for an instance there
+is no turning back.</p>
+</div>
+<div class="section" id="checking-what-instances-are-running">
+<h2>Checking What Instances Are Running<a class="headerlink" href="#checking-what-instances-are-running" title="Permalink to this headline">¶</a></h2>
+<p>You can also get information on your currently running instances:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">reservations</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_all_instances</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reservations</span>
+<span class="go">[Reservation:r-00000000]</span>
+</pre></div>
+</div>
+<p>A reservation corresponds to a command to start instances. You can see what
+instances are associated with a reservation:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">instances</span> <span class="o">=</span> <span class="n">reservations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">instances</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">instances</span>
+<span class="go">[Instance:i-00000000]</span>
+</pre></div>
+</div>
+<p>An instance object allows you get more meta-data available about the instance:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">inst</span> <span class="o">=</span> <span class="n">instances</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inst</span><span class="o">.</span><span class="n">instance_type</span>
+<span class="go">u&#39;c1.xlarge&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inst</span><span class="o">.</span><span class="n">placement</span>
+<span class="go">u&#39;us-east-1a&#39;</span>
+</pre></div>
+</div>
+<p>In this case, we can see that our instance is a c1.xlarge instance in the
+<cite>us-east-1a</cite> availability zone.</p>
+</div>
+</div>
+<div class="section" id="using-elastic-block-storage-ebs">
+<h1>Using Elastic Block Storage (EBS)<a class="headerlink" href="#using-elastic-block-storage-ebs" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="ebs-basics">
+<h2>EBS Basics<a class="headerlink" href="#ebs-basics" title="Permalink to this headline">¶</a></h2>
+<p>EBS can be used by EC2 instances for permanent storage. Note that EBS volumes
+must be in the same availability zone as the EC2 instance you wish to attach it
+to.</p>
+<p>To actually create a volume you will need to specify a few details. The
+following example will create a 50GB EBS in one of the <cite>us-east-1a</cite> availability
+zones:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">vol</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">create_volume</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="s">&quot;us-east-1a&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vol</span>
+<span class="go">Volume:vol-00000000</span>
+</pre></div>
+</div>
+<p>You can check that the volume is now ready and available:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">curr_vol</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_all_volumes</span><span class="p">([</span><span class="n">vol</span><span class="o">.</span><span class="n">id</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curr_vol</span><span class="o">.</span><span class="n">status</span>
+<span class="go">u&#39;available&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curr_vol</span><span class="o">.</span><span class="n">zone</span>
+<span class="go">u&#39;us-east-1a&#39;</span>
+</pre></div>
+</div>
+<p>We can now attach this volume to the EC2 instance we created earlier, making it
+available as a new device:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">attach_volume</span> <span class="p">(</span><span class="n">vol</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">inst</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s">&quot;/dev/sdx&quot;</span><span class="p">)</span>
+<span class="go">u&#39;attaching&#39;</span>
+</pre></div>
+</div>
+<p>You will now have a new volume attached to your instance. Note that with some
+Linux kernels, <cite>/dev/sdx</cite> may get translated to <cite>/dev/xvdx</cite>. This device can
+now be used as a normal block device within Linux.</p>
+</div>
+<div class="section" id="working-with-snapshots">
+<h2>Working With Snapshots<a class="headerlink" href="#working-with-snapshots" title="Permalink to this headline">¶</a></h2>
+<p>Snapshots allow you to make point-in-time snapshots of an EBS volume for future
+recovery. Snapshots allow you to create incremental backups, and can also be
+used to instantiate multiple new volumes. Snapshots can also be used to move
+EBS volumes across availability zones or making backups to S3.</p>
+<p>Creating a snapshot is easy:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">snapshot</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">create_snapshot</span><span class="p">(</span><span class="n">vol</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s">&#39;My snapshot&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snapshot</span>
+<span class="go">Snapshot:snap-00000000</span>
+</pre></div>
+</div>
+<p>Once you have a snapshot, you can create a new volume from it. Volumes are
+created lazily from snapshots, which means you can start using such a volume
+straight away:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">new_vol</span> <span class="o">=</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">create_volume</span><span class="p">(</span><span class="s">&#39;us-east-1a&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">attach_volume</span> <span class="p">(</span><span class="n">new_vol</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">inst</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s">&quot;/dev/sdy&quot;</span><span class="p">)</span>
+<span class="go">u&#39;attaching&#39;</span>
+</pre></div>
+</div>
+<p>If you no longer need a snapshot, you can also easily delete it:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">delete_snapshot</span><span class="p">(</span><span class="n">snapshot</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">An Introduction to boto&#8217;s EC2 interface</a><ul>
+<li><a class="reference internal" href="#creating-a-connection">Creating a Connection</a></li>
+<li><a class="reference internal" href="#launching-instances">Launching Instances</a></li>
+<li><a class="reference internal" href="#stopping-instances">Stopping Instances</a></li>
+<li><a class="reference internal" href="#terminating-instances">Terminating Instances</a></li>
+<li><a class="reference internal" href="#checking-what-instances-are-running">Checking What Instances Are Running</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#using-elastic-block-storage-ebs">Using Elastic Block Storage (EBS)</a><ul>
+<li><a class="reference internal" href="#ebs-basics">EBS Basics</a></li>
+<li><a class="reference internal" href="#working-with-snapshots">Working With Snapshots</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">boto: A Python interface to Amazon Web Services</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="security_groups.html"
+                        title="next chapter">EC2 Security Groups</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ec2_tut.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="security_groups.html" title="EC2 Security Groups"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="boto: A Python interface to Amazon Web Services"
+             >previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

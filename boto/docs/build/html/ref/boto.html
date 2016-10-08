@@ -1,0 +1,2021 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>boto &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="up" title="API Reference" href="index.html" />
+    <link rel="next" title="Elastic Beanstalk" href="beanstalk.html" />
+    <link rel="prev" title="API Reference" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="beanstalk.html" title="Elastic Beanstalk"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="API Reference"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="boto">
+<span id="ref-boto"></span><h1>boto<a class="headerlink" href="#boto" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>boto<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-boto"></span><dl class="class">
+<dt id="boto.NullHandler">
+<em class="property">class </em><tt class="descclassname">boto.</tt><tt class="descname">NullHandler</tt><big>(</big><em>level=0</em><big>)</big><a class="headerlink" href="#boto.NullHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the instance - basically setting the formatter to None
+and the filter list to empty.</p>
+<dl class="method">
+<dt id="boto.NullHandler.emit">
+<tt class="descname">emit</tt><big>(</big><em>record</em><big>)</big><a class="headerlink" href="#boto.NullHandler.emit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_autoscale">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_autoscale</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_autoscale" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="autoscale.html#boto.ec2.autoscale.AutoScaleConnection" title="boto.ec2.autoscale.AutoScaleConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.autoscale.AutoScaleConnection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s Auto Scaling Service</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_beanstalk">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_beanstalk</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_beanstalk" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="beanstalk.html#boto.beanstalk.layer1.Layer1" title="boto.beanstalk.layer1.Layer1"><tt class="xref py py-class docutils literal"><span class="pre">boto.beanstalk.layer1.Layer1</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s Elastic Beanstalk service</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_cloudformation">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_cloudformation</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_cloudformation" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">boto.cloudformation.CloudFormationConnection</span></tt></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s CloudFormation Service</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_cloudfront">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_cloudfront</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_cloudfront" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="fps.html#boto.fps.connection.FPSConnection" title="boto.fps.connection.FPSConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.fps.connection.FPSConnection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to FPS</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_cloudsearch">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_cloudsearch</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_cloudsearch" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.autoscale.CloudSearchConnection</span></tt></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s CloudSearch service</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_cloudwatch">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_cloudwatch</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_cloudwatch" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="cloudwatch.html#boto.ec2.cloudwatch.CloudWatchConnection" title="boto.ec2.cloudwatch.CloudWatchConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.cloudwatch.CloudWatchConnection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s EC2 Monitoring service</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_dynamodb">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_dynamodb</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_dynamodb" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="dynamodb.html#boto.dynamodb.layer2.Layer2" title="boto.dynamodb.layer2.Layer2"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.layer2.Layer2</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to the Layer2 interface for DynamoDB.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_ec2">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_ec2</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_ec2" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="ec2.html#boto.ec2.connection.EC2Connection" title="boto.ec2.connection.EC2Connection"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.connection.EC2Connection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s EC2</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_ec2_endpoint">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_ec2_endpoint</tt><big>(</big><em>url</em>, <em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_ec2_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to an EC2 Api endpoint.  Additional arguments are passed
+through to connect_ec2.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; A url for the ec2 api endpoint to connect to</li>
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="ec2.html#boto.ec2.connection.EC2Connection" title="boto.ec2.connection.EC2Connection"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.connection.EC2Connection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Eucalyptus server</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_elastictranscoder">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_elastictranscoder</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_elastictranscoder" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">boto.ets.layer1.ElasticTranscoderConnection</span></tt></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s Elastic Transcoder service</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_elb">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_elb</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_elb" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="elb.html#boto.ec2.elb.ELBConnection" title="boto.ec2.elb.ELBConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.elb.ELBConnection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s Load Balancing Service</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_emr">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_emr</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_emr" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">boto.emr.EmrConnection</span></tt></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Elastic mapreduce</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_euca">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_euca</tt><big>(</big><em>host=None</em>, <em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>port=8773</em>, <em>path='/services/Eucalyptus'</em>, <em>is_secure=False</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_euca" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to a Eucalyptus service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>host</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; the host name or ip address of the Eucalyptus server</li>
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="ec2.html#boto.ec2.connection.EC2Connection" title="boto.ec2.connection.EC2Connection"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.connection.EC2Connection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Eucalyptus server</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_fps">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_fps</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_fps" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="fps.html#boto.fps.connection.FPSConnection" title="boto.fps.connection.FPSConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.fps.connection.FPSConnection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to FPS</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_glacier">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_glacier</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_glacier" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="glacier.html#boto.glacier.layer2.Layer2" title="boto.glacier.layer2.Layer2"><tt class="xref py py-class docutils literal"><span class="pre">boto.glacier.layer2.Layer2</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s Glacier Service</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_gs">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_gs</tt><big>(</big><em>gs_access_key_id=None</em>, <em>gs_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_gs" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#64;type gs_access_key_id: string
+&#64;param gs_access_key_id: Your Google Cloud Storage Access Key ID</p>
+<p>&#64;type gs_secret_access_key: string
+&#64;param gs_secret_access_key: Your Google Cloud Storage Secret Access Key</p>
+<p>&#64;rtype: L{GSConnection&lt;boto.gs.connection.GSConnection&gt;}
+&#64;return: A connection to Google&#8217;s Storage service</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_ia">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_ia</tt><big>(</big><em>ia_access_key_id=None</em>, <em>ia_secret_access_key=None</em>, <em>is_secure=False</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_ia" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to the Internet Archive via their S3-like API.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ia_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your IA Access Key ID.  This will also look
+in your boto config file for an entry in the Credentials
+section called &#8220;ia_access_key_id&#8221;</li>
+<li><strong>ia_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your IA Secret Access Key.  This will also
+look in your boto config file for an entry in the Credentials
+section called &#8220;ia_secret_access_key&#8221;</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="s3.html#boto.s3.connection.S3Connection" title="boto.s3.connection.S3Connection"><tt class="xref py py-class docutils literal"><span class="pre">boto.s3.connection.S3Connection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to the Internet Archive</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_iam">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_iam</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_iam" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">boto.iam.IAMConnection</span></tt></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s IAM</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_mturk">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_mturk</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_mturk" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="mturk.html#boto.mturk.connection.MTurkConnection" title="boto.mturk.connection.MTurkConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.mturk.connection.MTurkConnection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to MTurk</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_opsworks">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_opsworks</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_opsworks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_rds">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_rds</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_rds" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="rds.html#boto.rds.RDSConnection" title="boto.rds.RDSConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.rds.RDSConnection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to RDS</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_route53">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_route53</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_route53" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">boto.dns.Route53Connection</span></tt></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s Route53 DNS Service</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_s3">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_s3</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_s3" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="s3.html#boto.s3.connection.S3Connection" title="boto.s3.connection.S3Connection"><tt class="xref py py-class docutils literal"><span class="pre">boto.s3.connection.S3Connection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s S3</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_sdb">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_sdb</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_sdb" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="sdb.html#boto.sdb.connection.SDBConnection" title="boto.sdb.connection.SDBConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.sdb.connection.SDBConnection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s SDB</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_ses">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_ses</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_ses" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">boto.ses.SESConnection</span></tt></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s SES</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_sns">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_sns</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_sns" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="sns.html#boto.sns.SNSConnection" title="boto.sns.SNSConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.sns.SNSConnection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s SNS</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_sqs">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_sqs</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_sqs" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="sqs.html#boto.sqs.connection.SQSConnection" title="boto.sqs.connection.SQSConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.sqs.connection.SQSConnection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s SQS</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_sts">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_sts</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_sts" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="sts.html#boto.sts.STSConnection" title="boto.sts.STSConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.sts.STSConnection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Amazon&#8217;s STS</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_swf">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_swf</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_swf" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="swf.html#boto.swf.layer1.Layer1" title="boto.swf.layer1.Layer1"><tt class="xref py py-class docutils literal"><span class="pre">boto.swf.layer1.Layer1</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to the Layer1 interface for SWF.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_vpc">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_vpc</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_vpc" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="vpc.html#boto.vpc.VPCConnection" title="boto.vpc.VPCConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.VPCConnection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to VPC</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.connect_walrus">
+<tt class="descclassname">boto.</tt><tt class="descname">connect_walrus</tt><big>(</big><em>host=None</em>, <em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>port=8773</em>, <em>path='/services/Walrus'</em>, <em>is_secure=False</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connect_walrus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to a Walrus service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>host</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; the host name or ip address of the Walrus server</li>
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Access Key ID</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Your AWS Secret Access Key</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="s3.html#boto.s3.connection.S3Connection" title="boto.s3.connection.S3Connection"><tt class="xref py py-class docutils literal"><span class="pre">boto.s3.connection.S3Connection</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A connection to Walrus</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.init_logging">
+<tt class="descclassname">boto.</tt><tt class="descname">init_logging</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.init_logging" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.set_file_logger">
+<tt class="descclassname">boto.</tt><tt class="descname">set_file_logger</tt><big>(</big><em>name</em>, <em>filepath</em>, <em>level=20</em>, <em>format_string=None</em><big>)</big><a class="headerlink" href="#boto.set_file_logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.set_stream_logger">
+<tt class="descclassname">boto.</tt><tt class="descname">set_stream_logger</tt><big>(</big><em>name</em>, <em>level=10</em>, <em>format_string=None</em><big>)</big><a class="headerlink" href="#boto.set_stream_logger" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.storage_uri">
+<tt class="descclassname">boto.</tt><tt class="descname">storage_uri</tt><big>(</big><em>uri_str</em>, <em>default_scheme='file'</em>, <em>debug=0</em>, <em>validate=True</em>, <em>bucket_storage_uri_class=&lt;class 'boto.storage_uri.BucketStorageUri'&gt;</em>, <em>suppress_consec_slashes=True</em>, <em>is_latest=False</em><big>)</big><a class="headerlink" href="#boto.storage_uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiate a StorageUri from a URI string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>uri_str</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; URI naming bucket + optional object.</li>
+<li><strong>default_scheme</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; default scheme for scheme-less URIs.</li>
+<li><strong>debug</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; debug level to pass in to boto connection (range 0..2).</li>
+<li><strong>validate</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; whether to check for bucket name validity.</li>
+<li><strong>bucket_storage_uri_class</strong> (<em>BucketStorageUri interface.</em>) &#8211; Allows mocking for unit tests.</li>
+<li><strong>suppress_consec_slashes</strong> &#8211; If provided, controls whether
+consecutive slashes will be suppressed in key paths.</li>
+<li><strong>is_latest</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; whether this versioned object represents the
+current version.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>We allow validate to be disabled to allow caller
+to implement bucket-level wildcarding (outside the boto library;
+see gsutil).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">boto.StorageUri</span></tt> subclass</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">StorageUri subclass for given URI.</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">uri_str</span></tt> must be one of the following formats:</p>
+<ul class="simple">
+<li>gs://bucket/name</li>
+<li>gs://bucket/name#ver</li>
+<li>s3://bucket/name</li>
+<li>gs://bucket</li>
+<li>s3://bucket</li>
+<li>filename (which could be a Unix path like /a/b/c or a Windows path like
+C:c)</li>
+</ul>
+<p>The last example uses the default scheme (&#8216;file&#8217;, unless overridden).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.storage_uri_for_key">
+<tt class="descclassname">boto.</tt><tt class="descname">storage_uri_for_key</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#boto.storage_uri_for_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a StorageUri for the given key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> (<a class="reference internal" href="s3.html#boto.s3.key.Key" title="boto.s3.key.Key"><tt class="xref py py-class docutils literal"><span class="pre">boto.s3.key.Key</span></tt></a> or subclass) &#8211; URI naming bucket + optional object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.connection">
+<span id="boto-connection"></span><h2>boto.connection<a class="headerlink" href="#module-boto.connection" title="Permalink to this headline">¶</a></h2>
+<p>Handles basic connections to AWS</p>
+<dl class="class">
+<dt id="boto.connection.AWSAuthConnection">
+<em class="property">class </em><tt class="descclassname">boto.connection.</tt><tt class="descname">AWSAuthConnection</tt><big>(</big><em>host</em>, <em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>is_secure=True</em>, <em>port=None</em>, <em>proxy=None</em>, <em>proxy_port=None</em>, <em>proxy_user=None</em>, <em>proxy_pass=None</em>, <em>debug=0</em>, <em>https_connection_factory=None</em>, <em>path='/'</em>, <em>provider='aws'</em>, <em>security_token=None</em>, <em>suppress_consec_slashes=True</em>, <em>validate_certs=True</em><big>)</big><a class="headerlink" href="#boto.connection.AWSAuthConnection" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>host</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The host to make the connection to</li>
+<li><strong>aws_access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Your AWS Access Key ID (provided by
+Amazon). If none is specified, the value in your
+<tt class="docutils literal"><span class="pre">AWS_ACCESS_KEY_ID</span></tt> environmental variable is used.</li>
+<li><strong>aws_secret_access_key</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Your AWS Secret Access Key
+(provided by Amazon). If none is specified, the value in your
+<tt class="docutils literal"><span class="pre">AWS_SECRET_ACCESS_KEY</span></tt> environmental variable is used.</li>
+<li><strong>is_secure</strong> (<em>boolean</em>) &#8211; Whether the connection is over SSL</li>
+<li><strong>https_connection_factory</strong> (<em>list or tuple</em>) &#8211; A pair of an HTTP connection
+factory and the exceptions to catch.  The factory should have
+a similar interface to L{httplib.HTTPSConnection}.</li>
+<li><strong>proxy</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Address/hostname for a proxy server</li>
+<li><strong>proxy_port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The port to use when connecting over a proxy</li>
+<li><strong>proxy_user</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The username to connect with on the proxy</li>
+<li><strong>proxy_pass</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The password to use when connection over a proxy.</li>
+<li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The port to use to connect</li>
+<li><strong>suppress_consec_slashes</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If provided, controls whether
+consecutive slashes will be suppressed in key paths.</li>
+<li><strong>validate_certs</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Controls whether SSL certificates
+will be validated or not.  Defaults to True.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="boto.connection.AWSAuthConnection.access_key">
+<tt class="descname">access_key</tt><a class="headerlink" href="#boto.connection.AWSAuthConnection.access_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.connection.AWSAuthConnection.auth_region_name">
+<tt class="descname">auth_region_name</tt><a class="headerlink" href="#boto.connection.AWSAuthConnection.auth_region_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.connection.AWSAuthConnection.auth_service_name">
+<tt class="descname">auth_service_name</tt><a class="headerlink" href="#boto.connection.AWSAuthConnection.auth_service_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.connection.AWSAuthConnection.aws_access_key_id">
+<tt class="descname">aws_access_key_id</tt><a class="headerlink" href="#boto.connection.AWSAuthConnection.aws_access_key_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.connection.AWSAuthConnection.aws_secret_access_key">
+<tt class="descname">aws_secret_access_key</tt><a class="headerlink" href="#boto.connection.AWSAuthConnection.aws_secret_access_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSAuthConnection.build_base_http_request">
+<tt class="descname">build_base_http_request</tt><big>(</big><em>method</em>, <em>path</em>, <em>auth_path</em>, <em>params=None</em>, <em>headers=None</em>, <em>data=''</em>, <em>host=None</em><big>)</big><a class="headerlink" href="#boto.connection.AWSAuthConnection.build_base_http_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSAuthConnection.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.connection.AWSAuthConnection.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>(Optional) Close any open HTTP connections.  This is non-destructive,
+and making a new request will open a connection again.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.connection.AWSAuthConnection.connection">
+<tt class="descname">connection</tt><a class="headerlink" href="#boto.connection.AWSAuthConnection.connection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSAuthConnection.get_http_connection">
+<tt class="descname">get_http_connection</tt><big>(</big><em>host</em>, <em>is_secure</em><big>)</big><a class="headerlink" href="#boto.connection.AWSAuthConnection.get_http_connection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSAuthConnection.get_path">
+<tt class="descname">get_path</tt><big>(</big><em>path='/'</em><big>)</big><a class="headerlink" href="#boto.connection.AWSAuthConnection.get_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSAuthConnection.get_proxy_auth_header">
+<tt class="descname">get_proxy_auth_header</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.connection.AWSAuthConnection.get_proxy_auth_header" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.connection.AWSAuthConnection.gs_access_key_id">
+<tt class="descname">gs_access_key_id</tt><a class="headerlink" href="#boto.connection.AWSAuthConnection.gs_access_key_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.connection.AWSAuthConnection.gs_secret_access_key">
+<tt class="descname">gs_secret_access_key</tt><a class="headerlink" href="#boto.connection.AWSAuthConnection.gs_secret_access_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSAuthConnection.handle_proxy">
+<tt class="descname">handle_proxy</tt><big>(</big><em>proxy</em>, <em>proxy_port</em>, <em>proxy_user</em>, <em>proxy_pass</em><big>)</big><a class="headerlink" href="#boto.connection.AWSAuthConnection.handle_proxy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSAuthConnection.make_request">
+<tt class="descname">make_request</tt><big>(</big><em>method</em>, <em>path</em>, <em>headers=None</em>, <em>data=''</em>, <em>host=None</em>, <em>auth_path=None</em>, <em>sender=None</em>, <em>override_num_retries=None</em>, <em>params=None</em><big>)</big><a class="headerlink" href="#boto.connection.AWSAuthConnection.make_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a request to the server, with stock multiple-retry logic.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSAuthConnection.new_http_connection">
+<tt class="descname">new_http_connection</tt><big>(</big><em>host</em>, <em>is_secure</em><big>)</big><a class="headerlink" href="#boto.connection.AWSAuthConnection.new_http_connection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSAuthConnection.prefix_proxy_to_path">
+<tt class="descname">prefix_proxy_to_path</tt><big>(</big><em>path</em>, <em>host=None</em><big>)</big><a class="headerlink" href="#boto.connection.AWSAuthConnection.prefix_proxy_to_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSAuthConnection.proxy_ssl">
+<tt class="descname">proxy_ssl</tt><big>(</big><em>host=None</em>, <em>port=None</em><big>)</big><a class="headerlink" href="#boto.connection.AWSAuthConnection.proxy_ssl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSAuthConnection.put_http_connection">
+<tt class="descname">put_http_connection</tt><big>(</big><em>host</em>, <em>is_secure</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.connection.AWSAuthConnection.put_http_connection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.connection.AWSAuthConnection.secret_key">
+<tt class="descname">secret_key</tt><a class="headerlink" href="#boto.connection.AWSAuthConnection.secret_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSAuthConnection.server_name">
+<tt class="descname">server_name</tt><big>(</big><em>port=None</em><big>)</big><a class="headerlink" href="#boto.connection.AWSAuthConnection.server_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.connection.AWSQueryConnection">
+<em class="property">class </em><tt class="descclassname">boto.connection.</tt><tt class="descname">AWSQueryConnection</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>is_secure=True</em>, <em>port=None</em>, <em>proxy=None</em>, <em>proxy_port=None</em>, <em>proxy_user=None</em>, <em>proxy_pass=None</em>, <em>host=None</em>, <em>debug=0</em>, <em>https_connection_factory=None</em>, <em>path='/'</em>, <em>security_token=None</em>, <em>validate_certs=True</em><big>)</big><a class="headerlink" href="#boto.connection.AWSQueryConnection" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="boto.connection.AWSQueryConnection.ResponseError">
+<tt class="descname">ResponseError</tt><a class="headerlink" href="#boto.connection.AWSQueryConnection.ResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">BotoServerError</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSQueryConnection.build_complex_list_params">
+<tt class="descname">build_complex_list_params</tt><big>(</big><em>params</em>, <em>items</em>, <em>label</em>, <em>names</em><big>)</big><a class="headerlink" href="#boto.connection.AWSQueryConnection.build_complex_list_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize a list of structures.</p>
+<p>For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">items</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="s">&#39;bar&#39;</span><span class="p">,</span> <span class="s">&#39;baz&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;foo2&#39;</span><span class="p">,</span> <span class="s">&#39;bar2&#39;</span><span class="p">,</span> <span class="s">&#39;baz2&#39;</span><span class="p">)]</span>
+<span class="n">label</span> <span class="o">=</span> <span class="s">&#39;ParamName.member&#39;</span>
+<span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;One&#39;</span><span class="p">,</span> <span class="s">&#39;Two&#39;</span><span class="p">,</span> <span class="s">&#39;Three&#39;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">build_complex_list_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">names</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>would result in the params dict being updated with these params:</p>
+<div class="highlight-python"><pre>ParamName.member.1.One = foo
+ParamName.member.1.Two = bar
+ParamName.member.1.Three = baz
+
+ParamName.member.2.One = foo2
+ParamName.member.2.Two = bar2
+ParamName.member.2.Three = baz2</pre>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>params</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; The params dict.  The complex list params
+will be added to this dict.</li>
+<li><strong>items</strong> (<em>list of tuples</em>) &#8211; The list to serialize.</li>
+<li><strong>label</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The prefix to apply to the parameter.</li>
+<li><strong>names</strong> (<em>tuple of strings</em>) &#8211; The names associated with each tuple element.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSQueryConnection.build_list_params">
+<tt class="descname">build_list_params</tt><big>(</big><em>params</em>, <em>items</em>, <em>label</em><big>)</big><a class="headerlink" href="#boto.connection.AWSQueryConnection.build_list_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSQueryConnection.get_list">
+<tt class="descname">get_list</tt><big>(</big><em>action</em>, <em>params</em>, <em>markers</em>, <em>path='/'</em>, <em>parent=None</em>, <em>verb='GET'</em><big>)</big><a class="headerlink" href="#boto.connection.AWSQueryConnection.get_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSQueryConnection.get_object">
+<tt class="descname">get_object</tt><big>(</big><em>action</em>, <em>params</em>, <em>cls</em>, <em>path='/'</em>, <em>parent=None</em>, <em>verb='GET'</em><big>)</big><a class="headerlink" href="#boto.connection.AWSQueryConnection.get_object" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSQueryConnection.get_status">
+<tt class="descname">get_status</tt><big>(</big><em>action</em>, <em>params</em>, <em>path='/'</em>, <em>parent=None</em>, <em>verb='GET'</em><big>)</big><a class="headerlink" href="#boto.connection.AWSQueryConnection.get_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSQueryConnection.get_utf8_value">
+<tt class="descname">get_utf8_value</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.connection.AWSQueryConnection.get_utf8_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.AWSQueryConnection.make_request">
+<tt class="descname">make_request</tt><big>(</big><em>action</em>, <em>params=None</em>, <em>path='/'</em>, <em>verb='GET'</em><big>)</big><a class="headerlink" href="#boto.connection.AWSQueryConnection.make_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.connection.ConnectionPool">
+<em class="property">class </em><tt class="descclassname">boto.connection.</tt><tt class="descname">ConnectionPool</tt><a class="headerlink" href="#boto.connection.ConnectionPool" title="Permalink to this definition">¶</a></dt>
+<dd><p>A connection pool that expires connections after a fixed period of
+time.  This saves time spent waiting for a connection that AWS has
+timed out on the other end.</p>
+<p>This class is thread-safe.</p>
+<dl class="method">
+<dt id="boto.connection.ConnectionPool.clean">
+<tt class="descname">clean</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.connection.ConnectionPool.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean up the stale connections in all of the pools, and then
+get rid of empty pools.  Pools clean themselves every time a
+connection is fetched; this cleaning takes care of pools that
+aren&#8217;t being used any more, so nothing is being gotten from
+them.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.ConnectionPool.get_http_connection">
+<tt class="descname">get_http_connection</tt><big>(</big><em>host</em>, <em>is_secure</em><big>)</big><a class="headerlink" href="#boto.connection.ConnectionPool.get_http_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a connection from the pool for the named host.  Returns
+None if there is no connection that can be reused. It&#8217;s the caller&#8217;s
+responsibility to call close() on the connection when it&#8217;s no longer
+needed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.ConnectionPool.put_http_connection">
+<tt class="descname">put_http_connection</tt><big>(</big><em>host</em>, <em>is_secure</em>, <em>conn</em><big>)</big><a class="headerlink" href="#boto.connection.ConnectionPool.put_http_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a connection to the pool of connections that can be
+reused for the named host.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.ConnectionPool.size">
+<tt class="descname">size</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.connection.ConnectionPool.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of connections in the pool.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.connection.HTTPRequest">
+<em class="property">class </em><tt class="descclassname">boto.connection.</tt><tt class="descname">HTTPRequest</tt><big>(</big><em>method</em>, <em>protocol</em>, <em>host</em>, <em>port</em>, <em>path</em>, <em>auth_path</em>, <em>params</em>, <em>headers</em>, <em>body</em><big>)</big><a class="headerlink" href="#boto.connection.HTTPRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents an HTTP request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>method</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The HTTP method name, &#8216;GET&#8217;, &#8216;POST&#8217;, &#8216;PUT&#8217; etc.</li>
+<li><strong>protocol</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The http protocol used, &#8216;http&#8217; or &#8216;https&#8217;.</li>
+<li><strong>host</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Host to which the request is addressed. eg. abc.com</li>
+<li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; port on which the request is being sent. Zero means unset,
+in which case default port will be chosen.</li>
+<li><strong>path</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; URL path that is being accessed.</li>
+<li><strong>path</strong> &#8211; The part of the URL path used when creating the
+authentication string.</li>
+<li><strong>params</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; HTTP url query parameters, with key as name of
+the param, and value as value of param.</li>
+<li><strong>headers</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; HTTP headers, with key as name of the header and value
+as value of header.</li>
+<li><strong>body</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Body of the HTTP request. If not present, will be None or
+empty string (&#8216;&#8217;).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.connection.HTTPRequest.authorize">
+<tt class="descname">authorize</tt><big>(</big><em>connection</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connection.HTTPRequest.authorize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.connection.HTTPResponse">
+<em class="property">class </em><tt class="descclassname">boto.connection.</tt><tt class="descname">HTTPResponse</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.connection.HTTPResponse" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.connection.HTTPResponse.read">
+<tt class="descname">read</tt><big>(</big><em>amt=None</em><big>)</big><a class="headerlink" href="#boto.connection.HTTPResponse.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the response.</p>
+<p>This method does not have the same behavior as
+httplib.HTTPResponse.read.  Instead, if this method is called with
+no <tt class="docutils literal"><span class="pre">amt</span></tt> arg, then the response body will be cached.  Subsequent
+calls to <tt class="docutils literal"><span class="pre">read()</span></tt> with no args <strong>will return the cached response</strong>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.connection.HostConnectionPool">
+<em class="property">class </em><tt class="descclassname">boto.connection.</tt><tt class="descname">HostConnectionPool</tt><a class="headerlink" href="#boto.connection.HostConnectionPool" title="Permalink to this definition">¶</a></dt>
+<dd><p>A pool of connections for one remote (host,is_secure).</p>
+<p>When connections are added to the pool, they are put into a
+pending queue.  The _mexe method returns connections to the pool
+before the response body has been read, so they connections aren&#8217;t
+ready to send another request yet.  They stay in the pending queue
+until they are ready for another request, at which point they are
+returned to the pool of ready connections.</p>
+<p>The pool of ready connections is an ordered list of
+(connection,time) pairs, where the time is the time the connection
+was returned from _mexe.  After a certain period of time,
+connections are considered stale, and discarded rather than being
+reused.  This saves having to wait for the connection to time out
+if AWS has decided to close it on the other end because of
+inactivity.</p>
+<p>Thread Safety:</p>
+<blockquote>
+<div>This class is used only fram ConnectionPool while it&#8217;s mutex
+is held.</div></blockquote>
+<dl class="method">
+<dt id="boto.connection.HostConnectionPool.clean">
+<tt class="descname">clean</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.connection.HostConnectionPool.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get rid of stale connections.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.HostConnectionPool.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.connection.HostConnectionPool.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the next connection in this pool that is ready to be
+reused.  Returns None of there aren&#8217;t any.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.HostConnectionPool.put">
+<tt class="descname">put</tt><big>(</big><em>conn</em><big>)</big><a class="headerlink" href="#boto.connection.HostConnectionPool.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a connection to the pool, along with the time it was
+added.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.connection.HostConnectionPool.size">
+<tt class="descname">size</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.connection.HostConnectionPool.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of connections in the pool for this host.
+Some of the connections may still be in use, and may not be
+ready to be returned by get().</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.exception">
+<span id="boto-exception"></span><h2>boto.exception<a class="headerlink" href="#module-boto.exception" title="Permalink to this headline">¶</a></h2>
+<p>Exception classes - Subclassing allows you to check for specific errors</p>
+<dl class="exception">
+<dt id="boto.exception.AWSConnectionError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">AWSConnectionError</tt><big>(</big><em>reason</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.AWSConnectionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>General error connecting to Amazon Web Services.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.BotoClientError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">BotoClientError</tt><big>(</big><em>reason</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.BotoClientError" title="Permalink to this definition">¶</a></dt>
+<dd><p>General Boto Client error (error accessing AWS)</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.BotoServerError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">BotoServerError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.BotoServerError" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.exception.BotoServerError.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.exception.BotoServerError.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.exception.BotoServerError.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.exception.BotoServerError.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.exception.ConsoleOutput">
+<em class="property">class </em><tt class="descclassname">boto.exception.</tt><tt class="descname">ConsoleOutput</tt><big>(</big><em>parent=None</em><big>)</big><a class="headerlink" href="#boto.exception.ConsoleOutput" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.exception.ConsoleOutput.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.exception.ConsoleOutput.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.exception.ConsoleOutput.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.exception.ConsoleOutput.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.DynamoDBResponseError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">DynamoDBResponseError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.DynamoDBResponseError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.EC2ResponseError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">EC2ResponseError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em><big>)</big><a class="headerlink" href="#boto.exception.EC2ResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error in response from EC2.</p>
+<dl class="method">
+<dt id="boto.exception.EC2ResponseError.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.exception.EC2ResponseError.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.exception.EC2ResponseError.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.exception.EC2ResponseError.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.EmrResponseError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">EmrResponseError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.EmrResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error in response from EMR</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.GSCopyError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">GSCopyError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.GSCopyError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error copying a key on GS.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.GSCreateError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">GSCreateError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em><big>)</big><a class="headerlink" href="#boto.exception.GSCreateError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error creating a bucket or key on GS.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.GSDataError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">GSDataError</tt><big>(</big><em>reason</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.GSDataError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error receiving data from GS.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.GSPermissionsError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">GSPermissionsError</tt><big>(</big><em>reason</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.GSPermissionsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Permissions error when accessing a bucket or key on GS.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.GSResponseError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">GSResponseError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em><big>)</big><a class="headerlink" href="#boto.exception.GSResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error in response from GS.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.InvalidAclError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">InvalidAclError</tt><big>(</big><em>message</em><big>)</big><a class="headerlink" href="#boto.exception.InvalidAclError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception raised when ACL XML is invalid.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.InvalidCorsError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">InvalidCorsError</tt><big>(</big><em>message</em><big>)</big><a class="headerlink" href="#boto.exception.InvalidCorsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception raised when CORS XML is invalid.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.InvalidUriError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">InvalidUriError</tt><big>(</big><em>message</em><big>)</big><a class="headerlink" href="#boto.exception.InvalidUriError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception raised when URI is invalid.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.JSONResponseError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">JSONResponseError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.JSONResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>This exception expects the fully parsed and decoded JSON response
+body to be passed as the body parameter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>status</strong> &#8211; The HTTP status code.</li>
+<li><strong>reason</strong> &#8211; The HTTP reason message.</li>
+<li><strong>body</strong> &#8211; The Python dict that represents the decoded JSON
+response body.</li>
+<li><strong>error_message</strong> &#8211; The full description of the AWS error encountered.</li>
+<li><strong>error_code</strong> &#8211; A short string that identifies the AWS error
+(e.g. ConditionalCheckFailedException)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.NoAuthHandlerFound">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">NoAuthHandlerFound</tt><a class="headerlink" href="#boto.exception.NoAuthHandlerFound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is raised when no auth handlers were found ready to authenticate.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.ResumableDownloadException">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">ResumableDownloadException</tt><big>(</big><em>message</em>, <em>disposition</em><big>)</big><a class="headerlink" href="#boto.exception.ResumableDownloadException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception raised for various resumable download problems.</p>
+<p>self.disposition is of type ResumableTransferDisposition.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.exception.ResumableTransferDisposition">
+<em class="property">class </em><tt class="descclassname">boto.exception.</tt><tt class="descname">ResumableTransferDisposition</tt><a class="headerlink" href="#boto.exception.ResumableTransferDisposition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.ResumableUploadException">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">ResumableUploadException</tt><big>(</big><em>message</em>, <em>disposition</em><big>)</big><a class="headerlink" href="#boto.exception.ResumableUploadException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception raised for various resumable upload problems.</p>
+<p>self.disposition is of type ResumableTransferDisposition.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.S3CopyError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">S3CopyError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.S3CopyError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error copying a key on S3.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.S3CreateError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">S3CreateError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em><big>)</big><a class="headerlink" href="#boto.exception.S3CreateError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error creating a bucket or key on S3.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.S3DataError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">S3DataError</tt><big>(</big><em>reason</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.S3DataError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error receiving data from S3.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.S3PermissionsError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">S3PermissionsError</tt><big>(</big><em>reason</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.S3PermissionsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Permissions error when accessing a bucket or key on S3.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.S3ResponseError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">S3ResponseError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em><big>)</big><a class="headerlink" href="#boto.exception.S3ResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error in response from S3.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.SDBPersistenceError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">SDBPersistenceError</tt><a class="headerlink" href="#boto.exception.SDBPersistenceError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.SDBResponseError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">SDBResponseError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.SDBResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error in responses from SDB.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.SQSDecodeError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">SQSDecodeError</tt><big>(</big><em>reason</em>, <em>message</em><big>)</big><a class="headerlink" href="#boto.exception.SQSDecodeError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error when decoding an SQS message.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.SQSError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">SQSError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em><big>)</big><a class="headerlink" href="#boto.exception.SQSError" title="Permalink to this definition">¶</a></dt>
+<dd><p>General Error on Simple Queue Service.</p>
+<dl class="method">
+<dt id="boto.exception.SQSError.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.exception.SQSError.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.exception.SQSError.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.exception.SQSError.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.SWFResponseError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">SWFResponseError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.SWFResponseError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.StorageCopyError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">StorageCopyError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.StorageCopyError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error copying a key on a storage service.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.StorageCreateError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">StorageCreateError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em><big>)</big><a class="headerlink" href="#boto.exception.StorageCreateError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error creating a bucket or key on a storage service.</p>
+<dl class="method">
+<dt id="boto.exception.StorageCreateError.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.exception.StorageCreateError.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.StorageDataError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">StorageDataError</tt><big>(</big><em>reason</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.StorageDataError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error receiving data from a storage service.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.StoragePermissionsError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">StoragePermissionsError</tt><big>(</big><em>reason</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.exception.StoragePermissionsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Permissions error when accessing a bucket or key on a storage service.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.StorageResponseError">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">StorageResponseError</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em><big>)</big><a class="headerlink" href="#boto.exception.StorageResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error in response from a storage service.</p>
+<dl class="method">
+<dt id="boto.exception.StorageResponseError.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.exception.StorageResponseError.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.exception.StorageResponseError.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.exception.StorageResponseError.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="boto.exception.TooManyRecordsException">
+<em class="property">exception </em><tt class="descclassname">boto.exception.</tt><tt class="descname">TooManyRecordsException</tt><big>(</big><em>message</em><big>)</big><a class="headerlink" href="#boto.exception.TooManyRecordsException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception raised when a search of Route53 records returns more
+records than requested.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.handler">
+<span id="boto-handler"></span><h2>boto.handler<a class="headerlink" href="#module-boto.handler" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.handler.XmlHandler">
+<em class="property">class </em><tt class="descclassname">boto.handler.</tt><tt class="descname">XmlHandler</tt><big>(</big><em>root_node</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.handler.XmlHandler" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.handler.XmlHandler.characters">
+<tt class="descname">characters</tt><big>(</big><em>content</em><big>)</big><a class="headerlink" href="#boto.handler.XmlHandler.characters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.handler.XmlHandler.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#boto.handler.XmlHandler.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.handler.XmlHandler.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em><big>)</big><a class="headerlink" href="#boto.handler.XmlHandler.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.handler.XmlHandlerWrapper">
+<em class="property">class </em><tt class="descclassname">boto.handler.</tt><tt class="descname">XmlHandlerWrapper</tt><big>(</big><em>root_node</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.handler.XmlHandlerWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.handler.XmlHandlerWrapper.parseString">
+<tt class="descname">parseString</tt><big>(</big><em>content</em><big>)</big><a class="headerlink" href="#boto.handler.XmlHandlerWrapper.parseString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.resultset">
+<span id="boto-resultset"></span><h2>boto.resultset<a class="headerlink" href="#module-boto.resultset" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.resultset.BooleanResult">
+<em class="property">class </em><tt class="descclassname">boto.resultset.</tt><tt class="descname">BooleanResult</tt><big>(</big><em>marker_elem=None</em><big>)</big><a class="headerlink" href="#boto.resultset.BooleanResult" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.resultset.BooleanResult.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.resultset.BooleanResult.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.resultset.BooleanResult.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.resultset.BooleanResult.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.resultset.BooleanResult.to_boolean">
+<tt class="descname">to_boolean</tt><big>(</big><em>value</em>, <em>true_value='true'</em><big>)</big><a class="headerlink" href="#boto.resultset.BooleanResult.to_boolean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.resultset.ResultSet">
+<em class="property">class </em><tt class="descclassname">boto.resultset.</tt><tt class="descname">ResultSet</tt><big>(</big><em>marker_elem=None</em><big>)</big><a class="headerlink" href="#boto.resultset.ResultSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ResultSet is used to pass results back from the Amazon services
+to the client. It is light wrapper around Python&#8217;s <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt> class,
+with some additional methods for parsing XML results from AWS. 
+Because I don&#8217;t really want any dependencies on external libraries, 
+I&#8217;m using the standard SAX parser that comes with Python. The good news is 
+that it&#8217;s quite fast and efficient but it makes some things rather 
+difficult.</p>
+<p>You can pass in, as the marker_elem parameter, a list of tuples.
+Each tuple contains a string as the first element which represents
+the XML element that the resultset needs to be on the lookout for
+and a Python class as the second element of the tuple. Each time the
+specified element is found in the XML, a new instance of the class
+will be created and popped onto the stack.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><strong>next_token</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; A hash used to assist in paging through very long
+result sets. In most cases, passing this value to certain methods
+will give you another &#8216;page&#8217; of results.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.resultset.ResultSet.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.resultset.ResultSet.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.resultset.ResultSet.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.resultset.ResultSet.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.resultset.ResultSet.to_boolean">
+<tt class="descname">to_boolean</tt><big>(</big><em>value</em>, <em>true_value='true'</em><big>)</big><a class="headerlink" href="#boto.resultset.ResultSet.to_boolean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.utils">
+<span id="boto-utils"></span><h2>boto.utils<a class="headerlink" href="#module-boto.utils" title="Permalink to this headline">¶</a></h2>
+<p>Some handy utility functions used by several classes.</p>
+<dl class="class">
+<dt id="boto.utils.AuthSMTPHandler">
+<em class="property">class </em><tt class="descclassname">boto.utils.</tt><tt class="descname">AuthSMTPHandler</tt><big>(</big><em>mailhost</em>, <em>username</em>, <em>password</em>, <em>fromaddr</em>, <em>toaddrs</em>, <em>subject</em><big>)</big><a class="headerlink" href="#boto.utils.AuthSMTPHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class extends the SMTPHandler in the standard Python logging module
+to accept a username and password on the constructor and to then use those
+credentials to authenticate with the SMTP server.  To use this, you could
+add something like this in your boto config file:</p>
+<p>[handler_hand07]
+class=boto.utils.AuthSMTPHandler
+level=WARN
+formatter=form07
+args=(&#8216;localhost&#8217;, &#8216;username&#8217;, &#8216;password&#8217;, <a class="reference external" href="mailto:'from&#37;&#52;&#48;abc">'from<span>&#64;</span>abc</a>&#8216;, [<a class="reference external" href="mailto:'user1&#37;&#52;&#48;abc">'user1<span>&#64;</span>abc</a>&#8216;, <a class="reference external" href="mailto:'user2&#37;&#52;&#48;xyz">'user2<span>&#64;</span>xyz</a>&#8216;], &#8216;Logger Subject&#8217;)</p>
+<p>Initialize the handler.</p>
+<p>We have extended the constructor to accept a username/password
+for SMTP authentication.</p>
+<dl class="method">
+<dt id="boto.utils.AuthSMTPHandler.emit">
+<tt class="descname">emit</tt><big>(</big><em>record</em><big>)</big><a class="headerlink" href="#boto.utils.AuthSMTPHandler.emit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Emit a record.</p>
+<p>Format the record and send it to the specified addressees.
+It would be really nice if I could add authorization to this class
+without having to resort to cut and paste inheritance but, no.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.utils.LRUCache">
+<em class="property">class </em><tt class="descclassname">boto.utils.</tt><tt class="descname">LRUCache</tt><big>(</big><em>capacity</em><big>)</big><a class="headerlink" href="#boto.utils.LRUCache" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary-like object that stores only a certain number of items, and
+discards its least recently used item when full.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">cache</span> <span class="o">=</span> <span class="n">LRUCache</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cache</span><span class="p">[</span><span class="s">&#39;A&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cache</span><span class="p">[</span><span class="s">&#39;B&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cache</span><span class="p">[</span><span class="s">&#39;C&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">cache</span><span class="p">[</span><span class="s">&#39;A&#39;</span><span class="p">]</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+<p>Adding new items to the cache does not increase its size. Instead, the least
+recently used item is dropped:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">cache</span><span class="p">[</span><span class="s">&#39;D&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+<span class="go">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&#39;B&#39;</span> <span class="ow">in</span> <span class="n">cache</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<p>Iterating over the cache returns the keys, starting with the most recently
+used:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="n">key</span>
+<span class="go">D</span>
+<span class="go">A</span>
+<span class="go">C</span>
+</pre></div>
+</div>
+<p>This code is based on the LRUCache class from Genshi which is based on
+<a class="reference external" href="http://www.myghty.org">Myghty</a>&#8216;s LRUCache from <tt class="docutils literal"><span class="pre">myghtyutils.util</span></tt>,
+written by Mike Bayer and released under the MIT license (Genshi uses the
+BSD License).</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.utils.LazyLoadMetadata">
+<em class="property">class </em><tt class="descclassname">boto.utils.</tt><tt class="descname">LazyLoadMetadata</tt><big>(</big><em>url</em>, <em>num_retries</em><big>)</big><a class="headerlink" href="#boto.utils.LazyLoadMetadata" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.utils.LazyLoadMetadata.get">
+<tt class="descname">get</tt><big>(</big><em>key</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#boto.utils.LazyLoadMetadata.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.utils.LazyLoadMetadata.items">
+<tt class="descname">items</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.utils.LazyLoadMetadata.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.utils.LazyLoadMetadata.values">
+<tt class="descname">values</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.utils.LazyLoadMetadata.values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.utils.Password">
+<em class="property">class </em><tt class="descclassname">boto.utils.</tt><tt class="descname">Password</tt><big>(</big><em>str=None</em>, <em>hashfunc=None</em><big>)</big><a class="headerlink" href="#boto.utils.Password" title="Permalink to this definition">¶</a></dt>
+<dd><p>Password object that stores itself as hashed.
+Hash defaults to SHA512 if available, MD5 otherwise.</p>
+<p>Load the string from an initial value, this should be the
+raw hashed password.</p>
+<dl class="method">
+<dt id="boto.utils.Password.hashfunc">
+<tt class="descname">hashfunc</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.utils.Password.hashfunc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a sha512 hash object; optionally initialized with a string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.utils.Password.set">
+<tt class="descname">set</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.utils.Password.set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.utils.ShellCommand">
+<em class="property">class </em><tt class="descclassname">boto.utils.</tt><tt class="descname">ShellCommand</tt><big>(</big><em>command</em>, <em>wait=True</em>, <em>fail_fast=False</em>, <em>cwd=None</em><big>)</big><a class="headerlink" href="#boto.utils.ShellCommand" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.utils.ShellCommand.getOutput">
+<tt class="descname">getOutput</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.utils.ShellCommand.getOutput" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.utils.ShellCommand.getStatus">
+<tt class="descname">getStatus</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.utils.ShellCommand.getStatus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.utils.ShellCommand.output">
+<tt class="descname">output</tt><a class="headerlink" href="#boto.utils.ShellCommand.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>The STDIN and STDERR output of the command</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.utils.ShellCommand.run">
+<tt class="descname">run</tt><big>(</big><em>cwd=None</em><big>)</big><a class="headerlink" href="#boto.utils.ShellCommand.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.utils.ShellCommand.setReadOnly">
+<tt class="descname">setReadOnly</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.utils.ShellCommand.setReadOnly" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.utils.ShellCommand.status">
+<tt class="descname">status</tt><a class="headerlink" href="#boto.utils.ShellCommand.status" title="Permalink to this definition">¶</a></dt>
+<dd><p>The exit code for the command</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.canonical_string">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">canonical_string</tt><big>(</big><em>method</em>, <em>path</em>, <em>headers</em>, <em>expires=None</em>, <em>provider=None</em><big>)</big><a class="headerlink" href="#boto.utils.canonical_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the aws canonical string for the given parameters</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.compute_hash">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">compute_hash</tt><big>(</big><em>fp</em>, <em>buf_size=8192</em>, <em>size=None</em>, <em>hash_algorithm=&lt;built-in function openssl_md5&gt;</em><big>)</big><a class="headerlink" href="#boto.utils.compute_hash" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.compute_md5">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">compute_md5</tt><big>(</big><em>fp</em>, <em>buf_size=8192</em>, <em>size=None</em><big>)</big><a class="headerlink" href="#boto.utils.compute_md5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute MD5 hash on passed file and return results in a tuple of values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fp</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#file" title="(in Python v2.7)"><em>file</em></a>) &#8211; File pointer to the file to MD5 hash.  The file pointer
+will be reset to its current location before the
+method returns.</li>
+<li><strong>buf_size</strong> (<em>integer</em>) &#8211; Number of bytes per read request.</li>
+<li><strong>size</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; (optional) The Maximum number of bytes to read from
+the file pointer (fp). This is useful when uploading
+a file in multiple parts where the file is being
+split inplace into different parts. Less bytes may
+be available.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">tuple</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A tuple containing the hex digest version of the MD5 hash
+as the first element, the base64 encoded version of the
+plain digest as the second element and the data size as
+the third element.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.fetch_file">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">fetch_file</tt><big>(</big><em>uri</em>, <em>file=None</em>, <em>username=None</em>, <em>password=None</em><big>)</big><a class="headerlink" href="#boto.utils.fetch_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch a file based on the URI provided. If you do not pass in a file pointer
+a tempfile.NamedTemporaryFile, or None if the file could not be
+retrieved is returned.
+The URI can be either an HTTP url, or &#8220;s3://bucket_name/key_name&#8221;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.find_class">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">find_class</tt><big>(</big><em>module_name</em>, <em>class_name=None</em><big>)</big><a class="headerlink" href="#boto.utils.find_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.get_aws_metadata">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">get_aws_metadata</tt><big>(</big><em>headers</em>, <em>provider=None</em><big>)</big><a class="headerlink" href="#boto.utils.get_aws_metadata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.get_instance_identity">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">get_instance_identity</tt><big>(</big><em>version='latest'</em>, <em>url='http://169.254.169.254'</em>, <em>timeout=None</em>, <em>num_retries=5</em><big>)</big><a class="headerlink" href="#boto.utils.get_instance_identity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the instance identity as a nested Python dictionary.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.get_instance_metadata">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">get_instance_metadata</tt><big>(</big><em>version='latest'</em>, <em>url='http://169.254.169.254'</em>, <em>timeout=None</em>, <em>num_retries=5</em><big>)</big><a class="headerlink" href="#boto.utils.get_instance_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the instance metadata as a nested Python dictionary.
+Simple values (e.g. local_hostname, hostname, etc.) will be
+stored as string values.  Values such as ancestor-ami-ids will
+be stored in the dict as a list of string values.  More complex
+fields such as public-keys and will be stored as nested dicts.</p>
+<p>If the timeout is specified, the connection to the specified url
+will time out after the specified number of seconds.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.get_instance_userdata">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">get_instance_userdata</tt><big>(</big><em>version='latest'</em>, <em>sep=None</em>, <em>url='http://169.254.169.254'</em><big>)</big><a class="headerlink" href="#boto.utils.get_instance_userdata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.get_ts">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">get_ts</tt><big>(</big><em>ts=None</em><big>)</big><a class="headerlink" href="#boto.utils.get_ts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.get_utf8_value">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">get_utf8_value</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.utils.get_utf8_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.guess_mime_type">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">guess_mime_type</tt><big>(</big><em>content</em>, <em>deftype</em><big>)</big><a class="headerlink" href="#boto.utils.guess_mime_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Description: Guess the mime type of a block of text
+:param content: content we&#8217;re finding the type of
+:type str:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>deftype</strong> &#8211; Default mime type</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">&lt;type&gt;:</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">&lt;description&gt;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.merge_meta">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">merge_meta</tt><big>(</big><em>headers</em>, <em>metadata</em>, <em>provider=None</em><big>)</big><a class="headerlink" href="#boto.utils.merge_meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.mklist">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">mklist</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.utils.mklist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.notify">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">notify</tt><big>(</big><em>subject</em>, <em>body=None</em>, <em>html_body=None</em>, <em>to_string=None</em>, <em>attachments=None</em>, <em>append_instance_id=True</em><big>)</big><a class="headerlink" href="#boto.utils.notify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.parse_ts">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">parse_ts</tt><big>(</big><em>ts</em><big>)</big><a class="headerlink" href="#boto.utils.parse_ts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.pythonize_name">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">pythonize_name</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#boto.utils.pythonize_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert camel case to a &#8220;pythonic&#8221; name.</p>
+<p>Examples:</p>
+<div class="highlight-python"><pre>pythonize_name('CamelCase') -&gt; 'camel_case'
+pythonize_name('already_pythonized') -&gt; 'already_pythonized'
+pythonize_name('HTTPRequest') -&gt; 'http_request'
+pythonize_name('HTTPStatus200Ok') -&gt; 'http_status_200_ok'
+pythonize_name('UPPER') -&gt; 'upper'
+pythonize_name('') -&gt; ''</pre>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.retry_url">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">retry_url</tt><big>(</big><em>url</em>, <em>retry_on_404=True</em>, <em>num_retries=10</em><big>)</big><a class="headerlink" href="#boto.utils.retry_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retry a url.  This is specifically used for accessing the metadata
+service on an instance.  Since this address should never be proxied
+(for security reasons), we create a ProxyHandler with a NULL
+dictionary to override any proxy settings in the environment.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.unquote_v">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">unquote_v</tt><big>(</big><em>nv</em><big>)</big><a class="headerlink" href="#boto.utils.unquote_v" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.update_dme">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">update_dme</tt><big>(</big><em>username</em>, <em>password</em>, <em>dme_id</em>, <em>ip_address</em><big>)</big><a class="headerlink" href="#boto.utils.update_dme" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update your Dynamic DNS record with DNSMadeEasy.com</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.utils.write_mime_multipart">
+<tt class="descclassname">boto.utils.</tt><tt class="descname">write_mime_multipart</tt><big>(</big><em>content</em>, <em>compress=False</em>, <em>deftype='text/plain'</em>, <em>delimiter=':'</em><big>)</big><a class="headerlink" href="#boto.utils.write_mime_multipart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Description:
+:param content: A list of tuples of name-content pairs. This is used
+instead of a dict to ensure that scripts run in order
+:type list of tuples:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>compress</strong> &#8211; Use gzip to compress the scripts, defaults to no compression</li>
+<li><strong>deftype</strong> &#8211; The type that should be assumed if nothing else can be figured out</li>
+<li><strong>delimiter</strong> &#8211; mime delimiter</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Final mime multipart</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str:</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">boto</a><ul>
+<li><a class="reference internal" href="#id1">boto</a></li>
+<li><a class="reference internal" href="#module-boto.connection">boto.connection</a></li>
+<li><a class="reference internal" href="#module-boto.exception">boto.exception</a></li>
+<li><a class="reference internal" href="#module-boto.handler">boto.handler</a></li>
+<li><a class="reference internal" href="#module-boto.resultset">boto.resultset</a></li>
+<li><a class="reference internal" href="#module-boto.utils">boto.utils</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">API Reference</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="beanstalk.html"
+                        title="next chapter">Elastic Beanstalk</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/boto.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="beanstalk.html" title="Elastic Beanstalk"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="API Reference"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" >API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1475 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>IAM &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="up" title="API Reference" href="index.html" />
+    <link rel="next" title="manage" href="manage.html" />
+    <link rel="prev" title="GS" href="gs.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="manage.html" title="manage"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gs.html" title="GS"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="iam">
+<h1>IAM<a class="headerlink" href="#iam" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-boto.iam">
+<span id="boto-iam"></span><h2>boto.iam<a class="headerlink" href="#module-boto.iam" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.iam.IAMRegionInfo">
+<em class="property">class </em><tt class="descclassname">boto.iam.</tt><tt class="descname">IAMRegionInfo</tt><big>(</big><em>connection=None</em>, <em>name=None</em>, <em>endpoint=None</em>, <em>connection_cls=None</em><big>)</big><a class="headerlink" href="#boto.iam.IAMRegionInfo" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.iam.IAMRegionInfo.connect">
+<tt class="descname">connect</tt><big>(</big><em>**kw_params</em><big>)</big><a class="headerlink" href="#boto.iam.IAMRegionInfo.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to this Region&#8217;s endpoint. Returns an connection
+object pointing to the endpoint associated with this region.
+You may pass any of the arguments accepted by the connection
+class&#8217;s constructor as keyword arguments and they will be
+passed along to the connection object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">Connection object</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The connection to this regions endpoint</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.iam.connect_to_region">
+<tt class="descclassname">boto.iam.</tt><tt class="descname">connect_to_region</tt><big>(</big><em>region_name</em>, <em>**kw_params</em><big>)</big><a class="headerlink" href="#boto.iam.connect_to_region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a valid region name, return a
+<a class="reference internal" href="#boto.iam.connection.IAMConnection" title="boto.iam.connection.IAMConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.iam.connection.IAMConnection</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Type :</th><td class="field-body">str</td>
+</tr>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>region_name</strong> &#8211; The name of the region to connect to.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.iam.connection.IAMConnection" title="boto.iam.connection.IAMConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.iam.connection.IAMConnection</span></tt></a> or <tt class="xref docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A connection to the given region, or None if an invalid region
+name is given</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.iam.regions">
+<tt class="descclassname">boto.iam.</tt><tt class="descname">regions</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.iam.regions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all available regions for the IAM service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list of <tt class="xref py py-class docutils literal"><span class="pre">boto.regioninfo.RegionInfo</span></tt> instances</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.iam.connection">
+<span id="boto-iam-connection"></span><h2>boto.iam.connection<a class="headerlink" href="#module-boto.iam.connection" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.iam.connection.IAMConnection">
+<em class="property">class </em><tt class="descclassname">boto.iam.connection.</tt><tt class="descname">IAMConnection</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>is_secure=True</em>, <em>port=None</em>, <em>proxy=None</em>, <em>proxy_port=None</em>, <em>proxy_user=None</em>, <em>proxy_pass=None</em>, <em>host='iam.amazonaws.com'</em>, <em>debug=0</em>, <em>https_connection_factory=None</em>, <em>path='/'</em>, <em>security_token=None</em>, <em>validate_certs=True</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.iam.connection.IAMConnection.add_role_to_instance_profile">
+<tt class="descname">add_role_to_instance_profile</tt><big>(</big><em>instance_profile_name</em>, <em>role_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.add_role_to_instance_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the specified role to the specified instance profile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>instance_profile_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the instance profile to update.</li>
+<li><strong>role_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the role to add.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.add_user_to_group">
+<tt class="descname">add_user_to_group</tt><big>(</big><em>group_name</em>, <em>user_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.add_user_to_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a user to a group</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>group_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the group</li>
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The to be added to the group.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.create_access_key">
+<tt class="descname">create_access_key</tt><big>(</big><em>user_name=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.create_access_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new AWS Secret Access Key and corresponding AWS Access Key ID
+for the specified user.  The default status for new keys is Active</p>
+<p>If the user_name is not specified, the user_name is determined
+implicitly based on the AWS Access Key ID used to sign the request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The username of the user</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.create_account_alias">
+<tt class="descname">create_account_alias</tt><big>(</big><em>alias</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.create_account_alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new alias for the AWS account.</p>
+<p>For more information on account id aliases, please see
+<a class="reference external" href="http://goo.gl/ToB7G">http://goo.gl/ToB7G</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>alias</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The alias to attach to the account.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.create_group">
+<tt class="descname">create_group</tt><big>(</big><em>group_name</em>, <em>path='/'</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.create_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>group_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the new group</li>
+<li><strong>path</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The path to the group (Optional).  Defaults to /.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.create_instance_profile">
+<tt class="descname">create_instance_profile</tt><big>(</big><em>instance_profile_name</em>, <em>path=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.create_instance_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new instance profile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>instance_profile_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the instance profile to create.</li>
+<li><strong>path</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The path to the instance profile.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.create_login_profile">
+<tt class="descname">create_login_profile</tt><big>(</big><em>user_name</em>, <em>password</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.create_login_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a login profile for the specified user, give the user the
+ability to access AWS services and the AWS Management Console.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the user</li>
+<li><strong>password</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The new password for the user</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.create_role">
+<tt class="descname">create_role</tt><big>(</big><em>role_name</em>, <em>assume_role_policy_document=None</em>, <em>path=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.create_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new role for your AWS account.</p>
+<p>The policy grants permission to an EC2 instance to assume the role.
+The policy is URL-encoded according to RFC 3986. Currently, only EC2
+instances can assume roles.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>role_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the role to create.</li>
+<li><strong>assume_role_policy_document</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The policy that grants an entity
+permission to assume the role.</li>
+<li><strong>path</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The path to the instance profile.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.create_user">
+<tt class="descname">create_user</tt><big>(</big><em>user_name</em>, <em>path='/'</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.create_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the new user</li>
+<li><strong>path</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The path in which the user will be created.
+Defaults to /.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.deactivate_mfa_device">
+<tt class="descname">deactivate_mfa_device</tt><big>(</big><em>user_name</em>, <em>serial_number</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.deactivate_mfa_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deactivates the specified MFA device and removes it from
+association with the user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The username of the user</li>
+<li><strong>seriasl_number</strong> &#8211; The serial number which uniquely identifies
+the MFA device.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.delete_access_key">
+<tt class="descname">delete_access_key</tt><big>(</big><em>access_key_id</em>, <em>user_name=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.delete_access_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete an access key associated with a user.</p>
+<p>If the user_name is not specified, it is determined implicitly based
+on the AWS Access Key ID used to sign the request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The ID of the access key to be deleted.</li>
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The username of the user</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.delete_account_alias">
+<tt class="descname">delete_account_alias</tt><big>(</big><em>alias</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.delete_account_alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes an alias for the AWS account.</p>
+<p>For more information on account id aliases, please see
+<a class="reference external" href="http://goo.gl/ToB7G">http://goo.gl/ToB7G</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>alias</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The alias to remove from the account.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.delete_group">
+<tt class="descname">delete_group</tt><big>(</big><em>group_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.delete_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a group. The group must not contain any Users or
+have any attached policies</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>group_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the group to delete.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.delete_group_policy">
+<tt class="descname">delete_group_policy</tt><big>(</big><em>group_name</em>, <em>policy_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.delete_group_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the specified policy document for the specified group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>group_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the group the policy is associated with.</li>
+<li><strong>policy_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The policy document to delete.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.delete_instance_profile">
+<tt class="descname">delete_instance_profile</tt><big>(</big><em>instance_profile_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.delete_instance_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the specified instance profile. The instance profile must not
+have an associated role.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>instance_profile_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the instance profile to delete.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.delete_login_profile">
+<tt class="descname">delete_login_profile</tt><big>(</big><em>user_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.delete_login_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the login profile associated with the specified user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the user to delete.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.delete_role">
+<tt class="descname">delete_role</tt><big>(</big><em>role_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.delete_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the specified role. The role must not have any policies
+attached.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>role_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the role to delete.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.delete_role_policy">
+<tt class="descname">delete_role_policy</tt><big>(</big><em>role_name</em>, <em>policy_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.delete_role_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the specified policy associated with the specified role.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>role_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the role associated with the policy.</li>
+<li><strong>policy_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the policy to delete.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.delete_server_cert">
+<tt class="descname">delete_server_cert</tt><big>(</big><em>cert_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.delete_server_cert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the specified server certificate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cert_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the server certificate you want
+to delete.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.delete_signing_cert">
+<tt class="descname">delete_signing_cert</tt><big>(</big><em>cert_id</em>, <em>user_name=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.delete_signing_cert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a signing certificate associated with a user.</p>
+<p>If the user_name is not specified, it is determined implicitly based
+on the AWS Access Key ID used to sign the request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The username of the user</li>
+<li><strong>cert_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The ID of the certificate.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.delete_user">
+<tt class="descname">delete_user</tt><big>(</big><em>user_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.delete_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a user including the user&#8217;s path, GUID and ARN.</p>
+<p>If the user_name is not specified, the user_name is determined
+implicitly based on the AWS Access Key ID used to sign the request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the user to delete.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.delete_user_policy">
+<tt class="descname">delete_user_policy</tt><big>(</big><em>user_name</em>, <em>policy_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.delete_user_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the specified policy document for the specified user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the user the policy is associated with.</li>
+<li><strong>policy_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The policy document to delete.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.enable_mfa_device">
+<tt class="descname">enable_mfa_device</tt><big>(</big><em>user_name</em>, <em>serial_number</em>, <em>auth_code_1</em>, <em>auth_code_2</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.enable_mfa_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables the specified MFA device and associates it with the
+specified user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The username of the user</li>
+<li><strong>seriasl_number</strong> &#8211; The serial number which uniquely identifies
+the MFA device.</li>
+<li><strong>auth_code_1</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; An authentication code emitted by the device.</li>
+<li><strong>auth_code_2</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; A subsequent authentication code emitted
+by the device.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_account_alias">
+<tt class="descname">get_account_alias</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_account_alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the alias for the current account.</p>
+<p>This is referred to in the docs as list_account_aliases,
+but it seems you can only have one account alias currently.</p>
+<p>For more information on account id aliases, please see
+<a class="reference external" href="http://goo.gl/ToB7G">http://goo.gl/ToB7G</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_account_summary">
+<tt class="descname">get_account_summary</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_account_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the alias for the current account.</p>
+<p>This is referred to in the docs as list_account_aliases,
+but it seems you can only have one account alias currently.</p>
+<p>For more information on account id aliases, please see
+<a class="reference external" href="http://goo.gl/ToB7G">http://goo.gl/ToB7G</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_all_access_keys">
+<tt class="descname">get_all_access_keys</tt><big>(</big><em>user_name</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_all_access_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all access keys associated with an account.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The username of the user</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this only when paginating results and only
+in follow-up request after you&#8217;ve received a response
+where the results are truncated.  Set this to the value of
+the Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this only when paginating results to indicate
+the maximum number of groups you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_all_group_policies">
+<tt class="descname">get_all_group_policies</tt><big>(</big><em>group_name</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_all_group_policies" title="Permalink to this definition">¶</a></dt>
+<dd><p>List the names of the policies associated with the specified group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>group_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the group the policy is associated with.</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this only when paginating results and only
+in follow-up request after you&#8217;ve received a response
+where the results are truncated.  Set this to the value of
+the Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this only when paginating results to indicate
+the maximum number of groups you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_all_groups">
+<tt class="descname">get_all_groups</tt><big>(</big><em>path_prefix='/'</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_all_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>List the groups that have the specified path prefix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path_prefix</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If provided, only groups whose paths match
+the provided prefix will be returned.</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this only when paginating results and only
+in follow-up request after you&#8217;ve received a response
+where the results are truncated.  Set this to the value of
+the Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this only when paginating results to indicate
+the maximum number of groups you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_all_mfa_devices">
+<tt class="descname">get_all_mfa_devices</tt><big>(</big><em>user_name</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_all_mfa_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all MFA devices associated with an account.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The username of the user</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this only when paginating results and only
+in follow-up request after you&#8217;ve received a response
+where the results are truncated.  Set this to the value of
+the Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this only when paginating results to indicate
+the maximum number of groups you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_all_server_certs">
+<tt class="descname">get_all_server_certs</tt><big>(</big><em>path_prefix='/'</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_all_server_certs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lists the server certificates that have the specified path prefix.
+If none exist, the action returns an empty list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path_prefix</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If provided, only certificates whose paths match
+the provided prefix will be returned.</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this only when paginating results and only
+in follow-up request after you&#8217;ve received a response
+where the results are truncated.  Set this to the value of
+the Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this only when paginating results to indicate
+the maximum number of groups you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_all_signing_certs">
+<tt class="descname">get_all_signing_certs</tt><big>(</big><em>marker=None</em>, <em>max_items=None</em>, <em>user_name=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_all_signing_certs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all signing certificates associated with an account.</p>
+<p>If the user_name is not specified, it is determined implicitly based
+on the AWS Access Key ID used to sign the request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this only when paginating results and only
+in follow-up request after you&#8217;ve received a response
+where the results are truncated.  Set this to the value of
+the Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this only when paginating results to indicate
+the maximum number of groups you want in the response.</li>
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The username of the user</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_all_user_policies">
+<tt class="descname">get_all_user_policies</tt><big>(</big><em>user_name</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_all_user_policies" title="Permalink to this definition">¶</a></dt>
+<dd><p>List the names of the policies associated with the specified user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the user the policy is associated with.</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this only when paginating results and only
+in follow-up request after you&#8217;ve received a response
+where the results are truncated.  Set this to the value of
+the Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this only when paginating results to indicate
+the maximum number of groups you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_all_users">
+<tt class="descname">get_all_users</tt><big>(</big><em>path_prefix='/'</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_all_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>List the users that have the specified path prefix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path_prefix</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If provided, only users whose paths match
+the provided prefix will be returned.</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this only when paginating results and only
+in follow-up request after you&#8217;ve received a response
+where the results are truncated.  Set this to the value of
+the Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this only when paginating results to indicate
+the maximum number of groups you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_group">
+<tt class="descname">get_group</tt><big>(</big><em>group_name</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of users that are in the specified group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>group_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the group whose information should
+be returned.</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this only when paginating results and only
+in follow-up request after you&#8217;ve received a response
+where the results are truncated.  Set this to the value of
+the Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this only when paginating results to indicate
+the maximum number of groups you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_group_policy">
+<tt class="descname">get_group_policy</tt><big>(</big><em>group_name</em>, <em>policy_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_group_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the specified policy document for the specified group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>group_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the group the policy is associated with.</li>
+<li><strong>policy_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The policy document to get.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_groups_for_user">
+<tt class="descname">get_groups_for_user</tt><big>(</big><em>user_name</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_groups_for_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>List the groups that a specified user belongs to.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the user to list groups for.</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this only when paginating results and only
+in follow-up request after you&#8217;ve received a response
+where the results are truncated.  Set this to the value of
+the Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this only when paginating results to indicate
+the maximum number of groups you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_instance_profile">
+<tt class="descname">get_instance_profile</tt><big>(</big><em>instance_profile_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_instance_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves information about the specified instance profile, including
+the instance profile&#8217;s path, GUID, ARN, and role.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>instance_profile_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the instance profile to get
+information about.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_login_profiles">
+<tt class="descname">get_login_profiles</tt><big>(</big><em>user_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_login_profiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the login profile for the specified user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The username of the user</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_response">
+<tt class="descname">get_response</tt><big>(</big><em>action</em>, <em>params</em>, <em>path='/'</em>, <em>parent=None</em>, <em>verb='POST'</em>, <em>list_marker='Set'</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility method to handle calls to IAM and parsing of responses.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_role">
+<tt class="descname">get_role</tt><big>(</big><em>role_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves information about the specified role, including the role&#8217;s
+path, GUID, ARN, and the policy granting permission to EC2 to assume
+the role.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>role_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the role associated with the policy.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_role_policy">
+<tt class="descname">get_role_policy</tt><big>(</big><em>role_name</em>, <em>policy_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_role_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the specified policy document for the specified role.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>role_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the role associated with the policy.</li>
+<li><strong>policy_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the policy to get.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_server_certificate">
+<tt class="descname">get_server_certificate</tt><big>(</big><em>cert_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_server_certificate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves information about the specified server certificate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cert_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the server certificate you want
+to retrieve information about.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_signin_url">
+<tt class="descname">get_signin_url</tt><big>(</big><em>service='ec2'</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_signin_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the URL where IAM users can use their login profile to sign in
+to this account&#8217;s console.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>service</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Default service to go to in the console.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_user">
+<tt class="descname">get_user</tt><big>(</big><em>user_name=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve information about the specified user.</p>
+<p>If the user_name is not specified, the user_name is determined
+implicitly based on the AWS Access Key ID used to sign the request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the user to retrieve.
+If not specified, defaults to user making request.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.get_user_policy">
+<tt class="descname">get_user_policy</tt><big>(</big><em>user_name</em>, <em>policy_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.get_user_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the specified policy document for the specified user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the user the policy is associated with.</li>
+<li><strong>policy_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The policy document to get.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.list_instance_profiles">
+<tt class="descname">list_instance_profiles</tt><big>(</big><em>path_prefix=None</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.list_instance_profiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lists the instance profiles that have the specified path prefix. If
+there are none, the action returns an empty list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path_prefix</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The path prefix for filtering the results. For
+example: /application_abc/component_xyz/, which would get all
+instance profiles whose path starts with
+/application_abc/component_xyz/.</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this parameter only when paginating results, and
+only in a subsequent request after you&#8217;ve received a response
+where the results are truncated. Set it to the value of the
+Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this parameter only when paginating results to
+indicate the maximum number of user names you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.list_instance_profiles_for_role">
+<tt class="descname">list_instance_profiles_for_role</tt><big>(</big><em>role_name</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.list_instance_profiles_for_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lists the instance profiles that have the specified associated role. If
+there are none, the action returns an empty list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>role_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the role to list instance profiles for.</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this parameter only when paginating results, and
+only in a subsequent request after you&#8217;ve received a response
+where the results are truncated. Set it to the value of the
+Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this parameter only when paginating results to
+indicate the maximum number of user names you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.list_role_policies">
+<tt class="descname">list_role_policies</tt><big>(</big><em>role_name</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.list_role_policies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lists the names of the policies associated with the specified role. If
+there are none, the action returns an empty list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>role_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the role to list policies for.</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this parameter only when paginating results, and
+only in a subsequent request after you&#8217;ve received a response
+where the results are truncated. Set it to the value of the
+marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this parameter only when paginating results to
+indicate the maximum number of user names you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.list_roles">
+<tt class="descname">list_roles</tt><big>(</big><em>path_prefix=None</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.list_roles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lists the roles that have the specified path prefix. If there are none,
+the action returns an empty list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path_prefix</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The path prefix for filtering the results.</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this parameter only when paginating results, and
+only in a subsequent request after you&#8217;ve received a response
+where the results are truncated. Set it to the value of the
+marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this parameter only when paginating results to
+indicate the maximum number of user names you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.list_server_certs">
+<tt class="descname">list_server_certs</tt><big>(</big><em>path_prefix='/'</em>, <em>marker=None</em>, <em>max_items=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.list_server_certs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lists the server certificates that have the specified path prefix.
+If none exist, the action returns an empty list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path_prefix</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If provided, only certificates whose paths match
+the provided prefix will be returned.</li>
+<li><strong>marker</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Use this only when paginating results and only
+in follow-up request after you&#8217;ve received a response
+where the results are truncated.  Set this to the value of
+the Marker element in the response you just received.</li>
+<li><strong>max_items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Use this only when paginating results to indicate
+the maximum number of groups you want in the response.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.put_group_policy">
+<tt class="descname">put_group_policy</tt><big>(</big><em>group_name</em>, <em>policy_name</em>, <em>policy_json</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.put_group_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds or updates the specified policy document for the specified group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>group_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the group the policy is associated with.</li>
+<li><strong>policy_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The policy document to get.</li>
+<li><strong>policy_json</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The policy document.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.put_role_policy">
+<tt class="descname">put_role_policy</tt><big>(</big><em>role_name</em>, <em>policy_name</em>, <em>policy_document</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.put_role_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds (or updates) a policy document associated with the specified role.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>role_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the role to associate the policy with.</li>
+<li><strong>policy_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the policy document.</li>
+<li><strong>policy_document</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The policy document.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.put_user_policy">
+<tt class="descname">put_user_policy</tt><big>(</big><em>user_name</em>, <em>policy_name</em>, <em>policy_json</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.put_user_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds or updates the specified policy document for the specified user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the user the policy is associated with.</li>
+<li><strong>policy_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The policy document to get.</li>
+<li><strong>policy_json</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The policy document.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.remove_role_from_instance_profile">
+<tt class="descname">remove_role_from_instance_profile</tt><big>(</big><em>instance_profile_name</em>, <em>role_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.remove_role_from_instance_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the specified role from the specified instance profile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>instance_profile_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the instance profile to update.</li>
+<li><strong>role_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the role to remove.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.remove_user_from_group">
+<tt class="descname">remove_user_from_group</tt><big>(</big><em>group_name</em>, <em>user_name</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.remove_user_from_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a user from a group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>group_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the group</li>
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The user to remove from the group.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.resync_mfa_device">
+<tt class="descname">resync_mfa_device</tt><big>(</big><em>user_name</em>, <em>serial_number</em>, <em>auth_code_1</em>, <em>auth_code_2</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.resync_mfa_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Syncronizes the specified MFA device with the AWS servers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The username of the user</li>
+<li><strong>seriasl_number</strong> &#8211; The serial number which uniquely identifies
+the MFA device.</li>
+<li><strong>auth_code_1</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; An authentication code emitted by the device.</li>
+<li><strong>auth_code_2</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; A subsequent authentication code emitted
+by the device.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.update_access_key">
+<tt class="descname">update_access_key</tt><big>(</big><em>access_key_id</em>, <em>status</em>, <em>user_name=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.update_access_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes the status of the specified access key from Active to Inactive
+or vice versa.  This action can be used to disable a user&#8217;s key as
+part of a key rotation workflow.</p>
+<p>If the user_name is not specified, the user_name is determined
+implicitly based on the AWS Access Key ID used to sign the request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>access_key_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The ID of the access key.</li>
+<li><strong>status</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Either Active or Inactive.</li>
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The username of user (optional).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.update_assume_role_policy">
+<tt class="descname">update_assume_role_policy</tt><big>(</big><em>role_name</em>, <em>policy_document</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.update_assume_role_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the policy that grants an entity permission to assume a role.
+Currently, only an Amazon EC2 instance can assume a role.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>role_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Name of the role to update.</li>
+<li><strong>policy_document</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The policy that grants an entity permission to
+assume the role.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.update_group">
+<tt class="descname">update_group</tt><big>(</big><em>group_name</em>, <em>new_group_name=None</em>, <em>new_path=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.update_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates name and/or path of the specified group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>group_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the new group</li>
+<li><strong>new_group_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If provided, the name of the group will be
+changed to this name.</li>
+<li><strong>new_path</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If provided, the path of the group will be
+changed to this path.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.update_login_profile">
+<tt class="descname">update_login_profile</tt><big>(</big><em>user_name</em>, <em>password</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.update_login_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the password associated with the user&#8217;s login profile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the user</li>
+<li><strong>password</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The new password for the user</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.update_server_cert">
+<tt class="descname">update_server_cert</tt><big>(</big><em>cert_name</em>, <em>new_cert_name=None</em>, <em>new_path=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.update_server_cert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the name and/or the path of the specified server certificate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cert_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the server certificate that you want
+to update.</li>
+<li><strong>new_cert_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The new name for the server certificate.
+Include this only if you are updating the
+server certificate&#8217;s name.</li>
+<li><strong>new_path</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If provided, the path of the certificate will be
+changed to this path.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.update_signing_cert">
+<tt class="descname">update_signing_cert</tt><big>(</big><em>cert_id</em>, <em>status</em>, <em>user_name=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.update_signing_cert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the status of the specified signing certificate from
+Active to Inactive or vice versa.</p>
+<p>If the user_name is not specified, it is determined implicitly based
+on the AWS Access Key ID used to sign the request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cert_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The ID of the signing certificate</li>
+<li><strong>status</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; Either Active or Inactive.</li>
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The username of the user</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.update_user">
+<tt class="descname">update_user</tt><big>(</big><em>user_name</em>, <em>new_user_name=None</em>, <em>new_path=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.update_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates name and/or path of the specified user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the user</li>
+<li><strong>new_user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If provided, the username of the user will be
+changed to this username.</li>
+<li><strong>new_path</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; If provided, the path of the user will be
+changed to this path.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.upload_server_cert">
+<tt class="descname">upload_server_cert</tt><big>(</big><em>cert_name</em>, <em>cert_body</em>, <em>private_key</em>, <em>cert_chain=None</em>, <em>path=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.upload_server_cert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uploads a server certificate entity for the AWS Account.
+The server certificate entity includes a public key certificate,
+a private key, and an optional certificate chain, which should
+all be PEM-encoded.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cert_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name for the server certificate. Do not
+include the path in this value.</li>
+<li><strong>cert_body</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The contents of the public key certificate
+in PEM-encoded format.</li>
+<li><strong>private_key</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The contents of the private key in
+PEM-encoded format.</li>
+<li><strong>cert_chain</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The contents of the certificate chain. This
+is typically a concatenation of the PEM-encoded
+public key certificates of the chain.</li>
+<li><strong>path</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The path for the server certificate.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.connection.IAMConnection.upload_signing_cert">
+<tt class="descname">upload_signing_cert</tt><big>(</big><em>cert_body</em>, <em>user_name=None</em><big>)</big><a class="headerlink" href="#boto.iam.connection.IAMConnection.upload_signing_cert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uploads an X.509 signing certificate and associates it with
+the specified user.</p>
+<p>If the user_name is not specified, it is determined implicitly based
+on the AWS Access Key ID used to sign the request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cert_body</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The body of the signing certificate.</li>
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The username of the user</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.iam.summarymap">
+<span id="boto-iam-summarymap"></span><h2>boto.iam.summarymap<a class="headerlink" href="#module-boto.iam.summarymap" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.iam.summarymap.SummaryMap">
+<em class="property">class </em><tt class="descclassname">boto.iam.summarymap.</tt><tt class="descname">SummaryMap</tt><big>(</big><em>parent=None</em><big>)</big><a class="headerlink" href="#boto.iam.summarymap.SummaryMap" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.iam.summarymap.SummaryMap.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.iam.summarymap.SummaryMap.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.iam.summarymap.SummaryMap.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.iam.summarymap.SummaryMap.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">IAM</a><ul>
+<li><a class="reference internal" href="#module-boto.iam">boto.iam</a></li>
+<li><a class="reference internal" href="#module-boto.iam.connection">boto.iam.connection</a></li>
+<li><a class="reference internal" href="#module-boto.iam.summarymap">boto.iam.summarymap</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gs.html"
+                        title="previous chapter">GS</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="manage.html"
+                        title="next chapter">manage</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/iam.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="manage.html" title="manage"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gs.html" title="GS"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" >API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

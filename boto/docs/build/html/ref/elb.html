@@ -1,0 +1,1007 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ELB Reference &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="next" title="fps" href="fps.html" />
+    <link rel="prev" title="An Introduction to boto’s Elastic Load Balancing interface" href="../elb_tut.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="fps.html" title="fps"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../elb_tut.html" title="An Introduction to boto’s Elastic Load Balancing interface"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="elb-reference">
+<h1>ELB Reference<a class="headerlink" href="#elb-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-boto.ec2.elb">
+<span id="boto-ec2-elb"></span><h2>boto.ec2.elb<a class="headerlink" href="#module-boto.ec2.elb" title="Permalink to this headline">¶</a></h2>
+<p>This module provides an interface to the Elastic Compute Cloud (EC2)
+load balancing service from AWS.</p>
+<dl class="class">
+<dt id="boto.ec2.elb.ELBConnection">
+<em class="property">class </em><tt class="descclassname">boto.ec2.elb.</tt><tt class="descname">ELBConnection</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>is_secure=False</em>, <em>port=None</em>, <em>proxy=None</em>, <em>proxy_port=None</em>, <em>proxy_user=None</em>, <em>proxy_pass=None</em>, <em>debug=0</em>, <em>https_connection_factory=None</em>, <em>region=None</em>, <em>path='/'</em>, <em>security_token=None</em>, <em>validate_certs=True</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init method to create a new connection to EC2 Load Balancing Service.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The region argument is overridden by the region specified in
+the boto configuration file.</p>
+</div>
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.apply_security_groups_to_lb">
+<tt class="descname">apply_security_groups_to_lb</tt><big>(</big><em>name</em>, <em>security_groups</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.apply_security_groups_to_lb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies security groups to the load balancer.
+Applying security groups that are already registered with the
+Load Balancer has no effect.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the Load Balancer</li>
+<li><strong>security_groups</strong> (<em>List of strings</em>) &#8211; The name of the security group(s) to add.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of strings</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An updated list of security groups for this Load Balancer.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.attach_lb_to_subnets">
+<tt class="descname">attach_lb_to_subnets</tt><big>(</big><em>name</em>, <em>subnets</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.attach_lb_to_subnets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attaches load balancer to one or more subnets.
+Attaching subnets that are already registered with the
+Load Balancer has no effect.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the Load Balancer</li>
+<li><strong>subnets</strong> (<em>List of strings</em>) &#8211; The name of the subnet(s) to add.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of strings</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An updated list of subnets for this Load Balancer.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.build_list_params">
+<tt class="descname">build_list_params</tt><big>(</big><em>params</em>, <em>items</em>, <em>label</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.build_list_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.configure_health_check">
+<tt class="descname">configure_health_check</tt><big>(</big><em>name</em>, <em>health_check</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.configure_health_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define a health check for the EndPoints.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The mnemonic name associated with the load balancer</li>
+<li><strong>health_check</strong> (<a class="reference internal" href="#boto.ec2.elb.healthcheck.HealthCheck" title="boto.ec2.elb.healthcheck.HealthCheck"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.elb.healthcheck.HealthCheck</span></tt></a>) &#8211; A HealthCheck object populated with the desired
+values.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.ec2.elb.healthcheck.HealthCheck" title="boto.ec2.elb.healthcheck.HealthCheck"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.elb.healthcheck.HealthCheck</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The updated <a class="reference internal" href="#boto.ec2.elb.healthcheck.HealthCheck" title="boto.ec2.elb.healthcheck.HealthCheck"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.elb.healthcheck.HealthCheck</span></tt></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.create_app_cookie_stickiness_policy">
+<tt class="descname">create_app_cookie_stickiness_policy</tt><big>(</big><em>name</em>, <em>lb_name</em>, <em>policy_name</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.create_app_cookie_stickiness_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a stickiness policy with sticky session lifetimes that follow
+that of an application-generated cookie. This policy can only be
+associated with HTTP listeners.</p>
+<p>This policy is similar to the policy created by
+CreateLBCookieStickinessPolicy, except that the lifetime of the special
+Elastic Load Balancing cookie follows the lifetime of the
+application-generated cookie specified in the policy configuration. The
+load balancer only inserts a new stickiness cookie when the application
+response includes a new application cookie.</p>
+<p>If the application cookie is explicitly removed or expires, the session
+stops being sticky until a new application cookie is issued.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.create_lb_cookie_stickiness_policy">
+<tt class="descname">create_lb_cookie_stickiness_policy</tt><big>(</big><em>cookie_expiration_period</em>, <em>lb_name</em>, <em>policy_name</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.create_lb_cookie_stickiness_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a stickiness policy with sticky session lifetimes controlled
+by the lifetime of the browser (user-agent) or a specified expiration
+period. This policy can only be associated only with HTTP listeners.</p>
+<p>When a load balancer implements this policy, the load balancer uses a
+special cookie to track the backend server instance for each request.
+When the load balancer receives a request, it first checks to see if
+this cookie is present in the request. If so, the load balancer sends
+the request to the application server specified in the cookie. If not,
+the load balancer sends the request to a server that is chosen based on
+the existing load balancing algorithm.</p>
+<p>A cookie is inserted into the response for binding subsequent requests
+from the same user to that server. The validity of the cookie is based
+on the cookie expiration time, which is specified in the policy
+configuration.</p>
+<p>None may be passed for cookie_expiration_period.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.create_load_balancer">
+<tt class="descname">create_load_balancer</tt><big>(</big><em>name</em>, <em>zones</em>, <em>listeners</em>, <em>subnets=None</em>, <em>security_groups=None</em>, <em>scheme='internet-facing'</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.create_load_balancer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new load balancer for your account. By default the load
+balancer will be created in EC2. To create a load balancer inside a
+VPC, parameter zones must be set to None and subnets must not be None.
+The load balancer will be automatically created under the VPC that
+contains the subnet(s) specified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The mnemonic name associated with the new load balancer</li>
+<li><strong>zones</strong> (<em>List of strings</em>) &#8211; The names of the availability zone(s) to add.</li>
+<li><strong>listeners</strong> (<em>List of tuples</em>) &#8211; Each tuple contains three or four values,
+(LoadBalancerPortNumber, InstancePortNumber, Protocol,
+[SSLCertificateId]) where LoadBalancerPortNumber and
+InstancePortNumber are integer values between 1 and 65535,
+Protocol is a string containing either &#8216;TCP&#8217;, &#8216;HTTP&#8217; or
+&#8216;HTTPS&#8217;; SSLCertificateID is the ARN of a AWS AIM
+certificate, and must be specified when doing HTTPS.</li>
+<li><strong>subnets</strong> (<em>list of strings</em>) &#8211; A list of subnet IDs in your VPC to attach to
+your LoadBalancer.</li>
+<li><strong>security_groups</strong> (<em>list of strings</em>) &#8211; The security groups assigned to your
+LoadBalancer within your VPC.</li>
+<li><strong>scheme</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; <p>The type of a LoadBalancer.  By default, Elastic
+Load Balancing creates an internet-facing LoadBalancer with
+a publicly resolvable DNS name, which resolves to public IP
+addresses.</p>
+<p>Specify the value internal for this option to create an
+internal LoadBalancer with a DNS name that resolves to
+private IP addresses.</p>
+<p>This option is only available for LoadBalancers attached
+to an Amazon VPC.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.ec2.elb.loadbalancer.LoadBalancer" title="boto.ec2.elb.loadbalancer.LoadBalancer"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.elb.loadbalancer.LoadBalancer</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The newly created
+<a class="reference internal" href="#boto.ec2.elb.loadbalancer.LoadBalancer" title="boto.ec2.elb.loadbalancer.LoadBalancer"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.elb.loadbalancer.LoadBalancer</span></tt></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.create_load_balancer_listeners">
+<tt class="descname">create_load_balancer_listeners</tt><big>(</big><em>name</em>, <em>listeners</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.create_load_balancer_listeners" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Listener (or group of listeners) for an existing
+Load Balancer</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the load balancer to create the listeners for</li>
+<li><strong>listeners</strong> (<em>List of tuples</em>) &#8211; Each tuple contains three values,
+(LoadBalancerPortNumber, InstancePortNumber, Protocol,
+[SSLCertificateId]) where LoadBalancerPortNumber and
+InstancePortNumber are integer values between 1 and 65535,
+Protocol is a string containing either &#8216;TCP&#8217;, &#8216;HTTP&#8217;,
+&#8216;HTTPS&#8217;, or &#8216;SSL&#8217;; SSLCertificateID is the ARN of a AWS
+AIM certificate, and must be specified when doing HTTPS or
+SSL.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The status of the request</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.delete_lb_policy">
+<tt class="descname">delete_lb_policy</tt><big>(</big><em>lb_name</em>, <em>policy_name</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.delete_lb_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes a policy from the LoadBalancer. The specified policy must not
+be enabled for any listeners.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.delete_load_balancer">
+<tt class="descname">delete_load_balancer</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.delete_load_balancer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a Load Balancer from your account.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the Load Balancer to delete</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.delete_load_balancer_listeners">
+<tt class="descname">delete_load_balancer_listeners</tt><big>(</big><em>name</em>, <em>ports</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.delete_load_balancer_listeners" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes a load balancer listener (or group of listeners)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the load balancer to create the listeners for</li>
+<li><strong>ports</strong> (<em>List int</em>) &#8211; Each int represents the port on the ELB to be removed</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The status of the request</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.deregister_instances">
+<tt class="descname">deregister_instances</tt><big>(</big><em>load_balancer_name</em>, <em>instances</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.deregister_instances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove Instances from an existing Load Balancer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>load_balancer_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the Load Balancer</li>
+<li><strong>instances</strong> (<em>List of strings</em>) &#8211; The instance ID&#8217;s of the EC2 instances to remove.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of strings</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An updated list of instances for this Load Balancer.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.describe_instance_health">
+<tt class="descname">describe_instance_health</tt><big>(</big><em>load_balancer_name</em>, <em>instances=None</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.describe_instance_health" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get current state of all Instances registered to an Load Balancer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>load_balancer_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the Load Balancer</li>
+<li><strong>instances</strong> (<em>List of strings</em>) &#8211; The instance ID&#8217;s of the EC2 instances
+to return status for.  If not provided,
+the state of all instances will be returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of <a class="reference internal" href="#boto.ec2.elb.instancestate.InstanceState" title="boto.ec2.elb.instancestate.InstanceState"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.elb.instancestate.InstanceState</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of state info for instances in this Load Balancer.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.detach_lb_from_subnets">
+<tt class="descname">detach_lb_from_subnets</tt><big>(</big><em>name</em>, <em>subnets</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.detach_lb_from_subnets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detaches load balancer from one or more subnets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the Load Balancer</li>
+<li><strong>subnets</strong> (<em>List of strings</em>) &#8211; The name of the subnet(s) to detach.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of strings</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An updated list of subnets for this Load Balancer.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.disable_availability_zones">
+<tt class="descname">disable_availability_zones</tt><big>(</big><em>load_balancer_name</em>, <em>zones_to_remove</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.disable_availability_zones" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove availability zones from an existing Load Balancer.
+All zones must be in the same region as the Load Balancer.
+Removing zones that are not registered with the Load Balancer
+has no effect.
+You cannot remove all zones from an Load Balancer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>load_balancer_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the Load Balancer</li>
+<li><strong>zones</strong> (<em>List of strings</em>) &#8211; The name of the zone(s) to remove.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of strings</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An updated list of zones for this Load Balancer.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.enable_availability_zones">
+<tt class="descname">enable_availability_zones</tt><big>(</big><em>load_balancer_name</em>, <em>zones_to_add</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.enable_availability_zones" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add availability zones to an existing Load Balancer
+All zones must be in the same region as the Load Balancer
+Adding zones that are already registered with the Load Balancer
+has no effect.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>load_balancer_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the Load Balancer</li>
+<li><strong>zones</strong> (<em>List of strings</em>) &#8211; The name of the zone(s) to add.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of strings</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An updated list of zones for this Load Balancer.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.get_all_load_balancers">
+<tt class="descname">get_all_load_balancers</tt><big>(</big><em>load_balancer_names=None</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.get_all_load_balancers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve all load balancers associated with your account.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>load_balancer_names</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; An optional list of load balancer names.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="boto.html#boto.resultset.ResultSet" title="boto.resultset.ResultSet"><tt class="xref py py-class docutils literal"><span class="pre">boto.resultset.ResultSet</span></tt></a></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A ResultSet containing instances of
+<a class="reference internal" href="#boto.ec2.elb.loadbalancer.LoadBalancer" title="boto.ec2.elb.loadbalancer.LoadBalancer"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.elb.loadbalancer.LoadBalancer</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.register_instances">
+<tt class="descname">register_instances</tt><big>(</big><em>load_balancer_name</em>, <em>instances</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.register_instances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add new Instances to an existing Load Balancer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>load_balancer_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the Load Balancer</li>
+<li><strong>instances</strong> (<em>List of strings</em>) &#8211; The instance ID&#8217;s of the EC2 instances to add.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">List of strings</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An updated list of instances for this Load Balancer.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.set_lb_listener_SSL_certificate">
+<tt class="descname">set_lb_listener_SSL_certificate</tt><big>(</big><em>lb_name</em>, <em>lb_port</em>, <em>ssl_certificate_id</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.set_lb_listener_SSL_certificate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the certificate that terminates the specified listener&#8217;s SSL
+connections. The specified certificate replaces any prior certificate
+that was used on the same LoadBalancer and port.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.ELBConnection.set_lb_policies_of_listener">
+<tt class="descname">set_lb_policies_of_listener</tt><big>(</big><em>lb_name</em>, <em>lb_port</em>, <em>policies</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.ELBConnection.set_lb_policies_of_listener" title="Permalink to this definition">¶</a></dt>
+<dd><p>Associates, updates, or disables a policy with a listener on the load
+balancer. Currently only zero (0) or one (1) policy can be associated
+with a listener.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.ec2.elb.connect_to_region">
+<tt class="descclassname">boto.ec2.elb.</tt><tt class="descname">connect_to_region</tt><big>(</big><em>region_name</em>, <em>**kw_params</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.connect_to_region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a valid region name, return a
+<a class="reference internal" href="#boto.ec2.elb.ELBConnection" title="boto.ec2.elb.ELBConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.elb.ELBConnection</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>region_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the region to connect to.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.ELBConnection</span></tt> or <tt class="xref docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A connection to the given region, or None if an invalid region
+name is given</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.ec2.elb.regions">
+<tt class="descclassname">boto.ec2.elb.</tt><tt class="descname">regions</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.ec2.elb.regions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all available regions for the ELB service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list of <tt class="xref py py-class docutils literal"><span class="pre">boto.RegionInfo</span></tt> instances</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.ec2.elb.healthcheck">
+<span id="boto-ec2-elb-healthcheck"></span><h2>boto.ec2.elb.healthcheck<a class="headerlink" href="#module-boto.ec2.elb.healthcheck" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.ec2.elb.healthcheck.HealthCheck">
+<em class="property">class </em><tt class="descclassname">boto.ec2.elb.healthcheck.</tt><tt class="descname">HealthCheck</tt><big>(</big><em>access_point=None</em>, <em>interval=30</em>, <em>target=None</em>, <em>healthy_threshold=3</em>, <em>timeout=5</em>, <em>unhealthy_threshold=5</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.healthcheck.HealthCheck" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents an EC2 Access Point Health Check. See
+<a class="reference internal" href="../elb_tut.html#elb-configuring-a-health-check"><em>Configuring a Health Check</em></a> for a walkthrough on configuring
+load balancer health checks.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>access_point</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the load balancer this
+health check is associated with.</li>
+<li><strong>interval</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Specifies how many seconds there are between
+health checks.</li>
+<li><strong>target</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Determines what to check on an instance. See the
+Amazon <a class="reference external" href="http://docs.amazonwebservices.com/ElasticLoadBalancing/latest/APIReference/API_HealthCheck.html">HealthCheck</a> documentation for possible Target values.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.ec2.elb.healthcheck.HealthCheck.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.healthcheck.HealthCheck.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.healthcheck.HealthCheck.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.healthcheck.HealthCheck.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.healthcheck.HealthCheck.update">
+<tt class="descname">update</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.ec2.elb.healthcheck.HealthCheck.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>In the case where you have accessed an existing health check on a
+load balancer, this method applies this instance&#8217;s health check
+values to the load balancer it is attached to.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method will not do anything if the <tt class="xref py py-attr docutils literal"><span class="pre">access_point</span></tt>
+attribute isn&#8217;t set, as is the case with a newly instantiated
+HealthCheck instance.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.ec2.elb.instancestate">
+<span id="boto-ec2-elb-instancestate"></span><h2>boto.ec2.elb.instancestate<a class="headerlink" href="#module-boto.ec2.elb.instancestate" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.ec2.elb.instancestate.InstanceState">
+<em class="property">class </em><tt class="descclassname">boto.ec2.elb.instancestate.</tt><tt class="descname">InstanceState</tt><big>(</big><em>load_balancer=None</em>, <em>description=None</em>, <em>state=None</em>, <em>instance_id=None</em>, <em>reason_code=None</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.instancestate.InstanceState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the state of an EC2 Load Balancer Instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>load_balancer</strong> (<a class="reference internal" href="#boto.ec2.elb.loadbalancer.LoadBalancer" title="boto.ec2.elb.loadbalancer.LoadBalancer"><em>boto.ec2.elb.loadbalancer.LoadBalancer</em></a>) &#8211; The
+load balancer this instance is registered to.</li>
+<li><strong>description</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; A description of the instance.</li>
+<li><strong>instance_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The EC2 instance ID.</li>
+<li><strong>reason_code</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Provides information about the cause of
+an OutOfService instance. Specifically, it indicates whether the
+cause is Elastic Load Balancing or the instance behind the
+LoadBalancer.</li>
+<li><strong>state</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Specifies the current state of the instance.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.ec2.elb.instancestate.InstanceState.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.instancestate.InstanceState.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.instancestate.InstanceState.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.instancestate.InstanceState.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.ec2.elb.listelement">
+<span id="boto-ec2-elb-listelement"></span><h2>boto.ec2.elb.listelement<a class="headerlink" href="#module-boto.ec2.elb.listelement" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.ec2.elb.listelement.ListElement">
+<em class="property">class </em><tt class="descclassname">boto.ec2.elb.listelement.</tt><tt class="descname">ListElement</tt><a class="headerlink" href="#boto.ec2.elb.listelement.ListElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt> subclass that has some additional methods
+for interacting with Amazon&#8217;s XML API.</p>
+<dl class="method">
+<dt id="boto.ec2.elb.listelement.ListElement.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.listelement.ListElement.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.listelement.ListElement.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.listelement.ListElement.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.ec2.elb.listener">
+<span id="boto-ec2-elb-listener"></span><h2>boto.ec2.elb.listener<a class="headerlink" href="#module-boto.ec2.elb.listener" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.ec2.elb.listener.Listener">
+<em class="property">class </em><tt class="descclassname">boto.ec2.elb.listener.</tt><tt class="descname">Listener</tt><big>(</big><em>load_balancer=None</em>, <em>load_balancer_port=0</em>, <em>instance_port=0</em>, <em>protocol=''</em>, <em>ssl_certificate_id=None</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.listener.Listener" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents an EC2 Load Balancer Listener tuple</p>
+<dl class="method">
+<dt id="boto.ec2.elb.listener.Listener.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.listener.Listener.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.listener.Listener.get_tuple">
+<tt class="descname">get_tuple</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.ec2.elb.listener.Listener.get_tuple" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.listener.Listener.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.listener.Listener.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.ec2.elb.loadbalancer">
+<span id="boto-ec2-elb-loadbalancer"></span><h2>boto.ec2.elb.loadbalancer<a class="headerlink" href="#module-boto.ec2.elb.loadbalancer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer">
+<em class="property">class </em><tt class="descclassname">boto.ec2.elb.loadbalancer.</tt><tt class="descname">LoadBalancer</tt><big>(</big><em>connection=None</em>, <em>name=None</em>, <em>endpoints=None</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents an EC2 Load Balancer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>connection</strong> (<a class="reference internal" href="#boto.ec2.elb.ELBConnection" title="boto.ec2.elb.ELBConnection"><em>boto.ec2.elb.ELBConnection</em></a>) &#8211; The connection this load
+balancer was instance was instantiated from.</li>
+<li><strong>listeners</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of tuples in the form of
+<tt class="docutils literal"><span class="pre">(&lt;Inbound</span> <span class="pre">port&gt;,</span> <span class="pre">&lt;Outbound</span> <span class="pre">port&gt;,</span> <span class="pre">&lt;Protocol&gt;)</span></tt></li>
+<li><strong>health_check</strong> (<a class="reference internal" href="#boto.ec2.elb.healthcheck.HealthCheck" title="boto.ec2.elb.healthcheck.HealthCheck"><em>boto.ec2.elb.healthcheck.HealthCheck</em></a>) &#8211; The health
+check policy for this load balancer.</li>
+<li><strong>policies</strong> (<em>boto.ec2.elb.policies.Policies</em>) &#8211; Cookie stickiness and
+other policies.</li>
+<li><strong>dns_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The external DNS name for the balancer.</li>
+<li><strong>created_time</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; A date+time string showing when the
+load balancer was created.</li>
+<li><strong>instances</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of <a class="reference internal" href="ec2.html#boto.ec2.instanceinfo.InstanceInfo" title="boto.ec2.instanceinfo.InstanceInfo"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.instanceinfo.InstanceInfo</span></tt></a>
+instances, representing the EC2 instances this load balancer is
+distributing requests to.</li>
+<li><strong>availability_zones</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; The availability zones this balancer
+covers.</li>
+<li><strong>canonical_hosted_zone_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Current CNAME for the balancer.</li>
+<li><strong>canonical_hosted_zone_name_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The Route 53 hosted zone
+ID of this balancer. Needed when creating an Alias record in a
+Route 53 hosted zone.</li>
+<li><strong>source_security_group</strong> (<em>boto.ec2.elb.securitygroup.SecurityGroup</em>) &#8211; The security group that you can use as part of your inbound rules
+for your load balancer back-end instances to disallow traffic
+from sources other than your load balancer.</li>
+<li><strong>subnets</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of subnets this balancer is on.</li>
+<li><strong>security_groups</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of additional security groups that
+have been applied.</li>
+<li><strong>vpc_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the VPC that this ELB resides within.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.apply_security_groups">
+<tt class="descname">apply_security_groups</tt><big>(</big><em>security_groups</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.apply_security_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies security groups to the load balancer.
+Applying security groups that are already registered with the
+Load Balancer has no effect.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>security_groups</strong> (<em>string or List of strings</em>) &#8211; The name of the security group(s) to add.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.attach_subnets">
+<tt class="descname">attach_subnets</tt><big>(</big><em>subnets</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.attach_subnets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attaches load balancer to one or more subnets.
+Attaching subnets that are already registered with the
+Load Balancer has no effect.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subnets</strong> (<em>string or List of strings</em>) &#8211; The name of the subnet(s) to add.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.configure_health_check">
+<tt class="descname">configure_health_check</tt><big>(</big><em>health_check</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.configure_health_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configures the health check behavior for the instances behind this
+load balancer. See <a class="reference internal" href="../elb_tut.html#elb-configuring-a-health-check"><em>Configuring a Health Check</em></a> for a
+walkthrough.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>health_check</strong> (<a class="reference internal" href="#boto.ec2.elb.healthcheck.HealthCheck" title="boto.ec2.elb.healthcheck.HealthCheck"><em>boto.ec2.elb.healthcheck.HealthCheck</em></a>) &#8211; A
+HealthCheck instance that tells the load balancer how to check
+its instances for health.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.create_app_cookie_stickiness_policy">
+<tt class="descname">create_app_cookie_stickiness_policy</tt><big>(</big><em>name</em>, <em>policy_name</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.create_app_cookie_stickiness_policy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.create_cookie_stickiness_policy">
+<tt class="descname">create_cookie_stickiness_policy</tt><big>(</big><em>cookie_expiration_period</em>, <em>policy_name</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.create_cookie_stickiness_policy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.create_listener">
+<tt class="descname">create_listener</tt><big>(</big><em>inPort</em>, <em>outPort=None</em>, <em>proto='tcp'</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.create_listener" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.create_listeners">
+<tt class="descname">create_listeners</tt><big>(</big><em>listeners</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.create_listeners" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete this load balancer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.delete_listener">
+<tt class="descname">delete_listener</tt><big>(</big><em>inPort</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.delete_listener" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.delete_listeners">
+<tt class="descname">delete_listeners</tt><big>(</big><em>listeners</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.delete_listeners" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.delete_policy">
+<tt class="descname">delete_policy</tt><big>(</big><em>policy_name</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.delete_policy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes a policy from the LoadBalancer. The specified policy must not
+be enabled for any listeners.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.deregister_instances">
+<tt class="descname">deregister_instances</tt><big>(</big><em>instances</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.deregister_instances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove instances from this load balancer. Removing instances that are
+not registered with the load balancer has no effect.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>instances</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of instance IDs (strings) that you&#8217;d like
+to remove from this load balancer.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.detach_subnets">
+<tt class="descname">detach_subnets</tt><big>(</big><em>subnets</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.detach_subnets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detaches load balancer from one or more subnets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subnets</strong> (<em>string or List of strings</em>) &#8211; The name of the subnet(s) to detach.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.disable_zones">
+<tt class="descname">disable_zones</tt><big>(</big><em>zones</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.disable_zones" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disable availability zones from this Access Point.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>zones</strong> (<em>string or List of strings</em>) &#8211; The name of the zone(s) to add.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.enable_zones">
+<tt class="descname">enable_zones</tt><big>(</big><em>zones</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.enable_zones" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable availability zones to this Access Point.
+All zones must be in the same region as the Access Point.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>zones</strong> (<em>string or List of strings</em>) &#8211; The name of the zone(s) to add.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.get_instance_health">
+<tt class="descname">get_instance_health</tt><big>(</big><em>instances=None</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.get_instance_health" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of <a class="reference internal" href="#boto.ec2.elb.instancestate.InstanceState" title="boto.ec2.elb.instancestate.InstanceState"><tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.elb.instancestate.InstanceState</span></tt></a>
+objects, which show the health of the instances attached to this
+load balancer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list of
+<a class="reference internal" href="#boto.ec2.elb.instancestate.InstanceState" title="boto.ec2.elb.instancestate.InstanceState"><tt class="xref py py-class docutils literal"><span class="pre">InstanceState</span></tt></a>
+instances, representing the instances
+attached to this load balancer.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.register_instances">
+<tt class="descname">register_instances</tt><big>(</big><em>instances</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.register_instances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds instances to this load balancer. All instances must be in the same
+region as the load balancer. Adding endpoints that are already
+registered with the load balancer has no effect.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>instances</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of instance IDs (strings) that you&#8217;d like
+to add to this load balancer.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.set_listener_SSL_certificate">
+<tt class="descname">set_listener_SSL_certificate</tt><big>(</big><em>lb_port</em>, <em>ssl_certificate_id</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.set_listener_SSL_certificate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.set_policies_of_listener">
+<tt class="descname">set_policies_of_listener</tt><big>(</big><em>lb_port</em>, <em>policies</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.set_policies_of_listener" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancer.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancer.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancerZones">
+<em class="property">class </em><tt class="descclassname">boto.ec2.elb.loadbalancer.</tt><tt class="descname">LoadBalancerZones</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancerZones" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to collect the zones for a Load Balancer when enable_zones
+or disable_zones are called.</p>
+<dl class="method">
+<dt id="boto.ec2.elb.loadbalancer.LoadBalancerZones.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.ec2.elb.loadbalancer.LoadBalancerZones.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ELB Reference</a><ul>
+<li><a class="reference internal" href="#module-boto.ec2.elb">boto.ec2.elb</a></li>
+<li><a class="reference internal" href="#module-boto.ec2.elb.healthcheck">boto.ec2.elb.healthcheck</a></li>
+<li><a class="reference internal" href="#module-boto.ec2.elb.instancestate">boto.ec2.elb.instancestate</a></li>
+<li><a class="reference internal" href="#module-boto.ec2.elb.listelement">boto.ec2.elb.listelement</a></li>
+<li><a class="reference internal" href="#module-boto.ec2.elb.listener">boto.ec2.elb.listener</a></li>
+<li><a class="reference internal" href="#module-boto.ec2.elb.loadbalancer">boto.ec2.elb.loadbalancer</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../elb_tut.html"
+                        title="previous chapter">An Introduction to boto&#8217;s Elastic Load Balancing interface</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="fps.html"
+                        title="next chapter">fps</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/elb.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="fps.html" title="fps"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../elb_tut.html" title="An Introduction to boto’s Elastic Load Balancing interface"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

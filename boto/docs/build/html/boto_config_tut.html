@@ -1,0 +1,255 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Boto Config &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="index.html" />
+    <link rel="next" title="API Reference" href="ref/index.html" />
+    <link rel="prev" title="mturk" href="ref/mturk.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ref/index.html" title="API Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ref/mturk.html" title="mturk"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="boto-config">
+<span id="ref-boto-config"></span><h1>Boto Config<a class="headerlink" href="#boto-config" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>There is a growing list of configuration options for the boto library. Many of
+these options can be passed into the constructors for top-level objects such as
+connections. Some options, such as credentials, can also be read from
+environment variables (e.g. <tt class="docutils literal"><span class="pre">AWS_ACCESS_KEY_ID</span></tt> and <tt class="docutils literal"><span class="pre">AWS_SECRET_ACCESS_KEY</span></tt>).
+But there is no central place to manage these options. So, the development
+version of boto has now introduced the notion of boto config files.</p>
+</div>
+<div class="section" id="details">
+<h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
+<p>A boto config file is simply a .ini format configuration file that specifies
+values for options that control the behavior of the boto library. Upon startup,
+the boto library looks for configuration files in the following locations
+and in the following order:</p>
+<ul class="simple">
+<li>/etc/boto.cfg - for site-wide settings that all users on this machine will use</li>
+<li>~/.boto - for user-specific settings</li>
+</ul>
+<p>The options are merged into a single, in-memory configuration that is
+available as <tt class="xref py py-mod docutils literal"><span class="pre">boto.config</span></tt>. The <a class="reference internal" href="ref/pyami.html#boto.pyami.config.Config" title="boto.pyami.config.Config"><tt class="xref py py-class docutils literal"><span class="pre">boto.pyami.config.Config</span></tt></a>
+class is a subclass of the standard Python
+<a class="reference external" href="http://docs.python.org/library/configparser.html#ConfigParser.SafeConfigParser" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">ConfigParser.SafeConfigParser</span></tt></a> object and inherits all of the
+methods of that object. In addition, the boto
+<a class="reference internal" href="ref/pyami.html#boto.pyami.config.Config" title="boto.pyami.config.Config"><tt class="xref py py-class docutils literal"><span class="pre">Config</span></tt></a> class defines additional
+methods that are described on the PyamiConfigMethods page.</p>
+</div>
+<div class="section" id="sections">
+<h2>Sections<a class="headerlink" href="#sections" title="Permalink to this headline">¶</a></h2>
+<p>The following sections and options are currently recognized within the
+boto config file.</p>
+<div class="section" id="credentials">
+<h3>Credentials<a class="headerlink" href="#credentials" title="Permalink to this headline">¶</a></h3>
+<p>The Credentials section is used to specify the AWS credentials used for all
+boto requests. The order of precedence for authentication credentials is:</p>
+<ul class="simple">
+<li>Credentials passed into Connection class constructor.</li>
+<li>Credentials specified by environment variables</li>
+<li>Credentials specified as options in the config file.</li>
+</ul>
+<p>This section defines the following options: <tt class="docutils literal"><span class="pre">aws_access_key_id</span></tt> and
+<tt class="docutils literal"><span class="pre">aws_secret_access_key</span></tt>. The former being your aws key id and the latter
+being the secret key.</p>
+<p>For example:</p>
+<div class="highlight-python"><pre>[Credentials]
+aws_access_key_id = &lt;your access key&gt;
+aws_secret_access_key = &lt;your secret key&gt;</pre>
+</div>
+<p>Please notice that quote characters are not used to either side of the &#8216;=&#8217;
+operator even when both your aws access key id and secret key are strings.</p>
+<p>For greater security, the secret key can be stored in a keyring and
+retrieved via the keyring package.  To use a keyring, use <tt class="docutils literal"><span class="pre">keyring</span></tt>,
+rather than <tt class="docutils literal"><span class="pre">aws_secret_access_key</span></tt>:</p>
+<div class="highlight-python"><pre>[Credentials]
+aws_access_key_id = &lt;your access key&gt;
+keyring = &lt;keyring name&gt;</pre>
+</div>
+<p>To use a keyring, you must have the Python <a class="reference external" href="http://pypi.python.org/pypi/keyring">keyring</a> package installed and in the
+Python path. To learn about setting up keyrings, see the <a class="reference external" href="http://pypi.python.org/pypi/keyring#installing-and-using-python-keyring-lib">keyring
+documentation</a></p>
+</div>
+<div class="section" id="boto">
+<h3>Boto<a class="headerlink" href="#boto" title="Permalink to this headline">¶</a></h3>
+<p>The Boto section is used to specify options that control the operaton of
+boto itself. This section defines the following options:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">debug:</th><td class="field-body"><p class="first">Controls the level of debug messages that will be printed by the boto library.
+The following values are defined:</p>
+<div class="highlight-python"><pre>0 - no debug messages are printed
+1 - basic debug messages from boto are printed
+2 - all boto debugging messages plus request/response messages from httplib</pre>
+</div>
+</td>
+</tr>
+<tr class="field"><th class="field-name">proxy:</th><td class="field-body"><p class="first">The name of the proxy host to use for connecting to AWS.</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">proxy_port:</th><td class="field-body"><p class="first">The port number to use to connect to the proxy host.</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">proxy_user:</th><td class="field-body"><p class="first">The user name to use when authenticating with proxy host.</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">proxy_pass:</th><td class="field-body"><p class="first">The password to use when authenticating with proxy host.</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">num_retries:</th><td class="field-body"><p class="first last">The number of times to retry failed requests to an AWS server.
+If boto receives an error from AWS, it will attempt to recover and retry the
+request. The default number of retries is 5 but you can change the default
+with this option.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>As an example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Boto</span><span class="p">]</span>
+<span class="n">debug</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">num_retries</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="n">proxy</span> <span class="o">=</span> <span class="n">myproxy</span><span class="o">.</span><span class="n">com</span>
+<span class="n">proxy_port</span> <span class="o">=</span> <span class="mi">8080</span>
+<span class="n">proxy_user</span> <span class="o">=</span> <span class="n">foo</span>
+<span class="n">proxy_pass</span> <span class="o">=</span> <span class="n">bar</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="precedence">
+<h2>Precedence<a class="headerlink" href="#precedence" title="Permalink to this headline">¶</a></h2>
+<p>Even if you have your boto config setup, you can also have credentials and
+options stored in environmental variables or you can explicitly pass them to
+method calls i.e.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">boto</span><span class="o">.</span><span class="n">ec2</span><span class="o">.</span><span class="n">connect_to_region</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s">&#39;us-west-2&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">aws_access_key_id</span><span class="o">=</span><span class="s">&#39;foo&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">aws_secret_access_key</span><span class="o">=</span><span class="s">&#39;bar&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In these cases where these options can be found in more than one place boto
+will first use the explicitly supplied arguments, if none found it will then
+look for them amidst environment variables and if that fails it will use the
+ones in boto config.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Boto Config</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#details">Details</a></li>
+<li><a class="reference internal" href="#sections">Sections</a><ul>
+<li><a class="reference internal" href="#credentials">Credentials</a></li>
+<li><a class="reference internal" href="#boto">Boto</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#precedence">Precedence</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ref/mturk.html"
+                        title="previous chapter">mturk</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ref/index.html"
+                        title="next chapter">API Reference</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/boto_config_tut.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ref/index.html" title="API Reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ref/mturk.html" title="mturk"
+             >previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

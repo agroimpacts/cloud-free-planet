@@ -1,0 +1,288 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Simple Email Service Tutorial &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="index.html" />
+    <link rel="next" title="SES" href="ref/ses.html" />
+    <link rel="prev" title="SNS" href="ref/sns.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ref/ses.html" title="SES"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ref/sns.html" title="SNS"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="simple-email-service-tutorial">
+<h1>Simple Email Service Tutorial<a class="headerlink" href="#simple-email-service-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial focuses on the boto interface to AWS&#8217; <a class="reference external" href="ses">Simple Email Service (SES)</a>.
+This tutorial assumes that you have boto already downloaded and installed.</p>
+<div class="section" id="creating-a-connection">
+<h2>Creating a Connection<a class="headerlink" href="#creating-a-connection" title="Permalink to this headline">¶</a></h2>
+<p>The first step in accessing SES is to create a connection to the service.
+To do so, the most straight forward way is the following:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">boto.ses</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span> <span class="o">=</span> <span class="n">boto</span><span class="o">.</span><span class="n">ses</span><span class="o">.</span><span class="n">connect_to_region</span><span class="p">(</span>
+<span class="go">        &#39;us-east-1&#39;,</span>
+<span class="go">        aws_access_key_id=&#39;&lt;YOUR_AWS_KEY_ID&gt;&#39;,</span>
+<span class="go">        aws_secret_access_key=&#39;&lt;YOUR_AWS_SECRET_KEY&gt;&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span>
+<span class="go">SESConnection:email.us-east-1.amazonaws.com</span>
+</pre></div>
+</div>
+<p>Bear in mind that if you have your credentials in boto config in your home
+directory, the two keyword arguments in the call above are not needed. More
+details on configuration can be fond in <a class="reference internal" href="boto_config_tut.html"><em>Boto Config</em></a>.</p>
+<p>The <a class="reference internal" href="ref/ses.html#boto.ses.connect_to_region" title="boto.ses.connect_to_region"><tt class="xref py py-func docutils literal"><span class="pre">boto.ses.connect_to_region()</span></tt></a> functions returns a
+<a class="reference internal" href="ref/ses.html#boto.ses.connection.SESConnection" title="boto.ses.connection.SESConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.ses.connection.SESConnection</span></tt></a> instance, which is a the boto API
+for working with SES.</p>
+</div>
+<div class="section" id="notes-on-sending">
+<h2>Notes on Sending<a class="headerlink" href="#notes-on-sending" title="Permalink to this headline">¶</a></h2>
+<p>It is important to keep in mind that while emails appear to come &#8220;from&#8221; the
+address that you specify via Reply-To, the sending is done through Amazon.
+Some clients do pick up on this disparity, and leave a note on emails.</p>
+</div>
+<div class="section" id="verifying-a-sender-email-address">
+<h2>Verifying a Sender Email Address<a class="headerlink" href="#verifying-a-sender-email-address" title="Permalink to this headline">¶</a></h2>
+<p>Before you can send email &#8220;from&#8221; an address, you must prove that you have
+access to the account. When you send a validation request, an email is sent
+to the address with a link in it. Clicking on the link validates the address
+and adds it to your SES account. Here&#8217;s how to send the validation email:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">verify_email_address</span><span class="p">(</span><span class="s">&#39;some@address.com&#39;</span><span class="p">)</span>
+<span class="go">{</span>
+<span class="go">    &#39;VerifyEmailAddressResponse&#39;: {</span>
+<span class="go">        &#39;ResponseMetadata&#39;: {</span>
+<span class="go">            &#39;RequestId&#39;: &#39;4a974fd5-56c2-11e1-ad4c-c1f08c91d554&#39;</span>
+<span class="go">        }</span>
+<span class="go">    }</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<p>After a short amount of time, you&#8217;ll find an email with the validation
+link inside. Click it, and this address may be used to send emails.</p>
+</div>
+<div class="section" id="listing-verified-addresses">
+<h2>Listing Verified Addresses<a class="headerlink" href="#listing-verified-addresses" title="Permalink to this headline">¶</a></h2>
+<p>If you&#8217;d like to list the addresses that are currently verified on your
+SES account, use
+<a class="reference internal" href="ref/ses.html#boto.ses.connection.SESConnection.list_verified_email_addresses" title="boto.ses.connection.SESConnection.list_verified_email_addresses"><tt class="xref py py-meth docutils literal"><span class="pre">list_verified_email_addresses</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">list_verified_email_addresses</span><span class="p">()</span>
+<span class="go">{</span>
+<span class="go">    &#39;ListVerifiedEmailAddressesResponse&#39;: {</span>
+<span class="go">        &#39;ListVerifiedEmailAddressesResult&#39;: {</span>
+<span class="go">            &#39;VerifiedEmailAddresses&#39;: [</span>
+<span class="go">                &#39;some@address.com&#39;,</span>
+<span class="go">                &#39;another@address.com&#39;</span>
+<span class="go">            ]</span>
+<span class="go">        },</span>
+<span class="go">        &#39;ResponseMetadata&#39;: {</span>
+<span class="go">            &#39;RequestId&#39;: &#39;2ab45c18-56c3-11e1-be66-ffd2a4549d70&#39;</span>
+<span class="go">        }</span>
+<span class="go">    }</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="deleting-a-verified-address">
+<h2>Deleting a Verified Address<a class="headerlink" href="#deleting-a-verified-address" title="Permalink to this headline">¶</a></h2>
+<p>In the event that you&#8217;d like to remove an email address from your account,
+use
+<a class="reference internal" href="ref/ses.html#boto.ses.connection.SESConnection.delete_verified_email_address" title="boto.ses.connection.SESConnection.delete_verified_email_address"><tt class="xref py py-meth docutils literal"><span class="pre">delete_verified_email_address</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">delete_verified_email_address</span><span class="p">(</span><span class="s">&#39;another@address.com&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sending-an-email">
+<h2>Sending an Email<a class="headerlink" href="#sending-an-email" title="Permalink to this headline">¶</a></h2>
+<p>Sending an email is done via
+<a class="reference internal" href="ref/ses.html#boto.ses.connection.SESConnection.send_email" title="boto.ses.connection.SESConnection.send_email"><tt class="xref py py-meth docutils literal"><span class="pre">send_email</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">send_email</span><span class="p">(</span>
+<span class="go">        &#39;some@address.com&#39;,</span>
+<span class="go">        &#39;Your subject&#39;,</span>
+<span class="go">        &#39;Body here&#39;,</span>
+<span class="go">        [&#39;recipient-address-1@gmail.com&#39;])</span>
+<span class="go">{</span>
+<span class="go">    &#39;SendEmailResponse&#39;: {</span>
+<span class="go">        &#39;ResponseMetadata&#39;: {</span>
+<span class="go">            &#39;RequestId&#39;: &#39;4743c2b7-56c3-11e1-bccd-c99bd68002fd&#39;</span>
+<span class="go">        },</span>
+<span class="go">        &#39;SendEmailResult&#39;: {</span>
+<span class="go">            &#39;MessageId&#39;: &#39;000001357a177192-7b894025-147a-4705-8455-7c880b0c8270-000000&#39;</span>
+<span class="go">        }</span>
+<span class="go">    }</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<p>If you&#8217;re wanting to send a multipart MIME email, see the reference for
+<a class="reference internal" href="ref/ses.html#boto.ses.connection.SESConnection.send_raw_email" title="boto.ses.connection.SESConnection.send_raw_email"><tt class="xref py py-meth docutils literal"><span class="pre">send_raw_email</span></tt></a>,
+which is a bit more of a low-level alternative.</p>
+</div>
+<div class="section" id="checking-your-send-quota">
+<h2>Checking your Send Quota<a class="headerlink" href="#checking-your-send-quota" title="Permalink to this headline">¶</a></h2>
+<p>Staying within your quota is critical, since the upper limit is a hard cap.
+Once you have hit your quota, no further email may be sent until enough
+time elapses to where your 24 hour email count (rolling continuously) is
+within acceptable ranges. Use
+<a class="reference internal" href="ref/ses.html#boto.ses.connection.SESConnection.get_send_quota" title="boto.ses.connection.SESConnection.get_send_quota"><tt class="xref py py-meth docutils literal"><span class="pre">get_send_quota</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">get_send_quota</span><span class="p">()</span>
+<span class="go">{</span>
+<span class="go">    &#39;GetSendQuotaResponse&#39;: {</span>
+<span class="go">        &#39;GetSendQuotaResult&#39;: {</span>
+<span class="go">            &#39;Max24HourSend&#39;: &#39;100000.0&#39;,</span>
+<span class="go">            &#39;SentLast24Hours&#39;: &#39;181.0&#39;,</span>
+<span class="go">            &#39;MaxSendRate&#39;: &#39;28.0&#39;</span>
+<span class="go">        },</span>
+<span class="go">        &#39;ResponseMetadata&#39;: {</span>
+<span class="go">            &#39;RequestId&#39;: u&#39;8a629245-56c4-11e1-9c53-9d5f4d2cc8d3&#39;</span>
+<span class="go">        }</span>
+<span class="go">    }</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="checking-your-send-statistics">
+<h2>Checking your Send Statistics<a class="headerlink" href="#checking-your-send-statistics" title="Permalink to this headline">¶</a></h2>
+<p>In order to fight spammers and ensure quality mail is being sent from SES,
+Amazon tracks bounces, rejections, and complaints. This is done via
+<a class="reference internal" href="ref/ses.html#boto.ses.connection.SESConnection.get_send_statistics" title="boto.ses.connection.SESConnection.get_send_statistics"><tt class="xref py py-meth docutils literal"><span class="pre">get_send_statistics</span></tt></a>.
+Please be warned that the output is extremely verbose, to the point
+where we&#8217;ll just show a short excerpt here:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">get_send_statistics</span><span class="p">()</span>
+<span class="go">{</span>
+<span class="go">    &#39;GetSendStatisticsResponse&#39;: {</span>
+<span class="go">        &#39;GetSendStatisticsResult&#39;: {</span>
+<span class="go">            &#39;SendDataPoints&#39;: [</span>
+<span class="go">                {</span>
+<span class="go">                    &#39;Complaints&#39;: &#39;0&#39;,</span>
+<span class="go">                    &#39;Timestamp&#39;: &#39;2012-02-13T05:02:00Z&#39;,</span>
+<span class="go">                    &#39;DeliveryAttempts&#39;: &#39;8&#39;,</span>
+<span class="go">                    &#39;Bounces&#39;: &#39;0&#39;,</span>
+<span class="go">                    &#39;Rejects&#39;: &#39;0&#39;</span>
+<span class="go">                },</span>
+<span class="go">                {</span>
+<span class="go">                    &#39;Complaints&#39;: &#39;0&#39;,</span>
+<span class="go">                    &#39;Timestamp&#39;: &#39;2012-02-13T05:17:00Z&#39;,</span>
+<span class="go">                    &#39;DeliveryAttempts&#39;: &#39;12&#39;,</span>
+<span class="go">                    &#39;Bounces&#39;: &#39;0&#39;,</span>
+<span class="go">                    &#39;Rejects&#39;: &#39;0&#39;</span>
+<span class="go">                }</span>
+<span class="go">            ]</span>
+<span class="go">        }</span>
+<span class="go">    }</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Simple Email Service Tutorial</a><ul>
+<li><a class="reference internal" href="#creating-a-connection">Creating a Connection</a></li>
+<li><a class="reference internal" href="#notes-on-sending">Notes on Sending</a></li>
+<li><a class="reference internal" href="#verifying-a-sender-email-address">Verifying a Sender Email Address</a></li>
+<li><a class="reference internal" href="#listing-verified-addresses">Listing Verified Addresses</a></li>
+<li><a class="reference internal" href="#deleting-a-verified-address">Deleting a Verified Address</a></li>
+<li><a class="reference internal" href="#sending-an-email">Sending an Email</a></li>
+<li><a class="reference internal" href="#checking-your-send-quota">Checking your Send Quota</a></li>
+<li><a class="reference internal" href="#checking-your-send-statistics">Checking your Send Statistics</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ref/sns.html"
+                        title="previous chapter">SNS</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ref/ses.html"
+                        title="next chapter">SES</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ses_tut.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ref/ses.html" title="SES"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ref/sns.html" title="SNS"
+             >previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

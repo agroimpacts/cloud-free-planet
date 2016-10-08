@@ -1,0 +1,413 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>fps &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="up" title="API Reference" href="index.html" />
+    <link rel="next" title="Glacier" href="glacier.html" />
+    <link rel="prev" title="file" href="file.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="glacier.html" title="Glacier"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="file.html" title="file"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="fps">
+<h1>fps<a class="headerlink" href="#fps" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-boto.fps">
+<span id="boto-fps"></span><h2>boto.fps<a class="headerlink" href="#module-boto.fps" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-boto.fps.connection">
+<span id="boto-fps-connection"></span><h2>boto.fps.connection<a class="headerlink" href="#module-boto.fps.connection" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.fps.connection.FPSConnection">
+<em class="property">class </em><tt class="descclassname">boto.fps.connection.</tt><tt class="descname">FPSConnection</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="boto.fps.connection.FPSConnection.ResponseError">
+<tt class="descname">ResponseError</tt><a class="headerlink" href="#boto.fps.connection.FPSConnection.ResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">ResponseErrorFactory</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.cancel">
+<tt class="descname">cancel</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS Cancel API call</p>
+<blockquote>
+<div>Cancels an ongoing transaction and puts it in cancelled state.</div></blockquote>
+<p>Required: TransactionId</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.cancel_subscription_and_refund">
+<tt class="descname">cancel_subscription_and_refund</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.cancel_subscription_and_refund" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS CancelSubscriptionAndRefund API call</p>
+<blockquote>
+<div>Cancels a subscription.</div></blockquote>
+<p>Required: SubscriptionId
+Complex Amounts: RefundAmount
+Uses CallerReference, defaults to uuid.uuid4()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.cancel_token">
+<tt class="descname">cancel_token</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.cancel_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS CancelToken API call</p>
+<blockquote>
+<div>Cancels any token installed by the calling application on its own
+account.</div></blockquote>
+<p>Required: TokenId</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.cbui_url">
+<tt class="descname">cbui_url</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.cbui_url" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Generate a signed URL for the Co-Branded service API given arguments as
+payload.</div></blockquote>
+<p>Required: returnURL+pipelineName
+Uses CallerReference, defaults to uuid.uuid4()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.fund_prepaid">
+<tt class="descname">fund_prepaid</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.fund_prepaid" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS FundPrepaid API call</p>
+<blockquote>
+<div>Funds the prepaid balance on the given prepaid instrument.</div></blockquote>
+<p>Required: PrepaidInstrumentId+FundingAmount.Value+SenderTokenId+FundingAmount.CurrencyCode
+Complex Amounts: FundingAmount
+Uses CallerReference, defaults to uuid.uuid4()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_account_activity">
+<tt class="descname">get_account_activity</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_account_activity" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetAccountActivity API call</p>
+<blockquote>
+<div>Returns transactions for a given date range.</div></blockquote>
+<p>Required: StartDate</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_account_balance">
+<tt class="descname">get_account_balance</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_account_balance" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetAccountBalance API call</p>
+<p>Returns the account balance for an account in real time.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_debt_balance">
+<tt class="descname">get_debt_balance</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_debt_balance" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetDebtBalance API call</p>
+<blockquote>
+<div>Returns the balance corresponding to the given credit instrument.</div></blockquote>
+<p>Required: CreditInstrumentId</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_outstanding_debt_balance">
+<tt class="descname">get_outstanding_debt_balance</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_outstanding_debt_balance" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetOutstandingDebtBalance API call</p>
+<p>Returns the total outstanding balance for all the credit instruments
+for the given creditor account.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_payment_instruction">
+<tt class="descname">get_payment_instruction</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_payment_instruction" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetPaymentInstruction API call</p>
+<blockquote>
+<div>Gets the payment instruction of a token.</div></blockquote>
+<p>Required: TokenId</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_prepaid_balance">
+<tt class="descname">get_prepaid_balance</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_prepaid_balance" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetPrepaidBalance API call</p>
+<blockquote>
+<div>Returns the balance available on the given prepaid instrument.</div></blockquote>
+<p>Required: PrepaidInstrumentId</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_recipient_verification_status">
+<tt class="descname">get_recipient_verification_status</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_recipient_verification_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetRecipientVerificationStatus API call</p>
+<blockquote>
+<div>Returns the recipient status.</div></blockquote>
+<p>Required: RecipientTokenId</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_subscription_details">
+<tt class="descname">get_subscription_details</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_subscription_details" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetSubscriptionDetails API call</p>
+<blockquote>
+<div>Returns the details of Subscription for a given subscriptionID.</div></blockquote>
+<p>Required: SubscriptionId</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_token_by_caller">
+<tt class="descname">get_token_by_caller</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_token_by_caller" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetTokenByCaller API call</p>
+<blockquote>
+<div>Returns the details of a particular token installed by this calling
+application using the subway co-branded UI.</div></blockquote>
+<p>Required: CallerReference OR TokenId</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_token_usage">
+<tt class="descname">get_token_usage</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_token_usage" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetTokenUsage API call</p>
+<blockquote>
+<div>Returns the usage of a token.</div></blockquote>
+<p>Required: TokenId</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_tokens">
+<tt class="descname">get_tokens</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_tokens" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetTokens API call</p>
+<p>Returns a list of tokens installed on the given account.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_total_prepaid_liability">
+<tt class="descname">get_total_prepaid_liability</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_total_prepaid_liability" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetTotalPrepaidLiability API call</p>
+<p>Returns the total liability held by the given account corresponding to
+all the prepaid instruments owned by the account.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_transaction">
+<tt class="descname">get_transaction</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_transaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetTransaction API call</p>
+<blockquote>
+<div>Returns all details of a transaction.</div></blockquote>
+<p>Required: TransactionId</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_transaction_status">
+<tt class="descname">get_transaction_status</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_transaction_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetTransactionStatus API call</p>
+<blockquote>
+<div>Gets the latest status of a transaction.</div></blockquote>
+<p>Required: TransactionId</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.get_transactions_for_subscription">
+<tt class="descname">get_transactions_for_subscription</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.get_transactions_for_subscription" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS GetTransactionsForSubscription API call</p>
+<blockquote>
+<div>Returns the transactions for a given subscriptionID.</div></blockquote>
+<p>Required: SubscriptionId</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.install_payment_instruction">
+<tt class="descname">install_payment_instruction</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.install_payment_instruction" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS InstallPaymentInstruction API call</p>
+<blockquote>
+<div>Installs a payment instruction for caller.</div></blockquote>
+<p>Required: PaymentInstruction+TokenType
+Uses CallerReference, defaults to uuid.uuid4()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.pay">
+<tt class="descname">pay</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.pay" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS Pay API call</p>
+<blockquote>
+<div>Allows calling applications to move money from a sender to a recipient.</div></blockquote>
+<p>Required: SenderTokenId+TransactionAmount.Value+TransactionAmount.CurrencyCode
+Complex Amounts: TransactionAmount
+Uses CallerReference, defaults to uuid.uuid4()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.refund">
+<tt class="descname">refund</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.refund" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS Refund API call</p>
+<blockquote>
+<div>Refunds a previously completed transaction.</div></blockquote>
+<p>Required: TransactionId+RefundAmount.Value+CallerReference+RefundAmount.CurrencyCode
+Complex Amounts: RefundAmount</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.reserve">
+<tt class="descname">reserve</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.reserve" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS Reserve API call</p>
+<blockquote>
+<div>Reserve API is part of the Reserve and Settle API conjunction that
+serve the purpose of a pay where the authorization and settlement have
+a timing difference.</div></blockquote>
+<p>Required: SenderTokenId+TransactionAmount.Value+TransactionAmount.CurrencyCode
+Complex Amounts: TransactionAmount
+Uses CallerReference, defaults to uuid.uuid4()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.settle">
+<tt class="descname">settle</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.settle" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS Settle API call</p>
+<blockquote>
+<div>The Settle API is used in conjunction with the Reserve API and is used
+to settle previously reserved transaction.</div></blockquote>
+<p>Required: ReserveTransactionId+TransactionAmount.Value+TransactionAmount.CurrencyCode
+Complex Amounts: TransactionAmount</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.settle_debt">
+<tt class="descname">settle_debt</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.settle_debt" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS SettleDebt API call</p>
+<blockquote>
+<div>Allows a caller to initiate a transaction that atomically transfers
+money from a sender&#8217;s payment instrument to the recipient, while
+decreasing corresponding debt balance.</div></blockquote>
+<p>Required: CreditInstrumentId+SettlementAmount.Value+SenderTokenId+SettlementAmount.CurrencyCode
+Complex Amounts: SettlementAmount
+Uses CallerReference, defaults to uuid.uuid4()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.verify_signature">
+<tt class="descname">verify_signature</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.verify_signature" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS VerifySignature API call</p>
+<blockquote>
+<div>Verify the signature that FPS sent in IPN or callback urls.</div></blockquote>
+<p>Required: UrlEndPoint+HttpParameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.fps.connection.FPSConnection.write_off_debt">
+<tt class="descname">write_off_debt</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.fps.connection.FPSConnection.write_off_debt" title="Permalink to this definition">¶</a></dt>
+<dd><p>FPS WriteOffDebt API call</p>
+<blockquote>
+<div>Allows a creditor to write off the debt balance accumulated partially
+or fully at any time.</div></blockquote>
+<p>Required: CreditInstrumentId+AdjustmentAmount.Value+AdjustmentAmount.CurrencyCode
+Complex Amounts: AdjustmentAmount
+Uses CallerReference, defaults to uuid.uuid4()</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">fps</a><ul>
+<li><a class="reference internal" href="#module-boto.fps">boto.fps</a></li>
+<li><a class="reference internal" href="#module-boto.fps.connection">boto.fps.connection</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="file.html"
+                        title="previous chapter">file</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="glacier.html"
+                        title="next chapter">Glacier</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/fps.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="glacier.html" title="Glacier"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="file.html" title="file"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" >API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

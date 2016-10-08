@@ -1,0 +1,631 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Elastic Transcoder &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="elastic-transcoder">
+<span id="ref-elastictranscoder"></span><h1>Elastic Transcoder<a class="headerlink" href="#elastic-transcoder" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-boto.elastictranscoder">
+<span id="boto-elastictranscoder"></span><h2>boto.elastictranscoder<a class="headerlink" href="#module-boto.elastictranscoder" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="boto.elastictranscoder.connect_to_region">
+<tt class="descclassname">boto.elastictranscoder.</tt><tt class="descname">connect_to_region</tt><big>(</big><em>region_name</em>, <em>**kw_params</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.connect_to_region" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.elastictranscoder.regions">
+<tt class="descclassname">boto.elastictranscoder.</tt><tt class="descname">regions</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.elastictranscoder.regions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all available regions for the AWS Elastic Transcoder service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list of <tt class="xref py py-class docutils literal"><span class="pre">boto.regioninfo.RegionInfo</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.elastictranscoder.layer1">
+<span id="boto-elastictranscoder-layer1"></span><h2>boto.elastictranscoder.layer1<a class="headerlink" href="#module-boto.elastictranscoder.layer1" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection">
+<em class="property">class </em><tt class="descclassname">boto.elastictranscoder.layer1.</tt><tt class="descname">ElasticTranscoderConnection</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>AWS Elastic Transcoder Service
+The AWS Elastic Transcoder Service.</p>
+<dl class="attribute">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.ResponseError">
+<tt class="descname">ResponseError</tt><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.ResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">JSONResponseError</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.cancel_job">
+<tt class="descname">cancel_job</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.cancel_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>To delete a job, send a DELETE request to the <cite>//jobs/ [jobId]
+` resource.
+You can only cancel a job that has a status of `Submitted</cite>. To
+prevent a pipeline from starting to process a job while you&#8217;re
+getting the job identifier, use UpdatePipelineStatus to
+temporarily pause the pipeline.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The identifier of the job that you want to delete.</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>To get a list of the jobs (including their <cite>jobId</cite>) that have</dt>
+<dd>a status of <cite>Submitted</cite>, use the ListJobsByStatus API
+action.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.create_job">
+<tt class="descname">create_job</tt><big>(</big><em>pipeline_id</em>, <em>input_name</em>, <em>output</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.create_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>To create a job, send a POST request to the <cite>//jobs</cite> resource.</p>
+<p>When you create a job, Elastic Transcoder returns JSON data
+that includes the values that you specified plus information
+about the job that is created.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>pipeline_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The <cite>Id</cite> of the pipeline that you want Elastic
+Transcoder to use for transcoding. The pipeline
+determines several settings, including the
+Amazon S3 bucket from which Elastic Transcoder
+gets the files to transcode and the bucket into
+which Elastic Transcoder puts the transcoded
+files.</li>
+<li><strong>input_name</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A section of the request body that provides
+information about the file that is being
+transcoded.</li>
+<li><strong>output</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A section of the request body that provides information
+about the transcoded (target) file.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.create_pipeline">
+<tt class="descname">create_pipeline</tt><big>(</big><em>name</em>, <em>input_bucket</em>, <em>output_bucket</em>, <em>role</em>, <em>notifications</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.create_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>To create a pipeline, send a POST request to the <cite>/pipelines</cite>
+resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the pipeline. We recommend that the name be
+unique within the AWS account, but uniqueness is not
+enforced.</td>
+</tr>
+</tbody>
+</table>
+<p>Constraints: Maximum 40 characters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_bucket</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The bucket in which you saved the media files that
+you want to transcode.</li>
+<li><strong>output_bucket</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The bucket in which you want to save the
+transcoded files.</li>
+<li><strong>role</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The IAM Amazon Resource Name (ARN) for the role that you
+want to use to create the pipeline.</li>
+<li><strong>notifications</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; The () topic that you want to notify to report job
+status.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>To receive notifications, you must also subscribe</dt>
+<dd>to the new topic in the console.</dd>
+</dl>
+<ul>
+<li><dl class="first docutils">
+<dt><strong>Progressing</strong>: The () topic that you want to</dt>
+<dd><p class="first last">notify when has started to process the job.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Completed</strong>: The topic that you want to notify</dt>
+<dd><p class="first last">when has finished processing the job.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Warning</strong>: The topic that you want to notify</dt>
+<dd><p class="first last">when encounters a warning condition.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Error</strong>: The topic that you want to notify</dt>
+<dd><p class="first last">when encounters an error condition.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.create_preset">
+<tt class="descname">create_preset</tt><big>(</big><em>name</em>, <em>container</em>, <em>video</em>, <em>audio</em>, <em>thumbnails</em>, <em>description=None</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.create_preset" title="Permalink to this definition">¶</a></dt>
+<dd><p>To create a preset, send a POST request to the <cite>//presets</cite>
+resource.
+checks the settings that you specify to ensure that they meet
+requirements and to determine whether they comply with H.264
+standards. If your settings are not valid for , returns an
+HTTP 400 response ( <cite>ValidationException</cite>) and does not create
+the preset. If the settings are valid for but aren&#8217;t strictly
+compliant with the H.264 standard, creates the preset and
+returns a warning message in the response. This helps you
+determine whether your settings comply with the H.264 standard
+while giving you greater flexibility with respect to the video
+that produces.
+uses the H.264 video-compression format. For more information,
+see the International Telecommunication Union publication
+Recommendation ITU-T H.264: Advanced video coding for generic
+audiovisual services .</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The name of the preset. We recommend that the name be
+unique within the AWS account, but uniqueness is not
+enforced.</li>
+<li><strong>description</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; A description of the preset.</li>
+<li><strong>container</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The container type for the output file. This value
+must be <cite>mp4</cite>.</li>
+<li><strong>video</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A section of the request body that specifies the video
+parameters.</li>
+<li><strong>audio</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A section of the request body that specifies the audio
+parameters</li>
+<li><strong>thumbnails</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A section of the request body that specifies the
+thumbnail parameters, if any.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.delete_pipeline">
+<tt class="descname">delete_pipeline</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.delete_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>To delete a pipeline, send a DELETE request to the
+<cite>//pipelines/ [pipelineId]</cite> resource.</p>
+<p>You can only delete a pipeline that has never been used or
+that is not currently in use (doesn&#8217;t contain any active
+jobs). If the pipeline is currently in use, <cite>DeletePipeline</cite>
+returns an error.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The identifier of the pipeline that you want to delete.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.delete_preset">
+<tt class="descname">delete_preset</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.delete_preset" title="Permalink to this definition">¶</a></dt>
+<dd><p>To delete a preset, send a DELETE request to the <cite>//presets/
+[presetId]</cite> resource.</p>
+<p>If the preset has been used, you cannot delete it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The identifier of the preset for which you want to get
+detailed information.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.list_jobs_by_pipeline">
+<tt class="descname">list_jobs_by_pipeline</tt><big>(</big><em>pipeline_id</em>, <em>ascending=None</em>, <em>page_token=None</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.list_jobs_by_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>To get a list of the jobs currently in a pipeline, send a GET
+request to the <cite>//jobsByPipeline/ [pipelineId]</cite> resource.</p>
+<p>Elastic Transcoder returns all of the jobs currently in the
+specified pipeline. The response body contains one element for
+each job that satisfies the search criteria.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>pipeline_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The ID of the pipeline for which you want to get job
+information.</li>
+<li><strong>ascending</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; To list jobs in chronological order by the date and
+time that they were submitted, enter <cite>True</cite>. To
+list jobs in reverse chronological order, enter
+<cite>False</cite>.</li>
+<li><strong>page_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; When returns more than one page of results, use
+<cite>pageToken</cite> in subsequent <cite>GET</cite> requests to get
+each successive page of results.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.list_jobs_by_status">
+<tt class="descname">list_jobs_by_status</tt><big>(</big><em>status</em>, <em>ascending=None</em>, <em>page_token=None</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.list_jobs_by_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>To get a list of the jobs that have a specified status, send a
+GET request to the <cite>//jobsByStatus/ [status]</cite> resource.</p>
+<p>Elastic Transcoder returns all of the jobs that have the
+specified status. The response body contains one element for
+each job that satisfies the search criteria.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>status</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; To get information about all of the jobs associated with
+the current AWS account that have a given status,
+specify the following status: <cite>Submitted</cite>,
+<cite>Progressing</cite>, <cite>Completed</cite>, <cite>Canceled</cite>, or <cite>Error</cite>.</li>
+<li><strong>ascending</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; To list jobs in chronological order by the date and
+time that they were submitted, enter <cite>True</cite>. To
+list jobs in reverse chronological order, enter
+<cite>False</cite>.</li>
+<li><strong>page_token</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; When returns more than one page of results, use
+<cite>pageToken</cite> in subsequent <cite>GET</cite> requests to get
+each successive page of results.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.list_pipelines">
+<tt class="descname">list_pipelines</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.list_pipelines" title="Permalink to this definition">¶</a></dt>
+<dd><p>To get a list of the pipelines associated with the current AWS
+account, send a GET request to the <cite>//pipelines</cite> resource.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.list_presets">
+<tt class="descname">list_presets</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.list_presets" title="Permalink to this definition">¶</a></dt>
+<dd><p>To get a list of all presets associated with the current AWS
+account, send a GET request to the <cite>//presets</cite> resource.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.make_request">
+<tt class="descname">make_request</tt><big>(</big><em>verb</em>, <em>resource</em>, <em>headers=None</em>, <em>data=''</em>, <em>expected_status=None</em>, <em>params=None</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.make_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.read_job">
+<tt class="descname">read_job</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.read_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>To get detailed information about a job, send a GET request to
+the <cite>//jobs/ [jobId]</cite> resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The identifier of the job for which you want to get detailed
+information.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.read_pipeline">
+<tt class="descname">read_pipeline</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.read_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>To get detailed information about a pipeline, send a GET
+request to the <cite>//pipelines/ [pipelineId]</cite> resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The identifier of the pipeline to read.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.read_preset">
+<tt class="descname">read_preset</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.read_preset" title="Permalink to this definition">¶</a></dt>
+<dd><p>To get detailed information about a preset, send a GET request
+to the <cite>//presets/ [presetId]</cite> resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The identifier of the preset for which you want to get
+detailed information.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.test_role">
+<tt class="descname">test_role</tt><big>(</big><em>role</em>, <em>input_bucket</em>, <em>output_bucket</em>, <em>topics</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.test_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>To test the IAM role that&#8217;s used by Elastic Transcoder to
+create the pipeline, send a POST request to the <cite>//roleTests</cite>
+resource.</p>
+<p>The <cite>TestRole</cite> action lets you determine whether the IAM role
+you are using has sufficient permissions to let perform tasks
+associated with the transcoding process. The action attempts
+to assume the specified IAM role, checks read access to the
+input and output buckets, and tries to send a test
+notification to Amazon SNS topics that you specify.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>role</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The IAM Amazon Resource Name (ARN) for the role that you
+want Elastic Transcoder to test.</li>
+<li><strong>input_bucket</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The bucket that contains media files to be
+transcoded. The action attempts to read from
+this bucket.</li>
+<li><strong>output_bucket</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The bucket that will write transcoded media files
+to. The action attempts to read from this
+bucket.</li>
+<li><strong>topics</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; The ARNs of one or more () topics that you want the
+action to send a test notification to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.update_pipeline_notifications">
+<tt class="descname">update_pipeline_notifications</tt><big>(</big><em>id</em>, <em>notifications</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.update_pipeline_notifications" title="Permalink to this definition">¶</a></dt>
+<dd><p>To update () notifications for a pipeline, send a POST request
+to the <cite>//pipelines/ [pipelineId] /notifications</cite> resource.</p>
+<p>When you update notifications for a pipeline, returns the
+values that you specified in the request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The identifier of the pipeline for which you want to change
+notification settings.</li>
+<li><strong>notifications</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; The () topic that you want to notify to report job
+status.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>To receive notifications, you must also subscribe</dt>
+<dd>to the new topic in the console.</dd>
+</dl>
+<ul>
+<li><dl class="first docutils">
+<dt><strong>Progressing</strong>: The () topic that you want to</dt>
+<dd><p class="first last">notify when has started to process the job.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Completed</strong>: The topic that you want to notify</dt>
+<dd><p class="first last">when has finished processing the job.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Warning</strong>: The topic that you want to notify</dt>
+<dd><p class="first last">when encounters a warning condition.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Error</strong>: The topic that you want to notify</dt>
+<dd><p class="first last">when encounters an error condition.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.elastictranscoder.layer1.ElasticTranscoderConnection.update_pipeline_status">
+<tt class="descname">update_pipeline_status</tt><big>(</big><em>id</em>, <em>status</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.layer1.ElasticTranscoderConnection.update_pipeline_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>To pause or reactivate a pipeline, so the pipeline stops or
+restarts processing jobs, update the status for the pipeline.
+Send a POST request to the <cite>//pipelines/ [pipelineId] /status</cite>
+resource.</p>
+<p>Changing the pipeline status is useful if you want to cancel
+one or more jobs. You can&#8217;t cancel jobs after has started
+processing them; if you pause the pipeline to which you
+submitted the jobs, you have more time to get the job IDs for
+the jobs that you want to cancel, and to send a CancelJob
+request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The identifier of the pipeline to update.</li>
+<li><strong>status</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The new status of the pipeline:</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><dl class="first docutils">
+<dt><cite>active</cite>: Enable the pipeline, so it starts processing</dt>
+<dd><p class="first last">jobs.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><cite>paused</cite>: Disable the pipeline, so it stops processing</dt>
+<dd><p class="first last">jobs.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.elastictranscoder.exceptions">
+<span id="boto-elastictranscoder-exceptions"></span><h2>boto.elastictranscoder.exceptions<a class="headerlink" href="#module-boto.elastictranscoder.exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="boto.elastictranscoder.exceptions.AccessDeniedException">
+<em class="property">exception </em><tt class="descclassname">boto.elastictranscoder.exceptions.</tt><tt class="descname">AccessDeniedException</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.exceptions.AccessDeniedException" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="boto.elastictranscoder.exceptions.InternalServiceException">
+<em class="property">exception </em><tt class="descclassname">boto.elastictranscoder.exceptions.</tt><tt class="descname">InternalServiceException</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.exceptions.InternalServiceException" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="boto.elastictranscoder.exceptions.LimitExceededException">
+<em class="property">exception </em><tt class="descclassname">boto.elastictranscoder.exceptions.</tt><tt class="descname">LimitExceededException</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.exceptions.LimitExceededException" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="boto.elastictranscoder.exceptions.ResourceInUseException">
+<em class="property">exception </em><tt class="descclassname">boto.elastictranscoder.exceptions.</tt><tt class="descname">ResourceInUseException</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.exceptions.ResourceInUseException" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="boto.elastictranscoder.exceptions.ResourceNotFoundException">
+<em class="property">exception </em><tt class="descclassname">boto.elastictranscoder.exceptions.</tt><tt class="descname">ResourceNotFoundException</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.exceptions.ResourceNotFoundException" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="boto.elastictranscoder.exceptions.ValidationException">
+<em class="property">exception </em><tt class="descclassname">boto.elastictranscoder.exceptions.</tt><tt class="descname">ValidationException</tt><big>(</big><em>status</em>, <em>reason</em>, <em>body=None</em>, <em>*args</em><big>)</big><a class="headerlink" href="#boto.elastictranscoder.exceptions.ValidationException" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Elastic Transcoder</a><ul>
+<li><a class="reference internal" href="#module-boto.elastictranscoder">boto.elastictranscoder</a></li>
+<li><a class="reference internal" href="#module-boto.elastictranscoder.layer1">boto.elastictranscoder.layer1</a></li>
+<li><a class="reference internal" href="#module-boto.elastictranscoder.exceptions">boto.elastictranscoder.exceptions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/elastictranscoder.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

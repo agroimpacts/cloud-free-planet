@@ -1,0 +1,274 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Contributing to Boto &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="contributing-to-boto">
+<h1>Contributing to Boto<a class="headerlink" href="#contributing-to-boto" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="setting-up-a-development-environment">
+<h2>Setting Up a Development Environment<a class="headerlink" href="#setting-up-a-development-environment" title="Permalink to this headline">¶</a></h2>
+<p>While not strictly required, it is highly recommended to do development
+in a virtualenv.  You can install virtualenv using pip:</p>
+<div class="highlight-python"><pre>$ pip install virtualenv</pre>
+</div>
+<p>Once the package is installed, you&#8217;ll have a <tt class="docutils literal"><span class="pre">virtualenv</span></tt> command you can
+use to create a virtual environment:</p>
+<div class="highlight-python"><pre>$ virtualenv venv</pre>
+</div>
+<p>You can then activate the virtualenv:</p>
+<div class="highlight-python"><pre>$ . venv/bin/activate</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You may also want to check out <a class="reference external" href="http://www.doughellmann.com/projects/virtualenvwrapper/">virtualenvwrapper</a>, which is a set of
+extensions to virtualenv that makes it easy to manage multiple virtual
+environments.</p>
+</div>
+<p>A requirements.txt is included with boto which contains all the additional
+packages needed for boto development.  You can install these packages by
+running:</p>
+<div class="highlight-python"><pre>$ pip install -r requirements.txt</pre>
+</div>
+</div>
+<div class="section" id="running-the-tests">
+<h2>Running the Tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h2>
+<p>All of the tests for boto are under the <tt class="docutils literal"><span class="pre">tests/</span></tt> directory. The tests for
+boto have been split into two main categories, unit and integration tests:</p>
+<ul class="simple">
+<li><strong>unit</strong> - These are tests that do not talk to any AWS services.  Anyone
+should be able to run these tests without have any credentials
+configured.  These are the types of tests that could be run in something
+like a public CI server.  These tests tend to be fast.</li>
+<li><strong>integration</strong> - These are tests that will talk to AWS services, and
+will typically require a boto config file with valid credentials.
+Due to the nature of these tests, they tend to take a while to run.
+Also keep in mind anyone who runs these tests will incur any usage
+fees associated with the various AWS services.</li>
+</ul>
+<p>To run all the unit tests, cd to the <tt class="docutils literal"><span class="pre">tests/</span></tt> directory and run:</p>
+<div class="highlight-python"><pre>$ python test.py unit</pre>
+</div>
+<p>You should see output like this:</p>
+<div class="highlight-python"><pre>$ python test.py unit
+................................
+----------------------------------------------------------------------
+Ran 32 tests in 0.075s
+
+OK</pre>
+</div>
+<p>To run the integration tests, run:</p>
+<div class="highlight-python"><pre>$ python test.py integration</pre>
+</div>
+<p>Note that running the integration tests may take a while.</p>
+<p>Various integration tests have been tagged with service names to allow
+you to easily run tests by service type.  For example, to run the ec2
+integration tests you can run:</p>
+<div class="highlight-python"><pre>$ python test.py -t ec2</pre>
+</div>
+<p>You can specify the <tt class="docutils literal"><span class="pre">-t</span></tt> argument multiple times.  For example, to
+run the s3 and ec2 tests you can run:</p>
+<div class="highlight-python"><pre>$ python test.py -t ec2 -t s3</pre>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>In the examples above no top level directory was specified.  By default,
+nose will assume the current working directory, so the above command is
+equivalent to:</p>
+<div class="highlight-python"><pre>$ python test.py -t ec2 -t s3 .</pre>
+</div>
+<p>Be sure that you are in the <tt class="docutils literal"><span class="pre">tests/</span></tt> directory when running the tests,
+or explicitly specify the top level directory.  For example, if you in the
+root directory of the boto repo, you could run the ec2 and s3 tests by
+running:</p>
+<div class="last highlight-python"><pre>$ python tests/test.py -t ec2 -t s3 tests/</pre>
+</div>
+</div>
+<p>You can use nose&#8217;s collect plugin to see what tests are associated with each
+service tag:</p>
+<div class="highlight-python"><pre>$ python tests.py -t s3 -t ec2 --with-id --collect -v</pre>
+</div>
+<div class="section" id="testing-details">
+<h3>Testing Details<a class="headerlink" href="#testing-details" title="Permalink to this headline">¶</a></h3>
+<p>The <tt class="docutils literal"><span class="pre">tests/test.py</span></tt> script is a lightweight wrapper around <a class="reference external" href="http://readthedocs.org/docs/nose/en/latest/">nose</a>. In
+general, you should be able to run <tt class="docutils literal"><span class="pre">nosetests</span></tt> directly instead of
+<tt class="docutils literal"><span class="pre">tests/test.py</span></tt>.  The <tt class="docutils literal"><span class="pre">tests/unit</span></tt> and <tt class="docutils literal"><span class="pre">tests/integration</span></tt> args
+in the commands above were referring to directories.  The command line
+arguments are forwarded to nose when you use <tt class="docutils literal"><span class="pre">tests/test.py</span></tt>.  For example,
+you can run:</p>
+<div class="highlight-python"><pre>$ python tests/test.py -x -vv tests/unit/cloudformation</pre>
+</div>
+<p>And the <tt class="docutils literal"><span class="pre">-x</span> <span class="pre">-vv</span> <span class="pre">tests/unit/cloudformation</span></tt> are forwarded to nose.  See
+the <a class="reference external" href="http://readthedocs.org/docs/nose/en/latest/">nose</a> docs for the supported command line options, or run
+<tt class="docutils literal"><span class="pre">nosetests</span> <span class="pre">--help</span></tt>.</p>
+<p>The only thing that <tt class="docutils literal"><span class="pre">tests/test.py</span></tt> does before invoking nose is to
+inject an argument that specifies that any testcase tagged with &#8220;notdefault&#8221;
+should not be run.  A testcase may be tagged with &#8220;notdefault&#8221; if the test
+author does not want everyone to run the tests.  In general, there shouldn&#8217;t be
+many of these tests, but some reasons a test may be tagged &#8220;notdefault&#8221;
+include:</p>
+<ul class="simple">
+<li>An integration test that requires specific credentials.</li>
+<li>An interactive test (the S3 MFA tests require you to type in the S/N and
+code).</li>
+</ul>
+<p>Tagging is done using nose&#8217;s <a class="reference external" href="http://nose.readthedocs.org/en/latest/plugins/attrib.html">tagging</a> plugin.  To summarize, you can tag a
+specific testcase by setting an attribute on the object.  Nose provides
+an <tt class="docutils literal"><span class="pre">attr</span></tt> decorator for convenience:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">nose.plugins.attrib</span> <span class="kn">import</span> <span class="n">attr</span>
+
+<span class="nd">@attr</span><span class="p">(</span><span class="s">&#39;notdefault&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_s3_mfs</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>You can then run these tests be specifying:</p>
+<div class="highlight-python"><pre>nosetests -a 'notdefault'</pre>
+</div>
+<p>Or you can exclude any tests tagged with &#8216;notdefault&#8217; by running:</p>
+<div class="highlight-python"><pre>nosetests -a '!notdefault'</pre>
+</div>
+<p>Conceptually, <tt class="docutils literal"><span class="pre">tests/test.py</span></tt> is injecting the &#8220;-a !notdefault&#8221; arg
+into nosetests.</p>
+</div>
+</div>
+<div class="section" id="testing-supported-python-versions">
+<h2>Testing Supported Python Versions<a class="headerlink" href="#testing-supported-python-versions" title="Permalink to this headline">¶</a></h2>
+<p>Boto supports python 2.6 and 2.7. An easy way to verify functionality
+across multiple python versions is to use <a class="reference external" href="http://tox.testrun.org/latest/">tox</a>. A tox.ini file is included
+with boto.  You can run tox with no args and it will automatically test
+all supported python versions:</p>
+<div class="highlight-python"><pre>$ tox
+GLOB sdist-make: boto/setup.py
+py26 sdist-reinst: boto/.tox/dist/boto-2.4.1.zip
+py26 runtests: commands[0]
+................................
+----------------------------------------------------------------------
+Ran 32 tests in 0.089s
+
+OK
+py27 sdist-reinst: boto/.tox/dist/boto-2.4.1.zip
+py27 runtests: commands[0]
+................................
+----------------------------------------------------------------------
+Ran 32 tests in 0.087s
+
+OK
+____ summary ____
+  py26: commands succeeded
+  py27: commands succeeded
+  congratulations :)</pre>
+</div>
+</div>
+<div class="section" id="writing-documentation">
+<h2>Writing Documentation<a class="headerlink" href="#writing-documentation" title="Permalink to this headline">¶</a></h2>
+<p>The boto docs use <a class="reference external" href="http://sphinx.pocoo.org/">sphinx</a> to generate documentation.  All of the docs are
+located in the <tt class="docutils literal"><span class="pre">docs/</span></tt> directory.  To generate the html documentation, cd
+into the docs directory and run <tt class="docutils literal"><span class="pre">make</span> <span class="pre">html</span></tt>:</p>
+<div class="highlight-python"><pre>$ cd docs
+$ make html</pre>
+</div>
+<p>The generated documentation will be in the <tt class="docutils literal"><span class="pre">docs/build/html</span></tt> directory.
+The source for the documentation is located in <tt class="docutils literal"><span class="pre">docs/source</span></tt> directory,
+and uses <a class="reference external" href="http://sphinx.pocoo.org/rest.html">restructured text</a> for the markup language.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Contributing to Boto</a><ul>
+<li><a class="reference internal" href="#setting-up-a-development-environment">Setting Up a Development Environment</a></li>
+<li><a class="reference internal" href="#running-the-tests">Running the Tests</a><ul>
+<li><a class="reference internal" href="#testing-details">Testing Details</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#testing-supported-python-versions">Testing Supported Python Versions</a></li>
+<li><a class="reference internal" href="#writing-documentation">Writing Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/contributing.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

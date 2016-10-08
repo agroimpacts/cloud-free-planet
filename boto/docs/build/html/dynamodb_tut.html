@@ -1,0 +1,445 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>An Introduction to boto’s DynamoDB interface &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="index.html" />
+    <link rel="next" title="DynamoDB" href="ref/dynamodb.html" />
+    <link rel="prev" title="SDB DB Reference" href="ref/sdb_db.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ref/dynamodb.html" title="DynamoDB"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ref/sdb_db.html" title="SDB DB Reference"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="an-introduction-to-boto-s-dynamodb-interface">
+<h1>An Introduction to boto&#8217;s DynamoDB interface<a class="headerlink" href="#an-introduction-to-boto-s-dynamodb-interface" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial focuses on the boto interface to AWS&#8217; <a class="reference external" href="http://aws.amazon.com/dynamodb/">DynamoDB</a>. This tutorial
+assumes that you have boto already downloaded and installed.</p>
+<div class="section" id="creating-a-connection">
+<h2>Creating a Connection<a class="headerlink" href="#creating-a-connection" title="Permalink to this headline">¶</a></h2>
+<p>The first step in accessing DynamoDB is to create a connection to the service.
+To do so, the most straight forward way is the following:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">boto.dynamodb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span> <span class="o">=</span> <span class="n">boto</span><span class="o">.</span><span class="n">dynamodb</span><span class="o">.</span><span class="n">connect_to_region</span><span class="p">(</span>
+<span class="go">        &#39;us-west-2&#39;,</span>
+<span class="go">        aws_access_key_id=&#39;&lt;YOUR_AWS_KEY_ID&gt;&#39;,</span>
+<span class="go">        aws_secret_access_key=&#39;&lt;YOUR_AWS_SECRET_KEY&gt;&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span>
+<span class="go">&lt;boto.dynamodb.layer2.Layer2 object at 0x3fb3090&gt;</span>
+</pre></div>
+</div>
+<p>Bear in mind that if you have your credentials in boto config in your home
+directory, the two keyword arguments in the call above are not needed. More
+details on configuration can be found in <a class="reference internal" href="boto_config_tut.html"><em>Boto Config</em></a>.</p>
+<p>The <a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.connect_to_region" title="boto.dynamodb.connect_to_region"><tt class="xref py py-func docutils literal"><span class="pre">boto.dynamodb.connect_to_region()</span></tt></a> function returns a
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.layer2.Layer2" title="boto.dynamodb.layer2.Layer2"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.layer2.Layer2</span></tt></a> instance, which is a high-level API
+for working with DynamoDB. Layer2 is a set of abstractions that sit atop
+the lower level <a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.layer1.Layer1" title="boto.dynamodb.layer1.Layer1"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.layer1.Layer1</span></tt></a> API, which closely
+mirrors the Amazon DynamoDB API. For the purpose of this tutorial, we&#8217;ll
+just be covering Layer2.</p>
+</div>
+<div class="section" id="listing-tables">
+<h2>Listing Tables<a class="headerlink" href="#listing-tables" title="Permalink to this headline">¶</a></h2>
+<p>Now that we have a DynamoDB connection object, we can then query for a list of
+existing tables in that region:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
+<span class="go">[&#39;test-table&#39;, &#39;another-table&#39;]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-tables">
+<h2>Creating Tables<a class="headerlink" href="#creating-tables" title="Permalink to this headline">¶</a></h2>
+<p>DynamoDB tables are created with the
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.layer2.Layer2.create_table" title="boto.dynamodb.layer2.Layer2.create_table"><tt class="xref py py-meth docutils literal"><span class="pre">Layer2.create_table</span></tt></a>
+method. While DynamoDB&#8217;s items (a rough equivalent to a relational DB&#8217;s row)
+don&#8217;t have a fixed schema, you do need to create a schema for the table&#8217;s
+hash key element, and the optional range key element. This is explained in
+greater detail in DynamoDB&#8217;s <a class="reference external" href="http://docs.amazonwebservices.com/amazondynamodb/latest/developerguide/DataModel.html">Data Model</a> documentation.</p>
+<p>We&#8217;ll start by defining a schema that has a hash key and a range key that
+are both keys:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">message_table_schema</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">create_schema</span><span class="p">(</span>
+<span class="go">        hash_key_name=&#39;forum_name&#39;,</span>
+<span class="go">        hash_key_proto_value=str,</span>
+<span class="go">        range_key_name=&#39;subject&#39;,</span>
+<span class="go">        range_key_proto_value=str</span>
+<span class="go">    )</span>
+</pre></div>
+</div>
+<p>The next few things to determine are table name and read/write throughput. We&#8217;ll
+defer explaining throughput to the DynamoDB&#8217;s <a class="reference external" href="http://docs.amazonwebservices.com/amazondynamodb/latest/developerguide/ProvisionedThroughputIntro.html">Provisioned Throughput</a> docs.</p>
+<p>We&#8217;re now ready to create the table:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span>
+<span class="go">        name=&#39;messages&#39;,</span>
+<span class="go">        schema=message_table_schema,</span>
+<span class="go">        read_units=10,</span>
+<span class="go">        write_units=10</span>
+<span class="go">    )</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span>
+<span class="go">Table(messages)</span>
+</pre></div>
+</div>
+<p>This returns a <a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a> instance, which provides
+simple ways to create (put), update, and delete items.</p>
+</div>
+<div class="section" id="getting-a-table">
+<h2>Getting a Table<a class="headerlink" href="#getting-a-table" title="Permalink to this headline">¶</a></h2>
+<p>To retrieve an existing table, use
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.layer2.Layer2.get_table" title="boto.dynamodb.layer2.Layer2.get_table"><tt class="xref py py-meth docutils literal"><span class="pre">Layer2.get_table</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
+<span class="go">[&#39;test-table&#39;, &#39;another-table&#39;, &#39;messages&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="s">&#39;messages&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span>
+<span class="go">Table(messages)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.layer2.Layer2.get_table" title="boto.dynamodb.layer2.Layer2.get_table"><tt class="xref py py-meth docutils literal"><span class="pre">Layer2.get_table</span></tt></a>, like
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.layer2.Layer2.create_table" title="boto.dynamodb.layer2.Layer2.create_table"><tt class="xref py py-meth docutils literal"><span class="pre">Layer2.create_table</span></tt></a>,
+returns a <a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a> instance.</p>
+<p>Keep in mind that <a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.layer2.Layer2.get_table" title="boto.dynamodb.layer2.Layer2.get_table"><tt class="xref py py-meth docutils literal"><span class="pre">Layer2.get_table</span></tt></a>
+will make an API call to retrieve various attributes of the table including the
+creation time, the read and write capacity, and the table schema.  If you
+already know the schema, you can save an API call and create a
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a> object without making any calls to
+Amazon DynamoDB:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">table_from_schema</span><span class="p">(</span>
+<span class="go">    name=&#39;messages&#39;,</span>
+<span class="go">    schema=message_table_schema)</span>
+</pre></div>
+</div>
+<p>If you do this, the following fields will have <tt class="xref docutils literal"><span class="pre">None</span></tt> values:</p>
+<blockquote>
+<div><ul class="simple">
+<li>create_time</li>
+<li>status</li>
+<li>read_units</li>
+<li>write_units</li>
+</ul>
+</div></blockquote>
+<p>In addition, the <tt class="docutils literal"><span class="pre">item_count</span></tt> and <tt class="docutils literal"><span class="pre">size_bytes</span></tt> will be 0.
+If you create a table object directly from a schema object and
+decide later that you need to retrieve any of these additional
+attributes, you can use the
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.table.Table.refresh" title="boto.dynamodb.table.Table.refresh"><tt class="xref py py-meth docutils literal"><span class="pre">Table.refresh</span></tt></a> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">boto.dynamodb.schema</span> <span class="kn">import</span> <span class="n">Schema</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">table_from_schema</span><span class="p">(</span>
+<span class="go">        name=&#39;messages&#39;,</span>
+<span class="go">        schema=Schema.create(hash_key=(&#39;forum_name&#39;, &#39;S&#39;),</span>
+<span class="go">                             range_key=(&#39;subject&#39;, &#39;S&#39;)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">table</span><span class="o">.</span><span class="n">write_units</span>
+<span class="go">None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Now we decide we need to know the write_units:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">table</span><span class="o">.</span><span class="n">write_units</span>
+<span class="go">10</span>
+</pre></div>
+</div>
+<p>The recommended best practice is to retrieve a table object once and
+use that object for the duration of your application. So, for example,
+instead of this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Application</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer2</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_layer2</span> <span class="o">=</span> <span class="n">layer2</span>
+
+    <span class="k">def</span> <span class="nf">retrieve_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer2</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span><span class="o">.</span><span class="n">get_item</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can do something like this instead:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Application</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer2</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_layer2</span> <span class="o">=</span> <span class="n">layer2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tables_by_name</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">retrieve_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables_by_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">table</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layer2</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tables_by_name</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span>
+        <span class="k">return</span> <span class="n">table</span><span class="o">.</span><span class="n">get_item</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="describing-tables">
+<h2>Describing Tables<a class="headerlink" href="#describing-tables" title="Permalink to this headline">¶</a></h2>
+<p>To get a complete description of a table, use
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.layer2.Layer2.describe_table" title="boto.dynamodb.layer2.Layer2.describe_table"><tt class="xref py py-meth docutils literal"><span class="pre">Layer2.describe_table</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">list_tables</span><span class="p">()</span>
+<span class="go">[&#39;test-table&#39;, &#39;another-table&#39;, &#39;messages&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">describe_table</span><span class="p">(</span><span class="s">&#39;messages&#39;</span><span class="p">)</span>
+<span class="go">{</span>
+<span class="go">    &#39;Table&#39;: {</span>
+<span class="go">        &#39;CreationDateTime&#39;: 1327117581.624,</span>
+<span class="go">        &#39;ItemCount&#39;: 0,</span>
+<span class="go">        &#39;KeySchema&#39;: {</span>
+<span class="go">            &#39;HashKeyElement&#39;: {</span>
+<span class="go">                &#39;AttributeName&#39;: &#39;forum_name&#39;,</span>
+<span class="go">                &#39;AttributeType&#39;: &#39;S&#39;</span>
+<span class="go">            },</span>
+<span class="go">            &#39;RangeKeyElement&#39;: {</span>
+<span class="go">                &#39;AttributeName&#39;: &#39;subject&#39;,</span>
+<span class="go">                &#39;AttributeType&#39;: &#39;S&#39;</span>
+<span class="go">            }</span>
+<span class="go">        },</span>
+<span class="go">        &#39;ProvisionedThroughput&#39;: {</span>
+<span class="go">            &#39;ReadCapacityUnits&#39;: 10,</span>
+<span class="go">            &#39;WriteCapacityUnits&#39;: 10</span>
+<span class="go">        },</span>
+<span class="go">        &#39;TableName&#39;: &#39;messages&#39;,</span>
+<span class="go">        &#39;TableSizeBytes&#39;: 0,</span>
+<span class="go">        &#39;TableStatus&#39;: &#39;ACTIVE&#39;</span>
+<span class="go">    }</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="adding-items">
+<h2>Adding Items<a class="headerlink" href="#adding-items" title="Permalink to this headline">¶</a></h2>
+<p>Continuing on with our previously created <tt class="docutils literal"><span class="pre">messages</span></tt> table, adding an:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="s">&#39;messages&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item_data</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &#39;Body&#39;: &#39;http://url_to_lolcat.gif&#39;,</span>
+<span class="go">        &#39;SentBy&#39;: &#39;User A&#39;,</span>
+<span class="go">        &#39;ReceivedTime&#39;: &#39;12/9/2011 11:36:03 PM&#39;,</span>
+<span class="go">    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">new_item</span><span class="p">(</span>
+<span class="go">        # Our hash key is &#39;forum&#39;</span>
+<span class="go">        hash_key=&#39;LOLCat Forum&#39;,</span>
+<span class="go">        # Our range key is &#39;subject&#39;</span>
+<span class="go">        range_key=&#39;Check this out!&#39;,</span>
+<span class="go">        # This has the</span>
+<span class="go">        attrs=item_data</span>
+<span class="go">    )</span>
+</pre></div>
+</div>
+<p>The
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.table.Table.new_item" title="boto.dynamodb.table.Table.new_item"><tt class="xref py py-meth docutils literal"><span class="pre">Table.new_item</span></tt></a> method creates
+a new <a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a> instance with your specified
+hash key, range key, and attributes already set.
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">Item</span></tt></a> is a <a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></a> sub-class,
+meaning you can edit your data as such:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">item</span><span class="p">[</span><span class="s">&#39;a_new_key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;testing&#39;</span>
+<span class="k">del</span> <span class="n">item</span><span class="p">[</span><span class="s">&#39;a_new_key&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>After you are happy with the contents of the item, use
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.item.Item.put" title="boto.dynamodb.item.Item.put"><tt class="xref py py-meth docutils literal"><span class="pre">Item.put</span></tt></a> to commit it to DynamoDB:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="retrieving-items">
+<h2>Retrieving Items<a class="headerlink" href="#retrieving-items" title="Permalink to this headline">¶</a></h2>
+<p>Now, let&#8217;s check if it got added correctly. Since DynamoDB works under an
+&#8216;eventual consistency&#8217; mode, we need to specify that we wish a consistent read,
+as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="s">&#39;messages&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get_item</span><span class="p">(</span>
+<span class="go">        # Your hash key was &#39;forum_name&#39;</span>
+<span class="go">        hash_key=&#39;LOLCat Forum&#39;,</span>
+<span class="go">        # Your range key was &#39;subject&#39;</span>
+<span class="go">        range_key=&#39;Check this out!&#39;</span>
+<span class="go">    )</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span>
+<span class="go">{</span>
+<span class="go">    # Note that this was your hash key attribute (forum_name)</span>
+<span class="go">    &#39;forum_name&#39;: &#39;LOLCat Forum&#39;,</span>
+<span class="go">    # This is your range key attribute (subject)</span>
+<span class="go">    &#39;subject&#39;: &#39;Check this out!&#39;</span>
+<span class="go">    &#39;Body&#39;: &#39;http://url_to_lolcat.gif&#39;,</span>
+<span class="go">    &#39;ReceivedTime&#39;: &#39;12/9/2011 11:36:03 PM&#39;,</span>
+<span class="go">    &#39;SentBy&#39;: &#39;User A&#39;,</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="updating-items">
+<h2>Updating Items<a class="headerlink" href="#updating-items" title="Permalink to this headline">¶</a></h2>
+<p>To update an item&#8217;s attributes, simply retrieve it, modify the value, then
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.item.Item.put" title="boto.dynamodb.item.Item.put"><tt class="xref py py-meth docutils literal"><span class="pre">Item.put</span></tt></a> it again:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="s">&#39;messages&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get_item</span><span class="p">(</span>
+<span class="go">        hash_key=&#39;LOLCat Forum&#39;,</span>
+<span class="go">        range_key=&#39;Check this out!&#39;</span>
+<span class="go">    )</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="p">[</span><span class="s">&#39;SentBy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;User B&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="working-with-decimals">
+<h2>Working with Decimals<a class="headerlink" href="#working-with-decimals" title="Permalink to this headline">¶</a></h2>
+<p>To avoid the loss of precision, you can stipulate that the
+<tt class="docutils literal"><span class="pre">decimal.Decimal</span></tt> type be used for numeric values:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">decimal</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">use_decimals</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="s">&#39;messages&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">new_item</span><span class="p">(</span>
+<span class="go">        hash_key=&#39;LOLCat Forum&#39;,</span>
+<span class="go">        range_key=&#39;Check this out!&#39;</span>
+<span class="go">    )</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="p">[</span><span class="s">&#39;decimal_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">decimal</span><span class="o">.</span><span class="n">Decimal</span><span class="p">(</span><span class="s">&#39;1.12345678912345&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">table</span><span class="o">.</span><span class="n">get_item</span><span class="p">(</span><span class="s">&#39;LOLCat Forum&#39;</span><span class="p">,</span> <span class="s">&#39;Check this out!&#39;</span><span class="p">)</span>
+<span class="go">{u&#39;forum_name&#39;: &#39;LOLCat Forum&#39;, u&#39;decimal_type&#39;: Decimal(&#39;1.12345678912345&#39;),</span>
+<span class="go"> u&#39;subject&#39;: &#39;Check this out!&#39;}</span>
+</pre></div>
+</div>
+<p>You can enable the usage of <tt class="docutils literal"><span class="pre">decimal.Decimal</span></tt> by using either the <tt class="docutils literal"><span class="pre">use_decimals</span></tt>
+method, or by passing in the
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.types.Dynamizer" title="boto.dynamodb.types.Dynamizer"><tt class="xref py py-class docutils literal"><span class="pre">Dynamizer</span></tt></a> class for
+the <tt class="docutils literal"><span class="pre">dynamizer</span></tt> param:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">boto.dynamodb.types</span> <span class="kn">import</span> <span class="n">Dynamizer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span> <span class="o">=</span> <span class="n">boto</span><span class="o">.</span><span class="n">dynamodb</span><span class="o">.</span><span class="n">connect_to_region</span><span class="p">(</span><span class="n">dynamizer</span><span class="o">=</span><span class="n">Dynamizer</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This mechanism can also be used if you want to customize the encoding/decoding
+process of DynamoDB types.</p>
+</div>
+<div class="section" id="deleting-items">
+<h2>Deleting Items<a class="headerlink" href="#deleting-items" title="Permalink to this headline">¶</a></h2>
+<p>To delete items, use the
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.item.Item.delete" title="boto.dynamodb.item.Item.delete"><tt class="xref py py-meth docutils literal"><span class="pre">Item.delete</span></tt></a> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="s">&#39;messages&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get_item</span><span class="p">(</span>
+<span class="go">        hash_key=&#39;LOLCat Forum&#39;,</span>
+<span class="go">        range_key=&#39;Check this out!&#39;</span>
+<span class="go">    )</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">item</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="deleting-tables">
+<h2>Deleting Tables<a class="headerlink" href="#deleting-tables" title="Permalink to this headline">¶</a></h2>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Deleting a table will also <strong>permanently</strong> delete all of its contents without prompt. Use carefully.</p>
+</div>
+<p>There are two easy ways to delete a table. Through your top-level
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.layer2.Layer2" title="boto.dynamodb.layer2.Layer2"><tt class="xref py py-class docutils literal"><span class="pre">Layer2</span></tt></a> object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">conn</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or by getting the table, then using
+<a class="reference internal" href="ref/dynamodb.html#boto.dynamodb.table.Table.delete" title="boto.dynamodb.table.Table.delete"><tt class="xref py py-meth docutils literal"><span class="pre">Table.delete</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="s">&#39;messages&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">An Introduction to boto&#8217;s DynamoDB interface</a><ul>
+<li><a class="reference internal" href="#creating-a-connection">Creating a Connection</a></li>
+<li><a class="reference internal" href="#listing-tables">Listing Tables</a></li>
+<li><a class="reference internal" href="#creating-tables">Creating Tables</a></li>
+<li><a class="reference internal" href="#getting-a-table">Getting a Table</a></li>
+<li><a class="reference internal" href="#describing-tables">Describing Tables</a></li>
+<li><a class="reference internal" href="#adding-items">Adding Items</a></li>
+<li><a class="reference internal" href="#retrieving-items">Retrieving Items</a></li>
+<li><a class="reference internal" href="#updating-items">Updating Items</a></li>
+<li><a class="reference internal" href="#working-with-decimals">Working with Decimals</a></li>
+<li><a class="reference internal" href="#deleting-items">Deleting Items</a></li>
+<li><a class="reference internal" href="#deleting-tables">Deleting Tables</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ref/sdb_db.html"
+                        title="previous chapter">SDB DB Reference</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ref/dynamodb.html"
+                        title="next chapter">DynamoDB</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/dynamodb_tut.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ref/dynamodb.html" title="DynamoDB"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ref/sdb_db.html" title="SDB DB Reference"
+             >previous</a> |</li>
+        <li><a href="index.html">boto v2.8.0-dev</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

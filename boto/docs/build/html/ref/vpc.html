@@ -1,0 +1,1285 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>VPC &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="up" title="API Reference" href="index.html" />
+    <link rel="next" title="About the Documentation" href="../documentation.html" />
+    <link rel="prev" title="SWF" href="swf.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../documentation.html" title="About the Documentation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="swf.html" title="SWF"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="vpc">
+<span id="ref-vpc"></span><h1>VPC<a class="headerlink" href="#vpc" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-boto.vpc">
+<span id="boto-vpc"></span><h2>boto.vpc<a class="headerlink" href="#module-boto.vpc" title="Permalink to this headline">¶</a></h2>
+<p>Represents a connection to the EC2 service.</p>
+<dl class="class">
+<dt id="boto.vpc.VPCConnection">
+<em class="property">class </em><tt class="descclassname">boto.vpc.</tt><tt class="descname">VPCConnection</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>is_secure=True</em>, <em>host=None</em>, <em>port=None</em>, <em>proxy=None</em>, <em>proxy_port=None</em>, <em>proxy_user=None</em>, <em>proxy_pass=None</em>, <em>debug=0</em>, <em>https_connection_factory=None</em>, <em>region=None</em>, <em>path='/'</em>, <em>api_version=None</em>, <em>security_token=None</em>, <em>validate_certs=True</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init method to create a new connection to EC2.</p>
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.associate_dhcp_options">
+<tt class="descname">associate_dhcp_options</tt><big>(</big><em>dhcp_options_id</em>, <em>vpc_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.associate_dhcp_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Associate a set of Dhcp Options with a VPC.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dhcp_options_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the Dhcp Options</li>
+<li><strong>vpc_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the VPC.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.associate_route_table">
+<tt class="descname">associate_route_table</tt><big>(</big><em>route_table_id</em>, <em>subnet_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.associate_route_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Associates a route table with a specific subnet.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>route_table_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the route table to associate.</li>
+<li><strong>subnet_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the subnet to associate with.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">str</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The ID of the association created</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.attach_internet_gateway">
+<tt class="descname">attach_internet_gateway</tt><big>(</big><em>internet_gateway_id</em>, <em>vpc_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.attach_internet_gateway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attach an internet gateway to a specific VPC.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>internet_gateway_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the internet gateway to delete.</li>
+<li><strong>vpc_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the VPC to attach to.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">Bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.attach_vpn_gateway">
+<tt class="descname">attach_vpn_gateway</tt><big>(</big><em>vpn_gateway_id</em>, <em>vpc_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.attach_vpn_gateway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attaches a VPN gateway to a VPC.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>vpn_gateway_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the vpn_gateway to attach</li>
+<li><strong>vpc_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the VPC you want to attach the gateway to.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">An attachment</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a <a class="reference internal" href="#boto.vpc.vpngateway.Attachment" title="boto.vpc.vpngateway.Attachment"><tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.vpngateway.Attachment</span></tt></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.create_customer_gateway">
+<tt class="descname">create_customer_gateway</tt><big>(</big><em>type</em>, <em>ip_address</em>, <em>bgp_asn</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.create_customer_gateway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Customer Gateway</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Type of VPN Connection.  Only valid valid currently is &#8216;ipsec.1&#8217;</li>
+<li><strong>ip_address</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Internet-routable IP address for customer&#8217;s gateway.
+Must be a static address.</li>
+<li><strong>bgp_asn</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Customer gateway&#8217;s Border Gateway Protocol (BGP)
+Autonomous System Number (ASN)</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">The newly created CustomerGateway</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <a class="reference internal" href="#boto.vpc.customergateway.CustomerGateway" title="boto.vpc.customergateway.CustomerGateway"><tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.customergateway.CustomerGateway</span></tt></a> object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.create_dhcp_options">
+<tt class="descname">create_dhcp_options</tt><big>(</big><em>domain_name=None</em>, <em>domain_name_servers=None</em>, <em>ntp_servers=None</em>, <em>netbios_name_servers=None</em>, <em>netbios_node_type=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.create_dhcp_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new DhcpOption</p>
+<p>This corresponds to
+<a class="reference external" href="http://docs.amazonwebservices.com/AWSEC2/latest/APIReference/ApiReference-query-CreateDhcpOptions.html">http://docs.amazonwebservices.com/AWSEC2/latest/APIReference/ApiReference-query-CreateDhcpOptions.html</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>domain_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; A domain name of your choice (for example,
+example.com)</li>
+<li><strong>domain_name_servers</strong> (<em>list of strings</em>) &#8211; The IP address of a domain name server. You
+can specify up to four addresses.</li>
+<li><strong>ntp_servers</strong> (<em>list of strings</em>) &#8211; The IP address of a Network Time Protocol (NTP)
+server. You can specify up to four addresses.</li>
+<li><strong>netbios_name_servers</strong> (<em>list of strings</em>) &#8211; The IP address of a NetBIOS name server.
+You can specify up to four addresses.</li>
+<li><strong>netbios_node_type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The NetBIOS node type (1, 2, 4, or 8). For
+more information about the values, see RFC 2132. We recommend you
+only use 2 at this time (broadcast and multicast are currently not
+supported).</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">The newly created DhcpOption</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.customergateway.DhcpOption</span></tt> object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.create_internet_gateway">
+<tt class="descname">create_internet_gateway</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.create_internet_gateway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an internet gateway for VPC.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">Newly created internet gateway.</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><cite>boto.vpc.internetgateway.InternetGateway</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.create_route">
+<tt class="descname">create_route</tt><big>(</big><em>route_table_id</em>, <em>destination_cidr_block</em>, <em>gateway_id=None</em>, <em>instance_id=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.create_route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new route in the route table within a VPC. The route&#8217;s target
+can be either a gateway attached to the VPC or a NAT instance in the
+VPC.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>route_table_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the route table for the route.</li>
+<li><strong>destination_cidr_block</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The CIDR address block used for the
+destination match.</li>
+<li><strong>gateway_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the gateway attached to your VPC.</li>
+<li><strong>instance_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of a NAT instance in your VPC.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.create_route_table">
+<tt class="descname">create_route_table</tt><big>(</big><em>vpc_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.create_route_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new route table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vpc_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The VPC ID to associate this route table with.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">The newly created route table</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A <tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.routetable.RouteTable</span></tt> object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.create_subnet">
+<tt class="descname">create_subnet</tt><big>(</big><em>vpc_id</em>, <em>cidr_block</em>, <em>availability_zone=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.create_subnet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Subnet</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>vpc_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the VPC where you want to create the subnet.</li>
+<li><strong>cidr_block</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The CIDR block you want the subnet to cover.</li>
+<li><strong>availability_zone</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The AZ you want the subnet in</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">The newly created Subnet</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.customergateway.Subnet</span></tt> object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.create_vpc">
+<tt class="descname">create_vpc</tt><big>(</big><em>cidr_block</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.create_vpc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Virtual Private Cloud.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cidr_block</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; A valid CIDR block</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">The newly created VPC</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A <a class="reference internal" href="#boto.vpc.vpc.VPC" title="boto.vpc.vpc.VPC"><tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.vpc.VPC</span></tt></a> object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.create_vpn_connection">
+<tt class="descname">create_vpn_connection</tt><big>(</big><em>type</em>, <em>customer_gateway_id</em>, <em>vpn_gateway_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.create_vpn_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new VPN Connection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The type of VPN Connection.  Currently only &#8216;ipsec.1&#8217;
+is supported</li>
+<li><strong>customer_gateway_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the customer gateway.</li>
+<li><strong>vpn_gateway_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the VPN gateway.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">The newly created VpnConnection</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <a class="reference internal" href="#boto.vpc.vpnconnection.VpnConnection" title="boto.vpc.vpnconnection.VpnConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.vpnconnection.VpnConnection</span></tt></a> object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.create_vpn_connection_route">
+<tt class="descname">create_vpn_connection_route</tt><big>(</big><em>destination_cidr_block</em>, <em>vpn_connection_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.create_vpn_connection_route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new static route associated with a VPN connection between an
+existing virtual private gateway and a VPN customer gateway. The static
+route allows traffic to be routed from the virtual private gateway to
+the VPN customer gateway.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>destination_cidr_block</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The CIDR block associated with the local
+subnet of the customer data center.</li>
+<li><strong>vpn_connection_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the VPN connection.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.create_vpn_gateway">
+<tt class="descname">create_vpn_gateway</tt><big>(</big><em>type</em>, <em>availability_zone=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.create_vpn_gateway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Vpn Gateway</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Type of VPN Connection.  Only valid valid currently is &#8216;ipsec.1&#8217;</li>
+<li><strong>availability_zone</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The Availability Zone where you want the VPN gateway.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">The newly created VpnGateway</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A <a class="reference internal" href="#boto.vpc.vpngateway.VpnGateway" title="boto.vpc.vpngateway.VpnGateway"><tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.vpngateway.VpnGateway</span></tt></a> object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.delete_customer_gateway">
+<tt class="descname">delete_customer_gateway</tt><big>(</big><em>customer_gateway_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.delete_customer_gateway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a Customer Gateway.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>customer_gateway_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the customer_gateway to be deleted.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True if successful</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.delete_dhcp_options">
+<tt class="descname">delete_dhcp_options</tt><big>(</big><em>dhcp_options_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.delete_dhcp_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a DHCP Options</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dhcp_options_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the DHCP Options to be deleted.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True if successful</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.delete_internet_gateway">
+<tt class="descname">delete_internet_gateway</tt><big>(</big><em>internet_gateway_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.delete_internet_gateway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes an internet gateway from the VPC.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>internet_gateway_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the internet gateway to delete.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">Bool</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True if successful</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.delete_route">
+<tt class="descname">delete_route</tt><big>(</big><em>route_table_id</em>, <em>destination_cidr_block</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.delete_route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes a route from a route table within a VPC.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>route_table_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the route table with the route.</li>
+<li><strong>destination_cidr_block</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The CIDR address block used for
+destination match.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.delete_route_table">
+<tt class="descname">delete_route_table</tt><big>(</big><em>route_table_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.delete_route_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a route table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>route_table_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the route table to delete.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True if successful</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.delete_subnet">
+<tt class="descname">delete_subnet</tt><big>(</big><em>subnet_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.delete_subnet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a subnet.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subnet_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the subnet to be deleted.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True if successful</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.delete_vpc">
+<tt class="descname">delete_vpc</tt><big>(</big><em>vpc_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.delete_vpc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a Virtual Private Cloud.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vpc_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the vpc to be deleted.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True if successful</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.delete_vpn_connection">
+<tt class="descname">delete_vpn_connection</tt><big>(</big><em>vpn_connection_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.delete_vpn_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a VPN Connection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vpn_connection_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the vpn_connection to be deleted.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True if successful</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.delete_vpn_connection_route">
+<tt class="descname">delete_vpn_connection_route</tt><big>(</big><em>destination_cidr_block</em>, <em>vpn_connection_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.delete_vpn_connection_route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes a static route associated with a VPN connection between an
+existing virtual private gateway and a VPN customer gateway. The static
+route allows traffic to be routed from the virtual private gateway to
+the VPN customer gateway.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>destination_cidr_block</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The CIDR block associated with the local
+subnet of the customer data center.</li>
+<li><strong>vpn_connection_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the VPN connection.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.delete_vpn_gateway">
+<tt class="descname">delete_vpn_gateway</tt><big>(</big><em>vpn_gateway_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.delete_vpn_gateway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a Vpn Gateway.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vpn_gateway_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the vpn_gateway to be deleted.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True if successful</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.detach_internet_gateway">
+<tt class="descname">detach_internet_gateway</tt><big>(</big><em>internet_gateway_id</em>, <em>vpc_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.detach_internet_gateway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detach an internet gateway from a specific VPC.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>internet_gateway_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the internet gateway to detach.</li>
+<li><strong>vpc_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the VPC to attach to.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">Bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.disable_vgw_route_propagation">
+<tt class="descname">disable_vgw_route_propagation</tt><big>(</big><em>route_table_id</em>, <em>gateway_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.disable_vgw_route_propagation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disables a virtual private gateway (VGW) from propagating routes to the
+routing tables of an Amazon VPC.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>route_table_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the routing table.</li>
+<li><strong>gateway_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the virtual private gateway.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.disassociate_route_table">
+<tt class="descname">disassociate_route_table</tt><big>(</big><em>association_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.disassociate_route_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes an association from a route table. This will cause all subnets
+that would&#8217;ve used this association to now use the main routing
+association instead.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>association_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the association to disassociate.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">True if successful</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.enable_vgw_route_propagation">
+<tt class="descname">enable_vgw_route_propagation</tt><big>(</big><em>route_table_id</em>, <em>gateway_id</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.enable_vgw_route_propagation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables a virtual private gateway (VGW) to propagate routes to the
+routing tables of an Amazon VPC.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>route_table_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the routing table.</li>
+<li><strong>gateway_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the virtual private gateway.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.get_all_customer_gateways">
+<tt class="descname">get_all_customer_gateways</tt><big>(</big><em>customer_gateway_ids=None</em>, <em>filters=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.get_all_customer_gateways" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve information about your CustomerGateways.  You can filter
+results to return information only about those CustomerGateways that
+match your search parameters.  Otherwise, all CustomerGateways
+associated with your account are returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>customer_gateway_ids</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of strings with the desired
+CustomerGateway ID&#8217;s.</li>
+<li><strong>filters</strong> (<em>list of tuples</em>) &#8211; <p>A list of tuples containing filters.  Each tuple
+consists of a filter key and a filter value.
+Possible filter keys are:</p>
+<blockquote>
+<div><ul>
+<li><em>state</em>, the state of the CustomerGateway
+(pending,available,deleting,deleted)</li>
+<li><em>type</em>, the type of customer gateway (ipsec.1)</li>
+<li><em>ipAddress</em> the IP address of customer gateway&#8217;s
+internet-routable external inteface</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">list</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of <a class="reference internal" href="#boto.vpc.customergateway.CustomerGateway" title="boto.vpc.customergateway.CustomerGateway"><tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.customergateway.CustomerGateway</span></tt></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.get_all_dhcp_options">
+<tt class="descname">get_all_dhcp_options</tt><big>(</big><em>dhcp_options_ids=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.get_all_dhcp_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve information about your DhcpOptions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dhcp_options_ids</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of strings with the desired DhcpOption ID&#8217;s</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list of <a class="reference internal" href="#boto.vpc.dhcpoptions.DhcpOptions" title="boto.vpc.dhcpoptions.DhcpOptions"><tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.dhcpoptions.DhcpOptions</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.get_all_internet_gateways">
+<tt class="descname">get_all_internet_gateways</tt><big>(</big><em>internet_gateway_ids=None</em>, <em>filters=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.get_all_internet_gateways" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of internet gateways. You can filter results to return information
+about only those gateways that you&#8217;re interested in.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>internet_gateway_ids</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of strings with the desired gateway IDs.</li>
+<li><strong>filters</strong> (<em>list of tuples</em>) &#8211; A list of tuples containing filters.  Each tuple
+consists of a filter key and a filter value.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.get_all_route_tables">
+<tt class="descname">get_all_route_tables</tt><big>(</big><em>route_table_ids=None</em>, <em>filters=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.get_all_route_tables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve information about your routing tables. You can filter results
+to return information only about those route tables that match your
+search parameters. Otherwise, all route tables associated with your
+account are returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>route_table_ids</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of strings with the desired route table
+IDs.</li>
+<li><strong>filters</strong> (<em>list of tuples</em>) &#8211; A list of tuples containing filters. Each tuple
+consists of a filter key and a filter value.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">list</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of <tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.routetable.RouteTable</span></tt></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.get_all_subnets">
+<tt class="descname">get_all_subnets</tt><big>(</big><em>subnet_ids=None</em>, <em>filters=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.get_all_subnets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve information about your Subnets.  You can filter results to
+return information only about those Subnets that match your search
+parameters.  Otherwise, all Subnets associated with your account
+are returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>subnet_ids</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of strings with the desired Subnet ID&#8217;s</li>
+<li><strong>filters</strong> (<em>list of tuples</em>) &#8211; <p>A list of tuples containing filters.  Each tuple
+consists of a filter key and a filter value.
+Possible filter keys are:</p>
+<ul>
+<li><em>state</em>, a list of states of the Subnet
+(pending,available)</li>
+<li><em>vpcId</em>, a list of IDs of teh VPC the subnet is in.</li>
+<li><em>cidrBlock</em>, a list of CIDR blocks of the subnet</li>
+<li><em>availabilityZone</em>, list of the Availability Zones
+the subnet is in.</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">list</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of <a class="reference internal" href="#boto.vpc.subnet.Subnet" title="boto.vpc.subnet.Subnet"><tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.subnet.Subnet</span></tt></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.get_all_vpcs">
+<tt class="descname">get_all_vpcs</tt><big>(</big><em>vpc_ids=None</em>, <em>filters=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.get_all_vpcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve information about your VPCs.  You can filter results to
+return information only about those VPCs that match your search
+parameters.  Otherwise, all VPCs associated with your account
+are returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>vpc_ids</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of strings with the desired VPC ID&#8217;s</li>
+<li><strong>filters</strong> (<em>list of tuples</em>) &#8211; <p>A list of tuples containing filters.  Each tuple
+consists of a filter key and a filter value.
+Possible filter keys are:</p>
+<ul>
+<li><em>state</em> - a list of states of the VPC (pending or available)</li>
+<li><em>cidrBlock</em> - a list CIDR blocks of the VPC</li>
+<li><em>dhcpOptionsId</em> - a list of IDs of a set of DHCP options</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">list</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of <a class="reference internal" href="#boto.vpc.vpc.VPC" title="boto.vpc.vpc.VPC"><tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.vpc.VPC</span></tt></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.get_all_vpn_connections">
+<tt class="descname">get_all_vpn_connections</tt><big>(</big><em>vpn_connection_ids=None</em>, <em>filters=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.get_all_vpn_connections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve information about your VPN_CONNECTIONs.  You can filter results to
+return information only about those VPN_CONNECTIONs that match your search
+parameters.  Otherwise, all VPN_CONNECTIONs associated with your account
+are returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>vpn_connection_ids</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of strings with the desired VPN_CONNECTION ID&#8217;s</li>
+<li><strong>filters</strong> (<em>list of tuples</em>) &#8211; <p>A list of tuples containing filters.  Each tuple
+consists of a filter key and a filter value.
+Possible filter keys are:</p>
+<ul>
+<li><em>state</em>, a list of states of the VPN_CONNECTION
+pending,available,deleting,deleted</li>
+<li><em>type</em>, a list of types of connection, currently &#8216;ipsec.1&#8217;</li>
+<li><em>customerGatewayId</em>, a list of IDs of the customer gateway
+associated with the VPN</li>
+<li><em>vpnGatewayId</em>, a list of IDs of the VPN gateway associated
+with the VPN connection</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">list</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of <tt class="xref py py-class docutils literal"><span class="pre">boto.vpn_connection.vpnconnection.VpnConnection</span></tt></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.get_all_vpn_gateways">
+<tt class="descname">get_all_vpn_gateways</tt><big>(</big><em>vpn_gateway_ids=None</em>, <em>filters=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.get_all_vpn_gateways" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve information about your VpnGateways.  You can filter results to
+return information only about those VpnGateways that match your search
+parameters.  Otherwise, all VpnGateways associated with your account
+are returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>vpn_gateway_ids</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of strings with the desired VpnGateway ID&#8217;s</li>
+<li><strong>filters</strong> (<em>list of tuples</em>) &#8211; <p>A list of tuples containing filters.  Each tuple
+consists of a filter key and a filter value.
+Possible filter keys are:</p>
+<ul>
+<li><em>state</em>, a list of states of the VpnGateway
+(pending,available,deleting,deleted)</li>
+<li><em>type</em>, a list types of customer gateway (ipsec.1)</li>
+<li><em>availabilityZone</em>, a list of  Availability zones the
+VPN gateway is in.</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">list</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of <tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.customergateway.VpnGateway</span></tt></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.modify_vpc_attribute">
+<tt class="descname">modify_vpc_attribute</tt><big>(</big><em>vpc_id</em>, <em>enable_dns_support=None</em>, <em>enable_dns_hostnames=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.modify_vpc_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modifies the specified attribute of the specified VPC.
+You can only modify one attribute at a time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>vpc_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the vpc to be deleted.</li>
+<li><strong>enable_dns_support</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Specifies whether the DNS server
+provided by Amazon is enabled for the VPC.</li>
+<li><strong>enable_dns_hostnames</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Specifies whether DNS hostnames are
+provided for the instances launched in this VPC. You can only
+set this attribute to <tt class="docutils literal"><span class="pre">true</span></tt> if EnableDnsSupport
+is also <tt class="docutils literal"><span class="pre">true</span></tt>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.VPCConnection.replace_route">
+<tt class="descname">replace_route</tt><big>(</big><em>route_table_id</em>, <em>destination_cidr_block</em>, <em>gateway_id=None</em>, <em>instance_id=None</em>, <em>interface_id=None</em><big>)</big><a class="headerlink" href="#boto.vpc.VPCConnection.replace_route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replaces an existing route within a route table in a VPC.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>route_table_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the route table for the route.</li>
+<li><strong>destination_cidr_block</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The CIDR address block used for the
+destination match.</li>
+<li><strong>gateway_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of the gateway attached to your VPC.</li>
+<li><strong>instance_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ID of a NAT instance in your VPC.</li>
+<li><strong>interface_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Allows routing to network interface attachments.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if successful</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.vpc.connect_to_region">
+<tt class="descclassname">boto.vpc.</tt><tt class="descname">connect_to_region</tt><big>(</big><em>region_name</em>, <em>**kw_params</em><big>)</big><a class="headerlink" href="#boto.vpc.connect_to_region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a valid region name, return a
+<a class="reference internal" href="#boto.vpc.VPCConnection" title="boto.vpc.VPCConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.VPCConnection</span></tt></a>.
+Any additional parameters after the region_name are passed on to
+the connect method of the region object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Type :</th><td class="field-body">str</td>
+</tr>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>region_name</strong> &#8211; The name of the region to connect to.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.vpc.VPCConnection" title="boto.vpc.VPCConnection"><tt class="xref py py-class docutils literal"><span class="pre">boto.vpc.VPCConnection</span></tt></a> or <tt class="xref docutils literal"><span class="pre">None</span></tt></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A connection to the given region, or None if an invalid region
+name is given</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.vpc.regions">
+<tt class="descclassname">boto.vpc.</tt><tt class="descname">regions</tt><big>(</big><em>**kw_params</em><big>)</big><a class="headerlink" href="#boto.vpc.regions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all available regions for the EC2 service.
+You may pass any of the arguments accepted by the VPCConnection
+object&#8217;s constructor as keyword arguments and they will be
+passed along to the VPCConnection object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list of <tt class="xref py py-class docutils literal"><span class="pre">boto.ec2.regioninfo.RegionInfo</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.vpc.customergateway">
+<span id="boto-vpc-customergateway"></span><h2>boto.vpc.customergateway<a class="headerlink" href="#module-boto.vpc.customergateway" title="Permalink to this headline">¶</a></h2>
+<p>Represents a Customer Gateway</p>
+<dl class="class">
+<dt id="boto.vpc.customergateway.CustomerGateway">
+<em class="property">class </em><tt class="descclassname">boto.vpc.customergateway.</tt><tt class="descname">CustomerGateway</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.vpc.customergateway.CustomerGateway" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.vpc.customergateway.CustomerGateway.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.customergateway.CustomerGateway.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.vpc.dhcpoptions">
+<span id="boto-vpc-dhcpoptions"></span><h2>boto.vpc.dhcpoptions<a class="headerlink" href="#module-boto.vpc.dhcpoptions" title="Permalink to this headline">¶</a></h2>
+<p>Represents a DHCP Options set</p>
+<dl class="class">
+<dt id="boto.vpc.dhcpoptions.DhcpConfigSet">
+<em class="property">class </em><tt class="descclassname">boto.vpc.dhcpoptions.</tt><tt class="descname">DhcpConfigSet</tt><a class="headerlink" href="#boto.vpc.dhcpoptions.DhcpConfigSet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.vpc.dhcpoptions.DhcpConfigSet.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.dhcpoptions.DhcpConfigSet.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.dhcpoptions.DhcpConfigSet.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.dhcpoptions.DhcpConfigSet.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.vpc.dhcpoptions.DhcpOptions">
+<em class="property">class </em><tt class="descclassname">boto.vpc.dhcpoptions.</tt><tt class="descname">DhcpOptions</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.vpc.dhcpoptions.DhcpOptions" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.vpc.dhcpoptions.DhcpOptions.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.dhcpoptions.DhcpOptions.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.dhcpoptions.DhcpOptions.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.dhcpoptions.DhcpOptions.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.vpc.dhcpoptions.DhcpValueSet">
+<em class="property">class </em><tt class="descclassname">boto.vpc.dhcpoptions.</tt><tt class="descname">DhcpValueSet</tt><a class="headerlink" href="#boto.vpc.dhcpoptions.DhcpValueSet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.vpc.dhcpoptions.DhcpValueSet.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.dhcpoptions.DhcpValueSet.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.dhcpoptions.DhcpValueSet.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.dhcpoptions.DhcpValueSet.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.vpc.subnet">
+<span id="boto-vpc-subnet"></span><h2>boto.vpc.subnet<a class="headerlink" href="#module-boto.vpc.subnet" title="Permalink to this headline">¶</a></h2>
+<p>Represents a Subnet</p>
+<dl class="class">
+<dt id="boto.vpc.subnet.Subnet">
+<em class="property">class </em><tt class="descclassname">boto.vpc.subnet.</tt><tt class="descname">Subnet</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.vpc.subnet.Subnet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.vpc.subnet.Subnet.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.subnet.Subnet.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.vpc.vpc">
+<span id="boto-vpc-vpc"></span><h2>boto.vpc.vpc<a class="headerlink" href="#module-boto.vpc.vpc" title="Permalink to this headline">¶</a></h2>
+<p>Represents a Virtual Private Cloud.</p>
+<dl class="class">
+<dt id="boto.vpc.vpc.VPC">
+<em class="property">class </em><tt class="descclassname">boto.vpc.vpc.</tt><tt class="descname">VPC</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.vpc.vpc.VPC" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.vpc.vpc.VPC.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.vpc.vpc.VPC.delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.vpc.VPC.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.vpc.VPC.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.vpc.VPC.update">
+<tt class="descname">update</tt><big>(</big><em>validate=False</em><big>)</big><a class="headerlink" href="#boto.vpc.vpc.VPC.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.vpc.vpnconnection">
+<span id="boto-vpc-vpnconnection"></span><h2>boto.vpc.vpnconnection<a class="headerlink" href="#module-boto.vpc.vpnconnection" title="Permalink to this headline">¶</a></h2>
+<p>Represents a VPN Connectionn</p>
+<dl class="class">
+<dt id="boto.vpc.vpnconnection.VpnConnection">
+<em class="property">class </em><tt class="descclassname">boto.vpc.vpnconnection.</tt><tt class="descname">VpnConnection</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.vpc.vpnconnection.VpnConnection" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.vpc.vpnconnection.VpnConnection.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.vpc.vpnconnection.VpnConnection.delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.vpnconnection.VpnConnection.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.vpnconnection.VpnConnection.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.vpc.vpngateway">
+<span id="boto-vpc-vpngateway"></span><h2>boto.vpc.vpngateway<a class="headerlink" href="#module-boto.vpc.vpngateway" title="Permalink to this headline">¶</a></h2>
+<p>Represents a Vpn Gateway</p>
+<dl class="class">
+<dt id="boto.vpc.vpngateway.Attachment">
+<em class="property">class </em><tt class="descclassname">boto.vpc.vpngateway.</tt><tt class="descname">Attachment</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.vpc.vpngateway.Attachment" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.vpc.vpngateway.Attachment.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.vpngateway.Attachment.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.vpngateway.Attachment.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.vpngateway.Attachment.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.vpc.vpngateway.VpnGateway">
+<em class="property">class </em><tt class="descclassname">boto.vpc.vpngateway.</tt><tt class="descname">VpnGateway</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.vpc.vpngateway.VpnGateway" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.vpc.vpngateway.VpnGateway.attach">
+<tt class="descname">attach</tt><big>(</big><em>vpc_id</em><big>)</big><a class="headerlink" href="#boto.vpc.vpngateway.VpnGateway.attach" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.vpngateway.VpnGateway.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.vpngateway.VpnGateway.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.vpc.vpngateway.VpnGateway.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.vpc.vpngateway.VpnGateway.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">VPC</a><ul>
+<li><a class="reference internal" href="#module-boto.vpc">boto.vpc</a></li>
+<li><a class="reference internal" href="#module-boto.vpc.customergateway">boto.vpc.customergateway</a></li>
+<li><a class="reference internal" href="#module-boto.vpc.dhcpoptions">boto.vpc.dhcpoptions</a></li>
+<li><a class="reference internal" href="#module-boto.vpc.subnet">boto.vpc.subnet</a></li>
+<li><a class="reference internal" href="#module-boto.vpc.vpc">boto.vpc.vpc</a></li>
+<li><a class="reference internal" href="#module-boto.vpc.vpnconnection">boto.vpc.vpnconnection</a></li>
+<li><a class="reference internal" href="#module-boto.vpc.vpngateway">boto.vpc.vpngateway</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="swf.html"
+                        title="previous chapter">SWF</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../documentation.html"
+                        title="next chapter">About the Documentation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/vpc.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../documentation.html" title="About the Documentation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="swf.html" title="SWF"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" >API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

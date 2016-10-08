@@ -1,0 +1,642 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyami &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="up" title="API Reference" href="index.html" />
+    <link rel="next" title="RDS" href="rds.html" />
+    <link rel="prev" title="mws" href="mws.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rds.html" title="RDS"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mws.html" title="mws"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pyami">
+<h1>pyami<a class="headerlink" href="#pyami" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-boto.pyami">
+<span id="boto-pyami"></span><h2>boto.pyami<a class="headerlink" href="#module-boto.pyami" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-boto.pyami.bootstrap">
+<span id="boto-pyami-bootstrap"></span><h2>boto.pyami.bootstrap<a class="headerlink" href="#module-boto.pyami.bootstrap" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.pyami.bootstrap.Bootstrap">
+<em class="property">class </em><tt class="descclassname">boto.pyami.bootstrap.</tt><tt class="descname">Bootstrap</tt><a class="headerlink" href="#boto.pyami.bootstrap.Bootstrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Bootstrap class is instantiated and run as part of the PyAMI
+instance initialization process.  The methods in this class will
+be run from the rc.local script of the instance and will be run
+as the root user.</p>
+<p>The main purpose of this class is to make sure the boto distribution
+on the instance is the one required.</p>
+<dl class="method">
+<dt id="boto.pyami.bootstrap.Bootstrap.create_working_dir">
+<tt class="descname">create_working_dir</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.bootstrap.Bootstrap.create_working_dir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.bootstrap.Bootstrap.fetch_s3_file">
+<tt class="descname">fetch_s3_file</tt><big>(</big><em>s3_file</em><big>)</big><a class="headerlink" href="#boto.pyami.bootstrap.Bootstrap.fetch_s3_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.bootstrap.Bootstrap.load_boto">
+<tt class="descname">load_boto</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.bootstrap.Bootstrap.load_boto" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.bootstrap.Bootstrap.load_packages">
+<tt class="descname">load_packages</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.bootstrap.Bootstrap.load_packages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.bootstrap.Bootstrap.main">
+<tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.bootstrap.Bootstrap.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.bootstrap.Bootstrap.write_metadata">
+<tt class="descname">write_metadata</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.bootstrap.Bootstrap.write_metadata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.pyami.config">
+<span id="boto-pyami-config"></span><h2>boto.pyami.config<a class="headerlink" href="#module-boto.pyami.config" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.pyami.config.Config">
+<em class="property">class </em><tt class="descclassname">boto.pyami.config.</tt><tt class="descname">Config</tt><big>(</big><em>path=None</em>, <em>fp=None</em>, <em>do_load=True</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.pyami.config.Config.dump">
+<tt class="descname">dump</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.dump" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.dump_safe">
+<tt class="descname">dump_safe</tt><big>(</big><em>fp=None</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.dump_safe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.dump_to_sdb">
+<tt class="descname">dump_to_sdb</tt><big>(</big><em>domain_name</em>, <em>item_name</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.dump_to_sdb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.get">
+<tt class="descname">get</tt><big>(</big><em>section</em>, <em>name</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.get_instance">
+<tt class="descname">get_instance</tt><big>(</big><em>name</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.get_instance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.get_user">
+<tt class="descname">get_user</tt><big>(</big><em>name</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.get_user" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.get_value">
+<tt class="descname">get_value</tt><big>(</big><em>section</em>, <em>name</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.get_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.getbool">
+<tt class="descname">getbool</tt><big>(</big><em>section</em>, <em>name</em>, <em>default=False</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.getbool" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.getfloat">
+<tt class="descname">getfloat</tt><big>(</big><em>section</em>, <em>name</em>, <em>default=0.0</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.getfloat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.getint">
+<tt class="descname">getint</tt><big>(</big><em>section</em>, <em>name</em>, <em>default=0</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.getint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.getint_user">
+<tt class="descname">getint_user</tt><big>(</big><em>name</em>, <em>default=0</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.getint_user" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.load_credential_file">
+<tt class="descname">load_credential_file</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.load_credential_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a credential file as is setup like the Java utilities</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.load_from_path">
+<tt class="descname">load_from_path</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.load_from_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.load_from_sdb">
+<tt class="descname">load_from_sdb</tt><big>(</big><em>domain_name</em>, <em>item_name</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.load_from_sdb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.save_option">
+<tt class="descname">save_option</tt><big>(</big><em>path</em>, <em>section</em>, <em>option</em>, <em>value</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.save_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the specified Section.Option to the config file specified by path.
+Replace any previous value.  If the path doesn&#8217;t exist, create it.
+Also add the option the the in-memory config.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.save_system_option">
+<tt class="descname">save_system_option</tt><big>(</big><em>section</em>, <em>option</em>, <em>value</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.save_system_option" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.save_user_option">
+<tt class="descname">save_user_option</tt><big>(</big><em>section</em>, <em>option</em>, <em>value</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.save_user_option" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.config.Config.setbool">
+<tt class="descname">setbool</tt><big>(</big><em>section</em>, <em>name</em>, <em>value</em><big>)</big><a class="headerlink" href="#boto.pyami.config.Config.setbool" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.pyami.copybot">
+<span id="boto-pyami-copybot"></span><h2>boto.pyami.copybot<a class="headerlink" href="#module-boto.pyami.copybot" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.pyami.copybot.CopyBot">
+<em class="property">class </em><tt class="descclassname">boto.pyami.copybot.</tt><tt class="descname">CopyBot</tt><a class="headerlink" href="#boto.pyami.copybot.CopyBot" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.pyami.copybot.CopyBot.copy_bucket_acl">
+<tt class="descname">copy_bucket_acl</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.copybot.CopyBot.copy_bucket_acl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.copybot.CopyBot.copy_key_acl">
+<tt class="descname">copy_key_acl</tt><big>(</big><em>src</em>, <em>dst</em><big>)</big><a class="headerlink" href="#boto.pyami.copybot.CopyBot.copy_key_acl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.copybot.CopyBot.copy_keys">
+<tt class="descname">copy_keys</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.copybot.CopyBot.copy_keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.copybot.CopyBot.copy_log">
+<tt class="descname">copy_log</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.copybot.CopyBot.copy_log" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.copybot.CopyBot.main">
+<tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.copybot.CopyBot.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.pyami.installers">
+<span id="boto-pyami-installers"></span><h2>boto.pyami.installers<a class="headerlink" href="#module-boto.pyami.installers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.pyami.installers.Installer">
+<em class="property">class </em><tt class="descclassname">boto.pyami.installers.</tt><tt class="descname">Installer</tt><big>(</big><em>config_file=None</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.Installer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract base class for installers</p>
+<dl class="method">
+<dt id="boto.pyami.installers.Installer.add_cron">
+<tt class="descname">add_cron</tt><big>(</big><em>name</em>, <em>minute</em>, <em>hour</em>, <em>mday</em>, <em>month</em>, <em>wday</em>, <em>who</em>, <em>command</em>, <em>env=None</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.Installer.add_cron" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an entry to the system crontab.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.Installer.add_env">
+<tt class="descname">add_env</tt><big>(</big><em>key</em>, <em>value</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.Installer.add_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an environemnt variable</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.Installer.add_init_script">
+<tt class="descname">add_init_script</tt><big>(</big><em>file</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.Installer.add_init_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add this file to the init.d directory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.Installer.install">
+<tt class="descname">install</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.Installer.install" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do whatever is necessary to &#8220;install&#8221; the package.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.Installer.start">
+<tt class="descname">start</tt><big>(</big><em>service_name</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.Installer.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start a service.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.Installer.stop">
+<tt class="descname">stop</tt><big>(</big><em>service_name</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.Installer.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop a service.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.pyami.installers.ubuntu">
+<span id="boto-pyami-installers-ubuntu"></span><h2>boto.pyami.installers.ubuntu<a class="headerlink" href="#module-boto.pyami.installers.ubuntu" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-boto.pyami.installers.ubuntu.apache">
+<span id="boto-pyami-installers-ubuntu-apache"></span><h2>boto.pyami.installers.ubuntu.apache<a class="headerlink" href="#module-boto.pyami.installers.ubuntu.apache" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.pyami.installers.ubuntu.apache.Apache">
+<em class="property">class </em><tt class="descclassname">boto.pyami.installers.ubuntu.apache.</tt><tt class="descname">Apache</tt><big>(</big><em>config_file=None</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.apache.Apache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Install apache2, mod_python, and libapache2-svn</p>
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.apache.Apache.install">
+<tt class="descname">install</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.apache.Apache.install" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.apache.Apache.main">
+<tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.apache.Apache.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.pyami.installers.ubuntu.ebs">
+<span id="boto-pyami-installers-ubuntu-ebs"></span><h2>boto.pyami.installers.ubuntu.ebs<a class="headerlink" href="#module-boto.pyami.installers.ubuntu.ebs" title="Permalink to this headline">¶</a></h2>
+<p>Automated installer to attach, format and mount an EBS volume.
+This installer assumes that you want the volume formatted as
+an XFS file system.  To drive this installer, you need the
+following section in the boto config passed to the new instance.
+You also need to install dateutil by listing python-dateutil
+in the list of packages to be installed in the Pyami seciont
+of your boto config file.</p>
+<p>If there is already a device mounted at the specified mount point,
+the installer assumes that it is the ephemeral drive and unmounts
+it, remounts it as /tmp and chmods it to 777.</p>
+<p>Config file section:</p>
+<div class="highlight-python"><pre>[EBS]
+volume_id = &lt;the id of the EBS volume, should look like vol-xxxxxxxx&gt;
+logical_volume_name = &lt;the name of the logical volume that contaings 
+    a reference to the physical volume to be mounted. If this parameter
+    is supplied, it overrides the volume_id setting.&gt;
+device = &lt;the linux device the EBS volume should be mounted on&gt;
+mount_point = &lt;directory to mount device, defaults to /ebs&gt;</pre>
+</div>
+<dl class="class">
+<dt id="boto.pyami.installers.ubuntu.ebs.EBSInstaller">
+<em class="property">class </em><tt class="descclassname">boto.pyami.installers.ubuntu.ebs.</tt><tt class="descname">EBSInstaller</tt><big>(</big><em>config_file=None</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.ebs.EBSInstaller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up the EBS stuff</p>
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.ebs.EBSInstaller.attach">
+<tt class="descname">attach</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.ebs.EBSInstaller.attach" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.ebs.EBSInstaller.create_backup_cleanup_script">
+<tt class="descname">create_backup_cleanup_script</tt><big>(</big><em>use_tag_based_cleanup=False</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.ebs.EBSInstaller.create_backup_cleanup_script" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.ebs.EBSInstaller.create_backup_script">
+<tt class="descname">create_backup_script</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.ebs.EBSInstaller.create_backup_script" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.ebs.EBSInstaller.handle_mount_point">
+<tt class="descname">handle_mount_point</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.ebs.EBSInstaller.handle_mount_point" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.ebs.EBSInstaller.install">
+<tt class="descname">install</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.ebs.EBSInstaller.install" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.ebs.EBSInstaller.main">
+<tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.ebs.EBSInstaller.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.ebs.EBSInstaller.make_fs">
+<tt class="descname">make_fs</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.ebs.EBSInstaller.make_fs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.ebs.EBSInstaller.update_fstab">
+<tt class="descname">update_fstab</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.ebs.EBSInstaller.update_fstab" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.pyami.installers.ubuntu.installer">
+<span id="boto-pyami-installers-ubuntu-installer"></span><h2>boto.pyami.installers.ubuntu.installer<a class="headerlink" href="#module-boto.pyami.installers.ubuntu.installer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.pyami.installers.ubuntu.installer.Installer">
+<em class="property">class </em><tt class="descclassname">boto.pyami.installers.ubuntu.installer.</tt><tt class="descname">Installer</tt><big>(</big><em>config_file=None</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.installer.Installer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base Installer class for Ubuntu-based AMI&#8217;s</p>
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.installer.Installer.add_cron">
+<tt class="descname">add_cron</tt><big>(</big><em>name</em>, <em>command</em>, <em>minute='*'</em>, <em>hour='*'</em>, <em>mday='*'</em>, <em>month='*'</em>, <em>wday='*'</em>, <em>who='root'</em>, <em>env=None</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.installer.Installer.add_cron" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Write a file to /etc/cron.d to schedule a command</dt>
+<dd>env is a dict containing environment variables you want to set in the file
+name will be used as the name of the file</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.installer.Installer.add_env">
+<tt class="descname">add_env</tt><big>(</big><em>key</em>, <em>value</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.installer.Installer.add_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an environemnt variable
+For Ubuntu, the best place is /etc/environment.  Values placed here do
+not need to be exported.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.installer.Installer.add_init_script">
+<tt class="descname">add_init_script</tt><big>(</big><em>file</em>, <em>name</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.installer.Installer.add_init_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add this file to the init.d directory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.installer.Installer.create_user">
+<tt class="descname">create_user</tt><big>(</big><em>user</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.installer.Installer.create_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a user on the local system</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.installer.Installer.install">
+<tt class="descname">install</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.installer.Installer.install" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the only method you need to override</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.installer.Installer.start">
+<tt class="descname">start</tt><big>(</big><em>service_name</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.installer.Installer.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.installer.Installer.stop">
+<tt class="descname">stop</tt><big>(</big><em>service_name</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.installer.Installer.stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.pyami.installers.ubuntu.mysql">
+<span id="boto-pyami-installers-ubuntu-mysql"></span><h2>boto.pyami.installers.ubuntu.mysql<a class="headerlink" href="#module-boto.pyami.installers.ubuntu.mysql" title="Permalink to this headline">¶</a></h2>
+<p>This installer will install mysql-server on an Ubuntu machine.
+In addition to the normal installation done by apt-get, it will
+also configure the new MySQL server to store it&#8217;s data files in
+a different location.  By default, this is /mnt but that can be
+configured in the [MySQL] section of the boto config file passed
+to the instance.</p>
+<dl class="class">
+<dt id="boto.pyami.installers.ubuntu.mysql.MySQL">
+<em class="property">class </em><tt class="descclassname">boto.pyami.installers.ubuntu.mysql.</tt><tt class="descname">MySQL</tt><big>(</big><em>config_file=None</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.mysql.MySQL" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.pyami.installers.ubuntu.mysql.MySQL.change_data_dir">
+<tt class="descname">change_data_dir</tt><big>(</big><em>password=None</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.mysql.MySQL.change_data_dir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.mysql.MySQL.install">
+<tt class="descname">install</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.mysql.MySQL.install" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.mysql.MySQL.main">
+<tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.mysql.MySQL.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.pyami.installers.ubuntu.trac">
+<span id="boto-pyami-installers-ubuntu-trac"></span><h2>boto.pyami.installers.ubuntu.trac<a class="headerlink" href="#module-boto.pyami.installers.ubuntu.trac" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.pyami.installers.ubuntu.trac.Trac">
+<em class="property">class </em><tt class="descclassname">boto.pyami.installers.ubuntu.trac.</tt><tt class="descname">Trac</tt><big>(</big><em>config_file=None</em><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.trac.Trac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Install Trac and DAV-SVN
+Sets up a Vhost pointing to [Trac]-&gt;home
+Using the config parameter [Trac]-&gt;hostname
+Sets up a trac environment for every directory found under [Trac]-&gt;data_dir</p>
+<p>[Trac]
+name = My Foo Server
+hostname = trac.foo.com
+home = /mnt/sites/trac
+data_dir = /mnt/trac
+svn_dir = /mnt/subversion
+server_admin = <a class="reference external" href="mailto:root&#37;&#52;&#48;foo&#46;com">root<span>&#64;</span>foo<span>&#46;</span>com</a>
+sdb_auth_domain = users
+# Optional
+SSLCertificateFile = /mnt/ssl/foo.crt
+SSLCertificateKeyFile = /mnt/ssl/foo.key
+SSLCertificateChainFile = /mnt/ssl/FooCA.crt</p>
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.trac.Trac.install">
+<tt class="descname">install</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.trac.Trac.install" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.trac.Trac.main">
+<tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.trac.Trac.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.installers.ubuntu.trac.Trac.setup_vhost">
+<tt class="descname">setup_vhost</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.installers.ubuntu.trac.Trac.setup_vhost" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.pyami.launch_ami">
+<span id="boto-pyami-launch-ami"></span><h2>boto.pyami.launch_ami<a class="headerlink" href="#module-boto.pyami.launch_ami" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="boto.pyami.launch_ami.main">
+<tt class="descclassname">boto.pyami.launch_ami.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.launch_ami.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.pyami.launch_ami.usage">
+<tt class="descclassname">boto.pyami.launch_ami.</tt><tt class="descname">usage</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.launch_ami.usage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-boto.pyami.scriptbase">
+<span id="boto-pyami-scriptbase"></span><h2>boto.pyami.scriptbase<a class="headerlink" href="#module-boto.pyami.scriptbase" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.pyami.scriptbase.ScriptBase">
+<em class="property">class </em><tt class="descclassname">boto.pyami.scriptbase.</tt><tt class="descname">ScriptBase</tt><big>(</big><em>config_file=None</em><big>)</big><a class="headerlink" href="#boto.pyami.scriptbase.ScriptBase" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.pyami.scriptbase.ScriptBase.main">
+<tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.scriptbase.ScriptBase.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.scriptbase.ScriptBase.mkdir">
+<tt class="descname">mkdir</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#boto.pyami.scriptbase.ScriptBase.mkdir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.scriptbase.ScriptBase.notify">
+<tt class="descname">notify</tt><big>(</big><em>subject</em>, <em>body=''</em><big>)</big><a class="headerlink" href="#boto.pyami.scriptbase.ScriptBase.notify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.scriptbase.ScriptBase.run">
+<tt class="descname">run</tt><big>(</big><em>command</em>, <em>notify=True</em>, <em>exit_on_error=False</em>, <em>cwd=None</em><big>)</big><a class="headerlink" href="#boto.pyami.scriptbase.ScriptBase.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.scriptbase.ScriptBase.umount">
+<tt class="descname">umount</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#boto.pyami.scriptbase.ScriptBase.umount" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.pyami.startup">
+<span id="boto-pyami-startup"></span><h2>boto.pyami.startup<a class="headerlink" href="#module-boto.pyami.startup" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.pyami.startup.Startup">
+<em class="property">class </em><tt class="descclassname">boto.pyami.startup.</tt><tt class="descname">Startup</tt><big>(</big><em>config_file=None</em><big>)</big><a class="headerlink" href="#boto.pyami.startup.Startup" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.pyami.startup.Startup.main">
+<tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.startup.Startup.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.pyami.startup.Startup.run_scripts">
+<tt class="descname">run_scripts</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.pyami.startup.Startup.run_scripts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pyami</a><ul>
+<li><a class="reference internal" href="#module-boto.pyami">boto.pyami</a></li>
+<li><a class="reference internal" href="#module-boto.pyami.bootstrap">boto.pyami.bootstrap</a></li>
+<li><a class="reference internal" href="#module-boto.pyami.config">boto.pyami.config</a></li>
+<li><a class="reference internal" href="#module-boto.pyami.copybot">boto.pyami.copybot</a></li>
+<li><a class="reference internal" href="#module-boto.pyami.installers">boto.pyami.installers</a></li>
+<li><a class="reference internal" href="#module-boto.pyami.installers.ubuntu">boto.pyami.installers.ubuntu</a></li>
+<li><a class="reference internal" href="#module-boto.pyami.installers.ubuntu.apache">boto.pyami.installers.ubuntu.apache</a></li>
+<li><a class="reference internal" href="#module-boto.pyami.installers.ubuntu.ebs">boto.pyami.installers.ubuntu.ebs</a></li>
+<li><a class="reference internal" href="#module-boto.pyami.installers.ubuntu.installer">boto.pyami.installers.ubuntu.installer</a></li>
+<li><a class="reference internal" href="#module-boto.pyami.installers.ubuntu.mysql">boto.pyami.installers.ubuntu.mysql</a></li>
+<li><a class="reference internal" href="#module-boto.pyami.installers.ubuntu.trac">boto.pyami.installers.ubuntu.trac</a></li>
+<li><a class="reference internal" href="#module-boto.pyami.launch_ami">boto.pyami.launch_ami</a></li>
+<li><a class="reference internal" href="#module-boto.pyami.scriptbase">boto.pyami.scriptbase</a></li>
+<li><a class="reference internal" href="#module-boto.pyami.startup">boto.pyami.startup</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mws.html"
+                        title="previous chapter">mws</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="rds.html"
+                        title="next chapter">RDS</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/pyami.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rds.html" title="RDS"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mws.html" title="mws"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" >API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

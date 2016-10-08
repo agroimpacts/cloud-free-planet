@@ -1,0 +1,650 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>EMR &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="up" title="API Reference" href="index.html" />
+    <link rel="next" title="file" href="file.html" />
+    <link rel="prev" title="ECS" href="ecs.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="file.html" title="file"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ecs.html" title="ECS"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="emr">
+<span id="ref-emr"></span><h1>EMR<a class="headerlink" href="#emr" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-boto.emr">
+<span id="boto-emr"></span><h2>boto.emr<a class="headerlink" href="#module-boto.emr" title="Permalink to this headline">¶</a></h2>
+<p>This module provies an interface to the Elastic MapReduce (EMR)
+service from AWS.</p>
+<dl class="function">
+<dt id="boto.emr.connect_to_region">
+<tt class="descclassname">boto.emr.</tt><tt class="descname">connect_to_region</tt><big>(</big><em>region_name</em>, <em>**kw_params</em><big>)</big><a class="headerlink" href="#boto.emr.connect_to_region" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.emr.regions">
+<tt class="descclassname">boto.emr.</tt><tt class="descname">regions</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.emr.regions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all available regions for the Amazon Elastic MapReduce service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list of <tt class="xref py py-class docutils literal"><span class="pre">boto.regioninfo.RegionInfo</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.emr.connection">
+<span id="boto-emr-connection"></span><h2>boto.emr.connection<a class="headerlink" href="#module-boto.emr.connection" title="Permalink to this headline">¶</a></h2>
+<p>Represents a connection to the EMR service</p>
+<dl class="class">
+<dt id="boto.emr.connection.EmrConnection">
+<em class="property">class </em><tt class="descclassname">boto.emr.connection.</tt><tt class="descname">EmrConnection</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>is_secure=True</em>, <em>port=None</em>, <em>proxy=None</em>, <em>proxy_port=None</em>, <em>proxy_user=None</em>, <em>proxy_pass=None</em>, <em>debug=0</em>, <em>https_connection_factory=None</em>, <em>region=None</em>, <em>path='/'</em>, <em>security_token=None</em>, <em>validate_certs=True</em><big>)</big><a class="headerlink" href="#boto.emr.connection.EmrConnection" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="boto.emr.connection.EmrConnection.ResponseError">
+<tt class="descname">ResponseError</tt><a class="headerlink" href="#boto.emr.connection.EmrConnection.ResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">EmrResponseError</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.connection.EmrConnection.add_instance_groups">
+<tt class="descname">add_instance_groups</tt><big>(</big><em>jobflow_id</em>, <em>instance_groups</em><big>)</big><a class="headerlink" href="#boto.emr.connection.EmrConnection.add_instance_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds instance groups to a running cluster.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>jobflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The id of the jobflow which will take the
+new instance groups</li>
+<li><strong>instance_groups</strong> (<em>list(boto.emr.InstanceGroup)</em>) &#8211; A list of instance groups to add to the job</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.connection.EmrConnection.add_jobflow_steps">
+<tt class="descname">add_jobflow_steps</tt><big>(</big><em>jobflow_id</em>, <em>steps</em><big>)</big><a class="headerlink" href="#boto.emr.connection.EmrConnection.add_jobflow_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds steps to a jobflow</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>jobflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The job flow id</li>
+<li><strong>steps</strong> (<em>list(boto.emr.Step)</em>) &#8211; A list of steps to add to the job</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.connection.EmrConnection.describe_jobflow">
+<tt class="descname">describe_jobflow</tt><big>(</big><em>jobflow_id</em><big>)</big><a class="headerlink" href="#boto.emr.connection.EmrConnection.describe_jobflow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describes a single Elastic MapReduce job flow</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>jobflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The job flow id of interest</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.connection.EmrConnection.describe_jobflows">
+<tt class="descname">describe_jobflows</tt><big>(</big><em>states=None</em>, <em>jobflow_ids=None</em>, <em>created_after=None</em>, <em>created_before=None</em><big>)</big><a class="headerlink" href="#boto.emr.connection.EmrConnection.describe_jobflows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve all the Elastic MapReduce job flows on your account</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>states</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of strings with job flow states wanted</li>
+<li><strong>jobflow_ids</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of job flow IDs</li>
+<li><strong>created_after</strong> (<a class="reference external" href="http://docs.python.org/library/datetime.html#datetime" title="(in Python v2.7)"><em>datetime</em></a>) &#8211; Bound on job flow creation time</li>
+<li><strong>created_before</strong> (<a class="reference external" href="http://docs.python.org/library/datetime.html#datetime" title="(in Python v2.7)"><em>datetime</em></a>) &#8211; Bound on job flow creation time</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.connection.EmrConnection.modify_instance_groups">
+<tt class="descname">modify_instance_groups</tt><big>(</big><em>instance_group_ids</em>, <em>new_sizes</em><big>)</big><a class="headerlink" href="#boto.emr.connection.EmrConnection.modify_instance_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify the number of nodes and configuration settings in an
+instance group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>instance_group_ids</strong> (<em>list(str)</em>) &#8211; A list of the ID&#8217;s of the instance
+groups to be modified</li>
+<li><strong>new_sizes</strong> (<em>list(int)</em>) &#8211; A list of the new sizes for each instance group</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.connection.EmrConnection.run_jobflow">
+<tt class="descname">run_jobflow</tt><big>(</big><em>name</em>, <em>log_uri=None</em>, <em>ec2_keyname=None</em>, <em>availability_zone=None</em>, <em>master_instance_type='m1.small'</em>, <em>slave_instance_type='m1.small'</em>, <em>num_instances=1</em>, <em>action_on_failure='TERMINATE_JOB_FLOW'</em>, <em>keep_alive=False</em>, <em>enable_debugging=False</em>, <em>hadoop_version=None</em>, <em>steps=</em><span class="optional">[</span><span class="optional">]</span>, <em>bootstrap_actions=</em><span class="optional">[</span><span class="optional">]</span>, <em>instance_groups=None</em>, <em>additional_info=None</em>, <em>ami_version=None</em>, <em>api_params=None</em>, <em>visible_to_all_users=None</em>, <em>job_flow_role=None</em><big>)</big><a class="headerlink" href="#boto.emr.connection.EmrConnection.run_jobflow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a job flow
+:type name: str
+:param name: Name of the job flow</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>log_uri</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; URI of the S3 bucket to place logs</li>
+<li><strong>ec2_keyname</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; EC2 key used for the instances</li>
+<li><strong>availability_zone</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; EC2 availability zone of the cluster</li>
+<li><strong>master_instance_type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; EC2 instance type of the master</li>
+<li><strong>slave_instance_type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; EC2 instance type of the slave nodes</li>
+<li><strong>num_instances</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of instances in the Hadoop cluster</li>
+<li><strong>action_on_failure</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Action to take if a step terminates</li>
+<li><strong>keep_alive</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Denotes whether the cluster should stay
+alive upon completion</li>
+<li><strong>enable_debugging</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Denotes whether AWS console debugging
+should be enabled.</li>
+<li><strong>hadoop_version</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Version of Hadoop to use. This no longer
+defaults to &#8216;0.20&#8217; and now uses the AMI default.</li>
+<li><strong>steps</strong> (<em>list(boto.emr.Step)</em>) &#8211; List of steps to add with the job</li>
+<li><strong>bootstrap_actions</strong> (<em>list(boto.emr.BootstrapAction)</em>) &#8211; List of bootstrap actions that run
+before Hadoop starts.</li>
+<li><strong>instance_groups</strong> (<em>list(boto.emr.InstanceGroup)</em>) &#8211; Optional list of instance groups to
+use when creating this job.
+NB: When provided, this argument supersedes num_instances
+and master/slave_instance_type.</li>
+<li><strong>ami_version</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Amazon Machine Image (AMI) version to use
+for instances. Values accepted by EMR are &#8216;1.0&#8217;, &#8216;2.0&#8217;, and
+&#8216;latest&#8217;; EMR currently defaults to &#8216;1.0&#8217; if you don&#8217;t set
+&#8216;ami_version&#8217;.</li>
+<li><strong>additional_info</strong> (<em>JSON str</em>) &#8211; A JSON string for selecting additional features</li>
+<li><strong>api_params</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; a dictionary of additional parameters to pass
+directly to the EMR API (so you don&#8217;t have to upgrade boto to
+use new EMR features). You can also delete an API parameter
+by setting it to None.</li>
+<li><strong>visible_to_all_users</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether the job flow is visible to all IAM
+users of the AWS account associated with the job flow. If this
+value is set to <tt class="xref docutils literal"><span class="pre">True</span></tt>, all IAM users of that AWS
+account can view and (if they have the proper policy permissions
+set) manage the job flow. If it is set to <tt class="xref docutils literal"><span class="pre">False</span></tt>, only
+the IAM user that created the job flow can view and manage
+it.</li>
+<li><strong>job_flow_role</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; An IAM role for the job flow. The EC2
+instances of the job flow assume this role. The default role is
+<tt class="docutils literal"><span class="pre">EMRJobflowDefault</span></tt>. In order to use the default role,
+you must have already created it using the CLI.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">str</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The jobflow id</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.connection.EmrConnection.set_termination_protection">
+<tt class="descname">set_termination_protection</tt><big>(</big><em>jobflow_id</em>, <em>termination_protection_status</em><big>)</big><a class="headerlink" href="#boto.emr.connection.EmrConnection.set_termination_protection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set termination protection on specified Elastic MapReduce job flows</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>jobflow_ids</strong> (<em>list or str</em>) &#8211; A list of job flow IDs</li>
+<li><strong>termination_protection_status</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Termination protection status</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.connection.EmrConnection.set_visible_to_all_users">
+<tt class="descname">set_visible_to_all_users</tt><big>(</big><em>jobflow_id</em>, <em>visibility</em><big>)</big><a class="headerlink" href="#boto.emr.connection.EmrConnection.set_visible_to_all_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set whether specified Elastic Map Reduce job flows are visible to all IAM users</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>jobflow_ids</strong> (<em>list or str</em>) &#8211; A list of job flow IDs</li>
+<li><strong>visibility</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Visibility</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.connection.EmrConnection.terminate_jobflow">
+<tt class="descname">terminate_jobflow</tt><big>(</big><em>jobflow_id</em><big>)</big><a class="headerlink" href="#boto.emr.connection.EmrConnection.terminate_jobflow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate an Elastic MapReduce job flow</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>jobflow_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; A jobflow id</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.connection.EmrConnection.terminate_jobflows">
+<tt class="descname">terminate_jobflows</tt><big>(</big><em>jobflow_ids</em><big>)</big><a class="headerlink" href="#boto.emr.connection.EmrConnection.terminate_jobflows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminate an Elastic MapReduce job flow</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>jobflow_ids</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of job flow IDs</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.emr.step">
+<span id="boto-emr-step"></span><h2>boto.emr.step<a class="headerlink" href="#module-boto.emr.step" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.emr.step.HiveBase">
+<em class="property">class </em><tt class="descclassname">boto.emr.step.</tt><tt class="descname">HiveBase</tt><big>(</big><em>name</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.emr.step.HiveBase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.step.HiveStep">
+<em class="property">class </em><tt class="descclassname">boto.emr.step.</tt><tt class="descname">HiveStep</tt><big>(</big><em>name</em>, <em>hive_file</em>, <em>hive_versions='latest'</em>, <em>hive_args=None</em><big>)</big><a class="headerlink" href="#boto.emr.step.HiveStep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hive script step</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.step.InstallHiveStep">
+<em class="property">class </em><tt class="descclassname">boto.emr.step.</tt><tt class="descname">InstallHiveStep</tt><big>(</big><em>hive_versions='latest'</em>, <em>hive_site=None</em><big>)</big><a class="headerlink" href="#boto.emr.step.InstallHiveStep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Install Hive on EMR step</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.step.InstallPigStep">
+<em class="property">class </em><tt class="descclassname">boto.emr.step.</tt><tt class="descname">InstallPigStep</tt><big>(</big><em>pig_versions='latest'</em><big>)</big><a class="headerlink" href="#boto.emr.step.InstallPigStep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Install pig on emr step</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.step.JarStep">
+<em class="property">class </em><tt class="descclassname">boto.emr.step.</tt><tt class="descname">JarStep</tt><big>(</big><em>name</em>, <em>jar</em>, <em>main_class=None</em>, <em>action_on_failure='TERMINATE_JOB_FLOW'</em>, <em>step_args=None</em><big>)</big><a class="headerlink" href="#boto.emr.step.JarStep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom jar step</p>
+<p>A elastic mapreduce step that executes a jar</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the step</li>
+<li><strong>jar</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; S3 URI to the Jar file</li>
+<li><strong>main_class</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The class to execute in the jar</li>
+<li><strong>action_on_failure</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; An action, defined in the EMR docs to
+take on failure.</li>
+<li><strong>step_args</strong> (<em>list(str)</em>) &#8211; A list of arguments to pass to the step</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.emr.step.JarStep.args">
+<tt class="descname">args</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.emr.step.JarStep.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.step.JarStep.jar">
+<tt class="descname">jar</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.emr.step.JarStep.jar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.step.JarStep.main_class">
+<tt class="descname">main_class</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.emr.step.JarStep.main_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.step.PigBase">
+<em class="property">class </em><tt class="descclassname">boto.emr.step.</tt><tt class="descname">PigBase</tt><big>(</big><em>name</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.emr.step.PigBase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.step.PigStep">
+<em class="property">class </em><tt class="descclassname">boto.emr.step.</tt><tt class="descname">PigStep</tt><big>(</big><em>name</em>, <em>pig_file</em>, <em>pig_versions='latest'</em>, <em>pig_args=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#boto.emr.step.PigStep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pig script step</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.step.ScriptRunnerStep">
+<em class="property">class </em><tt class="descclassname">boto.emr.step.</tt><tt class="descname">ScriptRunnerStep</tt><big>(</big><em>name</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.emr.step.ScriptRunnerStep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.step.Step">
+<em class="property">class </em><tt class="descclassname">boto.emr.step.</tt><tt class="descname">Step</tt><a class="headerlink" href="#boto.emr.step.Step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Jobflow Step base class</p>
+<dl class="method">
+<dt id="boto.emr.step.Step.args">
+<tt class="descname">args</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.emr.step.Step.args" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list(str)</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">List of arguments for the step</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.step.Step.jar">
+<tt class="descname">jar</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.emr.step.Step.jar" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">URI to the jar</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.step.Step.main_class">
+<tt class="descname">main_class</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.emr.step.Step.main_class" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The main class name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.step.StreamingStep">
+<em class="property">class </em><tt class="descclassname">boto.emr.step.</tt><tt class="descname">StreamingStep</tt><big>(</big><em>name</em>, <em>mapper</em>, <em>reducer=None</em>, <em>combiner=None</em>, <em>action_on_failure='TERMINATE_JOB_FLOW'</em>, <em>cache_files=None</em>, <em>cache_archives=None</em>, <em>step_args=None</em>, <em>input=None</em>, <em>output=None</em>, <em>jar='/home/hadoop/contrib/streaming/hadoop-streaming.jar'</em><big>)</big><a class="headerlink" href="#boto.emr.step.StreamingStep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hadoop streaming step</p>
+<p>A hadoop streaming elastic mapreduce step</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the step</li>
+<li><strong>mapper</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The mapper URI</li>
+<li><strong>reducer</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The reducer URI</li>
+<li><strong>combiner</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The combiner URI. Only works for Hadoop 0.20
+and later!</li>
+<li><strong>action_on_failure</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; An action, defined in the EMR docs to
+take on failure.</li>
+<li><strong>cache_files</strong> (<em>list(str)</em>) &#8211; A list of cache files to be bundled with the job</li>
+<li><strong>cache_archives</strong> (<em>list(str)</em>) &#8211; A list of jar archives to be bundled with
+the job</li>
+<li><strong>step_args</strong> (<em>list(str)</em>) &#8211; A list of arguments to pass to the step</li>
+<li><strong>input</strong> (<em>str or a list of str</em>) &#8211; The input uri</li>
+<li><strong>output</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The output uri</li>
+<li><strong>jar</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The hadoop streaming jar. This can be either a local
+path on the master node, or an s3:// URI.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.emr.step.StreamingStep.args">
+<tt class="descname">args</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.emr.step.StreamingStep.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.step.StreamingStep.jar">
+<tt class="descname">jar</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.emr.step.StreamingStep.jar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.step.StreamingStep.main_class">
+<tt class="descname">main_class</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.emr.step.StreamingStep.main_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.emr.emrobject">
+<span id="boto-emr-emrobject"></span><h2>boto.emr.emrobject<a class="headerlink" href="#module-boto.emr.emrobject" title="Permalink to this headline">¶</a></h2>
+<p>This module contains EMR response objects</p>
+<dl class="class">
+<dt id="boto.emr.emrobject.AddInstanceGroupsResponse">
+<em class="property">class </em><tt class="descclassname">boto.emr.emrobject.</tt><tt class="descname">AddInstanceGroupsResponse</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.AddInstanceGroupsResponse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.emrobject.Arg">
+<em class="property">class </em><tt class="descclassname">boto.emr.emrobject.</tt><tt class="descname">Arg</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.Arg" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.emr.emrobject.Arg.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.Arg.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.emrobject.BootstrapAction">
+<em class="property">class </em><tt class="descclassname">boto.emr.emrobject.</tt><tt class="descname">BootstrapAction</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.BootstrapAction" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.emr.emrobject.BootstrapAction.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.BootstrapAction.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.emrobject.EmrObject">
+<em class="property">class </em><tt class="descclassname">boto.emr.emrobject.</tt><tt class="descname">EmrObject</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.EmrObject" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.emr.emrobject.EmrObject.endElement">
+<tt class="descname">endElement</tt><big>(</big><em>name</em>, <em>value</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.EmrObject.endElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.emr.emrobject.EmrObject.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.EmrObject.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.emrobject.InstanceGroup">
+<em class="property">class </em><tt class="descclassname">boto.emr.emrobject.</tt><tt class="descname">InstanceGroup</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.InstanceGroup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.emrobject.JobFlow">
+<em class="property">class </em><tt class="descclassname">boto.emr.emrobject.</tt><tt class="descname">JobFlow</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.JobFlow" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.emr.emrobject.JobFlow.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.JobFlow.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.emrobject.KeyValue">
+<em class="property">class </em><tt class="descclassname">boto.emr.emrobject.</tt><tt class="descname">KeyValue</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.KeyValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.emrobject.ModifyInstanceGroupsResponse">
+<em class="property">class </em><tt class="descclassname">boto.emr.emrobject.</tt><tt class="descname">ModifyInstanceGroupsResponse</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.ModifyInstanceGroupsResponse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.emrobject.RunJobFlowResponse">
+<em class="property">class </em><tt class="descclassname">boto.emr.emrobject.</tt><tt class="descname">RunJobFlowResponse</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.RunJobFlowResponse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="boto.emr.emrobject.Step">
+<em class="property">class </em><tt class="descclassname">boto.emr.emrobject.</tt><tt class="descname">Step</tt><big>(</big><em>connection=None</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.Step" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.emr.emrobject.Step.startElement">
+<tt class="descname">startElement</tt><big>(</big><em>name</em>, <em>attrs</em>, <em>connection</em><big>)</big><a class="headerlink" href="#boto.emr.emrobject.Step.startElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">EMR</a><ul>
+<li><a class="reference internal" href="#module-boto.emr">boto.emr</a></li>
+<li><a class="reference internal" href="#module-boto.emr.connection">boto.emr.connection</a></li>
+<li><a class="reference internal" href="#module-boto.emr.step">boto.emr.step</a></li>
+<li><a class="reference internal" href="#module-boto.emr.emrobject">boto.emr.emrobject</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ecs.html"
+                        title="previous chapter">ECS</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="file.html"
+                        title="next chapter">file</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/emr.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="file.html" title="file"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ecs.html" title="ECS"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" >API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

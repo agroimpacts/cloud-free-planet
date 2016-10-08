@@ -1,0 +1,2262 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DynamoDB &mdash; boto v2.8.0-dev</title>
+    <link rel="stylesheet" href="../_static/boto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'HEAD',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="boto v2.8.0-dev" href="../index.html" />
+    <link rel="up" title="API Reference" href="index.html" />
+    <link rel="next" title="EC2" href="ec2.html" />
+    <link rel="prev" title="contrib" href="contrib.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ec2.html" title="EC2"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="contrib.html" title="contrib"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="dynamodb">
+<h1>DynamoDB<a class="headerlink" href="#dynamodb" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-boto.dynamodb">
+<span id="boto-dynamodb"></span><h2>boto.dynamodb<a class="headerlink" href="#module-boto.dynamodb" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="boto.dynamodb.connect_to_region">
+<tt class="descclassname">boto.dynamodb.</tt><tt class="descname">connect_to_region</tt><big>(</big><em>region_name</em>, <em>**kw_params</em><big>)</big><a class="headerlink" href="#boto.dynamodb.connect_to_region" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.dynamodb.regions">
+<tt class="descclassname">boto.dynamodb.</tt><tt class="descname">regions</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.regions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all available regions for the Amazon DynamoDB service.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list of <tt class="xref py py-class docutils literal"><span class="pre">boto.regioninfo.RegionInfo</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.dynamodb.layer1">
+<span id="boto-dynamodb-layer1"></span><h2>boto.dynamodb.layer1<a class="headerlink" href="#module-boto.dynamodb.layer1" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.dynamodb.layer1.Layer1">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.layer1.</tt><tt class="descname">Layer1</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>is_secure=True</em>, <em>port=None</em>, <em>proxy=None</em>, <em>proxy_port=None</em>, <em>debug=0</em>, <em>security_token=None</em>, <em>region=None</em>, <em>validate_certs=True</em>, <em>validate_checksums=True</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the lowest-level interface to DynamoDB.  Methods at this
+layer map directly to API requests and parameters to the methods
+are either simple, scalar values or they are the Python equivalent
+of the JSON input as defined in the DynamoDB Developer&#8217;s Guide.
+All responses are direct decoding of the JSON response bodies to
+Python data structures via the json or simplejson modules.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><strong>throughput_exceeded_events</strong> &#8211; An integer variable that
+keeps a running total of the number of ThroughputExceeded
+responses this connection has received from Amazon DynamoDB.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="boto.dynamodb.layer1.Layer1.ConditionalCheckFailedError">
+<tt class="descname">ConditionalCheckFailedError</tt><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.ConditionalCheckFailedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>The error response returned when a conditional check fails</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.layer1.Layer1.DefaultRegionName">
+<tt class="descname">DefaultRegionName</tt><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.DefaultRegionName" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default region name for DynamoDB API.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.layer1.Layer1.NumberRetries">
+<tt class="descname">NumberRetries</tt><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.NumberRetries" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of times an error is retried.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.layer1.Layer1.ResponseError">
+<tt class="descname">ResponseError</tt><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.ResponseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">DynamoDBResponseError</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.layer1.Layer1.ServiceName">
+<tt class="descname">ServiceName</tt><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.ServiceName" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the Service</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.layer1.Layer1.SessionExpiredError">
+<tt class="descname">SessionExpiredError</tt><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.SessionExpiredError" title="Permalink to this definition">¶</a></dt>
+<dd><p>The error response returned when session token has expired</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.layer1.Layer1.ThruputError">
+<tt class="descname">ThruputError</tt><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.ThruputError" title="Permalink to this definition">¶</a></dt>
+<dd><p>The error response returned when provisioned throughput is exceeded</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.layer1.Layer1.ValidationError">
+<tt class="descname">ValidationError</tt><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.ValidationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>The error response returned when an item is invalid in some way</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.layer1.Layer1.Version">
+<tt class="descname">Version</tt><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.Version" title="Permalink to this definition">¶</a></dt>
+<dd><p>DynamoDB API version.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.batch_get_item">
+<tt class="descname">batch_get_item</tt><big>(</big><em>request_items</em>, <em>object_hook=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.batch_get_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of attributes for a multiple items in
+multiple tables using their primary keys.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request_items</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the RequestItems
+data structure defined by DynamoDB.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.batch_write_item">
+<tt class="descname">batch_write_item</tt><big>(</big><em>request_items</em>, <em>object_hook=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.batch_write_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>This operation enables you to put or delete several items
+across multiple tables in a single API call.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request_items</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the RequestItems
+data structure defined by DynamoDB.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.create_table">
+<tt class="descname">create_table</tt><big>(</big><em>table_name</em>, <em>schema</em>, <em>provisioned_throughput</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.create_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new table to your account.  The table name must be unique
+among those associated with the account issuing the request.
+This request triggers an asynchronous workflow to begin creating
+the table.  When the workflow is complete, the state of the
+table will be ACTIVE.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the table to create.</li>
+<li><strong>schema</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the KeySchema data structure
+as defined by DynamoDB</li>
+<li><strong>provisioned_throughput</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the
+ProvisionedThroughput data structure defined by
+DynamoDB.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.delete_item">
+<tt class="descname">delete_item</tt><big>(</big><em>table_name</em>, <em>key</em>, <em>expected=None</em>, <em>return_values=None</em>, <em>object_hook=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.delete_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete an item and all of it&#8217;s attributes by primary key.
+You can perform a conditional delete by specifying an
+expected rule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the table containing the item.</li>
+<li><strong>key</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the Key data structure
+defined by DynamoDB.</li>
+<li><strong>expected</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the Expected
+data structure defined by DynamoDB.</li>
+<li><strong>return_values</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Controls the return of attribute
+name-value pairs before then were changed.  Possible
+values are: None or &#8216;ALL_OLD&#8217;. If &#8216;ALL_OLD&#8217; is
+specified and the item is overwritten, the content
+of the old item is returned.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.delete_table">
+<tt class="descname">delete_table</tt><big>(</big><em>table_name</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.delete_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the table and all of it&#8217;s data.  After this request
+the table will be in the DELETING state until DynamoDB
+completes the delete operation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>table_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the table to delete.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.describe_table">
+<tt class="descname">describe_table</tt><big>(</big><em>table_name</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.describe_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information about the table including current
+state of the table, primary key schema and when the
+table was created.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>table_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the table to describe.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.get_item">
+<tt class="descname">get_item</tt><big>(</big><em>table_name</em>, <em>key</em>, <em>attributes_to_get=None</em>, <em>consistent_read=False</em>, <em>object_hook=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.get_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of attributes for an item that matches
+the supplied key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the table containing the item.</li>
+<li><strong>key</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the Key data structure
+defined by DynamoDB.</li>
+<li><strong>attributes_to_get</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of attribute names.
+If supplied, only the specified attribute names will
+be returned.  Otherwise, all attributes will be returned.</li>
+<li><strong>consistent_read</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, a consistent read
+request is issued.  Otherwise, an eventually consistent
+request is issued.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.list_tables">
+<tt class="descname">list_tables</tt><big>(</big><em>limit=None</em>, <em>start_table=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.list_tables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary of results.  The dictionary contains
+a <strong>TableNames</strong> key whose value is a list of the table names.
+The dictionary could also contain a <strong>LastEvaluatedTableName</strong>
+key whose value would be the last table name returned if
+the complete list of table names was not returned.  This
+value would then be passed as the <tt class="docutils literal"><span class="pre">start_table</span></tt> parameter on
+a subsequent call to this method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>limit</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of tables to return.</li>
+<li><strong>start_table</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the table that starts the
+list.  If you ran a previous list_tables and not
+all results were returned, the response dict would
+include a LastEvaluatedTableName attribute.  Use
+that value here to continue the listing.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.make_request">
+<tt class="descname">make_request</tt><big>(</big><em>action</em>, <em>body=''</em>, <em>object_hook=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.make_request" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><tt class="docutils literal"><span class="pre">DynamoDBExpiredTokenError</span></tt> if the security token expires.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.put_item">
+<tt class="descname">put_item</tt><big>(</big><em>table_name</em>, <em>item</em>, <em>expected=None</em>, <em>return_values=None</em>, <em>object_hook=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.put_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new item or replace an old item with a new
+item (including all attributes).  If an item already
+exists in the specified table with the same primary
+key, the new item will completely replace the old item.
+You can perform a conditional put by specifying an
+expected rule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the table in which to put the item.</li>
+<li><strong>item</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the Item data structure
+defined by DynamoDB.</li>
+<li><strong>expected</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the Expected
+data structure defined by DynamoDB.</li>
+<li><strong>return_values</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Controls the return of attribute
+name-value pairs before then were changed.  Possible
+values are: None or &#8216;ALL_OLD&#8217;. If &#8216;ALL_OLD&#8217; is
+specified and the item is overwritten, the content
+of the old item is returned.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.query">
+<tt class="descname">query</tt><big>(</big><em>table_name</em>, <em>hash_key_value</em>, <em>range_key_conditions=None</em>, <em>attributes_to_get=None</em>, <em>limit=None</em>, <em>consistent_read=False</em>, <em>scan_index_forward=True</em>, <em>exclusive_start_key=None</em>, <em>object_hook=None</em>, <em>count=False</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a query of DynamoDB.  This version is currently punting
+and expecting you to provide a full and correct JSON body
+which is passed as is to DynamoDB.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the table to query.</li>
+<li><strong>key</strong> &#8211; A DynamoDB-style HashKeyValue.</li>
+<li><strong>range_key_conditions</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the
+RangeKeyConditions data structure.</li>
+<li><strong>attributes_to_get</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of attribute names.
+If supplied, only the specified attribute names will
+be returned.  Otherwise, all attributes will be returned.</li>
+<li><strong>limit</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of items to return.</li>
+<li><strong>count</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, Amazon DynamoDB returns a total
+number of items for the Query operation, even if the
+operation has no matching items for the assigned filter.</li>
+<li><strong>consistent_read</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, a consistent read
+request is issued.  Otherwise, an eventually consistent
+request is issued.</li>
+<li><strong>scan_index_forward</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Specified forward or backward
+traversal of the index.  Default is forward (True).</li>
+<li><strong>exclusive_start_key</strong> (<em>list or tuple</em>) &#8211; Primary key of the item from
+which to continue an earlier query.  This would be
+provided as the LastEvaluatedKey in that query.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.scan">
+<tt class="descname">scan</tt><big>(</big><em>table_name</em>, <em>scan_filter=None</em>, <em>attributes_to_get=None</em>, <em>limit=None</em>, <em>exclusive_start_key=None</em>, <em>object_hook=None</em>, <em>count=False</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a scan of DynamoDB.  This version is currently punting
+and expecting you to provide a full and correct JSON body
+which is passed as is to DynamoDB.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the table to scan.</li>
+<li><strong>scan_filter</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the
+ScanFilter data structure.</li>
+<li><strong>attributes_to_get</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of attribute names.
+If supplied, only the specified attribute names will
+be returned.  Otherwise, all attributes will be returned.</li>
+<li><strong>limit</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of items to evaluate.</li>
+<li><strong>count</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, Amazon DynamoDB returns a total
+number of items for the Scan operation, even if the
+operation has no matching items for the assigned filter.</li>
+<li><strong>exclusive_start_key</strong> (<em>list or tuple</em>) &#8211; Primary key of the item from
+which to continue an earlier query.  This would be
+provided as the LastEvaluatedKey in that query.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.update_item">
+<tt class="descname">update_item</tt><big>(</big><em>table_name</em>, <em>key</em>, <em>attribute_updates</em>, <em>expected=None</em>, <em>return_values=None</em>, <em>object_hook=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.update_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Edits an existing item&#8217;s attributes. You can perform a conditional
+update (insert a new attribute name-value pair if it doesn&#8217;t exist,
+or replace an existing name-value pair if it has certain expected
+attribute values).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the table.</li>
+<li><strong>key</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the Key data structure
+defined by DynamoDB which identifies the item to be updated.</li>
+<li><strong>attribute_updates</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the AttributeUpdates
+data structure defined by DynamoDB.</li>
+<li><strong>expected</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the Expected
+data structure defined by DynamoDB.</li>
+<li><strong>return_values</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Controls the return of attribute
+name-value pairs before then were changed.  Possible
+values are: None or &#8216;ALL_OLD&#8217;. If &#8216;ALL_OLD&#8217; is
+specified and the item is overwritten, the content
+of the old item is returned.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer1.Layer1.update_table">
+<tt class="descname">update_table</tt><big>(</big><em>table_name</em>, <em>provisioned_throughput</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer1.Layer1.update_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the provisioned throughput for a given table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the table to update.</li>
+<li><strong>provisioned_throughput</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A Python version of the
+ProvisionedThroughput data structure defined by
+DynamoDB.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.dynamodb.layer2">
+<span id="boto-dynamodb-layer2"></span><h2>boto.dynamodb.layer2<a class="headerlink" href="#module-boto.dynamodb.layer2" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.dynamodb.layer2.Layer2">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.layer2.</tt><tt class="descname">Layer2</tt><big>(</big><em>aws_access_key_id=None</em>, <em>aws_secret_access_key=None</em>, <em>is_secure=True</em>, <em>port=None</em>, <em>proxy=None</em>, <em>proxy_port=None</em>, <em>debug=0</em>, <em>security_token=None</em>, <em>region=None</em>, <em>validate_certs=True</em>, <em>dynamizer=&lt;class 'boto.dynamodb.types.LossyFloatDynamizer'&gt;</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.batch_get_item">
+<tt class="descname">batch_get_item</tt><big>(</big><em>batch_list</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.batch_get_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of attributes for a multiple items in
+multiple tables using their primary keys.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch_list</strong> (<a class="reference internal" href="#boto.dynamodb.batch.BatchList" title="boto.dynamodb.batch.BatchList"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.batch.BatchList</span></tt></a>) &#8211; A BatchList object which consists of a
+list of <tt class="xref py py-class docutils literal"><span class="pre">boto.dynamoddb.batch.Batch</span></tt> objects.
+Each Batch object contains the information about one
+batch of objects that you wish to retrieve in this
+request.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.batch_write_item">
+<tt class="descname">batch_write_item</tt><big>(</big><em>batch_list</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.batch_write_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs multiple Puts and Deletes in one batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch_list</strong> (<a class="reference internal" href="#boto.dynamodb.batch.BatchWriteList" title="boto.dynamodb.batch.BatchWriteList"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.batch.BatchWriteList</span></tt></a>) &#8211; A BatchWriteList object which consists of a
+list of <tt class="xref py py-class docutils literal"><span class="pre">boto.dynamoddb.batch.BatchWrite</span></tt> objects.
+Each Batch object contains the information about one
+batch of objects that you wish to put or delete.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.build_key_from_values">
+<tt class="descname">build_key_from_values</tt><big>(</big><em>schema</em>, <em>hash_key</em>, <em>range_key=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.build_key_from_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a Key structure to be used for accessing items
+in Amazon DynamoDB.  This method takes the supplied hash_key
+and optional range_key and validates them against the
+schema.  If there is a mismatch, a TypeError is raised.
+Otherwise, a Python dict version of a Amazon DynamoDB Key
+data structure is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hash_key</strong> (<em>int|float|str|unicode|Binary</em>) &#8211; The hash key of the item you are looking for.
+The type of the hash key should match the type defined in
+the schema.</li>
+<li><strong>range_key</strong> (<em>int|float|str|unicode|Binary</em>) &#8211; The range key of the item your are looking for.
+This should be supplied only if the schema requires a
+range key.  The type of the range key should match the
+type defined in the schema.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.create_schema">
+<tt class="descname">create_schema</tt><big>(</big><em>hash_key_name</em>, <em>hash_key_proto_value</em>, <em>range_key_name=None</em>, <em>range_key_proto_value=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.create_schema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Schema object used when creating a Table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hash_key_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the HashKey for the schema.</li>
+<li><strong>hash_key_proto_value</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; A sample or prototype of the type
+of value you want to use for the HashKey.  Alternatively,
+you can also just pass in the Python type (e.g. int, float, etc.).</li>
+<li><strong>range_key_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the RangeKey for the schema.
+This parameter is optional.</li>
+<li><strong>range_key_proto_value</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; A sample or prototype of the type
+of value you want to use for the RangeKey.  Alternatively,
+you can also pass in the Python type (e.g. int, float, etc.)
+This parameter is optional.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.create_table">
+<tt class="descname">create_table</tt><big>(</big><em>name</em>, <em>schema</em>, <em>read_units</em>, <em>write_units</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.create_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Amazon DynamoDB table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the desired table.</li>
+<li><strong>schema</strong> (<a class="reference internal" href="#boto.dynamodb.schema.Schema" title="boto.dynamodb.schema.Schema"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.schema.Schema</span></tt></a>) &#8211; The Schema object that defines the schema used
+by this table.</li>
+<li><strong>read_units</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The value for ReadCapacityUnits.</li>
+<li><strong>write_units</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The value for WriteCapacityUnits.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A Table object representing the new Amazon DynamoDB table.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.delete_item">
+<tt class="descname">delete_item</tt><big>(</big><em>item</em>, <em>expected_value=None</em>, <em>return_values=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.delete_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the item from Amazon DynamoDB.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>item</strong> (<a class="reference internal" href="#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a>) &#8211; The Item to delete from Amazon DynamoDB.</li>
+<li><strong>expected_value</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A dictionary of name/value pairs that you expect.
+This dictionary should have name/value pairs where the name
+is the name of the attribute and the value is either the value
+you are expecting or False if you expect the attribute not to
+exist.</li>
+<li><strong>return_values</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Controls the return of attribute
+name-value pairs before then were changed.  Possible
+values are: None or &#8216;ALL_OLD&#8217;. If &#8216;ALL_OLD&#8217; is
+specified and the item is overwritten, the content
+of the old item is returned.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.delete_table">
+<tt class="descname">delete_table</tt><big>(</big><em>table</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.delete_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete this table and all items in it.  After calling this
+the Table objects status attribute will be set to &#8216;DELETING&#8217;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>table</strong> (<a class="reference internal" href="#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a>) &#8211; The Table object that is being deleted.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.describe_table">
+<tt class="descname">describe_table</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.describe_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve information about an existing table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the desired table.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.dynamize_attribute_updates">
+<tt class="descname">dynamize_attribute_updates</tt><big>(</big><em>pending_updates</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.dynamize_attribute_updates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a set of pending item updates into the structure
+required by Layer1.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.dynamize_expected_value">
+<tt class="descname">dynamize_expected_value</tt><big>(</big><em>expected_value</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.dynamize_expected_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an expected_value parameter into the data structure
+required for Layer1.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.dynamize_item">
+<tt class="descname">dynamize_item</tt><big>(</big><em>item</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.dynamize_item" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.dynamize_last_evaluated_key">
+<tt class="descname">dynamize_last_evaluated_key</tt><big>(</big><em>last_evaluated_key</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.dynamize_last_evaluated_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a last_evaluated_key parameter into the data structure
+required for Layer1.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.dynamize_range_key_condition">
+<tt class="descname">dynamize_range_key_condition</tt><big>(</big><em>range_key_condition</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.dynamize_range_key_condition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a layer2 range_key_condition parameter into the
+structure required by Layer1.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.dynamize_scan_filter">
+<tt class="descname">dynamize_scan_filter</tt><big>(</big><em>scan_filter</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.dynamize_scan_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a layer2 scan_filter parameter into the
+structure required by Layer1.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.get_item">
+<tt class="descname">get_item</tt><big>(</big><em>table</em>, <em>hash_key</em>, <em>range_key=None</em>, <em>attributes_to_get=None</em>, <em>consistent_read=False</em>, <em>item_class=&lt;class 'boto.dynamodb.item.Item'&gt;</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.get_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve an existing item from the table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table</strong> (<a class="reference internal" href="#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a>) &#8211; The Table object from which the item is retrieved.</li>
+<li><strong>hash_key</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; The HashKey of the requested item.  The
+type of the value must match the type defined in the
+schema for the table.</li>
+<li><strong>range_key</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; The optional RangeKey of the requested item.
+The type of the value must match the type defined in the
+schema for the table.</li>
+<li><strong>attributes_to_get</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of attribute names.
+If supplied, only the specified attribute names will
+be returned.  Otherwise, all attributes will be returned.</li>
+<li><strong>consistent_read</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, a consistent read
+request is issued.  Otherwise, an eventually consistent
+request is issued.</li>
+<li><strong>item_class</strong> (<em>Class</em>) &#8211; Allows you to override the class used
+to generate the items. This should be a subclass of
+<a class="reference internal" href="#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.get_table">
+<tt class="descname">get_table</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.get_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the Table object for an existing table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the desired table.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A Table object representing the table.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.list_tables">
+<tt class="descname">list_tables</tt><big>(</big><em>limit=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.list_tables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of the names of all tables associated with the
+current account and region.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>limit</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of tables to return.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.lookup">
+<tt class="descname">lookup</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.lookup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the Table object for an existing table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the desired table.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a></td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A Table object representing the table.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.new_batch_list">
+<tt class="descname">new_batch_list</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.new_batch_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new, empty <a class="reference internal" href="#boto.dynamodb.batch.BatchList" title="boto.dynamodb.batch.BatchList"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.batch.BatchList</span></tt></a>
+object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.new_batch_write_list">
+<tt class="descname">new_batch_write_list</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.new_batch_write_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new, empty <a class="reference internal" href="#boto.dynamodb.batch.BatchWriteList" title="boto.dynamodb.batch.BatchWriteList"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.batch.BatchWriteList</span></tt></a>
+object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.put_item">
+<tt class="descname">put_item</tt><big>(</big><em>item</em>, <em>expected_value=None</em>, <em>return_values=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.put_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store a new item or completely replace an existing item
+in Amazon DynamoDB.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>item</strong> (<a class="reference internal" href="#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a>) &#8211; The Item to write to Amazon DynamoDB.</li>
+<li><strong>expected_value</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A dictionary of name/value pairs that you expect.
+This dictionary should have name/value pairs where the name
+is the name of the attribute and the value is either the value
+you are expecting or False if you expect the attribute not to
+exist.</li>
+<li><strong>return_values</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Controls the return of attribute
+name-value pairs before then were changed.  Possible
+values are: None or &#8216;ALL_OLD&#8217;. If &#8216;ALL_OLD&#8217; is
+specified and the item is overwritten, the content
+of the old item is returned.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.query">
+<tt class="descname">query</tt><big>(</big><em>table</em>, <em>hash_key</em>, <em>range_key_condition=None</em>, <em>attributes_to_get=None</em>, <em>request_limit=None</em>, <em>max_results=None</em>, <em>consistent_read=False</em>, <em>scan_index_forward=True</em>, <em>exclusive_start_key=None</em>, <em>item_class=&lt;class 'boto.dynamodb.item.Item'&gt;</em>, <em>count=False</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a query on the table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>table</strong> (<a class="reference internal" href="#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a>) &#8211; The Table object that is being queried.</li>
+<li><strong>hash_key</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; The HashKey of the requested item.  The
+type of the value must match the type defined in the
+schema for the table.</li>
+<li><strong>range_key_condition</strong> (<tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.condition.Condition</span></tt>) &#8211; <p>A Condition object.
+Condition object can be one of the following types:</p>
+<p>EQ|LE|LT|GE|GT|BEGINS_WITH|BETWEEN</p>
+<p>The only condition which expects or will accept two
+values is &#8216;BETWEEN&#8217;, otherwise a single value should
+be passed to the Condition constructor.</p>
+</li>
+<li><strong>attributes_to_get</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of attribute names.
+If supplied, only the specified attribute names will
+be returned.  Otherwise, all attributes will be returned.</li>
+<li><strong>request_limit</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of items to retrieve
+from Amazon DynamoDB on each request.  You may want to set
+a specific request_limit based on the provisioned throughput
+of your table.  The default behavior is to retrieve as many
+results as possible per request.</li>
+<li><strong>max_results</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of results that will
+be retrieved from Amazon DynamoDB in total.  For example,
+if you only wanted to see the first 100 results from the
+query, regardless of how many were actually available, you
+could set max_results to 100 and the generator returned
+from the query method will only yeild 100 results max.</li>
+<li><strong>consistent_read</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, a consistent read
+request is issued.  Otherwise, an eventually consistent
+request is issued.</li>
+<li><strong>scan_index_forward</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Specified forward or backward
+traversal of the index.  Default is forward (True).</li>
+<li><strong>count</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, Amazon DynamoDB returns a total
+number of items for the Query operation, even if the
+operation has no matching items for the assigned filter.</li>
+<li><strong>exclusive_start_key</strong> (<em>list or tuple</em>) &#8211; Primary key of the item from
+which to continue an earlier query.  This would be
+provided as the LastEvaluatedKey in that query.</li>
+<li><strong>item_class</strong> (<em>Class</em>) &#8211; Allows you to override the class used
+to generate the items. This should be a subclass of
+<a class="reference internal" href="#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a></li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#boto.dynamodb.layer2.TableGenerator" title="boto.dynamodb.layer2.TableGenerator"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.layer2.TableGenerator</span></tt></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.scan">
+<tt class="descname">scan</tt><big>(</big><em>table</em>, <em>scan_filter=None</em>, <em>attributes_to_get=None</em>, <em>request_limit=None</em>, <em>max_results=None</em>, <em>exclusive_start_key=None</em>, <em>item_class=&lt;class 'boto.dynamodb.item.Item'&gt;</em>, <em>count=False</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a scan of DynamoDB.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>table</strong> (<a class="reference internal" href="#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a>) &#8211; The Table object that is being scanned.</li>
+<li><strong>scan_filter</strong> (<em>A dict</em>) &#8211; <p>A dictionary where the key is the
+attribute name and the value is a
+<tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.condition.Condition</span></tt> object.
+Valid Condition objects include:</p>
+<blockquote>
+<div><ul>
+<li>EQ - equal (1)</li>
+<li>NE - not equal (1)</li>
+<li>LE - less than or equal (1)</li>
+<li>LT - less than (1)</li>
+<li>GE - greater than or equal (1)</li>
+<li>GT - greater than (1)</li>
+<li>NOT_NULL - attribute exists (0, use None)</li>
+<li>NULL - attribute does not exist (0, use None)</li>
+<li>CONTAINS - substring or value in list (1)</li>
+<li>NOT_CONTAINS - absence of substring or value in list (1)</li>
+<li>BEGINS_WITH - substring prefix (1)</li>
+<li>IN - exact match in list (N)</li>
+<li>BETWEEN - &gt;= first value, &lt;= second value (2)</li>
+</ul>
+</div></blockquote>
+</li>
+<li><strong>attributes_to_get</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of attribute names.
+If supplied, only the specified attribute names will
+be returned.  Otherwise, all attributes will be returned.</li>
+<li><strong>request_limit</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of items to retrieve
+from Amazon DynamoDB on each request.  You may want to set
+a specific request_limit based on the provisioned throughput
+of your table.  The default behavior is to retrieve as many
+results as possible per request.</li>
+<li><strong>max_results</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of results that will
+be retrieved from Amazon DynamoDB in total.  For example,
+if you only wanted to see the first 100 results from the
+query, regardless of how many were actually available, you
+could set max_results to 100 and the generator returned
+from the query method will only yeild 100 results max.</li>
+<li><strong>count</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, Amazon DynamoDB returns a total
+number of items for the Scan operation, even if the
+operation has no matching items for the assigned filter.</li>
+<li><strong>exclusive_start_key</strong> (<em>list or tuple</em>) &#8211; Primary key of the item from
+which to continue an earlier query.  This would be
+provided as the LastEvaluatedKey in that query.</li>
+<li><strong>item_class</strong> (<em>Class</em>) &#8211; Allows you to override the class used
+to generate the items. This should be a subclass of
+<a class="reference internal" href="#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a></li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#boto.dynamodb.layer2.TableGenerator" title="boto.dynamodb.layer2.TableGenerator"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.layer2.TableGenerator</span></tt></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.table_from_schema">
+<tt class="descname">table_from_schema</tt><big>(</big><em>name</em>, <em>schema</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.table_from_schema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Table object from a schema.</p>
+<p>This method will create a Table object without
+making any API calls.  If you know the name and schema
+of the table, you can use this method instead of
+<tt class="docutils literal"><span class="pre">get_table</span></tt>.</p>
+<p>Example usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">table</span> <span class="o">=</span> <span class="n">layer2</span><span class="o">.</span><span class="n">table_from_schema</span><span class="p">(</span>
+    <span class="s">&#39;tablename&#39;</span><span class="p">,</span>
+    <span class="n">Schema</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">hash_key</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="s">&#39;N&#39;</span><span class="p">)))</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the table.</li>
+<li><strong>schema</strong> (<a class="reference internal" href="#boto.dynamodb.schema.Schema" title="boto.dynamodb.schema.Schema"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.schema.Schema</span></tt></a>) &#8211; The schema associated with the table.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A Table object representing the table.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.update_item">
+<tt class="descname">update_item</tt><big>(</big><em>item</em>, <em>expected_value=None</em>, <em>return_values=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.update_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit pending item updates to Amazon DynamoDB.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>item</strong> (<a class="reference internal" href="#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a>) &#8211; The Item to update in Amazon DynamoDB.  It is expected
+that you would have called the add_attribute, put_attribute
+and/or delete_attribute methods on this Item prior to calling
+this method.  Those queued changes are what will be updated.</li>
+<li><strong>expected_value</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A dictionary of name/value pairs that you
+expect.  This dictionary should have name/value pairs where the
+name is the name of the attribute and the value is either the
+value you are expecting or False if you expect the attribute
+not to exist.</li>
+<li><strong>return_values</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Controls the return of attribute name/value pairs
+before they were updated. Possible values are: None, &#8216;ALL_OLD&#8217;,
+&#8216;UPDATED_OLD&#8217;, &#8216;ALL_NEW&#8217; or &#8216;UPDATED_NEW&#8217;. If &#8216;ALL_OLD&#8217; is
+specified and the item is overwritten, the content of the old item
+is returned. If &#8216;ALL_NEW&#8217; is specified, then all the attributes of
+the new version of the item are returned. If &#8216;UPDATED_NEW&#8217; is
+specified, the new versions of only the updated attributes are
+returned.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.update_throughput">
+<tt class="descname">update_throughput</tt><big>(</big><em>table</em>, <em>read_units</em>, <em>write_units</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.update_throughput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the ProvisionedThroughput for the Amazon DynamoDB Table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table</strong> (<a class="reference internal" href="#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a>) &#8211; The Table object whose throughput is being updated.</li>
+<li><strong>read_units</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The new value for ReadCapacityUnits.</li>
+<li><strong>write_units</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The new value for WriteCapacityUnits.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.Layer2.use_decimals">
+<tt class="descname">use_decimals</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.Layer2.use_decimals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use the <tt class="docutils literal"><span class="pre">decimal.Decimal</span></tt> type for encoding/decoding numeric types.</p>
+<p>By default, ints/floats are used to represent numeric types
+(&#8216;N&#8217;, &#8216;NS&#8217;) received from DynamoDB.  Using the <tt class="docutils literal"><span class="pre">Decimal</span></tt>
+type is recommended to prevent loss of precision.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.dynamodb.layer2.TableGenerator">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.layer2.</tt><tt class="descname">TableGenerator</tt><big>(</big><em>table</em>, <em>callable</em>, <em>remaining</em>, <em>item_class</em>, <em>kwargs</em><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.TableGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is an object that wraps up the table_generator function.
+The only real reason to have this is that we want to be able
+to accumulate and return the ConsumedCapacityUnits element that
+is part of each response.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>last_evaluated_key</strong> &#8211; A sequence representing the key(s)
+of the item last evaluated, or None if no additional
+results are available.</li>
+<li><strong>remaining</strong> &#8211; The remaining quantity of results requested.</li>
+<li><strong>table</strong> &#8211; The table to which the call was made.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="boto.dynamodb.layer2.TableGenerator.consumed_units">
+<tt class="descname">consumed_units</tt><a class="headerlink" href="#boto.dynamodb.layer2.TableGenerator.consumed_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a float representing the ConsumedCapacityUnits accumulated.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.layer2.TableGenerator.count">
+<tt class="descname">count</tt><a class="headerlink" href="#boto.dynamodb.layer2.TableGenerator.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>The total number of items retrieved thus far.  This value changes with
+iteration and even when issuing a call with count=True, it is necessary
+to complete the iteration to assert an accurate count value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.layer2.TableGenerator.next_response">
+<tt class="descname">next_response</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.layer2.TableGenerator.next_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Issue a call and return the result.  You can invoke this method
+while iterating over the TableGenerator in order to skip to the
+next &#8220;page&#8221; of results.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.layer2.TableGenerator.response">
+<tt class="descname">response</tt><a class="headerlink" href="#boto.dynamodb.layer2.TableGenerator.response" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current response to the call from DynamoDB.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.layer2.TableGenerator.scanned_count">
+<tt class="descname">scanned_count</tt><a class="headerlink" href="#boto.dynamodb.layer2.TableGenerator.scanned_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>As above, but representing the total number of items scanned by
+DynamoDB, without regard to any filters.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.dynamodb.table">
+<span id="boto-dynamodb-table"></span><h2>boto.dynamodb.table<a class="headerlink" href="#module-boto.dynamodb.table" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.dynamodb.table.Table">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.table.</tt><tt class="descname">Table</tt><big>(</big><em>layer2</em>, <em>response</em><big>)</big><a class="headerlink" href="#boto.dynamodb.table.Table" title="Permalink to this definition">¶</a></dt>
+<dd><p>An Amazon DynamoDB table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; The name of the table.</li>
+<li><strong>create_time</strong> &#8211; The date and time that the table was created.</li>
+<li><strong>status</strong> &#8211; The current status of the table.  One of:
+&#8216;ACTIVE&#8217;, &#8216;UPDATING&#8217;, &#8216;DELETING&#8217;.</li>
+<li><strong>schema</strong> &#8211; A <a class="reference internal" href="#boto.dynamodb.schema.Schema" title="boto.dynamodb.schema.Schema"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.schema.Schema</span></tt></a> object representing
+the schema defined for the table.</li>
+<li><strong>item_count</strong> &#8211; The number of items in the table.  This value is
+set only when the Table object is created or refreshed and
+may not reflect the actual count.</li>
+<li><strong>size_bytes</strong> &#8211; Total size of the specified table, in bytes.
+Amazon DynamoDB updates this value approximately every six hours.
+Recent changes might not be reflected in this value.</li>
+<li><strong>read_units</strong> &#8211; The ReadCapacityUnits of the tables
+Provisioned Throughput.</li>
+<li><strong>write_units</strong> &#8211; The WriteCapacityUnits of the tables
+Provisioned Throughput.</li>
+<li><strong>schema</strong> &#8211; The Schema object associated with the table.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>layer2</strong> (<a class="reference internal" href="#boto.dynamodb.layer2.Layer2" title="boto.dynamodb.layer2.Layer2"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.layer2.Layer2</span></tt></a>) &#8211; A <cite>Layer2</cite> api object.</li>
+<li><strong>response</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; The output of
+<cite>boto.dynamodb.layer1.Layer1.describe_table</cite>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.dynamodb.table.Table.batch_get_item">
+<tt class="descname">batch_get_item</tt><big>(</big><em>keys</em>, <em>attributes_to_get=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.table.Table.batch_get_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a set of attributes for a multiple items from a single table
+using their primary keys. This abstraction removes the 100 Items per
+batch limitations as well as the &#8220;UnprocessedKeys&#8221; logic.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>keys</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of scalar or tuple values.  Each element in the
+list represents one Item to retrieve.  If the schema for the
+table has both a HashKey and a RangeKey, each element in the
+list should be a tuple consisting of (hash_key, range_key).  If
+the schema for the table contains only a HashKey, each element
+in the list should be a scalar value of the appropriate type
+for the table schema. NOTE: The maximum number of items that
+can be retrieved for a single operation is 100. Also, the
+number of items retrieved is constrained by a 1 MB size limit.</li>
+<li><strong>attributes_to_get</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of attribute names.
+If supplied, only the specified attribute names will
+be returned.  Otherwise, all attributes will be returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A TableBatchGenerator (generator) object which will
+iterate over all results</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#boto.dynamodb.table.TableBatchGenerator" title="boto.dynamodb.table.TableBatchGenerator"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.TableBatchGenerator</span></tt></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="boto.dynamodb.table.Table.create_from_schema">
+<em class="property">classmethod </em><tt class="descname">create_from_schema</tt><big>(</big><em>layer2</em>, <em>name</em>, <em>schema</em><big>)</big><a class="headerlink" href="#boto.dynamodb.table.Table.create_from_schema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Table object.</p>
+<p>If you know the name and schema of your table, you can
+create a <tt class="docutils literal"><span class="pre">Table</span></tt> object without having to make any
+API calls (normally an API call is made to retrieve
+the schema of a table).</p>
+<p>Example usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">create_from_schema</span><span class="p">(</span>
+    <span class="n">boto</span><span class="o">.</span><span class="n">connect_dynamodb</span><span class="p">(),</span>
+    <span class="s">&#39;tablename&#39;</span><span class="p">,</span>
+    <span class="n">Schema</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">hash_key</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;keyname&#39;</span><span class="p">,</span> <span class="s">&#39;N&#39;</span><span class="p">)))</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>layer2</strong> (<a class="reference internal" href="#boto.dynamodb.layer2.Layer2" title="boto.dynamodb.layer2.Layer2"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.layer2.Layer2</span></tt></a>) &#8211; A <tt class="docutils literal"><span class="pre">Layer2</span></tt> api object.</li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the table.</li>
+<li><strong>schema</strong> (<a class="reference internal" href="#boto.dynamodb.schema.Schema" title="boto.dynamodb.schema.Schema"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.schema.Schema</span></tt></a>) &#8211; The schema associated with the table.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a></p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A Table object representing the table.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.table.Table.create_time">
+<tt class="descname">create_time</tt><a class="headerlink" href="#boto.dynamodb.table.Table.create_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.table.Table.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.table.Table.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete this table and all items in it.  After calling this
+the Table objects status attribute will be set to &#8216;DELETING&#8217;.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.table.Table.get_item">
+<tt class="descname">get_item</tt><big>(</big><em>hash_key</em>, <em>range_key=None</em>, <em>attributes_to_get=None</em>, <em>consistent_read=False</em>, <em>item_class=&lt;class 'boto.dynamodb.item.Item'&gt;</em><big>)</big><a class="headerlink" href="#boto.dynamodb.table.Table.get_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve an existing item from the table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hash_key</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; The HashKey of the requested item.  The
+type of the value must match the type defined in the
+schema for the table.</li>
+<li><strong>range_key</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; The optional RangeKey of the requested item.
+The type of the value must match the type defined in the
+schema for the table.</li>
+<li><strong>attributes_to_get</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of attribute names.
+If supplied, only the specified attribute names will
+be returned.  Otherwise, all attributes will be returned.</li>
+<li><strong>consistent_read</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, a consistent read
+request is issued.  Otherwise, an eventually consistent
+request is issued.</li>
+<li><strong>item_class</strong> (<em>Class</em>) &#8211; Allows you to override the class used
+to generate the items. This should be a subclass of
+<a class="reference internal" href="#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.table.Table.has_item">
+<tt class="descname">has_item</tt><big>(</big><em>hash_key</em>, <em>range_key=None</em>, <em>consistent_read=False</em><big>)</big><a class="headerlink" href="#boto.dynamodb.table.Table.has_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the table to see if the Item with the specified <tt class="docutils literal"><span class="pre">hash_key</span></tt>
+exists. This may save a tiny bit of time/bandwidth over a
+straight <a class="reference internal" href="#boto.dynamodb.table.Table.get_item" title="boto.dynamodb.table.Table.get_item"><tt class="xref py py-meth docutils literal"><span class="pre">get_item()</span></tt></a> if you have no intention to touch
+the data that is returned, since this method specifically tells
+Amazon not to return anything but the Item&#8217;s key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>hash_key</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; The HashKey of the requested item.  The
+type of the value must match the type defined in the
+schema for the table.</li>
+<li><strong>range_key</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; The optional RangeKey of the requested item.
+The type of the value must match the type defined in the
+schema for the table.</li>
+<li><strong>consistent_read</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, a consistent read
+request is issued.  Otherwise, an eventually consistent
+request is issued.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">bool</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><tt class="xref docutils literal"><span class="pre">True</span></tt> if the Item exists, <tt class="xref docutils literal"><span class="pre">False</span></tt> if not.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.table.Table.item_count">
+<tt class="descname">item_count</tt><a class="headerlink" href="#boto.dynamodb.table.Table.item_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.table.Table.lookup">
+<tt class="descname">lookup</tt><big>(</big><em>hash_key</em>, <em>range_key=None</em>, <em>attributes_to_get=None</em>, <em>consistent_read=False</em>, <em>item_class=&lt;class 'boto.dynamodb.item.Item'&gt;</em><big>)</big><a class="headerlink" href="#boto.dynamodb.table.Table.lookup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve an existing item from the table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hash_key</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; The HashKey of the requested item.  The
+type of the value must match the type defined in the
+schema for the table.</li>
+<li><strong>range_key</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; The optional RangeKey of the requested item.
+The type of the value must match the type defined in the
+schema for the table.</li>
+<li><strong>attributes_to_get</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of attribute names.
+If supplied, only the specified attribute names will
+be returned.  Otherwise, all attributes will be returned.</li>
+<li><strong>consistent_read</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, a consistent read
+request is issued.  Otherwise, an eventually consistent
+request is issued.</li>
+<li><strong>item_class</strong> (<em>Class</em>) &#8211; Allows you to override the class used
+to generate the items. This should be a subclass of
+<a class="reference internal" href="#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.table.Table.name">
+<tt class="descname">name</tt><a class="headerlink" href="#boto.dynamodb.table.Table.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.table.Table.new_item">
+<tt class="descname">new_item</tt><big>(</big><em>hash_key=None</em>, <em>range_key=None</em>, <em>attrs=None</em>, <em>item_class=&lt;class 'boto.dynamodb.item.Item'&gt;</em><big>)</big><a class="headerlink" href="#boto.dynamodb.table.Table.new_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an new, unsaved Item which can later be PUT to
+Amazon DynamoDB.</p>
+<p>This method has explicit (but optional) parameters for
+the hash_key and range_key values of the item.  You can use
+these explicit parameters when calling the method, such as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">my_item</span> <span class="o">=</span> <span class="n">my_table</span><span class="o">.</span><span class="n">new_item</span><span class="p">(</span><span class="n">hash_key</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">range_key</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="go">                            attrs={&#39;key1&#39;: &#39;val1&#39;, &#39;key2&#39;: &#39;val2&#39;})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_item</span>
+<span class="go">{u&#39;bar&#39;: 1, u&#39;foo&#39;: &#39;a&#39;, &#39;key1&#39;: &#39;val1&#39;, &#39;key2&#39;: &#39;val2&#39;}</span>
+</pre></div>
+</div>
+<p>Or, if you prefer, you can simply put the hash_key and range_key
+in the attrs dictionary itself, like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;foo&#39;</span><span class="p">:</span> <span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;bar&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;key1&#39;</span><span class="p">:</span> <span class="s">&#39;val1&#39;</span><span class="p">,</span> <span class="s">&#39;key2&#39;</span><span class="p">:</span> <span class="s">&#39;val2&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_item</span> <span class="o">=</span> <span class="n">my_table</span><span class="o">.</span><span class="n">new_item</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_item</span>
+<span class="go">{u&#39;bar&#39;: 1, u&#39;foo&#39;: &#39;a&#39;, &#39;key1&#39;: &#39;val1&#39;, &#39;key2&#39;: &#39;val2&#39;}</span>
+</pre></div>
+</div>
+<p>The effect is the same.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hash_key</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; The HashKey of the new item.  The
+type of the value must match the type defined in the
+schema for the table.</li>
+<li><strong>range_key</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; The optional RangeKey of the new item.
+The type of the value must match the type defined in the
+schema for the table.</li>
+<li><strong>attrs</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A dictionary of key value pairs used to
+populate the new item.</li>
+<li><strong>item_class</strong> (<em>Class</em>) &#8211; Allows you to override the class used
+to generate the items. This should be a subclass of
+<a class="reference internal" href="#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.table.Table.query">
+<tt class="descname">query</tt><big>(</big><em>hash_key</em>, <em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.dynamodb.table.Table.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a query on the table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hash_key</strong> (<em>int|long|float|str|unicode|Binary</em>) &#8211; The HashKey of the requested item.  The
+type of the value must match the type defined in the
+schema for the table.</li>
+<li><strong>range_key_condition</strong> (<tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.condition.Condition</span></tt>) &#8211; <p>A Condition object.
+Condition object can be one of the following types:</p>
+<p>EQ|LE|LT|GE|GT|BEGINS_WITH|BETWEEN</p>
+<p>The only condition which expects or will accept two
+values is &#8216;BETWEEN&#8217;, otherwise a single value should
+be passed to the Condition constructor.</p>
+</li>
+<li><strong>attributes_to_get</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of attribute names.
+If supplied, only the specified attribute names will
+be returned.  Otherwise, all attributes will be returned.</li>
+<li><strong>request_limit</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of items to retrieve
+from Amazon DynamoDB on each request.  You may want to set
+a specific request_limit based on the provisioned throughput
+of your table.  The default behavior is to retrieve as many
+results as possible per request.</li>
+<li><strong>max_results</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of results that will
+be retrieved from Amazon DynamoDB in total.  For example,
+if you only wanted to see the first 100 results from the
+query, regardless of how many were actually available, you
+could set max_results to 100 and the generator returned
+from the query method will only yeild 100 results max.</li>
+<li><strong>consistent_read</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, a consistent read
+request is issued.  Otherwise, an eventually consistent
+request is issued.</li>
+<li><strong>scan_index_forward</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Specified forward or backward
+traversal of the index.  Default is forward (True).</li>
+<li><strong>exclusive_start_key</strong> (<em>list or tuple</em>) &#8211; Primary key of the item from
+which to continue an earlier query.  This would be
+provided as the LastEvaluatedKey in that query.</li>
+<li><strong>count</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, Amazon DynamoDB returns a total
+number of items for the Query operation, even if the
+operation has no matching items for the assigned filter.</li>
+<li><strong>item_class</strong> (<em>Class</em>) &#8211; Allows you to override the class used
+to generate the items. This should be a subclass of
+<a class="reference internal" href="#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.table.Table.read_units">
+<tt class="descname">read_units</tt><a class="headerlink" href="#boto.dynamodb.table.Table.read_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.table.Table.refresh">
+<tt class="descname">refresh</tt><big>(</big><em>wait_for_active=False</em>, <em>retry_seconds=5</em><big>)</big><a class="headerlink" href="#boto.dynamodb.table.Table.refresh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refresh all of the fields of the Table object by calling
+the underlying DescribeTable request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>wait_for_active</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, this command will not return
+until the table status, as returned from Amazon DynamoDB, is
+&#8216;ACTIVE&#8217;.</li>
+<li><strong>retry_seconds</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; If wait_for_active is True, this
+parameter controls the number of seconds of delay between
+calls to update_table in Amazon DynamoDB.  Default is 5 seconds.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.table.Table.scan">
+<tt class="descname">scan</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#boto.dynamodb.table.Table.scan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scan through this table, this is a very long
+and expensive operation, and should be avoided if
+at all possible.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>scan_filter</strong> (<em>A dict</em>) &#8211; <p>A dictionary where the key is the
+attribute name and the value is a
+<tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.condition.Condition</span></tt> object.
+Valid Condition objects include:</p>
+<blockquote>
+<div><ul>
+<li>EQ - equal (1)</li>
+<li>NE - not equal (1)</li>
+<li>LE - less than or equal (1)</li>
+<li>LT - less than (1)</li>
+<li>GE - greater than or equal (1)</li>
+<li>GT - greater than (1)</li>
+<li>NOT_NULL - attribute exists (0, use None)</li>
+<li>NULL - attribute does not exist (0, use None)</li>
+<li>CONTAINS - substring or value in list (1)</li>
+<li>NOT_CONTAINS - absence of substring or value in list (1)</li>
+<li>BEGINS_WITH - substring prefix (1)</li>
+<li>IN - exact match in list (N)</li>
+<li>BETWEEN - &gt;= first value, &lt;= second value (2)</li>
+</ul>
+</div></blockquote>
+</li>
+<li><strong>attributes_to_get</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of attribute names.
+If supplied, only the specified attribute names will
+be returned.  Otherwise, all attributes will be returned.</li>
+<li><strong>request_limit</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of items to retrieve
+from Amazon DynamoDB on each request.  You may want to set
+a specific request_limit based on the provisioned throughput
+of your table.  The default behavior is to retrieve as many
+results as possible per request.</li>
+<li><strong>max_results</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of results that will
+be retrieved from Amazon DynamoDB in total.  For example,
+if you only wanted to see the first 100 results from the
+query, regardless of how many were actually available, you
+could set max_results to 100 and the generator returned
+from the query method will only yeild 100 results max.</li>
+<li><strong>count</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; If True, Amazon DynamoDB returns a total
+number of items for the Scan operation, even if the
+operation has no matching items for the assigned filter.</li>
+<li><strong>exclusive_start_key</strong> (<em>list or tuple</em>) &#8211; Primary key of the item from
+which to continue an earlier query.  This would be
+provided as the LastEvaluatedKey in that query.</li>
+<li><strong>item_class</strong> (<em>Class</em>) &#8211; Allows you to override the class used
+to generate the items. This should be a subclass of
+<a class="reference internal" href="#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a></li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A TableGenerator (generator) object which will iterate
+over all results</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#boto.dynamodb.layer2.TableGenerator" title="boto.dynamodb.layer2.TableGenerator"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.layer2.TableGenerator</span></tt></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.table.Table.schema">
+<tt class="descname">schema</tt><a class="headerlink" href="#boto.dynamodb.table.Table.schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.table.Table.size_bytes">
+<tt class="descname">size_bytes</tt><a class="headerlink" href="#boto.dynamodb.table.Table.size_bytes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.table.Table.status">
+<tt class="descname">status</tt><a class="headerlink" href="#boto.dynamodb.table.Table.status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.table.Table.update_from_response">
+<tt class="descname">update_from_response</tt><big>(</big><em>response</em><big>)</big><a class="headerlink" href="#boto.dynamodb.table.Table.update_from_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the state of the Table object based on the response
+data received from Amazon DynamoDB.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.table.Table.update_throughput">
+<tt class="descname">update_throughput</tt><big>(</big><em>read_units</em>, <em>write_units</em><big>)</big><a class="headerlink" href="#boto.dynamodb.table.Table.update_throughput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the ProvisionedThroughput for the Amazon DynamoDB Table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>read_units</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The new value for ReadCapacityUnits.</li>
+<li><strong>write_units</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The new value for WriteCapacityUnits.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.table.Table.write_units">
+<tt class="descname">write_units</tt><a class="headerlink" href="#boto.dynamodb.table.Table.write_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.dynamodb.table.TableBatchGenerator">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.table.</tt><tt class="descname">TableBatchGenerator</tt><big>(</big><em>table</em>, <em>keys</em>, <em>attributes_to_get=None</em>, <em>consistent_read=False</em><big>)</big><a class="headerlink" href="#boto.dynamodb.table.TableBatchGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>A low-level generator used to page through results from
+batch_get_item operations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><strong>consumed_units</strong> &#8211; An integer that holds the number of
+ConsumedCapacityUnits accumulated thus far for this
+generator.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.dynamodb.schema">
+<span id="boto-dynamodb-schema"></span><h2>boto.dynamodb.schema<a class="headerlink" href="#module-boto.dynamodb.schema" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.dynamodb.schema.Schema">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.schema.</tt><tt class="descname">Schema</tt><big>(</big><em>schema_dict</em><big>)</big><a class="headerlink" href="#boto.dynamodb.schema.Schema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a DynamoDB schema.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hash_key_name</strong> &#8211; The name of the hash key of the schema.</li>
+<li><strong>hash_key_type</strong> &#8211; The DynamoDB type specification for the
+hash key of the schema.</li>
+<li><strong>range_key_name</strong> &#8211; The name of the range key of the schema
+or None if no range key is defined.</li>
+<li><strong>range_key_type</strong> &#8211; The DynamoDB type specification for the
+range key of the schema or None if no range key is defined.</li>
+<li><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><strong>dict</strong></a> &#8211; The underlying Python dictionary that needs to be
+passed to Layer1 methods.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="boto.dynamodb.schema.Schema.create">
+<em class="property">classmethod </em><tt class="descname">create</tt><big>(</big><em>hash_key</em>, <em>range_key=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.schema.Schema.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to create a schema object.</p>
+<p>Example usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">schema</span> <span class="o">=</span> <span class="n">Schema</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">hash_key</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="s">&#39;N&#39;</span><span class="p">))</span>
+<span class="n">schema2</span> <span class="o">=</span> <span class="n">Schema</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">hash_key</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="s">&#39;N&#39;</span><span class="p">),</span>
+                        <span class="n">range_key</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hash_key</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#tuple" title="(in Python v2.7)"><em>tuple</em></a>) &#8211; A tuple of (hash_key_name, hash_key_type)</li>
+<li><strong>hash_key</strong> &#8211; A tuple of (range_key_name, range_key_type)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.schema.Schema.dict">
+<tt class="descname">dict</tt><a class="headerlink" href="#boto.dynamodb.schema.Schema.dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.schema.Schema.hash_key_name">
+<tt class="descname">hash_key_name</tt><a class="headerlink" href="#boto.dynamodb.schema.Schema.hash_key_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.schema.Schema.hash_key_type">
+<tt class="descname">hash_key_type</tt><a class="headerlink" href="#boto.dynamodb.schema.Schema.hash_key_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.schema.Schema.range_key_name">
+<tt class="descname">range_key_name</tt><a class="headerlink" href="#boto.dynamodb.schema.Schema.range_key_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.schema.Schema.range_key_type">
+<tt class="descname">range_key_type</tt><a class="headerlink" href="#boto.dynamodb.schema.Schema.range_key_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.dynamodb.item">
+<span id="boto-dynamodb-item"></span><h2>boto.dynamodb.item<a class="headerlink" href="#module-boto.dynamodb.item" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.dynamodb.item.Item">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.item.</tt><tt class="descname">Item</tt><big>(</big><em>table</em>, <em>hash_key=None</em>, <em>range_key=None</em>, <em>attrs=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.item.Item" title="Permalink to this definition">¶</a></dt>
+<dd><p>An item in Amazon DynamoDB.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hash_key</strong> &#8211; The HashKey of this item.</li>
+<li><strong>range_key</strong> &#8211; The RangeKey of this item or None if no RangeKey
+is defined.</li>
+<li><strong>hash_key_name</strong> &#8211; The name of the HashKey associated with this item.</li>
+<li><strong>range_key_name</strong> &#8211; The name of the RangeKey associated with this item.</li>
+<li><strong>table</strong> &#8211; The Table this item belongs to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.dynamodb.item.Item.add_attribute">
+<tt class="descname">add_attribute</tt><big>(</big><em>attr_name</em>, <em>attr_value</em><big>)</big><a class="headerlink" href="#boto.dynamodb.item.Item.add_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Queue the addition of an attribute to an item in DynamoDB.
+This will eventually result in an UpdateItem request being issued
+with an update action of ADD when the save method is called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>attr_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Name of the attribute you want to alter.</li>
+<li><strong>attr_value</strong> (<em>int|long|float|set</em>) &#8211; Value which is to be added to the attribute.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.item.Item.delete">
+<tt class="descname">delete</tt><big>(</big><em>expected_value=None</em>, <em>return_values=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.item.Item.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the item from DynamoDB.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>expected_value</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A dictionary of name/value pairs that
+you expect.  This dictionary should have name/value pairs
+where the name is the name of the attribute and the value
+is either the value you are expecting or False if you expect
+the attribute not to exist.</li>
+<li><strong>return_values</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Controls the return of attribute
+name-value pairs before then were changed.  Possible
+values are: None or &#8216;ALL_OLD&#8217;. If &#8216;ALL_OLD&#8217; is
+specified and the item is overwritten, the content
+of the old item is returned.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.item.Item.delete_attribute">
+<tt class="descname">delete_attribute</tt><big>(</big><em>attr_name</em>, <em>attr_value=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.item.Item.delete_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Queue the deletion of an attribute from an item in DynamoDB.
+This call will result in a UpdateItem request being issued
+with update action of DELETE when the save method is called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>attr_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Name of the attribute you want to alter.</li>
+<li><strong>attr_value</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#set" title="(in Python v2.7)"><em>set</em></a>) &#8211; A set of values to be removed from the attribute.
+This parameter is optional. If None, the whole attribute is
+removed from the item.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.item.Item.hash_key">
+<tt class="descname">hash_key</tt><a class="headerlink" href="#boto.dynamodb.item.Item.hash_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.item.Item.hash_key_name">
+<tt class="descname">hash_key_name</tt><a class="headerlink" href="#boto.dynamodb.item.Item.hash_key_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.item.Item.put">
+<tt class="descname">put</tt><big>(</big><em>expected_value=None</em>, <em>return_values=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.item.Item.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store a new item or completely replace an existing item
+in Amazon DynamoDB.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>expected_value</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A dictionary of name/value pairs that
+you expect.  This dictionary should have name/value pairs
+where the name is the name of the attribute and the value
+is either the value you are expecting or False if you expect
+the attribute not to exist.</li>
+<li><strong>return_values</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Controls the return of attribute
+name-value pairs before then were changed.  Possible
+values are: None or &#8216;ALL_OLD&#8217;. If &#8216;ALL_OLD&#8217; is
+specified and the item is overwritten, the content
+of the old item is returned.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.item.Item.put_attribute">
+<tt class="descname">put_attribute</tt><big>(</big><em>attr_name</em>, <em>attr_value</em><big>)</big><a class="headerlink" href="#boto.dynamodb.item.Item.put_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Queue the putting of an attribute to an item in DynamoDB.
+This call will result in an UpdateItem request being issued
+with the update action of PUT when the save method is called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>attr_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Name of the attribute you want to alter.</li>
+<li><strong>attr_value</strong> (<em>int|long|float|str|set</em>) &#8211; New value of the attribute.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.item.Item.range_key">
+<tt class="descname">range_key</tt><a class="headerlink" href="#boto.dynamodb.item.Item.range_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="boto.dynamodb.item.Item.range_key_name">
+<tt class="descname">range_key_name</tt><a class="headerlink" href="#boto.dynamodb.item.Item.range_key_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.item.Item.save">
+<tt class="descname">save</tt><big>(</big><em>expected_value=None</em>, <em>return_values=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.item.Item.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commits pending updates to Amazon DynamoDB.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>expected_value</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; A dictionary of name/value pairs that
+you expect.  This dictionary should have name/value pairs
+where the name is the name of the attribute and the value is
+either the value you are expecting or False if you expect
+the attribute not to exist.</li>
+<li><strong>return_values</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Controls the return of attribute name/value pairs
+before they were updated. Possible values are: None, &#8216;ALL_OLD&#8217;,
+&#8216;UPDATED_OLD&#8217;, &#8216;ALL_NEW&#8217; or &#8216;UPDATED_NEW&#8217;. If &#8216;ALL_OLD&#8217; is
+specified and the item is overwritten, the content of the old item
+is returned. If &#8216;ALL_NEW&#8217; is specified, then all the attributes of
+the new version of the item are returned. If &#8216;UPDATED_NEW&#8217; is
+specified, the new versions of only the updated attributes are
+returned.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.dynamodb.batch">
+<span id="boto-dynamodb-batch"></span><h2>boto.dynamodb.batch<a class="headerlink" href="#module-boto.dynamodb.batch" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boto.dynamodb.batch.Batch">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.batch.</tt><tt class="descname">Batch</tt><big>(</big><em>table</em>, <em>keys</em>, <em>attributes_to_get=None</em>, <em>consistent_read=False</em><big>)</big><a class="headerlink" href="#boto.dynamodb.batch.Batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to construct a BatchGet request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table</strong> &#8211; The Table object from which the item is retrieved.</li>
+<li><strong>keys</strong> &#8211; A list of scalar or tuple values.  Each element in the
+list represents one Item to retrieve.  If the schema for the
+table has both a HashKey and a RangeKey, each element in the
+list should be a tuple consisting of (hash_key, range_key).  If
+the schema for the table contains only a HashKey, each element
+in the list should be a scalar value of the appropriate type
+for the table schema. NOTE: The maximum number of items that
+can be retrieved for a single operation is 100. Also, the
+number of items retrieved is constrained by a 1 MB size limit.</li>
+<li><strong>attributes_to_get</strong> &#8211; A list of attribute names.
+If supplied, only the specified attribute names will
+be returned.  Otherwise, all attributes will be returned.</li>
+<li><strong>consistent_read</strong> &#8211; Specify whether or not to use a
+consistent read. Defaults to False.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.dynamodb.batch.Batch.to_dict">
+<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.batch.Batch.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the Batch object into the format required for Layer1.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.dynamodb.batch.BatchList">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.batch.</tt><tt class="descname">BatchList</tt><big>(</big><em>layer2</em><big>)</big><a class="headerlink" href="#boto.dynamodb.batch.BatchList" title="Permalink to this definition">¶</a></dt>
+<dd><p>A subclass of a list object that contains a collection of
+<a class="reference internal" href="#boto.dynamodb.batch.Batch" title="boto.dynamodb.batch.Batch"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.batch.Batch</span></tt></a> objects.</p>
+<dl class="method">
+<dt id="boto.dynamodb.batch.BatchList.add_batch">
+<tt class="descname">add_batch</tt><big>(</big><em>table</em>, <em>keys</em>, <em>attributes_to_get=None</em>, <em>consistent_read=False</em><big>)</big><a class="headerlink" href="#boto.dynamodb.batch.BatchList.add_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a Batch to this BatchList.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table</strong> (<a class="reference internal" href="#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a>) &#8211; The Table object in which the items are contained.</li>
+<li><strong>keys</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of scalar or tuple values.  Each element in the
+list represents one Item to retrieve.  If the schema for the
+table has both a HashKey and a RangeKey, each element in the
+list should be a tuple consisting of (hash_key, range_key).  If
+the schema for the table contains only a HashKey, each element
+in the list should be a scalar value of the appropriate type
+for the table schema. NOTE: The maximum number of items that
+can be retrieved for a single operation is 100. Also, the
+number of items retrieved is constrained by a 1 MB size limit.</li>
+<li><strong>attributes_to_get</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; A list of attribute names.
+If supplied, only the specified attribute names will
+be returned.  Otherwise, all attributes will be returned.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.batch.BatchList.resubmit">
+<tt class="descname">resubmit</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.batch.BatchList.resubmit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resubmit the batch to get the next result set. The request object is
+rebuild from scratch meaning that all batch added between <tt class="docutils literal"><span class="pre">submit</span></tt>
+and <tt class="docutils literal"><span class="pre">resubmit</span></tt> will be lost.</p>
+<p>Note: This method is experimental and subject to changes in future releases</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.batch.BatchList.submit">
+<tt class="descname">submit</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.batch.BatchList.submit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.batch.BatchList.to_dict">
+<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.batch.BatchList.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a BatchList object into format required for Layer1.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.dynamodb.batch.BatchWrite">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.batch.</tt><tt class="descname">BatchWrite</tt><big>(</big><em>table</em>, <em>puts=None</em>, <em>deletes=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.batch.BatchWrite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to construct a BatchWrite request.  Each BatchWrite object
+represents a collection of PutItem and DeleteItem requests for
+a single Table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table</strong> &#8211; The Table object from which the item is retrieved.</li>
+<li><strong>puts</strong> &#8211; A list of <a class="reference internal" href="#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a> objects
+that you want to write to DynamoDB.</li>
+<li><strong>deletes</strong> &#8211; A list of scalar or tuple values.  Each element in the
+list represents one Item to delete.  If the schema for the
+table has both a HashKey and a RangeKey, each element in the
+list should be a tuple consisting of (hash_key, range_key).  If
+the schema for the table contains only a HashKey, each element
+in the list should be a scalar value of the appropriate type
+for the table schema.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="boto.dynamodb.batch.BatchWrite.to_dict">
+<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.batch.BatchWrite.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the Batch object into the format required for Layer1.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.dynamodb.batch.BatchWriteList">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.batch.</tt><tt class="descname">BatchWriteList</tt><big>(</big><em>layer2</em><big>)</big><a class="headerlink" href="#boto.dynamodb.batch.BatchWriteList" title="Permalink to this definition">¶</a></dt>
+<dd><p>A subclass of a list object that contains a collection of
+<a class="reference internal" href="#boto.dynamodb.batch.BatchWrite" title="boto.dynamodb.batch.BatchWrite"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.batch.BatchWrite</span></tt></a> objects.</p>
+<dl class="method">
+<dt id="boto.dynamodb.batch.BatchWriteList.add_batch">
+<tt class="descname">add_batch</tt><big>(</big><em>table</em>, <em>puts=None</em>, <em>deletes=None</em><big>)</big><a class="headerlink" href="#boto.dynamodb.batch.BatchWriteList.add_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a BatchWrite to this BatchWriteList.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table</strong> (<a class="reference internal" href="#boto.dynamodb.table.Table" title="boto.dynamodb.table.Table"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.table.Table</span></tt></a>) &#8211; The Table object in which the items are contained.</li>
+<li><strong>puts</strong> (list of <a class="reference internal" href="#boto.dynamodb.item.Item" title="boto.dynamodb.item.Item"><tt class="xref py py-class docutils literal"><span class="pre">boto.dynamodb.item.Item</span></tt></a> objects) &#8211; A list of items that you want to write to DynamoDB.</li>
+<li><strong>deletes</strong> (<em>A list</em>) &#8211; A list of scalar or tuple values.  Each element
+in the list represents one Item to delete.  If the schema
+for the table has both a HashKey and a RangeKey, each
+element in the list should be a tuple consisting of
+(hash_key, range_key).  If the schema for the table
+contains only a HashKey, each element in the list should
+be a scalar value of the appropriate type for the table
+schema.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.batch.BatchWriteList.submit">
+<tt class="descname">submit</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.batch.BatchWriteList.submit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.batch.BatchWriteList.to_dict">
+<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.batch.BatchWriteList.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a BatchWriteList object into format required for Layer1.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-boto.dynamodb.types">
+<span id="boto-dynamodb-types"></span><h2>boto.dynamodb.types<a class="headerlink" href="#module-boto.dynamodb.types" title="Permalink to this headline">¶</a></h2>
+<p>Some utility functions to deal with mapping Amazon DynamoDB types to
+Python types and vice-versa.</p>
+<dl class="class">
+<dt id="boto.dynamodb.types.Binary">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.types.</tt><tt class="descname">Binary</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#boto.dynamodb.types.Binary" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="boto.dynamodb.types.Binary.encode">
+<tt class="descname">encode</tt><big>(</big><big>)</big><a class="headerlink" href="#boto.dynamodb.types.Binary.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.dynamodb.types.Dynamizer">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.types.</tt><tt class="descname">Dynamizer</tt><a class="headerlink" href="#boto.dynamodb.types.Dynamizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Control serialization/deserialization of types.</p>
+<p>This class controls the encoding of python types to the
+format that is expected by the DynamoDB API, as well as
+taking DynamoDB types and constructing the appropriate
+python types.</p>
+<p>If you want to customize this process, you can subclass
+this class and override the encoding/decoding of
+specific types.  For example:</p>
+<div class="highlight-python"><pre>'foo'      (Python type)
+    |
+    v
+encode('foo')
+    |
+    v
+_encode_s('foo')
+    |
+    v
+{'S': 'foo'}  (Encoding sent to/received from DynamoDB)
+    |
+    V
+decode({'S': 'foo'})
+    |
+    v
+_decode_s({'S': 'foo'})
+    |
+    v
+'foo'     (Python type)</pre>
+</div>
+<dl class="method">
+<dt id="boto.dynamodb.types.Dynamizer.decode">
+<tt class="descname">decode</tt><big>(</big><em>attr</em><big>)</big><a class="headerlink" href="#boto.dynamodb.types.Dynamizer.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes the format returned by DynamoDB and constructs
+the appropriate python type.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="boto.dynamodb.types.Dynamizer.encode">
+<tt class="descname">encode</tt><big>(</big><em>attr</em><big>)</big><a class="headerlink" href="#boto.dynamodb.types.Dynamizer.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encodes a python type to the format expected
+by DynamoDB.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="boto.dynamodb.types.LossyFloatDynamizer">
+<em class="property">class </em><tt class="descclassname">boto.dynamodb.types.</tt><tt class="descname">LossyFloatDynamizer</tt><a class="headerlink" href="#boto.dynamodb.types.LossyFloatDynamizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use float/int instead of Decimal for numeric types.</p>
+<p>This class is provided for backwards compatibility.  Instead of
+using Decimals for the &#8216;N&#8217;, &#8216;NS&#8217; types it uses ints/floats.</p>
+<p>This class is deprecated and its usage is not encouraged,
+as doing so may result in loss of precision.  Use the
+<cite>Dynamizer</cite> class instead.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.dynamodb.types.convert_binary">
+<tt class="descclassname">boto.dynamodb.types.</tt><tt class="descname">convert_binary</tt><big>(</big><em>n</em><big>)</big><a class="headerlink" href="#boto.dynamodb.types.convert_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.dynamodb.types.convert_num">
+<tt class="descclassname">boto.dynamodb.types.</tt><tt class="descname">convert_num</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#boto.dynamodb.types.convert_num" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.dynamodb.types.dynamize_value">
+<tt class="descclassname">boto.dynamodb.types.</tt><tt class="descname">dynamize_value</tt><big>(</big><em>val</em><big>)</big><a class="headerlink" href="#boto.dynamodb.types.dynamize_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take a scalar Python value and return a dict consisting
+of the Amazon DynamoDB type specification and the value that
+needs to be sent to Amazon DynamoDB.  If the type of the value
+is not supported, raise a TypeError</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.dynamodb.types.float_to_decimal">
+<tt class="descclassname">boto.dynamodb.types.</tt><tt class="descname">float_to_decimal</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#boto.dynamodb.types.float_to_decimal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.dynamodb.types.get_dynamodb_type">
+<tt class="descclassname">boto.dynamodb.types.</tt><tt class="descname">get_dynamodb_type</tt><big>(</big><em>val</em><big>)</big><a class="headerlink" href="#boto.dynamodb.types.get_dynamodb_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take a scalar Python value and return a string representing
+the corresponding Amazon DynamoDB type.  If the value passed in is
+not a supported type, raise a TypeError.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.dynamodb.types.is_binary">
+<tt class="descclassname">boto.dynamodb.types.</tt><tt class="descname">is_binary</tt><big>(</big><em>n</em><big>)</big><a class="headerlink" href="#boto.dynamodb.types.is_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.dynamodb.types.is_num">
+<tt class="descclassname">boto.dynamodb.types.</tt><tt class="descname">is_num</tt><big>(</big><em>n</em><big>)</big><a class="headerlink" href="#boto.dynamodb.types.is_num" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.dynamodb.types.is_str">
+<tt class="descclassname">boto.dynamodb.types.</tt><tt class="descname">is_str</tt><big>(</big><em>n</em><big>)</big><a class="headerlink" href="#boto.dynamodb.types.is_str" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="boto.dynamodb.types.item_object_hook">
+<tt class="descclassname">boto.dynamodb.types.</tt><tt class="descname">item_object_hook</tt><big>(</big><em>dct</em><big>)</big><a class="headerlink" href="#boto.dynamodb.types.item_object_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom object hook for use when decoding JSON item bodys.
+This hook will transform Amazon DynamoDB JSON responses to something
+that maps directly to native Python types.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="boto.dynamodb.types.serialize_num">
+<tt class="descclassname">boto.dynamodb.types.</tt><tt class="descname">serialize_num</tt><big>(</big><em>val</em><big>)</big><a class="headerlink" href="#boto.dynamodb.types.serialize_num" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast a number to a string and perform
+validation to ensure no loss of precision.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">DynamoDB</a><ul>
+<li><a class="reference internal" href="#module-boto.dynamodb">boto.dynamodb</a></li>
+<li><a class="reference internal" href="#module-boto.dynamodb.layer1">boto.dynamodb.layer1</a></li>
+<li><a class="reference internal" href="#module-boto.dynamodb.layer2">boto.dynamodb.layer2</a></li>
+<li><a class="reference internal" href="#module-boto.dynamodb.table">boto.dynamodb.table</a></li>
+<li><a class="reference internal" href="#module-boto.dynamodb.schema">boto.dynamodb.schema</a></li>
+<li><a class="reference internal" href="#module-boto.dynamodb.item">boto.dynamodb.item</a></li>
+<li><a class="reference internal" href="#module-boto.dynamodb.batch">boto.dynamodb.batch</a></li>
+<li><a class="reference internal" href="#module-boto.dynamodb.types">boto.dynamodb.types</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="contrib.html"
+                        title="previous chapter">contrib</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ec2.html"
+                        title="next chapter">EC2</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ref/dynamodb.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script><div><a href="boto.pdf">PDF Version</a></div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ec2.html" title="EC2"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="contrib.html" title="contrib"
+             >previous</a> |</li>
+        <li><a href="../index.html">boto v2.8.0-dev</a> &raquo;</li>
+          <li><a href="index.html" >API Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009,2010, Mitch Garnaat.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>
