@@ -23,6 +23,7 @@ import xml.sax
 import datetime
 import itertools
 import re
+import time
 
 from boto import handler
 from boto import config
@@ -844,8 +845,16 @@ class MTurkConnection(AWSQueryConnection):
         Helper to process the xml response from AWS
         """
         params['Operation'] = request_type
-        response = self.make_request(None, params, verb='POST')
-        return self._process_response(response, marker_elems)
+
+        # Note that last delay in list must be zero.
+        delays = [1, 2, 4, 0]
+        for delay in delays:
+            response = self.make_request(None, params, verb='POST')
+            (success, rs, body) = self._process_response(response, marker_elems)
+            if (success):
+                return rs
+            time.sleep(delay)
+        raise MTurkRequestError(response.status, response.reason, body)
 
     def _process_response(self, response, marker_elems=None):
         """
@@ -858,9 +867,9 @@ class MTurkConnection(AWSQueryConnection):
             rs = ResultSet(marker_elems)
             h = handler.XmlHandler(rs, self)
             xml.sax.parseString(body, h)
-            return rs
+            return True, rs, None
         else:
-            raise MTurkRequestError(response.status, response.reason, body)
+            return False, None, body
 
     @staticmethod
     def get_keywords_as_string(keywords):
