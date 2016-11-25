@@ -1,10 +1,12 @@
 html, body {
+    font-family: 'Lato', sans-serif;
+    font-weight: 300; 
     width: 100%;
     margin: 0;
     padding: 0;
 }
 .instructions {
-    font-size:10pt;
+    font-size:9pt;
     font-family:arial;
     font-weight:bold;
 /*
@@ -24,15 +26,19 @@ html, body {
 */
     margin: 0;
 }
-.olControlEditingToolbar .olControlDeleteFeatureItemActive {
-    background-image: url("img/delete_feature_active.png");
-}
-.olControlEditingToolbar .olControlDeleteFeatureItemInactive {
-    background-image: url("img/delete_feature_inactive.png");
-}
-.olControlEditingToolbar .saveButtonItemActive {
-    background-image: url("img/save_layer_active.png");
+.hints {
+    font-size:10pt;
+    font-family:arial;
+/*
+    font-weight:bold;
+*/
+    text-align:center;
+    color: blue;
+    margin: 0;
 }
 .olControlEditingToolbar .saveButtonItemInactive {
     background-image: url("img/save_layer_inactive.png");
+}
+.ol-mouse-position {
+    color: white;
 }

@@ -1,358 +1,594 @@
 function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, trainingId, tryNum, mapPath, workerId) {
 
-// Constants defining status returned for a training map with a low score.
-lowScoreCode = 460;
-lowScoreText = "Low Score";
+    // Constants defining status returned for a training map with a low score.
+    lowScoreCode = 460;
+    lowScoreText = "Low Score";
 
-// Create the map using the specified DOM element
-var map = new OpenLayers.Map("kml_display");
-
-var satellite = new OpenLayers.Layer.Google(
-    "Google Satellite", 
-    {
-        type: google.maps.MapTypeId.SATELLITE, 
-        minZoomLevel: 14,
-        maxZoomLevel: 18
-    }
-);
-var hybrid = new OpenLayers.Layer.Google(
-    "Google Hybrid", 
-    {
-        type: google.maps.MapTypeId.HYBRID,
-        minZoomLevel: 14,
-        maxZoomLevel: 18
-    }
-);
-var streets = new OpenLayers.Layer.Google(
-    "Google Streets", 
-    {
-        minZoomLevel: 14,
-        maxZoomLevel: 18
-    }
-);
-map.addLayers([satellite, hybrid, streets]);
-
-var sty = new OpenLayers.Style({
-    strokeColor: "white", 
-    strokeOpacity: 1.0, 
-    strokeWidth: 2, 
-    fillOpacity: 0.0
-});
-var stymap = new OpenLayers.StyleMap({ 'default': sty });
-kmlLayer = new OpenLayers.Layer.Vector(
-    "One Square Km in Africa", 
-    {
-        styleMap: stymap,
-        protocol: new OpenLayers.Protocol.HTTP({
-                url: kmlPath + '/' + kmlName + '.kml',
-                format: new OpenLayers.Format.KML()
-        }),
-        strategies: [new OpenLayers.Strategy.Fixed()],
-        displayInLayerSwitcher: false
-    }
-)
-map.addLayer(kmlLayer);
-
-// If this is a worker-feedback map, create two additional layers.
-if (assignmentId.length == 0 && workerId.length > 0) {
-    rMapLayer = new OpenLayers.Layer.Vector(
-        "Reference Map", 
-        {
-            protocol: new OpenLayers.Protocol.HTTP({
-                    url: mapPath + '/' + workerId + '/' + kmlName + '_r.kml',
-                    format: new OpenLayers.Format.KML()
-            }),
-            strategies: [new OpenLayers.Strategy.Fixed()],
-            displayInLayerSwitcher: true
-        }
-    )
-    map.addLayer(rMapLayer);
-
-    var wSty = new OpenLayers.Style({
-        fillColor: "blue",
-        fillOpacity: 0.2,
-        strokeOpacity: 0.0
-    });
-    var wStymap = new OpenLayers.StyleMap({ 'default': wSty });
-    wMapLayer = new OpenLayers.Layer.Vector(
-        "Worker Map", 
-        {
-            styleMap: wStymap,
-            protocol: new OpenLayers.Protocol.HTTP({
-                    url: mapPath + '/' + workerId + '/' + kmlName + '_w.kml',
-                    format: new OpenLayers.Format.KML()
-            }),
-            strategies: [new OpenLayers.Strategy.Fixed()],
-            displayInLayerSwitcher: true
-        }
-    )
-    map.addLayer(wMapLayer);
-}
-
-saveStrategy = new OpenLayers.Strategy.Save();
-
-if (assignmentId.length > 0) {
-    // If this is an MTurk accepted HIT, let user save changes, 
-    // and add assignment ID to kml name.
-    if (assignmentId != 'ASSIGNMENT_ID_NOT_AVAILABLE') {
-        saveStrategyActive = true;
-        foldersName = kmlName + '_' + assignmentId;
-        preview = false;
-    } else {
-        // Else, if this is an MTurk preview, don't let user save changes.
-        saveStrategyActive = false;
-        foldersName = kmlName;
-        preview = true;
-    }
-// If this is a training map, let user save changes, and add training ID to kml name.
-} else if (trainingId.length > 0) {
-    saveStrategyActive = true;
-    // Note: double underscore below.
-    foldersName = kmlName + '__' + trainingId + '_' + tryNum;
-    preview = false;
-// If this is a worker-feedback map, don't let the user save maps.
-} else if (assignmentId.length == 0 && workerId.length > 0) {
-    saveStrategyActive = false;
-    foldersName = kmlName;
-    preview = true;
-// Else, if this is a standalone invocation, let user save changes.
-} else {
-    saveStrategyActive = true;
-    foldersName = kmlName;
-    preview = false;
-}
-
-fieldsLayer = new OpenLayers.Layer.Vector(
-    "Mapped Fields",
-    {
-        protocol: new OpenLayers.Protocol.HTTP({
-            url: polygonPath,
-            format: new OpenLayers.Format.KML({
-                foldersName: foldersName
-            })
-        }),
-        strategies: [saveStrategy],
-        displayInLayerSwitcher: true
-    }
-);
-// Special callback to catch completions after each POST to send a new polygon
-// to the server. There will be only one POST in our case. This is necessary
-// (instead of registering 'success' and 'fail' handlers with saveStrategy) 
-// so that we can retrieve the HTTP status code and string.
-// NOTE: 'response' argument in passed by low-level callback code.
-fieldsLayer.protocol.options.create = { callback: function(response) {saveKMLStatus(response, assignmentId, trainingId);} };
-map.addLayer(fieldsLayer);
-
-var layerSwitcher = new OpenLayers.Control.LayerSwitcher({ roundedCorner:true });
-map.addControl(new OpenLayers.Control.LayerSwitcher());
-var panZoomBar = new OpenLayers.Control.PanZoomBar();
-var mousePosition = new OpenLayers.Control.MousePosition({
-    'displayProjection': 'EPSG:4326',
-    'numDigits': 3
-});
-var scaleline = new OpenLayers.Control.ScaleLine();
-map.addControls([layerSwitcher, panZoomBar, mousePosition, scaleline]);
-if (assignmentId.length == 0 && workerId.length > 0) {
-    layerSwitcher.maximizeControl();
-}
-
-var DeleteFeature = OpenLayers.Class(OpenLayers.Control, {
-    initialize: function(layer, options) {
-        OpenLayers.Control.prototype.initialize.apply(this, [options]);
-        this.layer = layer;
-        this.handler = new OpenLayers.Handler.Feature(
-            this, layer, {click: this.clickFeature}
-        );
-    },
-    clickFeature: function(feature) {
-        // if feature doesn't have a fid, destroy it
-        if(feature.fid == undefined) {
-            this.layer.destroyFeatures([feature]);
+    // Set <folders> tag name and whether to allow map saving.
+    var saveStrategyActive, preview, foldersName;
+    if (assignmentId.length > 0) {
+        // If this is an MTurk accepted HIT, let user save changes,
+        // and add assignment ID to kml name.
+        if (assignmentId != 'ASSIGNMENT_ID_NOT_AVAILABLE') {
+            saveStrategyActive = true;
+            preview = false;
+            foldersName = kmlName + '_' + assignmentId;
         } else {
-            feature.state = OpenLayers.State.DELETE;
-            this.layer.events.triggerEvent("afterfeaturemodified", {feature: feature});
-            feature.renderIntent = "select";
-            this.layer.drawFeature(feature);
+            // Else, if this is an MTurk preview, don't let user save changes.
+            saveStrategyActive = false;
+            preview = true;
+            foldersName = kmlName;
         }
-    },
-    setMap: function(map) {
-        this.handler.setMap(map);
-        OpenLayers.Control.prototype.setMap.apply(this, arguments);
-    },
-    CLASS_NAME: "OpenLayers.Control.DeleteFeature"
-});
-var panelControl1, panelControl2, panelControl3;
-if (preview) {
-    panelControl1 = new OpenLayers.Control.Button({
-        displayClass: 'olControlDeleteFeature',
-        title: '*** Disabled in preview mode *** Delete mapped field: Click on tool. Click on mapped field to delete.'
-    });
-    panelControl2 = new OpenLayers.Control.Button({
-        displayClass: 'olControlDrawFeaturePoint',
-        title: '*** Disabled in preview mode *** Edit mapped field: Click on tool. Click on mapped field to select. Drag any circle to reshape mapped field. Hover over a circled corner and press the \'d\' key to remove it. Click anywhere when done.'
-    });
-    panelControl3 = new OpenLayers.Control.Button({
-        displayClass: 'olControlDrawFeaturePolygon',
-        title: '*** Disabled in preview mode *** Create mapped field: Click on tool. Click on map at each corner to be created. Double-click when done.'
-    });
-    panelControl4 = new OpenLayers.Control.Button({
-        displayClass: 'saveButton',
-        title: '*** Disabled in preview mode *** Save changes: Click on this button only ONCE when all mapped fields have been created, and you are satisfied with your work. Click when done even if there are NO fields to draw on this map.'
-    });
-} else {
-    panelControl1 = new DeleteFeature(
-        fieldsLayer,
-        {
-            displayClass: 'olControlDeleteFeature',
-            title: 'Delete mapped field: Click on tool. Click on mapped field to delete.'
-        }
-    );
-    panelControl2 = new OpenLayers.Control.ModifyFeature(
-        fieldsLayer,
-        {
-            // Consider 'd'  and the PC delete key (46) as the only delete codes.
-            // Ideally, we'd like to consider the backspace (8) key as well, 
-            // since the delete key on the Mac is the keycode for backspace. But trapping 
-            // backspace deletes the vertex *and* still triggers the browser Back button.
-            // So better to avoid it unless we can disable its action as a Back button.
-            deleteCodes: [68, 46],
-            displayClass: 'olControlDrawFeaturePoint',
-            title: 'Edit mapped field: Click on tool. Click on mapped field to select. Drag any circle to reshape mapped field. Hover over a circled corner and press the \'d\' key to remove it. Click anywhere when done.'
-        }
-    );
-    panelControl3 = new OpenLayers.Control.DrawFeature(
-        fieldsLayer,
-        OpenLayers.Handler.Polygon,
-        {
-            displayClass: 'olControlDrawFeaturePolygon',
-            title: 'Create mapped field: Click on tool. Click on map at each corner to be created. Double-click when done.'
-        }
-    );
-    panelControl4 = new OpenLayers.Control.Button({
-        displayClass: 'saveButton',
-        trigger: function() {checkSaveStrategy(kmlName, noPolygonPath, assignmentId, trainingId, tryNum);},
-        title: 'Save changes: Click on this button only ONCE when all mapped fields have been created, and you are satisfied with your work. Click when done even if there are NO fields to draw on this map.'
-    });
-}
-panelControls = [
-    new OpenLayers.Control.Navigation({ title: 'Navigate' }),
-    panelControl1,
-    panelControl2,
-    panelControl3,
-    panelControl4
-];
-var editingToolbarControl = new OpenLayers.Control.Panel({
-    displayClass: 'olControlEditingToolbar',
-    defaultControl: panelControls[0]
-});
-editingToolbarControl.addControls(panelControls);
-map.addControl(editingToolbarControl);
-
-kmlLayer.events.register("loadend", kmlLayer, function() {
-    map.zoomToExtent(kmlLayer.getDataExtent());
-});
-
-}
-
-function checkSaveStrategy(kmlName, noPolygonPath, assignmentId, trainingId, tryNum) {
-    var msg;
-    if (!saveStrategyActive) {
-        return;
-    }
-    if (fieldsLayer.features != '') {
-        msg = 'You can only save your mapped fields ONCE!\nPlease confirm that you\'re COMPLETELY done mapping fields.\nIf not done, click Cancel.';
+    // If this is a training map, let user save changes, and add training ID to kml name.
+    } else if (trainingId.length > 0) {
+        saveStrategyActive = true;
+        preview = false;
+        // Note: double underscore below.
+        foldersName = kmlName + '__' + trainingId + '_' + tryNum;
+    // If this is a worker-feedback map, don't let the user save maps.
+    } else if (assignmentId.length == 0 && workerId.length > 0) {
+        saveStrategyActive = false;
+        preview = true;
+        foldersName = kmlName;
+    // Else, if this is a standalone invocation, let user save changes.
     } else {
-        msg = 'You have not mapped any fields!\nYou can only save your mapped fields ONCE!\nPlease confirm that you\'re COMPLETELY done mapping fields.\nIf not done, click Cancel.'
+        saveStrategyActive = true;
+        preview = false;
+        foldersName = kmlName;
     }
-    if (!confirm(msg)) {
-        return;
-    }
-    // Save the current polygons if there are any.
-    if (fieldsLayer.features != '') {
-        var i = 1;
-        for (var feature in fieldsLayer.features) {
-            fieldsLayer.features[feature].attributes.name = kmlName + '_' + i;
-            i = i + 1;
-        }
-        saveStrategy.save();
+
+    // Mouse position
+    var mousePositionControl = new ol.control.MousePosition({
+        coordinateFormat: ol.coordinate.createStringXY(3),
+        projection: 'EPSG:4326',
+        undefinedHTML: '&nbsp;'
+    });
+    
+    //Define Mapbox base layer.
+    var mapboxLayer = new ol.layer.Tile({
+        title: 'Mapbox Satellite Imagery',
+        type: 'base',
+        visible: false,
+        source: new ol.source.XYZ({
+            attributions: '&copy; <a href="https://www.mapbox.com/map-feedback/">Mapbox</a>',
+            tileSize: [512, 512],
+            url: 'https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibGluZHplbmciLCJhIjoiY2lwNzJ0amIwMDBqN3Q2bHl5anJqZXowbyJ9.dauHM2mZRuajvxcAOALHsA'
+        })
+    });
+
+    //Define Bing base layer.
+    var bingLayer = new ol.layer.Tile({
+        title: 'Bing Satellite Imagery',
+        type: 'base',
+        visible: true,
+        source: new ol.source.BingMaps({
+            key: 'esMqD5pajkiIvp26krWq~xK2nID-glxBU5PYtVmuoMw~AhanXg6fK3a8vRhyc1O-FgeHTWfzerYO4ptmwz9eGjcUh53y7Zu5cU4BT_en6fzW',
+            imagerySet: 'Aerial'
+        })
+    });
+
+    // Create overlay layer(s) group.
+    overlayGroup = new ol.layer.Group({
+        title: 'Overlay(s)',
+        layers: []
+    })
+    // Create the map using the specified DOM element
+    map = new ol.Map({
+        controls: ol.control.defaults({
+            attributionOptions:  ({
+                collapsible: false
+            })
+        }).extend([mousePositionControl]),
+        layers: [
+            // Create overlay layer(s) group.
+            overlayGroup,
+            // Create base layer group.
+            new ol.layer.Group({
+                title: 'Base Layer',
+                layers: [mapboxLayer, bingLayer]
+            })
+            // Create multi-band image layer group.
+            //new ol.layer.Group({
+            //    title: 'Satellite Image Overlays',
+                //  *** TODO: add WMS layer definitions here. ***
+            //    layers: []
+            //})
+        ],
+        target: document.getElementById('kml_display')
+    });
+
+    // Set view and zoom.
+    map.setView(new ol.View({
+        center: [0,0],
+        zoom: 14,
+        minZoom: 14,
+        maxZoom: 18
+    }));
+    
+    // White bounding box KML layer
+    var kmlLayer = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            url: kmlPath + '/' + kmlName + '.kml',
+            format: new ol.format.KML({extractStyles: false})
+        }),
+        style: new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.0)'
+            }),
+            stroke: new ol.style.Stroke({
+                color: 'rgba(255, 255, 255, 1.0)',
+                width: 2
+            })
+        })
+    });
+    // KML must be fully loaded before getting extent info
+    var kmlSource = kmlLayer.getSource();
+    var key = kmlSource.on('change', function(e){
+        if (kmlSource.getState() === 'ready') {
+            kmlSource.unByKey(key);
+            var extent = kmlSource.getExtent();
+            // Center map around KML
+            map.getView().fit(extent, map.getSize());
+        }   
+    });
+    kmlLayer.setMap(map);
+
+    // Mapped Fields layer
+    var fields = new ol.Collection();
+    // Add special id for all drawn features for dragging purposes.
+    fields.on('add', function(event){
+        var feature = event.element;
+        feature.set('id', 'bounding-box');
+    }); 
+    var fieldsLayer = new ol.layer.Vector({
+        title: "Mapped Fields",
+        source: new ol.source.Vector({features: fields}),
+        style: new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.2)'
+            }),
+            stroke: new ol.style.Stroke({
+                color: '#ffcc33',
+                width: 2
+            }),
+            image: new ol.style.Circle({
+                radius: 7,
+                fill: new ol.style.Fill({
+                    color: '#ffcc33'
+                })
+            })
+        })
+    });
+    fieldsLayer.setMap(map);
+    
+    // If this is a worker-feedback map, create two additional layers.
+    if (assignmentId.length == 0 && workerId.length > 0) {
+        var rMapLayer = new ol.layer.Vector({
+            title: "Reference Map",
+            source: new ol.source.Vector({
+                url: mapPath + '/' + workerId + '/' + kmlName + '_r.kml',
+                format: new ol.format.KML({extractStyles: false})
+            }),
+            style: new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: 'rgba(255, 204, 51, 0.4)'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: '#ffcc33',
+                    width: 2
+                }),
+            })
+        });
+        rMapLayer.setMap(map);
+
+        var wMapLayer = new ol.layer.Vector({
+            title: "Worker Map",
+            source: new ol.source.Vector({
+                url: mapPath + '/' + workerId + '/' + kmlName + '_w.kml',
+                format: new ol.format.KML({extractStyles: false})
+            }),
+            style: new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: 'rgba(0, 0, 255, 0.2)'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: '#0000ff',
+                    width: 2
+                })
+            })
+        });
+        wMapLayer.setMap(map);
+
+        overlayGroup.getLayers().push(wMapLayer);
+        overlayGroup.getLayers().push(rMapLayer);
     } else {
-        var request = OpenLayers.Request.PUT({
-            url: noPolygonPath,
-            params: {
-                kmlName: kmlName,
-                assignmentId: assignmentId,
-                trainingId: trainingId,
-                tryNum: tryNum
-            },
-            // Special callback to catch the completion after the PUT to notification
-            // to the server. This is necessary (instead of registering 'success' and 
-            // 'failure' handlers above) so that we can retrieve the HTTP status code 
-            // and string.
-            callback: function() {notificationStatus(request, assignmentId, trainingId);}
+        overlayGroup.getLayers().push(fieldsLayer);
+    }
+
+    // Add drag interaction.
+    var dragInteraction = new ol.interaction.Pointer({
+        handleDownEvent : function(event){
+            var feature = map.forEachFeatureAtPixel(event.pixel,    
+                function(feature, layer) {
+                    return feature;
+                }
+            );
+            if(feature && feature.get('id') === 'bounding-box') {
+                dragCoordinate = event.coordinate;
+                dragFeature = feature;
+                return true;
+            }
+            return false;
+        },
+        handleDragEvent : function(event){
+            var deltaX = event.coordinate[0] - dragCoordinate[0];
+            var deltaY = event.coordinate[1] - dragCoordinate[1];
+            var geometry = dragFeature.getGeometry();
+            geometry.translate(deltaX, deltaY);
+            dragCoordinate[0] = event.coordinate[0];
+            dragCoordinate[1] = event.coordinate[1];
+        },
+        handleMoveEvent : function(event){
+            if (dragCursor) {
+                var map = event.map;
+                var feature = map.forEachFeatureAtPixel(event.pixel,
+                    function(feature, layer) {
+                      return feature;
+                    });
+                var element = event.map.getTargetElement();
+                if (feature) {
+                    if (element.style.cursor != dragCursor) {
+                        dragPrevCursor = element.style.cursor;
+                        element.style.cursor = dragCursor;
+                    }
+                } else if (dragPrevCursor !== undefined) {
+                    element.style.cursor = dragPrevCursor;
+                    dragPrevCursor = undefined;
+                }
+            }
+        },
+        handleUpEvent : function(event){
+            dragCoordinate = null;
+            dragFeature = null;
+            return false;
+        }
+    });
+    map.addInteraction(dragInteraction);
+ 
+    // Add controls to Africa maps:
+    // Zoom control and scale line.
+    var zoomSlider = new ol.control.ZoomSlider();
+    map.addControl(zoomSlider);
+    var scaleLine = new ol.control.ScaleLine();
+    map.addControl(scaleLine);
+    
+    // Layer Switcher control (OL3 doesn't have one, using another script)
+    var layerSwitcher = new ol.control.LayerSwitcher({
+        tipLabel: 'Layer Switcher'
+    });
+    map.addControl(layerSwitcher);
+    
+    if (!preview) {
+        // Create control bar 
+        var mainbar = new ol.control.Bar({
+        	toggleOne: true,	// one control active at the same time
+            group: false	    // group controls together
+        });
+        mainbar.setPosition("top-right");
+        map.addControl(mainbar);
+
+        // Add editing tools to the editing sub control bar
+        var drawBar = new ol.control.Bar({
+        	toggleOne: true,    	// one control active at the same time
+            autoDeactivate: true,   // deactivate controls in bar when parent control off
+            group: false		    // group controls together
+        });
+        drawBar.addControl( new ol.control.Toggle({
+            html: '<i class="icon-polygon-o" ></i>',
+            title: 'Polygon creation: Click at each corner of field; double-click when done.',
+            autoActivate: true,
+            interaction: new ol.interaction.Draw({
+            	type: 'Polygon',
+                features: fields,
+                //pixelTolerance: 0,
+                //condition: function(event){
+                //    return !ol.events.condition.shiftKeyOnly(event);
+                //},
+                style: new ol.style.Style({
+                    fill: new ol.style.Fill({
+                        color: 'rgba(255, 255, 255, 0.2)',
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: 'rgba(0, 153, 255, 1.0)',
+                        width: 2
+                    }),
+                    image: new ol.style.Circle({
+                        radius: 7,
+                        fill: new ol.style.Fill({
+                            color: 'rgba(0, 153, 255, 0.5)'
+                        })
+                    })
+                })
+            })
+        }));
+        drawBar.addControl( new ol.control.Toggle({
+            html: '<i class="icon-circle-thin" ></i>',
+            title: 'Circle creation: Click at center of field; slide mouse to expand and click when done.',
+            interaction: new ol.interaction.Draw({
+            	type: 'Circle',
+                features: fields,
+                //pixelTolerance: 0,
+                // Create circle from polygon, otherwise not recognized by KML
+                geometryFunction: ol.interaction.Draw.createRegularPolygon(),
+                style: new ol.style.Style({
+                    fill: new ol.style.Fill({
+                        color: 'rgba(255, 255, 255, 0.2)',
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: 'rgba(0, 153, 255, 1.0)',
+                        width: 2
+                    }),
+                    image: new ol.style.Circle({
+                        radius: 7,
+                        fill: new ol.style.Fill({
+                            color: 'rgba(0, 153, 255, 0.5)'
+                        })
+                    })
+                })
+            })
+        }));
+        drawBar.addControl( new ol.control.Toggle({
+            html: '<i class="icon-rectangle-o" ></i>',
+            title: 'Rectangle creation: Click at corner of field; slide mouse to expand and click when done.',
+            interaction: new ol.interaction.Draw({
+            	type: 'LineString',
+                features: fields,
+                //pixelTolerance: 0,
+                // Use diagonal to form rectangle
+                geometryFunction: function(coordinates, geometry) {
+                    if (!geometry) {
+                        geometry = new ol.geom.Polygon(null);
+                    }
+                    var start = coordinates[0];
+                    var end = coordinates[1];
+                    geometry.setCoordinates([
+                        [start, [start[0], end[1]], end, [end[0], start[1]], start]
+                    ]);
+                    return geometry;
+                },
+                style: new ol.style.Style({
+                    fill: new ol.style.Fill({
+                        color: 'rgba(255, 255, 255, 0.2)',
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: 'rgba(0, 153, 255, 1.0)',
+                        width: 2
+                    }),
+                    image: new ol.style.Circle({
+                        radius: 7,
+                        fill: new ol.style.Fill({
+                            color: 'rgba(0, 153, 255, 0.5)'
+                        })
+                    })
+                }),
+                maxPoints: 2,
+            })
+        }));
+        drawBar.addControl( new ol.control.Toggle({
+            html: '<i class="icon-square-o" ></i>',
+            title: 'Square creation: Click at center of field; slide mouse to expand and click when done.',
+            interaction: new ol.interaction.Draw({
+            	type: 'Circle',
+                features: fields,
+                //pixelTolerance: 0,
+                geometryFunction: ol.interaction.Draw.createRegularPolygon(4),
+                style: new ol.style.Style({
+                    fill: new ol.style.Fill({
+                        color: 'rgba(255, 255, 255, 0.2)',
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: 'rgba(0, 153, 255, 1.0)',
+                        width: 2
+                    }),
+                    image: new ol.style.Circle({
+                        radius: 7,
+                        fill: new ol.style.Fill({
+                            color: 'rgba(0, 153, 255, 0.5)'
+                        })
+                    })
+                })
+            })
+        }));
+
+        // Add drawing sub control bar to the drawButton control
+        var drawButton = new ol.control.Toggle({
+        	html: '<i class=" icon-draw" ></i>',
+            title: 'To create mapped fields, click on one of the tools to the left.',
+            active: true,
+            bar: drawBar
+        });
+        mainbar.addControl(drawButton);
+        // Need the following  to be last to ensure Modify tool processes clicks before Draw tool.
+        // Add edit tool.
+        var editButton = new ol.control.Toggle({
+        	html: '<i class=" icon-edit" ></i>',
+            title: 'To edit any mapped field, drag center of field to move it; drag any border line to stretch it; shift-click on any field corner to delete vertex.',
+            interaction: new ol.interaction.Modify({
+                features: fields,
+                //pixelTolerance: 4,
+                // The SHIFT key must be pressed to delete vertices, so that new
+                // vertices  can be drawn at the same position as existing vertices.
+                deleteCondition: function(event) {
+                    return ol.events.condition.shiftKeyOnly(event) &&
+                    ol.events.condition.singleClick(event);
+                },
+                style: new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 7,
+                        fill: new ol.style.Fill({
+                            color: '#ffcc33'
+                        }),
+                        stroke: new ol.style.Stroke({
+                            color: 'white',
+                            width: 2
+                        })
+                    })
+                }) 
+            })
+        });
+        mainbar.addControl(editButton);
+        //map.addInteraction(modify);
+
+        // Add selection tool (a toggle control with a select interaction)
+        var delBar = new ol.control.Bar();
+        var selectCtrl = new ol.control.Toggle({
+            html: '<i class="icon-select-o"></i>',
+            title: "Select tool: Click a mapped field to select for deletion. Shift-click to select multiple fields.",
+            interaction: new ol.interaction.Select({ layers: [fieldsLayer] }),
+            bar: delBar
+        });
+        mainbar.addControl(selectCtrl);
+
+        delBar.addControl( new ol.control.Toggle({
+            html: '<i class="icon-delete-o"></i>',
+            title: "Click this button to delete selected mapped field(s).",
+            className: "noToggle",
+            onToggle: function() {
+                var features = selectCtrl.getInteraction().getFeatures();
+                if (!features.getLength()) alert("Please click on one or more mapped fields to select for deletion first.");
+                for (var i=0, f; f=features.item(i); i++) {
+                    fieldsLayer.getSource().removeFeature(f);
+                }
+                selectCtrl.getInteraction().getFeatures().clear();
+            }
+        }));
+
+        // Add a save button with on active event
+        var saveButton = new ol.control.Toggle(
+                {	html: '<i class="icon-save"></i>',
+                    title: 'Save changes: Click this button only ONCE when all mapped fields have been created, and you are satisfied with your work. Click when done even if there are NO fields to draw on this map.',
+                    className: "noToggle"
+                });
+        mainbar.addControl(saveButton);
+        saveButton.on("change:active", function(e)
+        {	
+            if (e.active) {
+                checkSaveStrategy(kmlName, noPolygonPath, assignmentId, trainingId, tryNum);
+                //alert("saveButton is on");
+            }
         });
     }
-    // Don't allow Save button to be used again.
-    saveStrategyActive = false
-    // Set the active control to be Navigation.
-    for(var i=1, len=panelControls.length; i<len; i++) {
-        panelControls[i].deactivate();
-    }
-    panelControls[0].activate();
-}
 
-// Report polygon status to the worker. 
-// If it's for a training map with a low score, let him try to remap again.
-function saveKMLStatus(response, assignmentId, trainingId) {
-    statusCode = response.priv.status;
-    statusText = response.priv.statusText;
-
-    // Save the status code in the MTurk HTML form.
-    document.mturkform.save_status_code.value = statusCode;
-
-    // Training case.
-    if (trainingId.length > 0) {
-        if (statusCode >= 200 && statusCode < 300) {
-            alert("Congratulations! You successfully mapped the crop fields in this map. Please click Ok to move on to the next training map.");
-        } else if (statusCode == lowScoreCode || statusText == lowScoreText) {
-            alert("We're sorry, but you failed to correctly map the crop fields in this map. Please click Ok to try again.");
-        } else {
-            // alert("statusCode: " + statusCode + "; statusText: '" + statusText + "'");
-            alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance, but you will be paid for your time when it is available again. Please try again later. We apologize for the inconvenience.");
+    function checkSaveStrategy(kmlName, noPolygonPath, assignmentId, trainingId, tryNum) {
+        var msg;
+        if (!saveStrategyActive) {
+            return;
         }
-    // HIT and stand-alone cases.
-    } else if (! (statusCode >= 200 && statusCode < 300)) {
-        alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance. Please try again later. We apologize for the inconvenience.");
-    }
-    if (assignmentId.length > 0 || trainingId.length > 0) {
-        document.mturkform.submit();
-    }
-}
-
-// Report notification status to the worker. 
-// If it's for a training map with a low score, let him try to remap once more time.
-function notificationStatus(request, assignmentId, trainingId) {
-    statusCode = request.status;
-    statusText = request.statusText;
-
-    // Save the status code in the MTurk HTML form.
-    document.mturkform.save_status_code.value = statusCode;
-
-    // Training case.
-    if (trainingId.length > 0) {
-        if (statusCode >= 200 && statusCode < 300) {
-            alert("Congratulations! You successfully reported the absence of crop fields in this map. Please click Ok to move on to the next training map.");
-        } else if (statusCode == lowScoreCode || statusText == lowScoreText) {
-            alert("We're sorry, but you failed to map the crop fields in this map. Please click Ok to try again.");
+        var features = fieldsLayer.getSource().getFeatures();
+        if (features != '') {
+            msg = 'You can only save your mapped fields ONCE!\nPlease confirm that you\'re COMPLETELY done mapping fields.\nIf not done, click Cancel.';
         } else {
-            // alert("statusCode: " + statusCode + "; statusText: '" + statusText + "'");
-            alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance, but you will be paid for your time when it is available again. Please try again later. We apologize for the inconvenience.");
+            msg = 'You have not mapped any fields!\nYou can only save your mapped fields ONCE!\nPlease confirm that you\'re COMPLETELY done mapping fields.\nIf not done, click Cancel.'
         }
-        
-    // HIT and stand-alone cases.
-    } else if (! (statusCode >= 200 && statusCode < 300)) {
-        alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance. Please try again later. We apologize for the inconvenience.");
+        if (!confirm(msg)) {
+            return;
+        }
+        // Save the current polygons if there are any.
+        if (features != '') {
+            var i = 1;
+            for (var feature in features) {
+                features[feature].set('name', kmlName + '_' + i);
+                i = i + 1;
+            }
+            var kmlFormat = new ol.format.KML();
+            var kmlData = kmlFormat.writeFeatures(features, {featureProjection: 'EPSG:3857'});
+            //alert(kmlData);
+            jQuery.ajax({
+                type: "POST",
+                url: polygonPath,
+                data: {
+                    foldersName: foldersName,
+                    kmlData: kmlData
+                },
+                complete: function (jqXHR, statusCode) {
+                    //alert("complete: " + statusCode + ": " + jqXHR.status + " " + jqXHR.statusText);
+                    saveKMLStatus(jqXHR.status, jqXHR.statusText);
+                }
+            });
+        } else {
+            jQuery.ajax({
+                type: "PUT",
+                url: noPolygonPath,
+                data: {
+                    kmlName: kmlName,
+                    assignmentId: assignmentId,
+                    trainingId: trainingId,
+                    tryNum: tryNum
+                },
+                complete: function (jqXHR, statusCode) {
+                    //alert("complete: " + statusCode + ": " + jqXHR.status + " " + jqXHR.statusText);
+                    saveNotificationStatus(jqXHR.status, jqXHR.statusText);
+                }
+            });
+        }
+        // Don't allow Save button to be used again.
+        saveStrategyActive = false
+
+        // Set the active control to be Navigation.
+        //for(var i=1, len=panelControls.length; i<len; i++) {
+        //    panelControls[i].deactivate();
+        //}
+        //panelControls[0].activate();
     }
-    if (assignmentId.length > 0 || trainingId.length > 0) {
-        document.mturkform.submit();
+
+    // Report polygon status to the worker. 
+    // If it's for a training map with a low score, let him try to remap again.
+    function saveKMLStatus(statusCode, statusText) {
+        // Save the status code in the MTurk HTML form.
+        document.mturkform.save_status_code.value = statusCode;
+
+        // Training case.
+        if (trainingId.length > 0) {
+            if (statusCode >= 200 && statusCode < 300) {
+                alert("Congratulations! You successfully mapped the crop fields in this map. Please click Ok to move on to the next training map.");
+            } else if (statusCode == lowScoreCode || statusText == lowScoreText) {
+                alert("We're sorry, but you failed to correctly map the crop fields in this map. Please click Ok to try again.");
+            } else {
+                // alert("statusCode: " + statusCode + "; statusText: '" + statusText + "'");
+                alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance, but you will be paid for your time when it is available again. Please try again later. We apologize for the inconvenience.");
+            }
+        // HIT and stand-alone cases.
+        } else if (! (statusCode >= 200 && statusCode < 300)) {
+            alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance. Please try again later. We apologize for the inconvenience.");
+        }
+        if (assignmentId.length > 0 || trainingId.length > 0) {
+            document.mturkform.submit();
+        }
+    }
+
+    // Report notification status to the worker. 
+    // If it's for a training map with a low score, let him try to remap once more time.
+    function saveNotificationStatus(statusCode, statusText) {
+        // Save the status code in the MTurk HTML form.
+        document.mturkform.save_status_code.value = statusCode;
+
+        // Training case.
+        if (trainingId.length > 0) {
+            if (statusCode >= 200 && statusCode < 300) {
+                alert("Congratulations! You successfully reported the absence of crop fields in this map. Please click Ok to move on to the next training map.");
+            } else if (statusCode == lowScoreCode || statusText == lowScoreText) {
+                alert("We're sorry, but you failed to map the crop fields in this map. Please click Ok to try again.");
+            } else {
+                // alert("statusCode: " + statusCode + "; statusText: '" + statusText + "'");
+                alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance, but you will be paid for your time when it is available again. Please try again later. We apologize for the inconvenience.");
+            }
+            
+        // HIT and stand-alone cases.
+        } else if (! (statusCode >= 200 && statusCode < 300)) {
+            alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance. Please try again later. We apologize for the inconvenience.");
+        }
+        if (assignmentId.length > 0 || trainingId.length > 0) {
+            document.mturkform.submit();
+        }
     }
 }

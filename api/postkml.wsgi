@@ -20,10 +20,8 @@ def application(environ, start_response):
     k.write("\npostkml: datetime = %s\n" % now)
 
     try:
-        kml = parseString(req.body)
-
         # Use this to store name and Assignment ID of completed kml in DB.
-        kmlValue = kml.getElementsByTagName('name')[0].firstChild.data.split('_')
+        kmlValue = req.params['foldersName'].split('_')
         #k.write("test: kmlvalue: %s\n" % kmlValue)
         kmlName = kmlValue[0]
         # Get the type for this kml.
@@ -59,9 +57,11 @@ def application(environ, start_response):
             k.write("postkml: Training ID = %s; try %d\n" % (trainingId, tryNum))
         else:
             k.write("postkml: No MTurk Assignment or Training ID\n")
-        k.write("postkml: kml = %s\n" % req.body)
 
         # Loop over every Polygon, and store its name and data in PostGIS DB.
+        kml = req.params['kmlData']
+        k.write("postkml: kml = %s\n" % kml)
+        kml = parseString(kml)
         for placemark in kml.getElementsByTagName('Placemark'):
             polyName = placemark.getElementsByTagName('name')[0].firstChild.data
             polygon = placemark.getElementsByTagName('Polygon')[0].toxml()
@@ -96,9 +96,9 @@ def application(environ, start_response):
                 break
         # This gets executed if we did not break out of the loop: i.e., if no errors.
         else:
-            if not trainingId:
+            if assignmentId:
                 mapFix(mtma, "ma", kmlName, assignmentId, "no")
-            else:
+            elif trainingId:
                 mapFix(mtma, "tr", kmlName, trainingId, "no", tryNum)
             mtma.dbcon.commit()
 

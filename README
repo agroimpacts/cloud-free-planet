@@ -25,3 +25,7 @@ NOTE: This allows MTurkMappingAfrica.py to be imported from scripts running in
 
 6) a) Build processmail by cd'ing to ~/afmap/processmail/src, and typing 'make' as user mapper or sandbox, and then 'make install' as root. This is necesary to process incoming emails from MTurk.
    b) Change permssions of ~/afmap/processmail directory: chmod o+rx ~/afmap/processmail
+
+7) Build boto by logging in as root, cd'ing to ~/afmap/boto, and typing:
+    ./setup.sh >setup.out 2>&1
+

@@ -40,7 +40,7 @@ def application(environ, start_response):
         elif kmlType == MTurkMappingAfrica.KmlTraining:
             kmlType = 'training'
 
-        instructions = 'Please use the toolbar below to map all crop fields that are wholly or partially inside the white square (map the entire field, even the part that falls outside the box). <br/> Then save your changes by clicking on the disk icon to complete the HIT. (Note: if you see a multi-world map, you can reset it by either zooming in (and then out)<br/> by one click, panning the map slightly, or (somewhat slower) refreshing your browser. Please visit our <a href="http://mappingafrica.princeton.edu/blog.html#!/blog/posts/Frequently-Asked-Questions/6" target="_blank">FAQ</a> for tips on dealing with no imagery and for other advice.)'
+        instructions = 'Please use the toolbar below to map all crop fields that are wholly or partially inside the white square (map the entire field, even the part that falls outside the box). <br/> Then save your changes by clicking on the disk icon to complete the HIT. Please visit our <a href="http://mappingafrica.princeton.edu/blog.html#!/blog/posts/Frequently-Asked-Questions/6" target="_blank">FAQ</a> for tips on dealing with no imagery and for other advice.<br/><i>(Note: if you see a multi-world map, you can reset it by either zooming in (and then out) by one click, panning the map slightly, or refreshing your browser.)</i>'
 
         # MTurk cases.
         try:
@@ -99,25 +99,24 @@ def application(environ, start_response):
             <!DOCTYPE html>
             <html>
                 <head>
-                    <title>One Square Km in South Africa</title>
+                    <title>One Square Km in Africa</title>
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                    <script type="text/javascript" src="/OL/OpenLayers-2.12/OpenLayers.js"></script>
-                    <script type="text/javascript" src="https://maps.google.com/maps/api/js?v=3.8&sensor=false"></script>
-                    <script type="text/javascript" src="/OL/showkml.js"></script>
+                    <link rel="stylesheet" href="https://openlayers.org/en/v3.18.2/css/ol.css" type="text/css">
+                    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400">
+                    <link rel="stylesheet" href="/OL/fontello-799a171d/css/fontello.css" type="text/css" />
+                    <link rel="stylesheet" href="/OL/ol3-layerswitcher.css" type="text/css">
+                    <link rel="stylesheet" href="/OL/controlbar.css" type="text/css">
                     <link rel="stylesheet" href="/OL/showkml.css" type="text/css">
+                    <script src="https://openlayers.org/en/v3.18.2/build/ol.js" type="text/javascript"></script>
+                    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+                    <script type="text/javascript" src="/OL/ol3-layerswitcher.js"></script>
+                    <script type="text/javascript" src="/OL/controlbar.js"></script>
+                    <script type="text/javascript" src="/OL/buttoncontrol.js"></script>
+                    <script type="text/javascript" src="/OL/togglecontrol.js"></script>
+                    <script type="text/javascript" src="/OL/showkml.js"></script>
                     <style>
                         html, body {
                             height: %(mturkFrameHeight)spx;
-                        }
-                        .hints {
-                            font-size:10pt;
-                            font-family:arial;
-                        /*
-                            font-weight:bold;
-                        */
-                            text-align:center;
-                            color: blue;
-                            margin: 0;
                         }
                     </style>
                 </head>
@@ -135,7 +134,7 @@ def application(environ, start_response):
                         </td>
                         <th>
                             &nbsp;&nbsp;&nbsp;
-                            <i>Hover over the icons in the toolbar below for usage instructions.</i>
+                            <i>Hover over the icons in the toolbars below for usage instructions.</i>
                         </th>
                         </tr></table>
                         %(mapHint)s
