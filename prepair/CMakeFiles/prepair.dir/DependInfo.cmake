@@ -4,11 +4,17 @@ SET(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_CXX
-  "/u/sandbox/afmap/prepair/PolygonRepair.cpp" "/u/sandbox/afmap/prepair/CMakeFiles/prepair.dir/PolygonRepair.cpp.o"
-  "/u/sandbox/afmap/prepair/TriangleInfo.cpp" "/u/sandbox/afmap/prepair/CMakeFiles/prepair.dir/TriangleInfo.cpp.o"
-  "/u/sandbox/afmap/prepair/prepair.cpp" "/u/sandbox/afmap/prepair/CMakeFiles/prepair.dir/prepair.cpp.o"
+  "/u/sandbox/afmap/prepair/PolygonRepair.cpp" "/u/lestes/afmap/prepair/CMakeFiles/prepair.dir/PolygonRepair.cpp.o"
+  "/u/sandbox/afmap/prepair/TriangleInfo.cpp" "/u/lestes/afmap/prepair/CMakeFiles/prepair.dir/TriangleInfo.cpp.o"
+  "/u/sandbox/afmap/prepair/prepair.cpp" "/u/lestes/afmap/prepair/CMakeFiles/prepair.dir/prepair.cpp.o"
   )
 SET(CMAKE_CXX_COMPILER_ID "GNU")
+
+# Preprocessor definitions for this target.
+SET(CMAKE_TARGET_DEFINITIONS
+  "CGAL_USE_GMP"
+  "CGAL_USE_MPFR"
+  )
 
 # Targets to which this target links.
 SET(CMAKE_TARGET_LINKED_INFO_FILES

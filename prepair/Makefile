@@ -45,7 +45,7 @@ CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 CMAKE_SOURCE_DIR = /u/sandbox/afmap/prepair
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /u/sandbox/afmap/prepair
+CMAKE_BINARY_DIR = /u/lestes/afmap/prepair
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -72,9 +72,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /u/sandbox/afmap/prepair/CMakeFiles /u/sandbox/afmap/prepair/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /u/lestes/afmap/prepair/CMakeFiles /u/lestes/afmap/prepair/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /u/sandbox/afmap/prepair/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /u/lestes/afmap/prepair/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

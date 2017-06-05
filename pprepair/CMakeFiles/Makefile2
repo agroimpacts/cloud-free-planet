@@ -53,7 +53,7 @@ CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 CMAKE_SOURCE_DIR = /u/sandbox/afmap/pprepair
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /u/sandbox/afmap/pprepair
+CMAKE_BINARY_DIR = /u/lestes/afmap/pprepair
 
 #=============================================================================
 # Target rules for target CMakeFiles/pprepair.dir
@@ -62,7 +62,7 @@ CMAKE_BINARY_DIR = /u/sandbox/afmap/pprepair
 CMakeFiles/pprepair.dir/all:
 	$(MAKE) -f CMakeFiles/pprepair.dir/build.make CMakeFiles/pprepair.dir/depend
 	$(MAKE) -f CMakeFiles/pprepair.dir/build.make CMakeFiles/pprepair.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /u/sandbox/afmap/pprepair/CMakeFiles  1 2 3 4 5
+	$(CMAKE_COMMAND) -E cmake_progress_report /u/lestes/afmap/pprepair/CMakeFiles  1 2 3 4 5
 	@echo "Built target pprepair"
 .PHONY : CMakeFiles/pprepair.dir/all
 
@@ -72,9 +72,9 @@ all: CMakeFiles/pprepair.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/pprepair.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /u/sandbox/afmap/pprepair/CMakeFiles 5
+	$(CMAKE_COMMAND) -E cmake_progress_start /u/lestes/afmap/pprepair/CMakeFiles 5
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/pprepair.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /u/sandbox/afmap/pprepair/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /u/lestes/afmap/pprepair/CMakeFiles 0
 .PHONY : CMakeFiles/pprepair.dir/rule
 
 # Convenience name for target.
