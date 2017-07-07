@@ -1,0 +1,5 @@
+Suggestions by Mechanical Turk workers
+
+1. Map with two colors, one for fields that the worker is sure about being cropland, and another for fields that the worker is unsure about but thinks is cropland.
+2. Have the mapping platform begin with the mapping tool already selected, instead of having to select it first every single time.
+3. Instead of rejection, take away the bonus instead.  

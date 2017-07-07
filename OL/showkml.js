@@ -44,6 +44,24 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, traini
         undefinedHTML: '&nbsp;'
     });
     
+    //Define Planet base layer.
+    var planetLayer = new ol.layer.Tile({
+        title: 'Planet Satellite Imagery',
+        type: 'base',
+        visible: false,
+        source: new ol.source.XYZ({
+            tileSize: [512, 512],
+            url: 'https://tiles{1-3}.planet.com/v1/PSScene3Band/20170419_051605_0c45/{z}/{x}/{y}.png?api_key=86ba55123d60492ab315935bf9e62945'
+//            url: 'https://tiles.planet.com/v0/scenes/ortho/20170419_051605_0c45/{z}/{x}/{y}.png?api_key=86ba55123d60492ab315935bf9e62945'
+//            url: 'https://tiles.planet.com/v0/scenes/rapideye/20170419_051605_0c45/{z}/{x}/{y}.png?api_key=86ba55123d60492ab315935bf9e62945'
+//            url: 'https://tiles.planet.com/v0/scenes/landsat/20170419_051605_0c45/{z}/{x}/{y}.png?api_key=86ba55123d60492ab315935bf9e62945'
+        })
+    });
+
+//          url: 'https://tiles.planet.com/v0/scenes/landsat/{id}/{z}/{x}/{y}.png?api_key=86ba55123d60492ab315935bf9e62945'
+//          url: 'https://tiles{0-3}.planet.com/v0/mosaics/color_balance_mosaic/{z}/{x}/{y}.png?api_key=86ba55123d60492ab315935bf9e62945'
+//          url: 'https://tiles{0-3}.planet.com/v0/mosaics/color_balance_mosaic/{z}/{x}/{y}.png?api_key=f1e69dd5f3324b7b9a1c2ccb22ced5d5'
+
     //Define Mapbox base layer.
     var mapboxLayer = new ol.layer.Tile({
         title: 'Mapbox Satellite Imagery',
@@ -85,7 +103,7 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, traini
             // Create base layer group.
             new ol.layer.Group({
                 title: 'Base Layer',
-                layers: [mapboxLayer, bingLayer]
+                layers: [planetLayer, mapboxLayer, bingLayer]
             })
             // Create multi-band image layer group.
             //new ol.layer.Group({
@@ -101,7 +119,7 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, traini
     map.setView(new ol.View({
         center: [0,0],
         zoom: 14,
-        minZoom: 14,
+        minZoom: 1,
         maxZoom: 18
     }));
     
@@ -206,6 +224,11 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, traini
     }
 
     // Add drag interaction.
+    var dragFeature = null;
+    var dragCoordinate = null;
+    var dragCursor = 'pointer';
+    var dragPrevCursor = null;
+
     var dragInteraction = new ol.interaction.Pointer({
         handleDownEvent : function(event){
             var feature = map.forEachFeatureAtPixel(event.pixel,    
