@@ -1,4 +1,4 @@
-# Install script for directory: /u/sandbox/afmap/pprepair
+# Install script for directory: /home/sandbox/afmap/pprepair
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -38,7 +38,7 @@ ELSE(CMAKE_INSTALL_COMPONENT)
   SET(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
 ENDIF(CMAKE_INSTALL_COMPONENT)
 
-FILE(WRITE "/u/lestes/afmap/pprepair/${CMAKE_INSTALL_MANIFEST}" "")
+FILE(WRITE "/home/sandbox/afmap/pprepair/${CMAKE_INSTALL_MANIFEST}" "")
 FOREACH(file ${CMAKE_INSTALL_MANIFEST_FILES})
-  FILE(APPEND "/u/lestes/afmap/pprepair/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
+  FILE(APPEND "/home/sandbox/afmap/pprepair/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
 ENDFOREACH(file)

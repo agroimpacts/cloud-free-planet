@@ -3,4 +3,6 @@
 pprepair/pprepair
 pprepair/*.o
 prepair/prepair
-prepair/*.o
+prepair/CMakeFiles/prepair.dir/*.o
+mturk/*.pyc
+kmls.zip

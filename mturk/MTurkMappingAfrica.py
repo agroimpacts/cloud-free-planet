@@ -76,7 +76,7 @@ class MTurkMappingAfrica(object):
             self.sandbox = False
         else:
            raise Exception("MTurkMappingAfrica must run under sandbox or mapper user") 
-        self.projectRoot = '/u/%s/afmap' % self.euser
+        self.projectRoot = '/home/%s/afmap' % self.euser
         if self.sandbox:
             db_name = db_sandbox_name
             self.host = mt_sandbox_host
@@ -477,7 +477,7 @@ class MTurkMappingAfrica(object):
         try:
             return self.cur.fetchone()[0]
         except TypeError as e:
-            if str(e) == "'NoneType' object is unsubscriptable":
+            if str(e).startswith("'NoneType'"):
                 return None
             else:
                 raise

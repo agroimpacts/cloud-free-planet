@@ -3,7 +3,7 @@
 # Based on Makefile by: Bas van der Vlies & Michel Jouvin
 #
 OWNER=$(shell stat -c %U processmail)
-DESTDIR=/u/$(OWNER)/afmap/processmail/bin
+DESTDIR=/home/$(OWNER)/afmap/processmail/bin
 
 MTA_USER=nobody
 HAVE_INITGROUPS=1

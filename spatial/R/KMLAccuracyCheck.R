@@ -33,7 +33,7 @@ if(test.root == "Y") {
   print(paste("database =", dinfo["db.name"], "directory = ", 
               dinfo["project.root"]))
   print(prjstr)
-  paste(project.root, "/spatial/R/Error_records/")  # fix this, because it won't work
+  print(paste0(dinfo["project.root"], "/spatial/R/Error_records/"))  # fix this, because it won't work
   print("Stopping here: Just checking we are working in the right places")
 } 
 
