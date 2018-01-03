@@ -318,21 +318,21 @@ $(document).ready(function () {
 <p>This daemon creates all HITs based on a number of DB configuration parameters that govern the number, type (Q, F, N) and characteristics (e.g., number of assignments) of each HIT. It calculates the number of HITs to create during each polling interval by subtracting the number of Assignable HITs on Amazon Mechanical Turk (Mturk) from the number of HITs of that type that are to be made available to workers per the relevant DB parameters. Each HIT is created based on an entry from the kml_data table. In the case of Q HITs, the Q KMLs are reused in a round-robin fashion. Each time a Q HIT is submitted, its KML becomes available for reuse. While Q HITs are always created with only one assignment apiece, in the case of F and N HITs, they are created with the number of assignments specified by the appropriate DB parameter, minus the existing mapped_count for that KML (see below). There is also a DB parameter for limiting the number of assignments to a value below the threshold set by Mturk for incurring a surcharge for multi-assignment HITs. If the system runs low on N KMLs, the KMLgenerate.R daemon runs to replenish it (see below).</p>
 <p>The primary content of a HIT is known in Mturk parlance as an ExternalQuestion. In the case of the Mapping Africa subsystem, this external question is a URL that identifies a specific KML by name and causes getkml.wsgi to execute (see below). This results in a web frame being returned to the worker’s browser that executes showkml.js and displays the specified KML boundaries over a background of Google Maps satellite imagery. This daemon is also responsible for doing sanity checking on the number and state of HITs recorded in the DB as compared to those created on Mturk. It logs its activity to …/log/createHit.log.</p>
 </section>
-</section>
-<section id="kmlgenerate.r" class="level2">
-<h2><code>KMLgenerate.R</code></h2>
+<section id="kmlgenerate.r" class="level3">
+<h3><code>KMLgenerate.R</code></h3>
 <p>This daemon provides more N KMLs as needed for create_hit_daemon.py to use in order to create N HITs.</p>
 <p>It logs its activity to …/log/KMLgenerate.log.</p>
 </section>
-<section id="process_qualification_requests.py" class="level2">
-<h2><code>process_qualification_requests.py</code></h2>
+<section id="process_qualification_requests.py" class="level3">
+<h3><code>process_qualification_requests.py</code></h3>
 <p>This daemon polls Mturk looking for requests by workers that completed the Mapping Africa qualification test. If it finds a request, it checks the provided Training ID to ensure that all training KMLs were mapped successfully, and if so grants the Mapping Africa qualification to the user. Two back-door “Training IDs” have also been provided for: one for previously qualified workers that lost their qualification when the Mapping Africa qualification type is recreated using create_qualification_type.py; and one to provide the unconditional granting of the Mapping Africa qualification for testing purposes.</p>
 <p>It logs its activity to …/log/processQualReqs.log.</p>
 </section>
-<section id="cleanup_absent_worker.py" class="level2">
-<h2><code>cleanup_absent_worker.py</code></h2>
+<section id="cleanup_absent_worker.py" class="level3">
+<h3><code>cleanup_absent_worker.py</code></h3>
 <p>This daemon looks for F and N assignments that have been left in the Pending state for longer than a configurable length of time. Pending assignments are left in that state until a worker has enough history to achieve a trust level. If a worker stops working on Mapping Africa HITs before achieving a trust level, their Pending assignments will stay in that state indefinitely, and their HITs can never be deleted. This in turn affects the subsystem’s ability to achieve multiple mappings of F KMLs, and prevents create_hit_daemon.py from achieving the desired balance of available HITs on Mturk.</p>
 <p>It logs its activity to …/log/cleanupAbsentWorker.log.</p>
+</section>
 </section>
 <section id="webserver-wsgi-scripts" class="level2">
 <h2>Webserver WSGI Scripts</h2>
@@ -362,15 +362,17 @@ $(document).ready(function () {
 <h3><code>process_notifications.wsgi</code></h3>
 <p>This script is no longer used. It supports a REST notifications via HTTP request for the above Mturk events. After parsing the REST request, it internally calls ProcessNotifications.py, which does the heavy lifting. Mturk has now discontinued this notification type, so the Mapping Africa subsystem now uses email notifications for this purpose (see below).</p>
 </section>
+</section>
+<section id="other-scripts" class="level2">
+<h2>Other scripts</h2>
 <section id="process_notifications.py" class="level3">
 <h3><code>process_notifications.py</code></h3>
 <p>This script is called by the postfix email management subsystem on the mapper server. The postfix hook is configured by an entry in the /etc/aliases file: mturk_notification: “| /u/mapper/afmap/processmail/bin/processmail –user mapper –umask 007 –script /u/mapper/afmap/mturk/process_notifications.py” This intercepts emails addressed to <a href="mailto:mturk_notification@mapper.princeton.edu">mturk_notification@mapper.princeton.edu</a>. (There is a corresponding entry for mail addressed to <a href="mailto:mturk_sandbox_notification@mapper.princeton.edu">mturk_sandbox_notification@mapper.princeton.edu</a>.) The above “aliases” entry passes the email to processmail, which performs security checks to ensure that it is being called from postfix as user root, and then passes the email to process_notifications.py as the specified user (e.g., mapper) with the specified umask (e.g., 007).</p>
 <p>Note that processmail needs to be rebuilt on a new server or if the mailer (e.g., postfix) is changed. This can be done by following the instructions in …/afmap/README.</p>
 <p>After parsing the email body, <code>process_notifications.py</code>, like <code>process_notifications.wsgi</code>, calls <code>ProcessNotifications.py</code> to do the actual work.</p>
 </section>
-</section>
-<section id="processnotifications.py" class="level2">
-<h2><code>ProcessNotifications.py</code></h2>
+<section id="processnotifications.py" class="level3">
+<h3><code>ProcessNotifications.py</code></h3>
 <p>This is a major component in the Mapping Africa subsystem in that it handles the end-of-life processing of each assignment and HIT. It collects the event-identifying information (e.g., HIT ID, Assignment ID, event time, etc) and then calls the appropriate event handler based on the event type.</p>
 <ol type="1">
 <li><p>AssignmentSubmitted Event:</p>
@@ -380,6 +382,7 @@ $(document).ready(function () {
 <li><p>AssignmentAbandoned Event: This event handler records the assignment as being Abandoned in the assignment_data table. It then deletes the HIT on Mturk (and marks it as such in the hit_data table) if the HIT is in the Mturk Reviewable state and has no assignments in the Pending or Accepted state.</p></li>
 <li><p>HITExpired Event: This event handler records the HIT as being expired in the hit_data table. It then deletes the HIT on Mturk (and marks it as such in the hit_data table) if the HIT is in the Mturk Reviewable state and has no assignments in the Pending or Accepted state.</p></li>
 </ol>
+</section>
 </section>
 <section id="life-stages-of-a-hit" class="level2">
 <h2>Life Stages of a HIT</h2>

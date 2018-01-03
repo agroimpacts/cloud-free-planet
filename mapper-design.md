@@ -15,18 +15,18 @@ The primary content of a HIT is known in Mturk parlance as an ExternalQuestion. 
 This daemon is also responsible for doing sanity checking on the number and state of HITs recorded in the DB as compared to those created on Mturk.
 It logs its activity to …/log/createHit.log.
 
-## `KMLgenerate.R`
+### `KMLgenerate.R`
 This daemon provides more N KMLs as needed for create_hit_daemon.py to use in order to create N HITs.
 
 It logs its activity to …/log/KMLgenerate.log.
 
-## `process_qualification_requests.py`
+### `process_qualification_requests.py`
 This daemon polls Mturk looking for requests by workers that completed the Mapping Africa qualification test. If it finds a request, it checks the provided Training ID to ensure that all training KMLs were mapped successfully, and if so grants the Mapping Africa qualification to the user.
 Two back-door “Training IDs” have also been provided for: one for previously qualified workers that lost their qualification when the Mapping Africa qualification type is recreated using create_qualification_type.py; and one to provide the unconditional granting of the Mapping Africa qualification for testing purposes.
 
 It logs its activity to …/log/processQualReqs.log.
 
-## `cleanup_absent_worker.py`
+### `cleanup_absent_worker.py`
 This daemon looks for F and N assignments that have been left in the Pending state for longer than a configurable length of time. Pending assignments are left in that state until a worker has enough history to achieve a trust level. If a worker stops working on Mapping Africa HITs before achieving a trust level, their Pending assignments will stay in that state indefinitely, and their HITs can never be deleted. This in turn affects the subsystem’s ability to achieve multiple mappings of F KMLs, and prevents create_hit_daemon.py from achieving the desired balance of available HITs on Mturk.
 
 It logs its activity to …/log/cleanupAbsentWorker.log.
@@ -66,6 +66,7 @@ All of the notification scripts in this section log their activity to …/log/no
 ### `process_notifications.wsgi`
 This script is no longer used. It supports a REST notifications via HTTP request for the above Mturk events. After parsing the REST request, it internally calls ProcessNotifications.py, which does the heavy lifting. Mturk has now discontinued this notification type, so the Mapping Africa subsystem now uses email notifications for this purpose (see below).
 
+## Other scripts
 ### `process_notifications.py`
 This script is called by the postfix email management subsystem on the mapper server. The postfix hook is configured by an entry in the /etc/aliases file: 
 mturk_notification: "| /u/mapper/afmap/processmail/bin/processmail --user mapper --umask 007 --script /u/mapper/afmap/mturk/process_notifications.py"
@@ -75,7 +76,7 @@ Note that processmail needs to be rebuilt on a new server or if the mailer (e.g.
 
 After parsing the email body, `process_notifications.py`, like `process_notifications.wsgi`, calls `ProcessNotifications.py` to do the actual work.
 
-## `ProcessNotifications.py`
+### `ProcessNotifications.py`
 This is a major component in the Mapping Africa subsystem in that it handles the end-of-life processing of each assignment and HIT. It collects the event-identifying information (e.g., HIT ID, Assignment ID, event time, etc) and then calls the appropriate event handler based on the event type.
 
 1. AssignmentSubmitted Event:
@@ -123,8 +124,7 @@ In cases where developing a time trace of all the HIT-related events does not pr
 
 ### Examples:
 
-The example of the phantom HIT on Mturk was easy to find, since it does not appear in ANY logfile. 
-In the case of the “missing getAssignment parameter” problem and “approveAssignment failed” error, the error itself appears in the notifications.log file. The errors may have actually been detected by erroneous field values in the assignment_data table, or by the fact that the HIT was never deleted when it should have been, because the event handler exited after logging the error and never completed its work. In any case, the notifications.log file identifies both the assignment ID that experienced the problem and the associated HIT ID. Grepping for the HIT ID in all log files reveals the creation of the HIT in createHit.log, and the assignment of the HIT to a worker in OL.log. In the case of these errors there may or may not be the usually subsequent putkml/postkml log entries in OL.log. Then in notifications.log, there is an abbreviated log report for this assignment ID: e.g.:
+The example of the phantom HIT on Mturk was easy to find, since it does not appear in ANY logfile. In the case of the “missing getAssignment parameter” problem and “approveAssignment failed” error, the error itself appears in the notifications.log file. The errors may have actually been detected by erroneous field values in the assignment_data table, or by the fact that the HIT was never deleted when it should have been, because the event handler exited after logging the error and never completed its work. In any case, the notifications.log file identifies both the assignment ID that experienced the problem and the associated HIT ID. Grepping for the HIT ID in all log files reveals the creation of the HIT in createHit.log, and the assignment of the HIT to a worker in OL.log. In the case of these errors there may or may not be the usually subsequent putkml/postkml log entries in OL.log. Then in notifications.log, there is an abbreviated log report for this assignment ID: e.g.:
 
 ```
 getnotifications: datetime = 2016-06-18 06:46:42.731086
