@@ -7,8 +7,8 @@ library(data.table)
 dinfo <- getDBName()  # pull working environment
 kml.path <- paste0(dinfo["project.root"], "/kmls/")
 kml.pathst <- paste0(dinfo["project.root"], "/kmls_static/")
-kml.pathsb <- "/u/sandbox/afmap/kmls/"
-kml.pathsbst <- "/u/sandbox/afmap/kmls_static/"
+kml.pathsb <- "/home/sandbox/afmap/kmls/"
+kml.pathsbst <- "/home/sandbox/afmap/kmls_static/"
 
 #   source(paste(script.dir, "KMLAccuracyFunctions.R", sep="/"))
 

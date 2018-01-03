@@ -19,7 +19,7 @@ getDBName <- function(db.sandbox.name = 'AfricaSandbox',
     stop("Any R script must run under sandbox or mapper user")
   }
   
-  project.root <- paste("/u/", uname, "/afmap", sep = "")  # Project root path
+  project.root <- paste("/home/", uname, "/afmap", sep = "")  # Project root path
   
   if(sandbox == TRUE) {
     db.name <- db.sandbox.name

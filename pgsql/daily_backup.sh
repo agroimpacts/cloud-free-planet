@@ -4,7 +4,7 @@
 SDIR=`dirname $0`
 DATADIR=$SDIR/data
 
-# Assumes we were called with '/u/${USER}/afmap/pgsql/<script_name>'.
+# Assumes we were called with '/home/${USER}/afmap/pgsql/<script_name>'.
 IFS='/'
 array=($0)
 user=${array[2]}
@@ -15,7 +15,7 @@ if [ "$user" == "mapper" ]; then
 elif [ "$user" == "sandbox" ]; then
     dbname="AfricaSandbox"
 else
-    echo "$0 must be run using /u/mapper or /u/sandbox path"
+    echo "$0 must be run using /home/mapper or /home/sandbox path"
     exit 1
 fi
 if [ -f $DATADIR/$dbname.pgdump.2 ]; then

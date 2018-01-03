@@ -31,8 +31,8 @@ DASHES_RE = re.compile(DASHES_PATTERN)
 # /etc/aliases and /usr/local/etc/email2trac to create a ticket
 # under the Worker Feedback component.
 def send_email(mtma, sender, subject, msg = None):
-    receiver = 'mappingafrica_worker_feedback@trac.princeton.edu'
-    #receiver = 'dmcr@princeton.edu'
+    #receiver = 'mappingafrica_worker_feedback@trac.princeton.edu'
+    receiver = 'lestes@clarku.edu,dmcr@princeton.edu'
     message = """From: %s
 To: %s
 Subject: %s

@@ -1,4 +1,5 @@
 + umask 022
++ chmod o+r boto/cacerts/cacerts.txt
 + python setup.py install
 running install
 running bdist_egg
@@ -14,760 +15,1166 @@ writing manifest file 'boto.egg-info/SOURCES.txt'
 installing library code to build/bdist.linux-x86_64/egg
 running install_lib
 running build_py
+creating build
+creating build/lib
+creating build/lib/boto
+copying boto/__init__.py -> build/lib/boto
+copying boto/auth.py -> build/lib/boto
+copying boto/auth_handler.py -> build/lib/boto
+copying boto/compat.py -> build/lib/boto
+copying boto/connection.py -> build/lib/boto
+copying boto/exception.py -> build/lib/boto
+copying boto/handler.py -> build/lib/boto
+copying boto/https_connection.py -> build/lib/boto
+copying boto/jsonresponse.py -> build/lib/boto
+copying boto/plugin.py -> build/lib/boto
+copying boto/provider.py -> build/lib/boto
+copying boto/regioninfo.py -> build/lib/boto
+copying boto/resultset.py -> build/lib/boto
+copying boto/storage_uri.py -> build/lib/boto
+copying boto/utils.py -> build/lib/boto
+creating build/lib/boto/sqs
+copying boto/sqs/__init__.py -> build/lib/boto/sqs
+copying boto/sqs/attributes.py -> build/lib/boto/sqs
+copying boto/sqs/batchresults.py -> build/lib/boto/sqs
+copying boto/sqs/connection.py -> build/lib/boto/sqs
+copying boto/sqs/jsonmessage.py -> build/lib/boto/sqs
+copying boto/sqs/message.py -> build/lib/boto/sqs
+copying boto/sqs/queue.py -> build/lib/boto/sqs
+copying boto/sqs/regioninfo.py -> build/lib/boto/sqs
+creating build/lib/boto/s3
+copying boto/s3/__init__.py -> build/lib/boto/s3
+copying boto/s3/acl.py -> build/lib/boto/s3
+copying boto/s3/bucket.py -> build/lib/boto/s3
+copying boto/s3/bucketlistresultset.py -> build/lib/boto/s3
+copying boto/s3/bucketlogging.py -> build/lib/boto/s3
+copying boto/s3/connection.py -> build/lib/boto/s3
+copying boto/s3/cors.py -> build/lib/boto/s3
+copying boto/s3/deletemarker.py -> build/lib/boto/s3
+copying boto/s3/key.py -> build/lib/boto/s3
+copying boto/s3/keyfile.py -> build/lib/boto/s3
+copying boto/s3/lifecycle.py -> build/lib/boto/s3
+copying boto/s3/multidelete.py -> build/lib/boto/s3
+copying boto/s3/multipart.py -> build/lib/boto/s3
+copying boto/s3/prefix.py -> build/lib/boto/s3
+copying boto/s3/resumable_download_handler.py -> build/lib/boto/s3
+copying boto/s3/tagging.py -> build/lib/boto/s3
+copying boto/s3/user.py -> build/lib/boto/s3
+copying boto/s3/website.py -> build/lib/boto/s3
+creating build/lib/boto/gs
+copying boto/gs/__init__.py -> build/lib/boto/gs
+copying boto/gs/acl.py -> build/lib/boto/gs
+copying boto/gs/bucket.py -> build/lib/boto/gs
+copying boto/gs/bucketlistresultset.py -> build/lib/boto/gs
+copying boto/gs/connection.py -> build/lib/boto/gs
+copying boto/gs/cors.py -> build/lib/boto/gs
+copying boto/gs/key.py -> build/lib/boto/gs
+copying boto/gs/lifecycle.py -> build/lib/boto/gs
+copying boto/gs/resumable_upload_handler.py -> build/lib/boto/gs
+copying boto/gs/user.py -> build/lib/boto/gs
+creating build/lib/boto/file
+copying boto/file/__init__.py -> build/lib/boto/file
+copying boto/file/bucket.py -> build/lib/boto/file
+copying boto/file/connection.py -> build/lib/boto/file
+copying boto/file/key.py -> build/lib/boto/file
+copying boto/file/simpleresultset.py -> build/lib/boto/file
+creating build/lib/boto/ec2
+copying boto/ec2/__init__.py -> build/lib/boto/ec2
+copying boto/ec2/address.py -> build/lib/boto/ec2
+copying boto/ec2/attributes.py -> build/lib/boto/ec2
+copying boto/ec2/blockdevicemapping.py -> build/lib/boto/ec2
+copying boto/ec2/bundleinstance.py -> build/lib/boto/ec2
+copying boto/ec2/buyreservation.py -> build/lib/boto/ec2
+copying boto/ec2/connection.py -> build/lib/boto/ec2
+copying boto/ec2/ec2object.py -> build/lib/boto/ec2
+copying boto/ec2/group.py -> build/lib/boto/ec2
+copying boto/ec2/image.py -> build/lib/boto/ec2
+copying boto/ec2/instance.py -> build/lib/boto/ec2
+copying boto/ec2/instanceinfo.py -> build/lib/boto/ec2
+copying boto/ec2/instancestatus.py -> build/lib/boto/ec2
+copying boto/ec2/keypair.py -> build/lib/boto/ec2
+copying boto/ec2/launchspecification.py -> build/lib/boto/ec2
+copying boto/ec2/networkinterface.py -> build/lib/boto/ec2
+copying boto/ec2/placementgroup.py -> build/lib/boto/ec2
+copying boto/ec2/regioninfo.py -> build/lib/boto/ec2
+copying boto/ec2/reservedinstance.py -> build/lib/boto/ec2
+copying boto/ec2/securitygroup.py -> build/lib/boto/ec2
+copying boto/ec2/snapshot.py -> build/lib/boto/ec2
+copying boto/ec2/spotdatafeedsubscription.py -> build/lib/boto/ec2
+copying boto/ec2/spotinstancerequest.py -> build/lib/boto/ec2
+copying boto/ec2/spotpricehistory.py -> build/lib/boto/ec2
+copying boto/ec2/tag.py -> build/lib/boto/ec2
+copying boto/ec2/vmtype.py -> build/lib/boto/ec2
+copying boto/ec2/volume.py -> build/lib/boto/ec2
+copying boto/ec2/volumestatus.py -> build/lib/boto/ec2
+copying boto/ec2/zone.py -> build/lib/boto/ec2
+creating build/lib/boto/ec2/cloudwatch
+copying boto/ec2/cloudwatch/__init__.py -> build/lib/boto/ec2/cloudwatch
+copying boto/ec2/cloudwatch/alarm.py -> build/lib/boto/ec2/cloudwatch
+copying boto/ec2/cloudwatch/datapoint.py -> build/lib/boto/ec2/cloudwatch
+copying boto/ec2/cloudwatch/dimension.py -> build/lib/boto/ec2/cloudwatch
+copying boto/ec2/cloudwatch/listelement.py -> build/lib/boto/ec2/cloudwatch
+copying boto/ec2/cloudwatch/metric.py -> build/lib/boto/ec2/cloudwatch
+creating build/lib/boto/ec2/autoscale
+copying boto/ec2/autoscale/__init__.py -> build/lib/boto/ec2/autoscale
+copying boto/ec2/autoscale/activity.py -> build/lib/boto/ec2/autoscale
+copying boto/ec2/autoscale/group.py -> build/lib/boto/ec2/autoscale
+copying boto/ec2/autoscale/instance.py -> build/lib/boto/ec2/autoscale
+copying boto/ec2/autoscale/launchconfig.py -> build/lib/boto/ec2/autoscale
+copying boto/ec2/autoscale/policy.py -> build/lib/boto/ec2/autoscale
+copying boto/ec2/autoscale/request.py -> build/lib/boto/ec2/autoscale
+copying boto/ec2/autoscale/scheduled.py -> build/lib/boto/ec2/autoscale
+copying boto/ec2/autoscale/tag.py -> build/lib/boto/ec2/autoscale
+creating build/lib/boto/ec2/elb
+copying boto/ec2/elb/__init__.py -> build/lib/boto/ec2/elb
+copying boto/ec2/elb/attributes.py -> build/lib/boto/ec2/elb
+copying boto/ec2/elb/healthcheck.py -> build/lib/boto/ec2/elb
+copying boto/ec2/elb/instancestate.py -> build/lib/boto/ec2/elb
+copying boto/ec2/elb/listelement.py -> build/lib/boto/ec2/elb
+copying boto/ec2/elb/listener.py -> build/lib/boto/ec2/elb
+copying boto/ec2/elb/loadbalancer.py -> build/lib/boto/ec2/elb
+copying boto/ec2/elb/policies.py -> build/lib/boto/ec2/elb
+copying boto/ec2/elb/securitygroup.py -> build/lib/boto/ec2/elb
+creating build/lib/boto/sdb
+copying boto/sdb/__init__.py -> build/lib/boto/sdb
+copying boto/sdb/connection.py -> build/lib/boto/sdb
+copying boto/sdb/domain.py -> build/lib/boto/sdb
+copying boto/sdb/item.py -> build/lib/boto/sdb
+copying boto/sdb/queryresultset.py -> build/lib/boto/sdb
+copying boto/sdb/regioninfo.py -> build/lib/boto/sdb
+creating build/lib/boto/cacerts
+copying boto/cacerts/__init__.py -> build/lib/boto/cacerts
+creating build/lib/boto/sdb/db
+copying boto/sdb/db/__init__.py -> build/lib/boto/sdb/db
+copying boto/sdb/db/blob.py -> build/lib/boto/sdb/db
+copying boto/sdb/db/key.py -> build/lib/boto/sdb/db
+copying boto/sdb/db/model.py -> build/lib/boto/sdb/db
+copying boto/sdb/db/property.py -> build/lib/boto/sdb/db
+copying boto/sdb/db/query.py -> build/lib/boto/sdb/db
+copying boto/sdb/db/sequence.py -> build/lib/boto/sdb/db
+copying boto/sdb/db/test_db.py -> build/lib/boto/sdb/db
+creating build/lib/boto/sdb/db/manager
+copying boto/sdb/db/manager/__init__.py -> build/lib/boto/sdb/db/manager
+copying boto/sdb/db/manager/sdbmanager.py -> build/lib/boto/sdb/db/manager
+copying boto/sdb/db/manager/xmlmanager.py -> build/lib/boto/sdb/db/manager
+creating build/lib/boto/mturk
+copying boto/mturk/__init__.py -> build/lib/boto/mturk
 copying boto/mturk/connection.py -> build/lib/boto/mturk
+copying boto/mturk/layoutparam.py -> build/lib/boto/mturk
+copying boto/mturk/notification.py -> build/lib/boto/mturk
+copying boto/mturk/price.py -> build/lib/boto/mturk
+copying boto/mturk/qualification.py -> build/lib/boto/mturk
+copying boto/mturk/question.py -> build/lib/boto/mturk
+creating build/lib/boto/pyami
+copying boto/pyami/__init__.py -> build/lib/boto/pyami
+copying boto/pyami/bootstrap.py -> build/lib/boto/pyami
+copying boto/pyami/config.py -> build/lib/boto/pyami
+copying boto/pyami/copybot.py -> build/lib/boto/pyami
+copying boto/pyami/helloworld.py -> build/lib/boto/pyami
+copying boto/pyami/launch_ami.py -> build/lib/boto/pyami
+copying boto/pyami/scriptbase.py -> build/lib/boto/pyami
+copying boto/pyami/startup.py -> build/lib/boto/pyami
+creating build/lib/boto/pyami/installers
+copying boto/pyami/installers/__init__.py -> build/lib/boto/pyami/installers
+creating build/lib/boto/pyami/installers/ubuntu
+copying boto/pyami/installers/ubuntu/__init__.py -> build/lib/boto/pyami/installers/ubuntu
+copying boto/pyami/installers/ubuntu/apache.py -> build/lib/boto/pyami/installers/ubuntu
+copying boto/pyami/installers/ubuntu/ebs.py -> build/lib/boto/pyami/installers/ubuntu
+copying boto/pyami/installers/ubuntu/installer.py -> build/lib/boto/pyami/installers/ubuntu
+copying boto/pyami/installers/ubuntu/mysql.py -> build/lib/boto/pyami/installers/ubuntu
+copying boto/pyami/installers/ubuntu/trac.py -> build/lib/boto/pyami/installers/ubuntu
+creating build/lib/boto/mashups
+copying boto/mashups/__init__.py -> build/lib/boto/mashups
+copying boto/mashups/interactive.py -> build/lib/boto/mashups
+copying boto/mashups/iobject.py -> build/lib/boto/mashups
+copying boto/mashups/order.py -> build/lib/boto/mashups
+copying boto/mashups/server.py -> build/lib/boto/mashups
+creating build/lib/boto/contrib
+copying boto/contrib/__init__.py -> build/lib/boto/contrib
+copying boto/contrib/ymlmessage.py -> build/lib/boto/contrib
+creating build/lib/boto/manage
+copying boto/manage/__init__.py -> build/lib/boto/manage
+copying boto/manage/cmdshell.py -> build/lib/boto/manage
+copying boto/manage/propget.py -> build/lib/boto/manage
+copying boto/manage/server.py -> build/lib/boto/manage
+copying boto/manage/task.py -> build/lib/boto/manage
+copying boto/manage/test_manage.py -> build/lib/boto/manage
+copying boto/manage/volume.py -> build/lib/boto/manage
+creating build/lib/boto/services
+copying boto/services/__init__.py -> build/lib/boto/services
+copying boto/services/bs.py -> build/lib/boto/services
+copying boto/services/message.py -> build/lib/boto/services
+copying boto/services/result.py -> build/lib/boto/services
+copying boto/services/service.py -> build/lib/boto/services
+copying boto/services/servicedef.py -> build/lib/boto/services
+copying boto/services/sonofmmm.py -> build/lib/boto/services
+copying boto/services/submit.py -> build/lib/boto/services
+creating build/lib/boto/cloudfront
+copying boto/cloudfront/__init__.py -> build/lib/boto/cloudfront
+copying boto/cloudfront/distribution.py -> build/lib/boto/cloudfront
+copying boto/cloudfront/exception.py -> build/lib/boto/cloudfront
+copying boto/cloudfront/identity.py -> build/lib/boto/cloudfront
+copying boto/cloudfront/invalidation.py -> build/lib/boto/cloudfront
+copying boto/cloudfront/logging.py -> build/lib/boto/cloudfront
+copying boto/cloudfront/object.py -> build/lib/boto/cloudfront
+copying boto/cloudfront/origin.py -> build/lib/boto/cloudfront
+copying boto/cloudfront/signers.py -> build/lib/boto/cloudfront
+creating build/lib/boto/roboto
+copying boto/roboto/__init__.py -> build/lib/boto/roboto
+copying boto/roboto/awsqueryrequest.py -> build/lib/boto/roboto
+copying boto/roboto/awsqueryservice.py -> build/lib/boto/roboto
+copying boto/roboto/param.py -> build/lib/boto/roboto
+creating build/lib/boto/rds
+copying boto/rds/__init__.py -> build/lib/boto/rds
+copying boto/rds/dbinstance.py -> build/lib/boto/rds
+copying boto/rds/dbsecuritygroup.py -> build/lib/boto/rds
+copying boto/rds/dbsnapshot.py -> build/lib/boto/rds
+copying boto/rds/dbsubnetgroup.py -> build/lib/boto/rds
+copying boto/rds/event.py -> build/lib/boto/rds
+copying boto/rds/optiongroup.py -> build/lib/boto/rds
+copying boto/rds/parametergroup.py -> build/lib/boto/rds
+copying boto/rds/regioninfo.py -> build/lib/boto/rds
+copying boto/rds/statusinfo.py -> build/lib/boto/rds
+copying boto/rds/vpcsecuritygroupmembership.py -> build/lib/boto/rds
+creating build/lib/boto/vpc
+copying boto/vpc/__init__.py -> build/lib/boto/vpc
+copying boto/vpc/customergateway.py -> build/lib/boto/vpc
+copying boto/vpc/dhcpoptions.py -> build/lib/boto/vpc
+copying boto/vpc/internetgateway.py -> build/lib/boto/vpc
+copying boto/vpc/networkacl.py -> build/lib/boto/vpc
+copying boto/vpc/routetable.py -> build/lib/boto/vpc
+copying boto/vpc/subnet.py -> build/lib/boto/vpc
+copying boto/vpc/vpc.py -> build/lib/boto/vpc
+copying boto/vpc/vpnconnection.py -> build/lib/boto/vpc
+copying boto/vpc/vpngateway.py -> build/lib/boto/vpc
+creating build/lib/boto/fps
+copying boto/fps/__init__.py -> build/lib/boto/fps
+copying boto/fps/connection.py -> build/lib/boto/fps
+copying boto/fps/exception.py -> build/lib/boto/fps
+copying boto/fps/response.py -> build/lib/boto/fps
+creating build/lib/boto/emr
+copying boto/emr/__init__.py -> build/lib/boto/emr
+copying boto/emr/bootstrap_action.py -> build/lib/boto/emr
+copying boto/emr/connection.py -> build/lib/boto/emr
+copying boto/emr/emrobject.py -> build/lib/boto/emr
+copying boto/emr/instance_group.py -> build/lib/boto/emr
+copying boto/emr/step.py -> build/lib/boto/emr
+creating build/lib/boto/sns
+copying boto/sns/__init__.py -> build/lib/boto/sns
+copying boto/sns/connection.py -> build/lib/boto/sns
+creating build/lib/boto/ecs
+copying boto/ecs/__init__.py -> build/lib/boto/ecs
+copying boto/ecs/item.py -> build/lib/boto/ecs
+creating build/lib/boto/iam
+copying boto/iam/__init__.py -> build/lib/boto/iam
+copying boto/iam/connection.py -> build/lib/boto/iam
+copying boto/iam/summarymap.py -> build/lib/boto/iam
+creating build/lib/boto/route53
+copying boto/route53/__init__.py -> build/lib/boto/route53
+copying boto/route53/connection.py -> build/lib/boto/route53
+copying boto/route53/exception.py -> build/lib/boto/route53
+copying boto/route53/hostedzone.py -> build/lib/boto/route53
+copying boto/route53/record.py -> build/lib/boto/route53
+copying boto/route53/status.py -> build/lib/boto/route53
+copying boto/route53/zone.py -> build/lib/boto/route53
+creating build/lib/boto/ses
+copying boto/ses/__init__.py -> build/lib/boto/ses
+copying boto/ses/connection.py -> build/lib/boto/ses
+copying boto/ses/exceptions.py -> build/lib/boto/ses
+creating build/lib/boto/cloudformation
+copying boto/cloudformation/__init__.py -> build/lib/boto/cloudformation
+copying boto/cloudformation/connection.py -> build/lib/boto/cloudformation
+copying boto/cloudformation/stack.py -> build/lib/boto/cloudformation
+copying boto/cloudformation/template.py -> build/lib/boto/cloudformation
+creating build/lib/boto/sts
+copying boto/sts/__init__.py -> build/lib/boto/sts
+copying boto/sts/connection.py -> build/lib/boto/sts
+copying boto/sts/credentials.py -> build/lib/boto/sts
+creating build/lib/boto/dynamodb
+copying boto/dynamodb/__init__.py -> build/lib/boto/dynamodb
+copying boto/dynamodb/batch.py -> build/lib/boto/dynamodb
+copying boto/dynamodb/condition.py -> build/lib/boto/dynamodb
+copying boto/dynamodb/exceptions.py -> build/lib/boto/dynamodb
+copying boto/dynamodb/item.py -> build/lib/boto/dynamodb
+copying boto/dynamodb/layer1.py -> build/lib/boto/dynamodb
+copying boto/dynamodb/layer2.py -> build/lib/boto/dynamodb
+copying boto/dynamodb/schema.py -> build/lib/boto/dynamodb
+copying boto/dynamodb/table.py -> build/lib/boto/dynamodb
+copying boto/dynamodb/types.py -> build/lib/boto/dynamodb
+creating build/lib/boto/swf
+copying boto/swf/__init__.py -> build/lib/boto/swf
+copying boto/swf/exceptions.py -> build/lib/boto/swf
+copying boto/swf/layer1.py -> build/lib/boto/swf
+copying boto/swf/layer1_decisions.py -> build/lib/boto/swf
+copying boto/swf/layer2.py -> build/lib/boto/swf
+creating build/lib/boto/mws
+copying boto/mws/__init__.py -> build/lib/boto/mws
+copying boto/mws/connection.py -> build/lib/boto/mws
+copying boto/mws/exception.py -> build/lib/boto/mws
+copying boto/mws/response.py -> build/lib/boto/mws
+creating build/lib/boto/cloudsearch
+copying boto/cloudsearch/__init__.py -> build/lib/boto/cloudsearch
+copying boto/cloudsearch/document.py -> build/lib/boto/cloudsearch
+copying boto/cloudsearch/domain.py -> build/lib/boto/cloudsearch
+copying boto/cloudsearch/layer1.py -> build/lib/boto/cloudsearch
+copying boto/cloudsearch/layer2.py -> build/lib/boto/cloudsearch
+copying boto/cloudsearch/optionstatus.py -> build/lib/boto/cloudsearch
+copying boto/cloudsearch/search.py -> build/lib/boto/cloudsearch
+copying boto/cloudsearch/sourceattribute.py -> build/lib/boto/cloudsearch
+creating build/lib/boto/glacier
+copying boto/glacier/__init__.py -> build/lib/boto/glacier
+copying boto/glacier/concurrent.py -> build/lib/boto/glacier
+copying boto/glacier/exceptions.py -> build/lib/boto/glacier
+copying boto/glacier/job.py -> build/lib/boto/glacier
+copying boto/glacier/layer1.py -> build/lib/boto/glacier
+copying boto/glacier/layer2.py -> build/lib/boto/glacier
+copying boto/glacier/response.py -> build/lib/boto/glacier
+copying boto/glacier/utils.py -> build/lib/boto/glacier
+copying boto/glacier/vault.py -> build/lib/boto/glacier
+copying boto/glacier/writer.py -> build/lib/boto/glacier
+creating build/lib/boto/beanstalk
+copying boto/beanstalk/__init__.py -> build/lib/boto/beanstalk
+copying boto/beanstalk/exception.py -> build/lib/boto/beanstalk
+copying boto/beanstalk/layer1.py -> build/lib/boto/beanstalk
+copying boto/beanstalk/response.py -> build/lib/boto/beanstalk
+copying boto/beanstalk/wrapper.py -> build/lib/boto/beanstalk
+creating build/lib/boto/datapipeline
+copying boto/datapipeline/__init__.py -> build/lib/boto/datapipeline
+copying boto/datapipeline/exceptions.py -> build/lib/boto/datapipeline
+copying boto/datapipeline/layer1.py -> build/lib/boto/datapipeline
+creating build/lib/boto/elasticache
+copying boto/elasticache/__init__.py -> build/lib/boto/elasticache
+copying boto/elasticache/layer1.py -> build/lib/boto/elasticache
+creating build/lib/boto/elastictranscoder
+copying boto/elastictranscoder/__init__.py -> build/lib/boto/elastictranscoder
+copying boto/elastictranscoder/exceptions.py -> build/lib/boto/elastictranscoder
+copying boto/elastictranscoder/layer1.py -> build/lib/boto/elastictranscoder
+creating build/lib/boto/opsworks
+copying boto/opsworks/__init__.py -> build/lib/boto/opsworks
+copying boto/opsworks/exceptions.py -> build/lib/boto/opsworks
+copying boto/opsworks/layer1.py -> build/lib/boto/opsworks
+creating build/lib/boto/redshift
+copying boto/redshift/__init__.py -> build/lib/boto/redshift
+copying boto/redshift/exceptions.py -> build/lib/boto/redshift
+copying boto/redshift/layer1.py -> build/lib/boto/redshift
+creating build/lib/boto/dynamodb2
+copying boto/dynamodb2/__init__.py -> build/lib/boto/dynamodb2
+copying boto/dynamodb2/exceptions.py -> build/lib/boto/dynamodb2
+copying boto/dynamodb2/fields.py -> build/lib/boto/dynamodb2
+copying boto/dynamodb2/items.py -> build/lib/boto/dynamodb2
+copying boto/dynamodb2/layer1.py -> build/lib/boto/dynamodb2
+copying boto/dynamodb2/results.py -> build/lib/boto/dynamodb2
+copying boto/dynamodb2/table.py -> build/lib/boto/dynamodb2
+copying boto/dynamodb2/types.py -> build/lib/boto/dynamodb2
+creating build/lib/boto/support
+copying boto/support/__init__.py -> build/lib/boto/support
+copying boto/support/exceptions.py -> build/lib/boto/support
+copying boto/support/layer1.py -> build/lib/boto/support
+creating build/lib/boto/cloudtrail
+copying boto/cloudtrail/__init__.py -> build/lib/boto/cloudtrail
+copying boto/cloudtrail/exceptions.py -> build/lib/boto/cloudtrail
+copying boto/cloudtrail/layer1.py -> build/lib/boto/cloudtrail
+copying boto/file/README -> build/lib/boto/file
+copying boto/cacerts/cacerts.txt -> build/lib/boto/cacerts
+copying boto/pyami/copybot.cfg -> build/lib/boto/pyami
+copying boto/services/sonofmmm.cfg -> build/lib/boto/services
+creating build/bdist.linux-x86_64
 creating build/bdist.linux-x86_64/egg
 creating build/bdist.linux-x86_64/egg/boto
-copying build/lib/boto/exception.py -> build/bdist.linux-x86_64/egg/boto
-copying build/lib/boto/storage_uri.py -> build/bdist.linux-x86_64/egg/boto
-creating build/bdist.linux-x86_64/egg/boto/dynamodb2
-copying build/lib/boto/dynamodb2/__init__.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
-copying build/lib/boto/dynamodb2/layer1.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
-copying build/lib/boto/dynamodb2/fields.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
-copying build/lib/boto/dynamodb2/table.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
-copying build/lib/boto/dynamodb2/results.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
-copying build/lib/boto/dynamodb2/exceptions.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
-copying build/lib/boto/dynamodb2/items.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
-copying build/lib/boto/dynamodb2/types.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
-copying build/lib/boto/resultset.py -> build/bdist.linux-x86_64/egg/boto
-creating build/bdist.linux-x86_64/egg/boto/iam
-copying build/lib/boto/iam/__init__.py -> build/bdist.linux-x86_64/egg/boto/iam
-copying build/lib/boto/iam/summarymap.py -> build/bdist.linux-x86_64/egg/boto/iam
-copying build/lib/boto/iam/connection.py -> build/bdist.linux-x86_64/egg/boto/iam
-creating build/bdist.linux-x86_64/egg/boto/ecs
-copying build/lib/boto/ecs/__init__.py -> build/bdist.linux-x86_64/egg/boto/ecs
-copying build/lib/boto/ecs/item.py -> build/bdist.linux-x86_64/egg/boto/ecs
 copying build/lib/boto/__init__.py -> build/bdist.linux-x86_64/egg/boto
-creating build/bdist.linux-x86_64/egg/boto/sns
-copying build/lib/boto/sns/__init__.py -> build/bdist.linux-x86_64/egg/boto/sns
-copying build/lib/boto/sns/connection.py -> build/bdist.linux-x86_64/egg/boto/sns
-creating build/bdist.linux-x86_64/egg/boto/ses
-copying build/lib/boto/ses/__init__.py -> build/bdist.linux-x86_64/egg/boto/ses
-copying build/lib/boto/ses/exceptions.py -> build/bdist.linux-x86_64/egg/boto/ses
-copying build/lib/boto/ses/connection.py -> build/bdist.linux-x86_64/egg/boto/ses
-creating build/bdist.linux-x86_64/egg/boto/file
-copying build/lib/boto/file/__init__.py -> build/bdist.linux-x86_64/egg/boto/file
-copying build/lib/boto/file/README -> build/bdist.linux-x86_64/egg/boto/file
-copying build/lib/boto/file/bucket.py -> build/bdist.linux-x86_64/egg/boto/file
-copying build/lib/boto/file/key.py -> build/bdist.linux-x86_64/egg/boto/file
-copying build/lib/boto/file/connection.py -> build/bdist.linux-x86_64/egg/boto/file
-copying build/lib/boto/file/simpleresultset.py -> build/bdist.linux-x86_64/egg/boto/file
-creating build/bdist.linux-x86_64/egg/boto/datapipeline
-copying build/lib/boto/datapipeline/__init__.py -> build/bdist.linux-x86_64/egg/boto/datapipeline
-copying build/lib/boto/datapipeline/layer1.py -> build/bdist.linux-x86_64/egg/boto/datapipeline
-copying build/lib/boto/datapipeline/exceptions.py -> build/bdist.linux-x86_64/egg/boto/datapipeline
-creating build/bdist.linux-x86_64/egg/boto/contrib
-copying build/lib/boto/contrib/__init__.py -> build/bdist.linux-x86_64/egg/boto/contrib
-copying build/lib/boto/contrib/ymlmessage.py -> build/bdist.linux-x86_64/egg/boto/contrib
-creating build/bdist.linux-x86_64/egg/boto/sts
-copying build/lib/boto/sts/__init__.py -> build/bdist.linux-x86_64/egg/boto/sts
-copying build/lib/boto/sts/connection.py -> build/bdist.linux-x86_64/egg/boto/sts
-copying build/lib/boto/sts/credentials.py -> build/bdist.linux-x86_64/egg/boto/sts
-creating build/bdist.linux-x86_64/egg/boto/cloudfront
-copying build/lib/boto/cloudfront/exception.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
-copying build/lib/boto/cloudfront/invalidation.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
-copying build/lib/boto/cloudfront/__init__.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
-copying build/lib/boto/cloudfront/object.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
-copying build/lib/boto/cloudfront/origin.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
-copying build/lib/boto/cloudfront/identity.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
-copying build/lib/boto/cloudfront/signers.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
-copying build/lib/boto/cloudfront/distribution.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
-copying build/lib/boto/cloudfront/logging.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
-creating build/bdist.linux-x86_64/egg/boto/manage
-copying build/lib/boto/manage/__init__.py -> build/bdist.linux-x86_64/egg/boto/manage
-copying build/lib/boto/manage/volume.py -> build/bdist.linux-x86_64/egg/boto/manage
-copying build/lib/boto/manage/propget.py -> build/bdist.linux-x86_64/egg/boto/manage
-copying build/lib/boto/manage/cmdshell.py -> build/bdist.linux-x86_64/egg/boto/manage
-copying build/lib/boto/manage/task.py -> build/bdist.linux-x86_64/egg/boto/manage
-copying build/lib/boto/manage/test_manage.py -> build/bdist.linux-x86_64/egg/boto/manage
-copying build/lib/boto/manage/server.py -> build/bdist.linux-x86_64/egg/boto/manage
+copying build/lib/boto/auth.py -> build/bdist.linux-x86_64/egg/boto
+copying build/lib/boto/auth_handler.py -> build/bdist.linux-x86_64/egg/boto
+copying build/lib/boto/compat.py -> build/bdist.linux-x86_64/egg/boto
+copying build/lib/boto/connection.py -> build/bdist.linux-x86_64/egg/boto
+copying build/lib/boto/exception.py -> build/bdist.linux-x86_64/egg/boto
+copying build/lib/boto/handler.py -> build/bdist.linux-x86_64/egg/boto
+copying build/lib/boto/https_connection.py -> build/bdist.linux-x86_64/egg/boto
+copying build/lib/boto/jsonresponse.py -> build/bdist.linux-x86_64/egg/boto
+copying build/lib/boto/plugin.py -> build/bdist.linux-x86_64/egg/boto
+copying build/lib/boto/provider.py -> build/bdist.linux-x86_64/egg/boto
+copying build/lib/boto/regioninfo.py -> build/bdist.linux-x86_64/egg/boto
+copying build/lib/boto/resultset.py -> build/bdist.linux-x86_64/egg/boto
+copying build/lib/boto/storage_uri.py -> build/bdist.linux-x86_64/egg/boto
+copying build/lib/boto/utils.py -> build/bdist.linux-x86_64/egg/boto
+creating build/bdist.linux-x86_64/egg/boto/sqs
+copying build/lib/boto/sqs/__init__.py -> build/bdist.linux-x86_64/egg/boto/sqs
+copying build/lib/boto/sqs/attributes.py -> build/bdist.linux-x86_64/egg/boto/sqs
+copying build/lib/boto/sqs/batchresults.py -> build/bdist.linux-x86_64/egg/boto/sqs
+copying build/lib/boto/sqs/connection.py -> build/bdist.linux-x86_64/egg/boto/sqs
+copying build/lib/boto/sqs/jsonmessage.py -> build/bdist.linux-x86_64/egg/boto/sqs
+copying build/lib/boto/sqs/message.py -> build/bdist.linux-x86_64/egg/boto/sqs
+copying build/lib/boto/sqs/queue.py -> build/bdist.linux-x86_64/egg/boto/sqs
+copying build/lib/boto/sqs/regioninfo.py -> build/bdist.linux-x86_64/egg/boto/sqs
+creating build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/__init__.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/acl.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/bucket.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/bucketlistresultset.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/bucketlogging.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/connection.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/cors.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/deletemarker.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/key.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/keyfile.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/lifecycle.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/multidelete.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/multipart.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/prefix.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/resumable_download_handler.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/tagging.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/user.py -> build/bdist.linux-x86_64/egg/boto/s3
+copying build/lib/boto/s3/website.py -> build/bdist.linux-x86_64/egg/boto/s3
 creating build/bdist.linux-x86_64/egg/boto/gs
 copying build/lib/boto/gs/__init__.py -> build/bdist.linux-x86_64/egg/boto/gs
-copying build/lib/boto/gs/resumable_upload_handler.py -> build/bdist.linux-x86_64/egg/boto/gs
-copying build/lib/boto/gs/lifecycle.py -> build/bdist.linux-x86_64/egg/boto/gs
+copying build/lib/boto/gs/acl.py -> build/bdist.linux-x86_64/egg/boto/gs
 copying build/lib/boto/gs/bucket.py -> build/bdist.linux-x86_64/egg/boto/gs
-copying build/lib/boto/gs/user.py -> build/bdist.linux-x86_64/egg/boto/gs
+copying build/lib/boto/gs/bucketlistresultset.py -> build/bdist.linux-x86_64/egg/boto/gs
+copying build/lib/boto/gs/connection.py -> build/bdist.linux-x86_64/egg/boto/gs
 copying build/lib/boto/gs/cors.py -> build/bdist.linux-x86_64/egg/boto/gs
 copying build/lib/boto/gs/key.py -> build/bdist.linux-x86_64/egg/boto/gs
-copying build/lib/boto/gs/bucketlistresultset.py -> build/bdist.linux-x86_64/egg/boto/gs
-copying build/lib/boto/gs/acl.py -> build/bdist.linux-x86_64/egg/boto/gs
-copying build/lib/boto/gs/connection.py -> build/bdist.linux-x86_64/egg/boto/gs
-creating build/bdist.linux-x86_64/egg/boto/cacerts
-copying build/lib/boto/cacerts/__init__.py -> build/bdist.linux-x86_64/egg/boto/cacerts
-copying build/lib/boto/cacerts/cacerts.txt -> build/bdist.linux-x86_64/egg/boto/cacerts
-creating build/bdist.linux-x86_64/egg/boto/fps
-copying build/lib/boto/fps/exception.py -> build/bdist.linux-x86_64/egg/boto/fps
-copying build/lib/boto/fps/__init__.py -> build/bdist.linux-x86_64/egg/boto/fps
-copying build/lib/boto/fps/response.py -> build/bdist.linux-x86_64/egg/boto/fps
-copying build/lib/boto/fps/connection.py -> build/bdist.linux-x86_64/egg/boto/fps
-creating build/bdist.linux-x86_64/egg/boto/roboto
-copying build/lib/boto/roboto/__init__.py -> build/bdist.linux-x86_64/egg/boto/roboto
-copying build/lib/boto/roboto/param.py -> build/bdist.linux-x86_64/egg/boto/roboto
-copying build/lib/boto/roboto/awsqueryrequest.py -> build/bdist.linux-x86_64/egg/boto/roboto
-copying build/lib/boto/roboto/awsqueryservice.py -> build/bdist.linux-x86_64/egg/boto/roboto
-creating build/bdist.linux-x86_64/egg/boto/mashups
-copying build/lib/boto/mashups/__init__.py -> build/bdist.linux-x86_64/egg/boto/mashups
-copying build/lib/boto/mashups/order.py -> build/bdist.linux-x86_64/egg/boto/mashups
-copying build/lib/boto/mashups/iobject.py -> build/bdist.linux-x86_64/egg/boto/mashups
-copying build/lib/boto/mashups/interactive.py -> build/bdist.linux-x86_64/egg/boto/mashups
-copying build/lib/boto/mashups/server.py -> build/bdist.linux-x86_64/egg/boto/mashups
-creating build/bdist.linux-x86_64/egg/boto/pyami
-copying build/lib/boto/pyami/__init__.py -> build/bdist.linux-x86_64/egg/boto/pyami
-copying build/lib/boto/pyami/launch_ami.py -> build/bdist.linux-x86_64/egg/boto/pyami
-creating build/bdist.linux-x86_64/egg/boto/pyami/installers
-copying build/lib/boto/pyami/installers/__init__.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers
-creating build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
-copying build/lib/boto/pyami/installers/ubuntu/apache.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
-copying build/lib/boto/pyami/installers/ubuntu/__init__.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
-copying build/lib/boto/pyami/installers/ubuntu/mysql.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
-copying build/lib/boto/pyami/installers/ubuntu/installer.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
-copying build/lib/boto/pyami/installers/ubuntu/ebs.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
-copying build/lib/boto/pyami/installers/ubuntu/trac.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
-copying build/lib/boto/pyami/copybot.cfg -> build/bdist.linux-x86_64/egg/boto/pyami
-copying build/lib/boto/pyami/copybot.py -> build/bdist.linux-x86_64/egg/boto/pyami
-copying build/lib/boto/pyami/bootstrap.py -> build/bdist.linux-x86_64/egg/boto/pyami
-copying build/lib/boto/pyami/scriptbase.py -> build/bdist.linux-x86_64/egg/boto/pyami
-copying build/lib/boto/pyami/config.py -> build/bdist.linux-x86_64/egg/boto/pyami
-copying build/lib/boto/pyami/helloworld.py -> build/bdist.linux-x86_64/egg/boto/pyami
-copying build/lib/boto/pyami/startup.py -> build/bdist.linux-x86_64/egg/boto/pyami
-creating build/bdist.linux-x86_64/egg/boto/cloudformation
-copying build/lib/boto/cloudformation/__init__.py -> build/bdist.linux-x86_64/egg/boto/cloudformation
-copying build/lib/boto/cloudformation/template.py -> build/bdist.linux-x86_64/egg/boto/cloudformation
-copying build/lib/boto/cloudformation/stack.py -> build/bdist.linux-x86_64/egg/boto/cloudformation
-copying build/lib/boto/cloudformation/connection.py -> build/bdist.linux-x86_64/egg/boto/cloudformation
-creating build/bdist.linux-x86_64/egg/boto/mturk
-copying build/lib/boto/mturk/__init__.py -> build/bdist.linux-x86_64/egg/boto/mturk
-copying build/lib/boto/mturk/question.py -> build/bdist.linux-x86_64/egg/boto/mturk
-copying build/lib/boto/mturk/notification.py -> build/bdist.linux-x86_64/egg/boto/mturk
-copying build/lib/boto/mturk/price.py -> build/bdist.linux-x86_64/egg/boto/mturk
-copying build/lib/boto/mturk/connection.py -> build/bdist.linux-x86_64/egg/boto/mturk
-copying build/lib/boto/mturk/layoutparam.py -> build/bdist.linux-x86_64/egg/boto/mturk
-copying build/lib/boto/mturk/qualification.py -> build/bdist.linux-x86_64/egg/boto/mturk
-creating build/bdist.linux-x86_64/egg/boto/dynamodb
-copying build/lib/boto/dynamodb/__init__.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
-copying build/lib/boto/dynamodb/layer1.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
-copying build/lib/boto/dynamodb/condition.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
-copying build/lib/boto/dynamodb/layer2.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
-copying build/lib/boto/dynamodb/table.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
-copying build/lib/boto/dynamodb/exceptions.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
-copying build/lib/boto/dynamodb/schema.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
-copying build/lib/boto/dynamodb/batch.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
-copying build/lib/boto/dynamodb/types.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
-copying build/lib/boto/dynamodb/item.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
+copying build/lib/boto/gs/lifecycle.py -> build/bdist.linux-x86_64/egg/boto/gs
+copying build/lib/boto/gs/resumable_upload_handler.py -> build/bdist.linux-x86_64/egg/boto/gs
+copying build/lib/boto/gs/user.py -> build/bdist.linux-x86_64/egg/boto/gs
+creating build/bdist.linux-x86_64/egg/boto/file
+copying build/lib/boto/file/__init__.py -> build/bdist.linux-x86_64/egg/boto/file
+copying build/lib/boto/file/bucket.py -> build/bdist.linux-x86_64/egg/boto/file
+copying build/lib/boto/file/connection.py -> build/bdist.linux-x86_64/egg/boto/file
+copying build/lib/boto/file/key.py -> build/bdist.linux-x86_64/egg/boto/file
+copying build/lib/boto/file/simpleresultset.py -> build/bdist.linux-x86_64/egg/boto/file
+copying build/lib/boto/file/README -> build/bdist.linux-x86_64/egg/boto/file
+creating build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/__init__.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/address.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/attributes.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/blockdevicemapping.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/bundleinstance.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/buyreservation.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/connection.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/ec2object.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/group.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/image.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/instance.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/instanceinfo.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/instancestatus.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/keypair.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/launchspecification.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/networkinterface.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/placementgroup.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/regioninfo.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/reservedinstance.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/securitygroup.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/snapshot.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/spotdatafeedsubscription.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/spotinstancerequest.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/spotpricehistory.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/tag.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/vmtype.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/volume.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/volumestatus.py -> build/bdist.linux-x86_64/egg/boto/ec2
+copying build/lib/boto/ec2/zone.py -> build/bdist.linux-x86_64/egg/boto/ec2
+creating build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
+copying build/lib/boto/ec2/cloudwatch/__init__.py -> build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
+copying build/lib/boto/ec2/cloudwatch/alarm.py -> build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
+copying build/lib/boto/ec2/cloudwatch/datapoint.py -> build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
+copying build/lib/boto/ec2/cloudwatch/dimension.py -> build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
+copying build/lib/boto/ec2/cloudwatch/listelement.py -> build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
+copying build/lib/boto/ec2/cloudwatch/metric.py -> build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
+creating build/bdist.linux-x86_64/egg/boto/ec2/autoscale
+copying build/lib/boto/ec2/autoscale/__init__.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
+copying build/lib/boto/ec2/autoscale/activity.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
+copying build/lib/boto/ec2/autoscale/group.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
+copying build/lib/boto/ec2/autoscale/instance.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
+copying build/lib/boto/ec2/autoscale/launchconfig.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
+copying build/lib/boto/ec2/autoscale/policy.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
+copying build/lib/boto/ec2/autoscale/request.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
+copying build/lib/boto/ec2/autoscale/scheduled.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
+copying build/lib/boto/ec2/autoscale/tag.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
+creating build/bdist.linux-x86_64/egg/boto/ec2/elb
+copying build/lib/boto/ec2/elb/__init__.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
+copying build/lib/boto/ec2/elb/attributes.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
+copying build/lib/boto/ec2/elb/healthcheck.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
+copying build/lib/boto/ec2/elb/instancestate.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
+copying build/lib/boto/ec2/elb/listelement.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
+copying build/lib/boto/ec2/elb/listener.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
+copying build/lib/boto/ec2/elb/loadbalancer.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
+copying build/lib/boto/ec2/elb/policies.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
+copying build/lib/boto/ec2/elb/securitygroup.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
 creating build/bdist.linux-x86_64/egg/boto/sdb
 copying build/lib/boto/sdb/__init__.py -> build/bdist.linux-x86_64/egg/boto/sdb
+copying build/lib/boto/sdb/connection.py -> build/bdist.linux-x86_64/egg/boto/sdb
+copying build/lib/boto/sdb/domain.py -> build/bdist.linux-x86_64/egg/boto/sdb
+copying build/lib/boto/sdb/item.py -> build/bdist.linux-x86_64/egg/boto/sdb
+copying build/lib/boto/sdb/queryresultset.py -> build/bdist.linux-x86_64/egg/boto/sdb
+copying build/lib/boto/sdb/regioninfo.py -> build/bdist.linux-x86_64/egg/boto/sdb
 creating build/bdist.linux-x86_64/egg/boto/sdb/db
 copying build/lib/boto/sdb/db/__init__.py -> build/bdist.linux-x86_64/egg/boto/sdb/db
+copying build/lib/boto/sdb/db/blob.py -> build/bdist.linux-x86_64/egg/boto/sdb/db
+copying build/lib/boto/sdb/db/key.py -> build/bdist.linux-x86_64/egg/boto/sdb/db
+copying build/lib/boto/sdb/db/model.py -> build/bdist.linux-x86_64/egg/boto/sdb/db
 copying build/lib/boto/sdb/db/property.py -> build/bdist.linux-x86_64/egg/boto/sdb/db
 copying build/lib/boto/sdb/db/query.py -> build/bdist.linux-x86_64/egg/boto/sdb/db
-copying build/lib/boto/sdb/db/model.py -> build/bdist.linux-x86_64/egg/boto/sdb/db
 copying build/lib/boto/sdb/db/sequence.py -> build/bdist.linux-x86_64/egg/boto/sdb/db
+copying build/lib/boto/sdb/db/test_db.py -> build/bdist.linux-x86_64/egg/boto/sdb/db
 creating build/bdist.linux-x86_64/egg/boto/sdb/db/manager
 copying build/lib/boto/sdb/db/manager/__init__.py -> build/bdist.linux-x86_64/egg/boto/sdb/db/manager
 copying build/lib/boto/sdb/db/manager/sdbmanager.py -> build/bdist.linux-x86_64/egg/boto/sdb/db/manager
 copying build/lib/boto/sdb/db/manager/xmlmanager.py -> build/bdist.linux-x86_64/egg/boto/sdb/db/manager
-copying build/lib/boto/sdb/db/key.py -> build/bdist.linux-x86_64/egg/boto/sdb/db
-copying build/lib/boto/sdb/db/test_db.py -> build/bdist.linux-x86_64/egg/boto/sdb/db
-copying build/lib/boto/sdb/db/blob.py -> build/bdist.linux-x86_64/egg/boto/sdb/db
-copying build/lib/boto/sdb/regioninfo.py -> build/bdist.linux-x86_64/egg/boto/sdb
-copying build/lib/boto/sdb/domain.py -> build/bdist.linux-x86_64/egg/boto/sdb
-copying build/lib/boto/sdb/connection.py -> build/bdist.linux-x86_64/egg/boto/sdb
-copying build/lib/boto/sdb/queryresultset.py -> build/bdist.linux-x86_64/egg/boto/sdb
-copying build/lib/boto/sdb/item.py -> build/bdist.linux-x86_64/egg/boto/sdb
-copying build/lib/boto/handler.py -> build/bdist.linux-x86_64/egg/boto
-creating build/bdist.linux-x86_64/egg/boto/emr
-copying build/lib/boto/emr/__init__.py -> build/bdist.linux-x86_64/egg/boto/emr
-copying build/lib/boto/emr/bootstrap_action.py -> build/bdist.linux-x86_64/egg/boto/emr
-copying build/lib/boto/emr/step.py -> build/bdist.linux-x86_64/egg/boto/emr
-copying build/lib/boto/emr/emrobject.py -> build/bdist.linux-x86_64/egg/boto/emr
-copying build/lib/boto/emr/instance_group.py -> build/bdist.linux-x86_64/egg/boto/emr
-copying build/lib/boto/emr/connection.py -> build/bdist.linux-x86_64/egg/boto/emr
-copying build/lib/boto/plugin.py -> build/bdist.linux-x86_64/egg/boto
-creating build/bdist.linux-x86_64/egg/boto/mws
-copying build/lib/boto/mws/exception.py -> build/bdist.linux-x86_64/egg/boto/mws
-copying build/lib/boto/mws/__init__.py -> build/bdist.linux-x86_64/egg/boto/mws
-copying build/lib/boto/mws/response.py -> build/bdist.linux-x86_64/egg/boto/mws
-copying build/lib/boto/mws/connection.py -> build/bdist.linux-x86_64/egg/boto/mws
-copying build/lib/boto/auth_handler.py -> build/bdist.linux-x86_64/egg/boto
+creating build/bdist.linux-x86_64/egg/boto/cacerts
+copying build/lib/boto/cacerts/__init__.py -> build/bdist.linux-x86_64/egg/boto/cacerts
+copying build/lib/boto/cacerts/cacerts.txt -> build/bdist.linux-x86_64/egg/boto/cacerts
+creating build/bdist.linux-x86_64/egg/boto/mturk
+copying build/lib/boto/mturk/__init__.py -> build/bdist.linux-x86_64/egg/boto/mturk
+copying build/lib/boto/mturk/connection.py -> build/bdist.linux-x86_64/egg/boto/mturk
+copying build/lib/boto/mturk/layoutparam.py -> build/bdist.linux-x86_64/egg/boto/mturk
+copying build/lib/boto/mturk/notification.py -> build/bdist.linux-x86_64/egg/boto/mturk
+copying build/lib/boto/mturk/price.py -> build/bdist.linux-x86_64/egg/boto/mturk
+copying build/lib/boto/mturk/qualification.py -> build/bdist.linux-x86_64/egg/boto/mturk
+copying build/lib/boto/mturk/question.py -> build/bdist.linux-x86_64/egg/boto/mturk
+creating build/bdist.linux-x86_64/egg/boto/pyami
+copying build/lib/boto/pyami/__init__.py -> build/bdist.linux-x86_64/egg/boto/pyami
+copying build/lib/boto/pyami/bootstrap.py -> build/bdist.linux-x86_64/egg/boto/pyami
+copying build/lib/boto/pyami/config.py -> build/bdist.linux-x86_64/egg/boto/pyami
+copying build/lib/boto/pyami/copybot.py -> build/bdist.linux-x86_64/egg/boto/pyami
+copying build/lib/boto/pyami/helloworld.py -> build/bdist.linux-x86_64/egg/boto/pyami
+copying build/lib/boto/pyami/launch_ami.py -> build/bdist.linux-x86_64/egg/boto/pyami
+copying build/lib/boto/pyami/scriptbase.py -> build/bdist.linux-x86_64/egg/boto/pyami
+copying build/lib/boto/pyami/startup.py -> build/bdist.linux-x86_64/egg/boto/pyami
+creating build/bdist.linux-x86_64/egg/boto/pyami/installers
+copying build/lib/boto/pyami/installers/__init__.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers
+creating build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
+copying build/lib/boto/pyami/installers/ubuntu/__init__.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
+copying build/lib/boto/pyami/installers/ubuntu/apache.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
+copying build/lib/boto/pyami/installers/ubuntu/ebs.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
+copying build/lib/boto/pyami/installers/ubuntu/installer.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
+copying build/lib/boto/pyami/installers/ubuntu/mysql.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
+copying build/lib/boto/pyami/installers/ubuntu/trac.py -> build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu
+copying build/lib/boto/pyami/copybot.cfg -> build/bdist.linux-x86_64/egg/boto/pyami
+creating build/bdist.linux-x86_64/egg/boto/mashups
+copying build/lib/boto/mashups/__init__.py -> build/bdist.linux-x86_64/egg/boto/mashups
+copying build/lib/boto/mashups/interactive.py -> build/bdist.linux-x86_64/egg/boto/mashups
+copying build/lib/boto/mashups/iobject.py -> build/bdist.linux-x86_64/egg/boto/mashups
+copying build/lib/boto/mashups/order.py -> build/bdist.linux-x86_64/egg/boto/mashups
+copying build/lib/boto/mashups/server.py -> build/bdist.linux-x86_64/egg/boto/mashups
+creating build/bdist.linux-x86_64/egg/boto/contrib
+copying build/lib/boto/contrib/__init__.py -> build/bdist.linux-x86_64/egg/boto/contrib
+copying build/lib/boto/contrib/ymlmessage.py -> build/bdist.linux-x86_64/egg/boto/contrib
+creating build/bdist.linux-x86_64/egg/boto/manage
+copying build/lib/boto/manage/__init__.py -> build/bdist.linux-x86_64/egg/boto/manage
+copying build/lib/boto/manage/cmdshell.py -> build/bdist.linux-x86_64/egg/boto/manage
+copying build/lib/boto/manage/propget.py -> build/bdist.linux-x86_64/egg/boto/manage
+copying build/lib/boto/manage/server.py -> build/bdist.linux-x86_64/egg/boto/manage
+copying build/lib/boto/manage/task.py -> build/bdist.linux-x86_64/egg/boto/manage
+copying build/lib/boto/manage/test_manage.py -> build/bdist.linux-x86_64/egg/boto/manage
+copying build/lib/boto/manage/volume.py -> build/bdist.linux-x86_64/egg/boto/manage
+creating build/bdist.linux-x86_64/egg/boto/services
+copying build/lib/boto/services/__init__.py -> build/bdist.linux-x86_64/egg/boto/services
+copying build/lib/boto/services/bs.py -> build/bdist.linux-x86_64/egg/boto/services
+copying build/lib/boto/services/message.py -> build/bdist.linux-x86_64/egg/boto/services
+copying build/lib/boto/services/result.py -> build/bdist.linux-x86_64/egg/boto/services
+copying build/lib/boto/services/service.py -> build/bdist.linux-x86_64/egg/boto/services
+copying build/lib/boto/services/servicedef.py -> build/bdist.linux-x86_64/egg/boto/services
+copying build/lib/boto/services/sonofmmm.py -> build/bdist.linux-x86_64/egg/boto/services
+copying build/lib/boto/services/submit.py -> build/bdist.linux-x86_64/egg/boto/services
+copying build/lib/boto/services/sonofmmm.cfg -> build/bdist.linux-x86_64/egg/boto/services
+creating build/bdist.linux-x86_64/egg/boto/cloudfront
+copying build/lib/boto/cloudfront/__init__.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
+copying build/lib/boto/cloudfront/distribution.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
+copying build/lib/boto/cloudfront/exception.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
+copying build/lib/boto/cloudfront/identity.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
+copying build/lib/boto/cloudfront/invalidation.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
+copying build/lib/boto/cloudfront/logging.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
+copying build/lib/boto/cloudfront/object.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
+copying build/lib/boto/cloudfront/origin.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
+copying build/lib/boto/cloudfront/signers.py -> build/bdist.linux-x86_64/egg/boto/cloudfront
+creating build/bdist.linux-x86_64/egg/boto/roboto
+copying build/lib/boto/roboto/__init__.py -> build/bdist.linux-x86_64/egg/boto/roboto
+copying build/lib/boto/roboto/awsqueryrequest.py -> build/bdist.linux-x86_64/egg/boto/roboto
+copying build/lib/boto/roboto/awsqueryservice.py -> build/bdist.linux-x86_64/egg/boto/roboto
+copying build/lib/boto/roboto/param.py -> build/bdist.linux-x86_64/egg/boto/roboto
 creating build/bdist.linux-x86_64/egg/boto/rds
 copying build/lib/boto/rds/__init__.py -> build/bdist.linux-x86_64/egg/boto/rds
 copying build/lib/boto/rds/dbinstance.py -> build/bdist.linux-x86_64/egg/boto/rds
-copying build/lib/boto/rds/dbsnapshot.py -> build/bdist.linux-x86_64/egg/boto/rds
 copying build/lib/boto/rds/dbsecuritygroup.py -> build/bdist.linux-x86_64/egg/boto/rds
-copying build/lib/boto/rds/vpcsecuritygroupmembership.py -> build/bdist.linux-x86_64/egg/boto/rds
+copying build/lib/boto/rds/dbsnapshot.py -> build/bdist.linux-x86_64/egg/boto/rds
+copying build/lib/boto/rds/dbsubnetgroup.py -> build/bdist.linux-x86_64/egg/boto/rds
 copying build/lib/boto/rds/event.py -> build/bdist.linux-x86_64/egg/boto/rds
+copying build/lib/boto/rds/optiongroup.py -> build/bdist.linux-x86_64/egg/boto/rds
+copying build/lib/boto/rds/parametergroup.py -> build/bdist.linux-x86_64/egg/boto/rds
 copying build/lib/boto/rds/regioninfo.py -> build/bdist.linux-x86_64/egg/boto/rds
 copying build/lib/boto/rds/statusinfo.py -> build/bdist.linux-x86_64/egg/boto/rds
-copying build/lib/boto/rds/parametergroup.py -> build/bdist.linux-x86_64/egg/boto/rds
-copying build/lib/boto/rds/optiongroup.py -> build/bdist.linux-x86_64/egg/boto/rds
-copying build/lib/boto/rds/dbsubnetgroup.py -> build/bdist.linux-x86_64/egg/boto/rds
+copying build/lib/boto/rds/vpcsecuritygroupmembership.py -> build/bdist.linux-x86_64/egg/boto/rds
+creating build/bdist.linux-x86_64/egg/boto/vpc
+copying build/lib/boto/vpc/__init__.py -> build/bdist.linux-x86_64/egg/boto/vpc
+copying build/lib/boto/vpc/customergateway.py -> build/bdist.linux-x86_64/egg/boto/vpc
+copying build/lib/boto/vpc/dhcpoptions.py -> build/bdist.linux-x86_64/egg/boto/vpc
+copying build/lib/boto/vpc/internetgateway.py -> build/bdist.linux-x86_64/egg/boto/vpc
+copying build/lib/boto/vpc/networkacl.py -> build/bdist.linux-x86_64/egg/boto/vpc
+copying build/lib/boto/vpc/routetable.py -> build/bdist.linux-x86_64/egg/boto/vpc
+copying build/lib/boto/vpc/subnet.py -> build/bdist.linux-x86_64/egg/boto/vpc
+copying build/lib/boto/vpc/vpc.py -> build/bdist.linux-x86_64/egg/boto/vpc
+copying build/lib/boto/vpc/vpnconnection.py -> build/bdist.linux-x86_64/egg/boto/vpc
+copying build/lib/boto/vpc/vpngateway.py -> build/bdist.linux-x86_64/egg/boto/vpc
+creating build/bdist.linux-x86_64/egg/boto/fps
+copying build/lib/boto/fps/__init__.py -> build/bdist.linux-x86_64/egg/boto/fps
+copying build/lib/boto/fps/connection.py -> build/bdist.linux-x86_64/egg/boto/fps
+copying build/lib/boto/fps/exception.py -> build/bdist.linux-x86_64/egg/boto/fps
+copying build/lib/boto/fps/response.py -> build/bdist.linux-x86_64/egg/boto/fps
+creating build/bdist.linux-x86_64/egg/boto/emr
+copying build/lib/boto/emr/__init__.py -> build/bdist.linux-x86_64/egg/boto/emr
+copying build/lib/boto/emr/bootstrap_action.py -> build/bdist.linux-x86_64/egg/boto/emr
+copying build/lib/boto/emr/connection.py -> build/bdist.linux-x86_64/egg/boto/emr
+copying build/lib/boto/emr/emrobject.py -> build/bdist.linux-x86_64/egg/boto/emr
+copying build/lib/boto/emr/instance_group.py -> build/bdist.linux-x86_64/egg/boto/emr
+copying build/lib/boto/emr/step.py -> build/bdist.linux-x86_64/egg/boto/emr
+creating build/bdist.linux-x86_64/egg/boto/sns
+copying build/lib/boto/sns/__init__.py -> build/bdist.linux-x86_64/egg/boto/sns
+copying build/lib/boto/sns/connection.py -> build/bdist.linux-x86_64/egg/boto/sns
+creating build/bdist.linux-x86_64/egg/boto/ecs
+copying build/lib/boto/ecs/__init__.py -> build/bdist.linux-x86_64/egg/boto/ecs
+copying build/lib/boto/ecs/item.py -> build/bdist.linux-x86_64/egg/boto/ecs
+creating build/bdist.linux-x86_64/egg/boto/iam
+copying build/lib/boto/iam/__init__.py -> build/bdist.linux-x86_64/egg/boto/iam
+copying build/lib/boto/iam/connection.py -> build/bdist.linux-x86_64/egg/boto/iam
+copying build/lib/boto/iam/summarymap.py -> build/bdist.linux-x86_64/egg/boto/iam
+creating build/bdist.linux-x86_64/egg/boto/route53
+copying build/lib/boto/route53/__init__.py -> build/bdist.linux-x86_64/egg/boto/route53
+copying build/lib/boto/route53/connection.py -> build/bdist.linux-x86_64/egg/boto/route53
+copying build/lib/boto/route53/exception.py -> build/bdist.linux-x86_64/egg/boto/route53
+copying build/lib/boto/route53/hostedzone.py -> build/bdist.linux-x86_64/egg/boto/route53
+copying build/lib/boto/route53/record.py -> build/bdist.linux-x86_64/egg/boto/route53
+copying build/lib/boto/route53/status.py -> build/bdist.linux-x86_64/egg/boto/route53
+copying build/lib/boto/route53/zone.py -> build/bdist.linux-x86_64/egg/boto/route53
+creating build/bdist.linux-x86_64/egg/boto/ses
+copying build/lib/boto/ses/__init__.py -> build/bdist.linux-x86_64/egg/boto/ses
+copying build/lib/boto/ses/connection.py -> build/bdist.linux-x86_64/egg/boto/ses
+copying build/lib/boto/ses/exceptions.py -> build/bdist.linux-x86_64/egg/boto/ses
+creating build/bdist.linux-x86_64/egg/boto/cloudformation
+copying build/lib/boto/cloudformation/__init__.py -> build/bdist.linux-x86_64/egg/boto/cloudformation
+copying build/lib/boto/cloudformation/connection.py -> build/bdist.linux-x86_64/egg/boto/cloudformation
+copying build/lib/boto/cloudformation/stack.py -> build/bdist.linux-x86_64/egg/boto/cloudformation
+copying build/lib/boto/cloudformation/template.py -> build/bdist.linux-x86_64/egg/boto/cloudformation
+creating build/bdist.linux-x86_64/egg/boto/sts
+copying build/lib/boto/sts/__init__.py -> build/bdist.linux-x86_64/egg/boto/sts
+copying build/lib/boto/sts/connection.py -> build/bdist.linux-x86_64/egg/boto/sts
+copying build/lib/boto/sts/credentials.py -> build/bdist.linux-x86_64/egg/boto/sts
+creating build/bdist.linux-x86_64/egg/boto/dynamodb
+copying build/lib/boto/dynamodb/__init__.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
+copying build/lib/boto/dynamodb/batch.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
+copying build/lib/boto/dynamodb/condition.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
+copying build/lib/boto/dynamodb/exceptions.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
+copying build/lib/boto/dynamodb/item.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
+copying build/lib/boto/dynamodb/layer1.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
+copying build/lib/boto/dynamodb/layer2.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
+copying build/lib/boto/dynamodb/schema.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
+copying build/lib/boto/dynamodb/table.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
+copying build/lib/boto/dynamodb/types.py -> build/bdist.linux-x86_64/egg/boto/dynamodb
+creating build/bdist.linux-x86_64/egg/boto/swf
+copying build/lib/boto/swf/__init__.py -> build/bdist.linux-x86_64/egg/boto/swf
+copying build/lib/boto/swf/exceptions.py -> build/bdist.linux-x86_64/egg/boto/swf
+copying build/lib/boto/swf/layer1.py -> build/bdist.linux-x86_64/egg/boto/swf
+copying build/lib/boto/swf/layer1_decisions.py -> build/bdist.linux-x86_64/egg/boto/swf
+copying build/lib/boto/swf/layer2.py -> build/bdist.linux-x86_64/egg/boto/swf
+creating build/bdist.linux-x86_64/egg/boto/mws
+copying build/lib/boto/mws/__init__.py -> build/bdist.linux-x86_64/egg/boto/mws
+copying build/lib/boto/mws/connection.py -> build/bdist.linux-x86_64/egg/boto/mws
+copying build/lib/boto/mws/exception.py -> build/bdist.linux-x86_64/egg/boto/mws
+copying build/lib/boto/mws/response.py -> build/bdist.linux-x86_64/egg/boto/mws
+creating build/bdist.linux-x86_64/egg/boto/cloudsearch
+copying build/lib/boto/cloudsearch/__init__.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
+copying build/lib/boto/cloudsearch/document.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
+copying build/lib/boto/cloudsearch/domain.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
+copying build/lib/boto/cloudsearch/layer1.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
+copying build/lib/boto/cloudsearch/layer2.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
+copying build/lib/boto/cloudsearch/optionstatus.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
+copying build/lib/boto/cloudsearch/search.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
+copying build/lib/boto/cloudsearch/sourceattribute.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
+creating build/bdist.linux-x86_64/egg/boto/glacier
+copying build/lib/boto/glacier/__init__.py -> build/bdist.linux-x86_64/egg/boto/glacier
+copying build/lib/boto/glacier/concurrent.py -> build/bdist.linux-x86_64/egg/boto/glacier
+copying build/lib/boto/glacier/exceptions.py -> build/bdist.linux-x86_64/egg/boto/glacier
+copying build/lib/boto/glacier/job.py -> build/bdist.linux-x86_64/egg/boto/glacier
+copying build/lib/boto/glacier/layer1.py -> build/bdist.linux-x86_64/egg/boto/glacier
+copying build/lib/boto/glacier/layer2.py -> build/bdist.linux-x86_64/egg/boto/glacier
+copying build/lib/boto/glacier/response.py -> build/bdist.linux-x86_64/egg/boto/glacier
+copying build/lib/boto/glacier/utils.py -> build/bdist.linux-x86_64/egg/boto/glacier
+copying build/lib/boto/glacier/vault.py -> build/bdist.linux-x86_64/egg/boto/glacier
+copying build/lib/boto/glacier/writer.py -> build/bdist.linux-x86_64/egg/boto/glacier
+creating build/bdist.linux-x86_64/egg/boto/beanstalk
+copying build/lib/boto/beanstalk/__init__.py -> build/bdist.linux-x86_64/egg/boto/beanstalk
+copying build/lib/boto/beanstalk/exception.py -> build/bdist.linux-x86_64/egg/boto/beanstalk
+copying build/lib/boto/beanstalk/layer1.py -> build/bdist.linux-x86_64/egg/boto/beanstalk
+copying build/lib/boto/beanstalk/response.py -> build/bdist.linux-x86_64/egg/boto/beanstalk
+copying build/lib/boto/beanstalk/wrapper.py -> build/bdist.linux-x86_64/egg/boto/beanstalk
+creating build/bdist.linux-x86_64/egg/boto/datapipeline
+copying build/lib/boto/datapipeline/__init__.py -> build/bdist.linux-x86_64/egg/boto/datapipeline
+copying build/lib/boto/datapipeline/exceptions.py -> build/bdist.linux-x86_64/egg/boto/datapipeline
+copying build/lib/boto/datapipeline/layer1.py -> build/bdist.linux-x86_64/egg/boto/datapipeline
 creating build/bdist.linux-x86_64/egg/boto/elasticache
 copying build/lib/boto/elasticache/__init__.py -> build/bdist.linux-x86_64/egg/boto/elasticache
 copying build/lib/boto/elasticache/layer1.py -> build/bdist.linux-x86_64/egg/boto/elasticache
-copying build/lib/boto/regioninfo.py -> build/bdist.linux-x86_64/egg/boto
-creating build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/spotpricehistory.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/launchspecification.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/__init__.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/securitygroup.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/buyreservation.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/volume.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/tag.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/keypair.py -> build/bdist.linux-x86_64/egg/boto/ec2
-creating build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
-copying build/lib/boto/ec2/cloudwatch/__init__.py -> build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
-copying build/lib/boto/ec2/cloudwatch/alarm.py -> build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
-copying build/lib/boto/ec2/cloudwatch/listelement.py -> build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
-copying build/lib/boto/ec2/cloudwatch/datapoint.py -> build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
-copying build/lib/boto/ec2/cloudwatch/dimension.py -> build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
-copying build/lib/boto/ec2/cloudwatch/metric.py -> build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch
-copying build/lib/boto/ec2/image.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/placementgroup.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/address.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/instanceinfo.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/reservedinstance.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/group.py -> build/bdist.linux-x86_64/egg/boto/ec2
-creating build/bdist.linux-x86_64/egg/boto/ec2/elb
-copying build/lib/boto/ec2/elb/__init__.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
-copying build/lib/boto/ec2/elb/securitygroup.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
-copying build/lib/boto/ec2/elb/loadbalancer.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
-copying build/lib/boto/ec2/elb/listener.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
-copying build/lib/boto/ec2/elb/listelement.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
-copying build/lib/boto/ec2/elb/instancestate.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
-copying build/lib/boto/ec2/elb/attributes.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
-copying build/lib/boto/ec2/elb/policies.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
-copying build/lib/boto/ec2/elb/healthcheck.py -> build/bdist.linux-x86_64/egg/boto/ec2/elb
-copying build/lib/boto/ec2/regioninfo.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/zone.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/spotinstancerequest.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/volumestatus.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/blockdevicemapping.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/attributes.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/connection.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/vmtype.py -> build/bdist.linux-x86_64/egg/boto/ec2
-creating build/bdist.linux-x86_64/egg/boto/ec2/autoscale
-copying build/lib/boto/ec2/autoscale/policy.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
-copying build/lib/boto/ec2/autoscale/__init__.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
-copying build/lib/boto/ec2/autoscale/tag.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
-copying build/lib/boto/ec2/autoscale/group.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
-copying build/lib/boto/ec2/autoscale/launchconfig.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
-copying build/lib/boto/ec2/autoscale/scheduled.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
-copying build/lib/boto/ec2/autoscale/request.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
-copying build/lib/boto/ec2/autoscale/instance.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
-copying build/lib/boto/ec2/autoscale/activity.py -> build/bdist.linux-x86_64/egg/boto/ec2/autoscale
-copying build/lib/boto/ec2/instancestatus.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/ec2object.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/instance.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/bundleinstance.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/spotdatafeedsubscription.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/networkinterface.py -> build/bdist.linux-x86_64/egg/boto/ec2
-copying build/lib/boto/ec2/snapshot.py -> build/bdist.linux-x86_64/egg/boto/ec2
-creating build/bdist.linux-x86_64/egg/boto/redshift
-copying build/lib/boto/redshift/__init__.py -> build/bdist.linux-x86_64/egg/boto/redshift
-copying build/lib/boto/redshift/layer1.py -> build/bdist.linux-x86_64/egg/boto/redshift
-copying build/lib/boto/redshift/exceptions.py -> build/bdist.linux-x86_64/egg/boto/redshift
-creating build/bdist.linux-x86_64/egg/boto/route53
-copying build/lib/boto/route53/exception.py -> build/bdist.linux-x86_64/egg/boto/route53
-copying build/lib/boto/route53/__init__.py -> build/bdist.linux-x86_64/egg/boto/route53
-copying build/lib/boto/route53/status.py -> build/bdist.linux-x86_64/egg/boto/route53
-copying build/lib/boto/route53/record.py -> build/bdist.linux-x86_64/egg/boto/route53
-copying build/lib/boto/route53/zone.py -> build/bdist.linux-x86_64/egg/boto/route53
-copying build/lib/boto/route53/hostedzone.py -> build/bdist.linux-x86_64/egg/boto/route53
-copying build/lib/boto/route53/connection.py -> build/bdist.linux-x86_64/egg/boto/route53
-creating build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/__init__.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/lifecycle.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/bucket.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/user.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/multipart.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/deletemarker.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/cors.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/keyfile.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/multidelete.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/key.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/bucketlistresultset.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/acl.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/bucketlogging.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/tagging.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/connection.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/prefix.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/resumable_download_handler.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/s3/website.py -> build/bdist.linux-x86_64/egg/boto/s3
-copying build/lib/boto/provider.py -> build/bdist.linux-x86_64/egg/boto
-creating build/bdist.linux-x86_64/egg/boto/support
-copying build/lib/boto/support/__init__.py -> build/bdist.linux-x86_64/egg/boto/support
-copying build/lib/boto/support/layer1.py -> build/bdist.linux-x86_64/egg/boto/support
-copying build/lib/boto/support/exceptions.py -> build/bdist.linux-x86_64/egg/boto/support
-creating build/bdist.linux-x86_64/egg/boto/opsworks
-copying build/lib/boto/opsworks/__init__.py -> build/bdist.linux-x86_64/egg/boto/opsworks
-copying build/lib/boto/opsworks/layer1.py -> build/bdist.linux-x86_64/egg/boto/opsworks
-copying build/lib/boto/opsworks/exceptions.py -> build/bdist.linux-x86_64/egg/boto/opsworks
-creating build/bdist.linux-x86_64/egg/boto/sqs
-copying build/lib/boto/sqs/__init__.py -> build/bdist.linux-x86_64/egg/boto/sqs
-copying build/lib/boto/sqs/message.py -> build/bdist.linux-x86_64/egg/boto/sqs
-copying build/lib/boto/sqs/batchresults.py -> build/bdist.linux-x86_64/egg/boto/sqs
-copying build/lib/boto/sqs/queue.py -> build/bdist.linux-x86_64/egg/boto/sqs
-copying build/lib/boto/sqs/jsonmessage.py -> build/bdist.linux-x86_64/egg/boto/sqs
-copying build/lib/boto/sqs/regioninfo.py -> build/bdist.linux-x86_64/egg/boto/sqs
-copying build/lib/boto/sqs/attributes.py -> build/bdist.linux-x86_64/egg/boto/sqs
-copying build/lib/boto/sqs/connection.py -> build/bdist.linux-x86_64/egg/boto/sqs
-creating build/bdist.linux-x86_64/egg/boto/services
-copying build/lib/boto/services/bs.py -> build/bdist.linux-x86_64/egg/boto/services
-copying build/lib/boto/services/__init__.py -> build/bdist.linux-x86_64/egg/boto/services
-copying build/lib/boto/services/message.py -> build/bdist.linux-x86_64/egg/boto/services
-copying build/lib/boto/services/sonofmmm.cfg -> build/bdist.linux-x86_64/egg/boto/services
-copying build/lib/boto/services/service.py -> build/bdist.linux-x86_64/egg/boto/services
-copying build/lib/boto/services/sonofmmm.py -> build/bdist.linux-x86_64/egg/boto/services
-copying build/lib/boto/services/servicedef.py -> build/bdist.linux-x86_64/egg/boto/services
-copying build/lib/boto/services/submit.py -> build/bdist.linux-x86_64/egg/boto/services
-copying build/lib/boto/services/result.py -> build/bdist.linux-x86_64/egg/boto/services
-creating build/bdist.linux-x86_64/egg/boto/swf
-copying build/lib/boto/swf/__init__.py -> build/bdist.linux-x86_64/egg/boto/swf
-copying build/lib/boto/swf/layer1.py -> build/bdist.linux-x86_64/egg/boto/swf
-copying build/lib/boto/swf/layer2.py -> build/bdist.linux-x86_64/egg/boto/swf
-copying build/lib/boto/swf/exceptions.py -> build/bdist.linux-x86_64/egg/boto/swf
-copying build/lib/boto/swf/layer1_decisions.py -> build/bdist.linux-x86_64/egg/boto/swf
-copying build/lib/boto/https_connection.py -> build/bdist.linux-x86_64/egg/boto
-creating build/bdist.linux-x86_64/egg/boto/cloudtrail
-copying build/lib/boto/cloudtrail/__init__.py -> build/bdist.linux-x86_64/egg/boto/cloudtrail
-copying build/lib/boto/cloudtrail/layer1.py -> build/bdist.linux-x86_64/egg/boto/cloudtrail
-copying build/lib/boto/cloudtrail/exceptions.py -> build/bdist.linux-x86_64/egg/boto/cloudtrail
-copying build/lib/boto/connection.py -> build/bdist.linux-x86_64/egg/boto
-creating build/bdist.linux-x86_64/egg/boto/beanstalk
-copying build/lib/boto/beanstalk/exception.py -> build/bdist.linux-x86_64/egg/boto/beanstalk
-copying build/lib/boto/beanstalk/__init__.py -> build/bdist.linux-x86_64/egg/boto/beanstalk
-copying build/lib/boto/beanstalk/response.py -> build/bdist.linux-x86_64/egg/boto/beanstalk
-copying build/lib/boto/beanstalk/layer1.py -> build/bdist.linux-x86_64/egg/boto/beanstalk
-copying build/lib/boto/beanstalk/wrapper.py -> build/bdist.linux-x86_64/egg/boto/beanstalk
-creating build/bdist.linux-x86_64/egg/boto/cloudsearch
-copying build/lib/boto/cloudsearch/__init__.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
-copying build/lib/boto/cloudsearch/layer1.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
-copying build/lib/boto/cloudsearch/sourceattribute.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
-copying build/lib/boto/cloudsearch/document.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
-copying build/lib/boto/cloudsearch/layer2.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
-copying build/lib/boto/cloudsearch/optionstatus.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
-copying build/lib/boto/cloudsearch/domain.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
-copying build/lib/boto/cloudsearch/search.py -> build/bdist.linux-x86_64/egg/boto/cloudsearch
 creating build/bdist.linux-x86_64/egg/boto/elastictranscoder
 copying build/lib/boto/elastictranscoder/__init__.py -> build/bdist.linux-x86_64/egg/boto/elastictranscoder
-copying build/lib/boto/elastictranscoder/layer1.py -> build/bdist.linux-x86_64/egg/boto/elastictranscoder
 copying build/lib/boto/elastictranscoder/exceptions.py -> build/bdist.linux-x86_64/egg/boto/elastictranscoder
-copying build/lib/boto/utils.py -> build/bdist.linux-x86_64/egg/boto
-copying build/lib/boto/jsonresponse.py -> build/bdist.linux-x86_64/egg/boto
-copying build/lib/boto/auth.py -> build/bdist.linux-x86_64/egg/boto
-copying build/lib/boto/compat.py -> build/bdist.linux-x86_64/egg/boto
-creating build/bdist.linux-x86_64/egg/boto/vpc
-copying build/lib/boto/vpc/vpc.py -> build/bdist.linux-x86_64/egg/boto/vpc
-copying build/lib/boto/vpc/vpnconnection.py -> build/bdist.linux-x86_64/egg/boto/vpc
-copying build/lib/boto/vpc/__init__.py -> build/bdist.linux-x86_64/egg/boto/vpc
-copying build/lib/boto/vpc/routetable.py -> build/bdist.linux-x86_64/egg/boto/vpc
-copying build/lib/boto/vpc/vpngateway.py -> build/bdist.linux-x86_64/egg/boto/vpc
-copying build/lib/boto/vpc/dhcpoptions.py -> build/bdist.linux-x86_64/egg/boto/vpc
-copying build/lib/boto/vpc/networkacl.py -> build/bdist.linux-x86_64/egg/boto/vpc
-copying build/lib/boto/vpc/customergateway.py -> build/bdist.linux-x86_64/egg/boto/vpc
-copying build/lib/boto/vpc/internetgateway.py -> build/bdist.linux-x86_64/egg/boto/vpc
-copying build/lib/boto/vpc/subnet.py -> build/bdist.linux-x86_64/egg/boto/vpc
-creating build/bdist.linux-x86_64/egg/boto/glacier
-copying build/lib/boto/glacier/writer.py -> build/bdist.linux-x86_64/egg/boto/glacier
-copying build/lib/boto/glacier/__init__.py -> build/bdist.linux-x86_64/egg/boto/glacier
-copying build/lib/boto/glacier/concurrent.py -> build/bdist.linux-x86_64/egg/boto/glacier
-copying build/lib/boto/glacier/response.py -> build/bdist.linux-x86_64/egg/boto/glacier
-copying build/lib/boto/glacier/layer1.py -> build/bdist.linux-x86_64/egg/boto/glacier
-copying build/lib/boto/glacier/layer2.py -> build/bdist.linux-x86_64/egg/boto/glacier
-copying build/lib/boto/glacier/exceptions.py -> build/bdist.linux-x86_64/egg/boto/glacier
-copying build/lib/boto/glacier/vault.py -> build/bdist.linux-x86_64/egg/boto/glacier
-copying build/lib/boto/glacier/utils.py -> build/bdist.linux-x86_64/egg/boto/glacier
-copying build/lib/boto/glacier/job.py -> build/bdist.linux-x86_64/egg/boto/glacier
-byte-compiling build/bdist.linux-x86_64/egg/boto/exception.py to exception.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/storage_uri.py to storage_uri.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/layer1.py to layer1.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/fields.py to fields.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/table.py to table.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/results.py to results.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/exceptions.py to exceptions.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/items.py to items.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/types.py to types.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/resultset.py to resultset.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/iam/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/iam/summarymap.py to summarymap.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/iam/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ecs/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ecs/item.py to item.pyc
+copying build/lib/boto/elastictranscoder/layer1.py -> build/bdist.linux-x86_64/egg/boto/elastictranscoder
+creating build/bdist.linux-x86_64/egg/boto/opsworks
+copying build/lib/boto/opsworks/__init__.py -> build/bdist.linux-x86_64/egg/boto/opsworks
+copying build/lib/boto/opsworks/exceptions.py -> build/bdist.linux-x86_64/egg/boto/opsworks
+copying build/lib/boto/opsworks/layer1.py -> build/bdist.linux-x86_64/egg/boto/opsworks
+creating build/bdist.linux-x86_64/egg/boto/redshift
+copying build/lib/boto/redshift/__init__.py -> build/bdist.linux-x86_64/egg/boto/redshift
+copying build/lib/boto/redshift/exceptions.py -> build/bdist.linux-x86_64/egg/boto/redshift
+copying build/lib/boto/redshift/layer1.py -> build/bdist.linux-x86_64/egg/boto/redshift
+creating build/bdist.linux-x86_64/egg/boto/dynamodb2
+copying build/lib/boto/dynamodb2/__init__.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
+copying build/lib/boto/dynamodb2/exceptions.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
+copying build/lib/boto/dynamodb2/fields.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
+copying build/lib/boto/dynamodb2/items.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
+copying build/lib/boto/dynamodb2/layer1.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
+copying build/lib/boto/dynamodb2/results.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
+copying build/lib/boto/dynamodb2/table.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
+copying build/lib/boto/dynamodb2/types.py -> build/bdist.linux-x86_64/egg/boto/dynamodb2
+creating build/bdist.linux-x86_64/egg/boto/support
+copying build/lib/boto/support/__init__.py -> build/bdist.linux-x86_64/egg/boto/support
+copying build/lib/boto/support/exceptions.py -> build/bdist.linux-x86_64/egg/boto/support
+copying build/lib/boto/support/layer1.py -> build/bdist.linux-x86_64/egg/boto/support
+creating build/bdist.linux-x86_64/egg/boto/cloudtrail
+copying build/lib/boto/cloudtrail/__init__.py -> build/bdist.linux-x86_64/egg/boto/cloudtrail
+copying build/lib/boto/cloudtrail/exceptions.py -> build/bdist.linux-x86_64/egg/boto/cloudtrail
+copying build/lib/boto/cloudtrail/layer1.py -> build/bdist.linux-x86_64/egg/boto/cloudtrail
 byte-compiling build/bdist.linux-x86_64/egg/boto/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sns/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sns/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ses/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ses/exceptions.py to exceptions.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ses/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/file/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/file/bucket.py to bucket.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/file/key.py to key.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/file/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/file/simpleresultset.py to simpleresultset.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/datapipeline/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/datapipeline/layer1.py to layer1.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/datapipeline/exceptions.py to exceptions.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/contrib/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/contrib/ymlmessage.py to ymlmessage.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sts/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sts/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sts/credentials.py to credentials.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/exception.py to exception.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/invalidation.py to invalidation.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/object.py to object.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/origin.py to origin.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/identity.py to identity.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/signers.py to signers.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/distribution.py to distribution.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/logging.py to logging.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/manage/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/manage/volume.py to volume.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/manage/propget.py to propget.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/manage/cmdshell.py to cmdshell.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/manage/task.py to task.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/manage/test_manage.py to test_manage.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/manage/server.py to server.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/auth.py to auth.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/auth_handler.py to auth_handler.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/compat.py to compat.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/exception.py to exception.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/handler.py to handler.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/https_connection.py to https_connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/jsonresponse.py to jsonresponse.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/plugin.py to plugin.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/provider.py to provider.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/regioninfo.py to regioninfo.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/resultset.py to resultset.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/storage_uri.py to storage_uri.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/utils.py to utils.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/attributes.py to attributes.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/batchresults.py to batchresults.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/jsonmessage.py to jsonmessage.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/message.py to message.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/queue.py to queue.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/regioninfo.py to regioninfo.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/acl.py to acl.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/bucket.py to bucket.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/bucketlistresultset.py to bucketlistresultset.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/bucketlogging.py to bucketlogging.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/cors.py to cors.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/deletemarker.py to deletemarker.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/key.py to key.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/keyfile.py to keyfile.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/lifecycle.py to lifecycle.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/multidelete.py to multidelete.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/multipart.py to multipart.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/prefix.py to prefix.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/resumable_download_handler.py to resumable_download_handler.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/tagging.py to tagging.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/user.py to user.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/s3/website.py to website.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/gs/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/gs/resumable_upload_handler.py to resumable_upload_handler.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/gs/lifecycle.py to lifecycle.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/gs/acl.py to acl.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/gs/bucket.py to bucket.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/gs/user.py to user.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/gs/bucketlistresultset.py to bucketlistresultset.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/gs/connection.py to connection.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/gs/cors.py to cors.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/gs/key.py to key.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/gs/bucketlistresultset.py to bucketlistresultset.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/gs/acl.py to acl.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/gs/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cacerts/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/fps/exception.py to exception.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/fps/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/fps/response.py to response.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/fps/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/roboto/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/roboto/param.py to param.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/roboto/awsqueryrequest.py to awsqueryrequest.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/roboto/awsqueryservice.py to awsqueryservice.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mashups/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mashups/order.py to order.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mashups/iobject.py to iobject.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mashups/interactive.py to interactive.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mashups/server.py to server.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/launch_ami.py to launch_ami.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu/apache.py to apache.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu/mysql.py to mysql.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu/installer.py to installer.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu/ebs.py to ebs.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu/trac.py to trac.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/copybot.py to copybot.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/bootstrap.py to bootstrap.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/scriptbase.py to scriptbase.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/config.py to config.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/helloworld.py to helloworld.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/startup.py to startup.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudformation/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudformation/template.py to template.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudformation/stack.py to stack.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudformation/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/question.py to question.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/notification.py to notification.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/price.py to price.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/layoutparam.py to layoutparam.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/qualification.py to qualification.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/layer1.py to layer1.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/condition.py to condition.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/layer2.py to layer2.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/table.py to table.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/exceptions.py to exceptions.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/schema.py to schema.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/batch.py to batch.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/types.py to types.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/item.py to item.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/gs/lifecycle.py to lifecycle.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/gs/resumable_upload_handler.py to resumable_upload_handler.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/gs/user.py to user.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/file/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/file/bucket.py to bucket.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/file/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/file/key.py to key.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/file/simpleresultset.py to simpleresultset.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/address.py to address.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/attributes.py to attributes.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/blockdevicemapping.py to blockdevicemapping.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/bundleinstance.py to bundleinstance.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/buyreservation.py to buyreservation.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/ec2object.py to ec2object.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/group.py to group.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/image.py to image.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/instance.py to instance.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/instanceinfo.py to instanceinfo.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/instancestatus.py to instancestatus.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/keypair.py to keypair.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/launchspecification.py to launchspecification.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/networkinterface.py to networkinterface.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/placementgroup.py to placementgroup.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/regioninfo.py to regioninfo.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/reservedinstance.py to reservedinstance.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/securitygroup.py to securitygroup.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/snapshot.py to snapshot.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/spotdatafeedsubscription.py to spotdatafeedsubscription.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/spotinstancerequest.py to spotinstancerequest.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/spotpricehistory.py to spotpricehistory.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/tag.py to tag.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/vmtype.py to vmtype.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/volume.py to volume.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/volumestatus.py to volumestatus.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/zone.py to zone.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch/alarm.py to alarm.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch/datapoint.py to datapoint.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch/dimension.py to dimension.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch/listelement.py to listelement.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch/metric.py to metric.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/activity.py to activity.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/group.py to group.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/instance.py to instance.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/launchconfig.py to launchconfig.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/policy.py to policy.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/request.py to request.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/scheduled.py to scheduled.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/tag.py to tag.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/attributes.py to attributes.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/healthcheck.py to healthcheck.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/instancestate.py to instancestate.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/listelement.py to listelement.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/listener.py to listener.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/loadbalancer.py to loadbalancer.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/policies.py to policies.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/securitygroup.py to securitygroup.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/domain.py to domain.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/item.py to item.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/queryresultset.py to queryresultset.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/regioninfo.py to regioninfo.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/blob.py to blob.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/key.py to key.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/model.py to model.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/property.py to property.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/query.py to query.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/model.py to model.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/sequence.py to sequence.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/test_db.py to test_db.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/manager/__init__.py to __init__.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/manager/sdbmanager.py to sdbmanager.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/manager/xmlmanager.py to xmlmanager.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/key.py to key.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/test_db.py to test_db.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/db/blob.py to blob.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/regioninfo.py to regioninfo.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/domain.py to domain.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/queryresultset.py to queryresultset.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sdb/item.py to item.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/handler.py to handler.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/emr/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/emr/bootstrap_action.py to bootstrap_action.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/emr/step.py to step.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/emr/emrobject.py to emrobject.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/emr/instance_group.py to instance_group.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/emr/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/plugin.py to plugin.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mws/exception.py to exception.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mws/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mws/response.py to response.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/mws/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/auth_handler.py to auth_handler.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cacerts/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/layoutparam.py to layoutparam.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/notification.py to notification.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/price.py to price.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/qualification.py to qualification.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mturk/question.py to question.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/bootstrap.py to bootstrap.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/config.py to config.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/copybot.py to copybot.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/helloworld.py to helloworld.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/launch_ami.py to launch_ami.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/scriptbase.py to scriptbase.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/startup.py to startup.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu/apache.py to apache.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu/ebs.py to ebs.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu/installer.py to installer.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu/mysql.py to mysql.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/pyami/installers/ubuntu/trac.py to trac.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mashups/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mashups/interactive.py to interactive.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mashups/iobject.py to iobject.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mashups/order.py to order.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mashups/server.py to server.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/contrib/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/contrib/ymlmessage.py to ymlmessage.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/manage/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/manage/cmdshell.py to cmdshell.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/manage/propget.py to propget.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/manage/server.py to server.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/manage/task.py to task.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/manage/test_manage.py to test_manage.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/manage/volume.py to volume.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/services/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/services/bs.py to bs.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/services/message.py to message.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/services/result.py to result.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/services/service.py to service.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/services/servicedef.py to servicedef.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/services/sonofmmm.py to sonofmmm.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/services/submit.py to submit.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/distribution.py to distribution.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/exception.py to exception.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/identity.py to identity.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/invalidation.py to invalidation.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/logging.py to logging.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/object.py to object.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/origin.py to origin.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudfront/signers.py to signers.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/roboto/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/roboto/awsqueryrequest.py to awsqueryrequest.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/roboto/awsqueryservice.py to awsqueryservice.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/roboto/param.py to param.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/rds/__init__.py to __init__.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/rds/dbinstance.py to dbinstance.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/rds/dbsnapshot.py to dbsnapshot.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/rds/dbsecuritygroup.py to dbsecuritygroup.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/rds/vpcsecuritygroupmembership.py to vpcsecuritygroupmembership.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/rds/dbsnapshot.py to dbsnapshot.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/rds/dbsubnetgroup.py to dbsubnetgroup.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/rds/event.py to event.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/rds/optiongroup.py to optiongroup.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/rds/parametergroup.py to parametergroup.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/rds/regioninfo.py to regioninfo.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/rds/statusinfo.py to statusinfo.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/rds/parametergroup.py to parametergroup.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/rds/optiongroup.py to optiongroup.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/rds/dbsubnetgroup.py to dbsubnetgroup.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/elasticache/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/elasticache/layer1.py to layer1.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/regioninfo.py to regioninfo.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/spotpricehistory.py to spotpricehistory.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/launchspecification.py to launchspecification.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/securitygroup.py to securitygroup.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/buyreservation.py to buyreservation.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/volume.py to volume.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/tag.py to tag.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/keypair.py to keypair.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch/alarm.py to alarm.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch/listelement.py to listelement.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch/datapoint.py to datapoint.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch/dimension.py to dimension.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/cloudwatch/metric.py to metric.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/image.py to image.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/placementgroup.py to placementgroup.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/address.py to address.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/instanceinfo.py to instanceinfo.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/reservedinstance.py to reservedinstance.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/group.py to group.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/securitygroup.py to securitygroup.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/loadbalancer.py to loadbalancer.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/listener.py to listener.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/listelement.py to listelement.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/instancestate.py to instancestate.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/attributes.py to attributes.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/policies.py to policies.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/elb/healthcheck.py to healthcheck.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/regioninfo.py to regioninfo.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/zone.py to zone.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/spotinstancerequest.py to spotinstancerequest.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/volumestatus.py to volumestatus.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/blockdevicemapping.py to blockdevicemapping.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/attributes.py to attributes.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/vmtype.py to vmtype.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/policy.py to policy.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/tag.py to tag.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/group.py to group.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/launchconfig.py to launchconfig.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/scheduled.py to scheduled.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/request.py to request.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/instance.py to instance.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/autoscale/activity.py to activity.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/instancestatus.py to instancestatus.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/ec2object.py to ec2object.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/instance.py to instance.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/bundleinstance.py to bundleinstance.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/spotdatafeedsubscription.py to spotdatafeedsubscription.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/networkinterface.py to networkinterface.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/ec2/snapshot.py to snapshot.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/redshift/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/redshift/layer1.py to layer1.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/redshift/exceptions.py to exceptions.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/route53/exception.py to exception.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/route53/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/route53/status.py to status.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/route53/record.py to record.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/route53/zone.py to zone.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/route53/hostedzone.py to hostedzone.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/route53/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/lifecycle.py to lifecycle.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/bucket.py to bucket.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/user.py to user.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/multipart.py to multipart.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/deletemarker.py to deletemarker.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/cors.py to cors.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/keyfile.py to keyfile.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/multidelete.py to multidelete.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/key.py to key.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/bucketlistresultset.py to bucketlistresultset.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/acl.py to acl.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/bucketlogging.py to bucketlogging.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/tagging.py to tagging.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/prefix.py to prefix.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/resumable_download_handler.py to resumable_download_handler.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/s3/website.py to website.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/provider.py to provider.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/support/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/support/layer1.py to layer1.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/support/exceptions.py to exceptions.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/opsworks/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/opsworks/layer1.py to layer1.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/opsworks/exceptions.py to exceptions.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/message.py to message.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/batchresults.py to batchresults.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/queue.py to queue.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/jsonmessage.py to jsonmessage.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/regioninfo.py to regioninfo.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/attributes.py to attributes.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/sqs/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/services/bs.py to bs.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/services/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/services/message.py to message.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/services/service.py to service.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/services/sonofmmm.py to sonofmmm.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/services/servicedef.py to servicedef.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/services/submit.py to submit.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/services/result.py to result.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/swf/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/swf/layer1.py to layer1.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/swf/layer2.py to layer2.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/swf/exceptions.py to exceptions.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/swf/layer1_decisions.py to layer1_decisions.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/https_connection.py to https_connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudtrail/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudtrail/layer1.py to layer1.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudtrail/exceptions.py to exceptions.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/connection.py to connection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/beanstalk/exception.py to exception.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/beanstalk/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/beanstalk/response.py to response.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/beanstalk/layer1.py to layer1.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/beanstalk/wrapper.py to wrapper.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/layer1.py to layer1.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/sourceattribute.py to sourceattribute.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/document.py to document.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/layer2.py to layer2.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/optionstatus.py to optionstatus.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/domain.py to domain.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/search.py to search.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/elastictranscoder/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/elastictranscoder/layer1.py to layer1.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/elastictranscoder/exceptions.py to exceptions.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/utils.py to utils.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/jsonresponse.py to jsonresponse.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/auth.py to auth.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/compat.py to compat.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/rds/vpcsecuritygroupmembership.py to vpcsecuritygroupmembership.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/customergateway.py to customergateway.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/dhcpoptions.py to dhcpoptions.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/internetgateway.py to internetgateway.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/networkacl.py to networkacl.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/routetable.py to routetable.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/subnet.py to subnet.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/vpc.py to vpc.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/vpnconnection.py to vpnconnection.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/__init__.py to __init__.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/routetable.py to routetable.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/vpngateway.py to vpngateway.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/dhcpoptions.py to dhcpoptions.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/networkacl.py to networkacl.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/customergateway.py to customergateway.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/internetgateway.py to internetgateway.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/vpc/subnet.py to subnet.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/writer.py to writer.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/fps/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/fps/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/fps/exception.py to exception.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/fps/response.py to response.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/emr/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/emr/bootstrap_action.py to bootstrap_action.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/emr/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/emr/emrobject.py to emrobject.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/emr/instance_group.py to instance_group.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/emr/step.py to step.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sns/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sns/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ecs/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ecs/item.py to item.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/iam/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/iam/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/iam/summarymap.py to summarymap.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/route53/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/route53/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/route53/exception.py to exception.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/route53/hostedzone.py to hostedzone.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/route53/record.py to record.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/route53/status.py to status.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/route53/zone.py to zone.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ses/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ses/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/ses/exceptions.py to exceptions.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudformation/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudformation/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudformation/stack.py to stack.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudformation/template.py to template.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sts/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sts/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/sts/credentials.py to credentials.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/batch.py to batch.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/condition.py to condition.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/exceptions.py to exceptions.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/item.py to item.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/layer1.py to layer1.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/layer2.py to layer2.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/schema.py to schema.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/table.py to table.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb/types.py to types.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/swf/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/swf/exceptions.py to exceptions.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/swf/layer1.py to layer1.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/swf/layer1_decisions.py to layer1_decisions.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/swf/layer2.py to layer2.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mws/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mws/connection.py to connection.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mws/exception.py to exception.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/mws/response.py to response.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/document.py to document.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/domain.py to domain.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/layer1.py to layer1.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/layer2.py to layer2.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/optionstatus.py to optionstatus.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/search.py to search.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudsearch/sourceattribute.py to sourceattribute.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/__init__.py to __init__.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/concurrent.py to concurrent.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/response.py to response.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/exceptions.py to exceptions.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/job.py to job.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/layer1.py to layer1.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/layer2.py to layer2.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/exceptions.py to exceptions.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/vault.py to vault.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/response.py to response.pyc
 byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/utils.py to utils.pyc
-byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/job.py to job.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/vault.py to vault.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/glacier/writer.py to writer.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/beanstalk/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/beanstalk/exception.py to exception.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/beanstalk/layer1.py to layer1.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/beanstalk/response.py to response.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/beanstalk/wrapper.py to wrapper.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/datapipeline/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/datapipeline/exceptions.py to exceptions.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/datapipeline/layer1.py to layer1.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/elasticache/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/elasticache/layer1.py to layer1.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/elastictranscoder/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/elastictranscoder/exceptions.py to exceptions.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/elastictranscoder/layer1.py to layer1.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/opsworks/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/opsworks/exceptions.py to exceptions.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/opsworks/layer1.py to layer1.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/redshift/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/redshift/exceptions.py to exceptions.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/redshift/layer1.py to layer1.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/exceptions.py to exceptions.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/fields.py to fields.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/items.py to items.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/layer1.py to layer1.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/results.py to results.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/table.py to table.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/dynamodb2/types.py to types.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/support/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/support/exceptions.py to exceptions.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/support/layer1.py to layer1.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudtrail/__init__.py to __init__.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudtrail/exceptions.py to exceptions.pyc
+byte-compiling build/bdist.linux-x86_64/egg/boto/cloudtrail/layer1.py to layer1.pyc
 creating build/bdist.linux-x86_64/egg/EGG-INFO
 installing scripts to build/bdist.linux-x86_64/egg/EGG-INFO/scripts
 running install_scripts
 running build_scripts
+creating build/scripts-2.7
+copying and adjusting bin/sdbadmin -> build/scripts-2.7
+copying and adjusting bin/elbadmin -> build/scripts-2.7
+copying and adjusting bin/cfadmin -> build/scripts-2.7
+copying and adjusting bin/s3put -> build/scripts-2.7
+copying and adjusting bin/fetch_file -> build/scripts-2.7
+copying and adjusting bin/launch_instance -> build/scripts-2.7
+copying and adjusting bin/list_instances -> build/scripts-2.7
+copying and adjusting bin/taskadmin -> build/scripts-2.7
+copying and adjusting bin/kill_instance -> build/scripts-2.7
+copying and adjusting bin/bundle_image -> build/scripts-2.7
+copying and adjusting bin/pyami_sendmail -> build/scripts-2.7
+copying and adjusting bin/lss3 -> build/scripts-2.7
+copying and adjusting bin/cq -> build/scripts-2.7
+copying and adjusting bin/route53 -> build/scripts-2.7
+copying and adjusting bin/cwutil -> build/scripts-2.7
+copying and adjusting bin/instance_events -> build/scripts-2.7
+copying and adjusting bin/asadmin -> build/scripts-2.7
+copying and adjusting bin/glacier -> build/scripts-2.7
+copying and adjusting bin/mturk -> build/scripts-2.7
+copying and adjusting bin/dynamodb_dump -> build/scripts-2.7
+copying and adjusting bin/dynamodb_load -> build/scripts-2.7
+changing mode of build/scripts-2.7/sdbadmin from 644 to 755
+changing mode of build/scripts-2.7/elbadmin from 644 to 755
+changing mode of build/scripts-2.7/cfadmin from 644 to 755
+changing mode of build/scripts-2.7/s3put from 644 to 755
+changing mode of build/scripts-2.7/fetch_file from 644 to 755
+changing mode of build/scripts-2.7/launch_instance from 644 to 755
+changing mode of build/scripts-2.7/list_instances from 644 to 755
+changing mode of build/scripts-2.7/taskadmin from 644 to 755
+changing mode of build/scripts-2.7/kill_instance from 644 to 755
+changing mode of build/scripts-2.7/bundle_image from 644 to 755
+changing mode of build/scripts-2.7/pyami_sendmail from 644 to 755
+changing mode of build/scripts-2.7/lss3 from 644 to 755
+changing mode of build/scripts-2.7/cq from 644 to 755
+changing mode of build/scripts-2.7/route53 from 644 to 755
+changing mode of build/scripts-2.7/cwutil from 644 to 755
+changing mode of build/scripts-2.7/instance_events from 644 to 755
+changing mode of build/scripts-2.7/asadmin from 644 to 755
+changing mode of build/scripts-2.7/glacier from 644 to 755
+changing mode of build/scripts-2.7/mturk from 644 to 755
+changing mode of build/scripts-2.7/dynamodb_dump from 644 to 755
+changing mode of build/scripts-2.7/dynamodb_load from 644 to 755
 creating build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/taskadmin -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/lss3 -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/cq -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/dynamodb_dump -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/asadmin -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/kill_instance -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/sdbadmin -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/list_instances -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/dynamodb_load -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/bundle_image -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/mturk -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/cwutil -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/route53 -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/elbadmin -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/s3put -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/cfadmin -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/fetch_file -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/pyami_sendmail -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/launch_instance -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/instance_events -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-copying build/scripts-2.6/glacier -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/taskadmin to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/lss3 to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/cq to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/dynamodb_dump to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/asadmin to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/kill_instance to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/sdbadmin to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/list_instances to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/dynamodb_load to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/bundle_image to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/mturk to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/cwutil to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/route53 to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/elbadmin to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/s3put to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/cfadmin to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/fetch_file to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/pyami_sendmail to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/launch_instance to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/instance_events to 775
-changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/glacier to 775
+copying build/scripts-2.7/sdbadmin -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/elbadmin -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/cfadmin -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/s3put -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/fetch_file -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/launch_instance -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/list_instances -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/taskadmin -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/kill_instance -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/bundle_image -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/pyami_sendmail -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/lss3 -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/cq -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/route53 -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/cwutil -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/instance_events -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/asadmin -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/glacier -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/mturk -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/dynamodb_dump -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+copying build/scripts-2.7/dynamodb_load -> build/bdist.linux-x86_64/egg/EGG-INFO/scripts
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/sdbadmin to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/elbadmin to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/cfadmin to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/s3put to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/fetch_file to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/launch_instance to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/list_instances to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/taskadmin to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/kill_instance to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/bundle_image to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/pyami_sendmail to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/lss3 to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/cq to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/route53 to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/cwutil to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/instance_events to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/asadmin to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/glacier to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/mturk to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/dynamodb_dump to 755
+changing mode of build/bdist.linux-x86_64/egg/EGG-INFO/scripts/dynamodb_load to 755
 copying boto.egg-info/PKG-INFO -> build/bdist.linux-x86_64/egg/EGG-INFO
 copying boto.egg-info/SOURCES.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
 copying boto.egg-info/dependency_links.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
 copying boto.egg-info/top_level.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
 zip_safe flag not set; analyzing archive contents...
 boto.connection: module references __file__
-creating 'dist/boto-2.18.0-py2.6.egg' and adding 'build/bdist.linux-x86_64/egg' to it
+creating 'dist/boto-2.18.0-py2.7.egg' and adding 'build/bdist.linux-x86_64/egg' to it
 removing 'build/bdist.linux-x86_64/egg' (and everything under it)
-Processing boto-2.18.0-py2.6.egg
-removing '/usr/lib/python2.6/site-packages/boto-2.18.0-py2.6.egg' (and everything under it)
-creating /usr/lib/python2.6/site-packages/boto-2.18.0-py2.6.egg
-Extracting boto-2.18.0-py2.6.egg to /usr/lib/python2.6/site-packages
+Processing boto-2.18.0-py2.7.egg
+removing '/usr/lib/python2.7/site-packages/boto-2.18.0-py2.7.egg' (and everything under it)
+creating /usr/lib/python2.7/site-packages/boto-2.18.0-py2.7.egg
+Extracting boto-2.18.0-py2.7.egg to /usr/lib/python2.7/site-packages
 boto 2.18.0 is already the active version in easy-install.pth
-Installing asadmin script to /usr/bin
-Installing list_instances script to /usr/bin
-Installing kill_instance script to /usr/bin
-Installing cq script to /usr/bin
+Installing sdbadmin script to /usr/bin
 Installing elbadmin script to /usr/bin
 Installing cfadmin script to /usr/bin
-Installing glacier script to /usr/bin
-Installing cwutil script to /usr/bin
-Installing lss3 script to /usr/bin
-Installing mturk script to /usr/bin
-Installing launch_instance script to /usr/bin
-Installing dynamodb_load script to /usr/bin
-Installing bundle_image script to /usr/bin
-Installing taskadmin script to /usr/bin
 Installing s3put script to /usr/bin
 Installing fetch_file script to /usr/bin
-Installing dynamodb_dump script to /usr/bin
-Installing instance_events script to /usr/bin
+Installing launch_instance script to /usr/bin
+Installing list_instances script to /usr/bin
+Installing taskadmin script to /usr/bin
+Installing kill_instance script to /usr/bin
+Installing bundle_image script to /usr/bin
 Installing pyami_sendmail script to /usr/bin
+Installing lss3 script to /usr/bin
+Installing cq script to /usr/bin
 Installing route53 script to /usr/bin
-Installing sdbadmin script to /usr/bin
+Installing cwutil script to /usr/bin
+Installing instance_events script to /usr/bin
+Installing asadmin script to /usr/bin
+Installing glacier script to /usr/bin
+Installing mturk script to /usr/bin
+Installing dynamodb_dump script to /usr/bin
+Installing dynamodb_load script to /usr/bin
 
-Installed /usr/lib/python2.6/site-packages/boto-2.18.0-py2.6.egg
+Installed /usr/lib/python2.7/site-packages/boto-2.18.0-py2.7.egg
 Processing dependencies for boto==2.18.0
 Finished processing dependencies for boto==2.18.0

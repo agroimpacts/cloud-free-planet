@@ -13,10 +13,10 @@ if [ -n "$croncheck" ]; then
 fi
 
 AFMAP_HOME=`basename $HOME`
-CREATEHIT=`pgrep -f /u/${AFMAP_HOME}*.*create_hit_daemon.py`
-PROCESSQUAL=`pgrep -f /u/${AFMAP_HOME}*.*process_qualification_requests.py`
-CLEANUP=`pgrep -f /u/${AFMAP_HOME}*.*cleanup_absent_worker.py`
-KMLGENERATE=`pgrep -f /u/${AFMAP_HOME}*.*KMLgenerate.R`
+CREATEHIT=`pgrep -f /home/${AFMAP_HOME}*.*create_hit_daemon.py`
+PROCESSQUAL=`pgrep -f /home/${AFMAP_HOME}*.*process_qualification_requests.py`
+CLEANUP=`pgrep -f /home/${AFMAP_HOME}*.*cleanup_absent_worker.py`
+KMLGENERATE=`pgrep -f /home/${AFMAP_HOME}*.*KMLgenerate.R`
 
 if [ -n "$CREATEHIT" ]; then
     echo "create_hit_daemon.py PID on $AFMAP_HOME: $CREATEHIT"

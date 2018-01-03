@@ -10,8 +10,9 @@ from MTurkMappingAfrica import MTurkMappingAfrica, aws_secret_access_key
 # /etc/aliases and /usr/local/etc/email2trac.conf to create a ticket
 # under the Internal Alert component.
 def email(mtma, msg = None):
-    sender = '%s@mapper.princeton.edu' % mtma.euser
-    receiver = 'mappingafrica_internal_alert@trac.princeton.edu'
+    sender = '%s@mapper.crowdmapper.org' % mtma.euser
+    #receiver = 'mappingafrica_internal_alert@trac.princeton.edu'
+    receiver = 'lestes@clarku.edu,dmcr@princeton.edu'
     message = """From: %s
 To: %s
 Subject: ProcessNotifications problem

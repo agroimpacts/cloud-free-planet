@@ -4,11 +4,11 @@ SET(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_CXX
-  "/u/sandbox/afmap/pprepair/FaceInfo.cpp" "/u/lestes/afmap/pprepair/CMakeFiles/pprepair.dir/FaceInfo.cpp.o"
-  "/u/sandbox/afmap/pprepair/IOWorker.cpp" "/u/lestes/afmap/pprepair/CMakeFiles/pprepair.dir/IOWorker.cpp.o"
-  "/u/sandbox/afmap/pprepair/PlanarPartition.cpp" "/u/lestes/afmap/pprepair/CMakeFiles/pprepair.dir/PlanarPartition.cpp.o"
-  "/u/sandbox/afmap/pprepair/PolygonHandle.cpp" "/u/lestes/afmap/pprepair/CMakeFiles/pprepair.dir/PolygonHandle.cpp.o"
-  "/u/sandbox/afmap/pprepair/pprepair.cpp" "/u/lestes/afmap/pprepair/CMakeFiles/pprepair.dir/pprepair.cpp.o"
+  "/home/sandbox/afmap/pprepair/FaceInfo.cpp" "/home/sandbox/afmap/pprepair/CMakeFiles/pprepair.dir/FaceInfo.cpp.o"
+  "/home/sandbox/afmap/pprepair/IOWorker.cpp" "/home/sandbox/afmap/pprepair/CMakeFiles/pprepair.dir/IOWorker.cpp.o"
+  "/home/sandbox/afmap/pprepair/PlanarPartition.cpp" "/home/sandbox/afmap/pprepair/CMakeFiles/pprepair.dir/PlanarPartition.cpp.o"
+  "/home/sandbox/afmap/pprepair/PolygonHandle.cpp" "/home/sandbox/afmap/pprepair/CMakeFiles/pprepair.dir/PolygonHandle.cpp.o"
+  "/home/sandbox/afmap/pprepair/pprepair.cpp" "/home/sandbox/afmap/pprepair/CMakeFiles/pprepair.dir/pprepair.cpp.o"
   )
 SET(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -25,7 +25,7 @@ SET(CMAKE_TARGET_LINKED_INFO_FILES
 # The include file search paths:
 SET(CMAKE_C_TARGET_INCLUDE_PATH
   "."
-  "/usr/local/include"
+  "/usr/include/gdal"
   )
 SET(CMAKE_CXX_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
 SET(CMAKE_Fortran_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})

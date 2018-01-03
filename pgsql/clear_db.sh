@@ -45,5 +45,5 @@ update system_data set value=0 where key='CurQaqcGid';
 EOD
 
 # Initialize the kmls directory with the startup set of I and Q kml files.
-rm -rf /u/${USER}/afmap/kmls/*
-cp -p /u/${USER}/afmap/kmls_static/* /u/${USER}/afmap/kmls
+rm -rf /home/${USER}/afmap/kmls/*
+cp -p /home/${USER}/afmap/kmls_static/* /home/${USER}/afmap/kmls
