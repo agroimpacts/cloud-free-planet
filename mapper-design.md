@@ -1,6 +1,6 @@
 # `mapper` Internal Design
 
-This document (originally written by Dennis McRitchie) describes the `mapper` platform developed for the original [Mapping Africa](mappingafrica.princeton.edu) project, which was designed to work within the Mechanical Turk ecosystem. 
+This document (originally written by Dennis McRitchie) describes the `mapper` platform developed for the original [Mapping Africa](mappingafrica.princeton.edu) project, which was designed to work within the Mechanical Turk ecosystem. The design will undergo substantial revision as `mapper` is adapted to remove dependence on Mechanical Turk. 
 
 `mapper` consists of daemons, webserver WSGI scripts, and HIT event notification scripts, all cooperating to move each worker HIT assignment through its life stages starting with HIT creation, going on to the collecting of mapped fields, and ending with the final deletion of the HIT.
 
