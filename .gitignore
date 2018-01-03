@@ -4,3 +4,4 @@ pprepair/pprepair
 pprepair/*.o
 prepair/prepair
 prepair/*.o
+.Rproj.user
