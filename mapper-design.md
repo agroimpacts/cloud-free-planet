@@ -141,3 +141,8 @@ getnotifications: processing completed = 2016-06-18 06:46:42.843283
 ```
 
 Note that the event handler exited after reporting the error instead of going on to report the status code, approval and bonus information, and whether the HIT was deleted or not.
+
+A schematic overview of `mapperAL` (and `cvML`) is shown below: 
+
+![](activemapper-schematic.png?raw=true)
+
