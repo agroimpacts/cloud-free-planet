@@ -116,13 +116,13 @@ Fully integrate the developed components into a stand-alone, active learning-bas
 
     5. *Testing*
         
-        Testing of complete independence needs to be done interactively with SpatialCollective. It is likely that this step can be done independently of most changes that need to be done to adapt `mapper` for active learning, except for 3.3 bullets 1 and 3. It should also entail mapping several thousand km$^2$ of fields, with validation of results.   
+        Testing of complete independence needs to be done interactively with SpatialCollective. It is likely that this step can be done independently of most changes that need to be done to adapt `mapper` for active learning, except for ___3.3 bullet 1 and 3.4 bullet 1___. It should also entail mapping several thousand km$^2$ of fields, with validation of results.   
 
 3. **Adapt `mapper` for active learning**
     1. *General*
       * Update mapping rule set
           - A new more inclusive set of rules that minimize the risk of missed detections by workers, among other concerns.  
-<br><br>
+<br>
     2. *Utilities/daemons*
       * `KMLgenerate.R`
           - Add logic to listen for list of new training sites passed by `cvmlAL` (or `aktivmapper`, or whatever better name we decided to call it)
