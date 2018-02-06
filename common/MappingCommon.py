@@ -100,28 +100,27 @@ class MappingCommon(object):
         self.cur.execute("select value from configuration where key = '%s'" % key)
         return self.cur.fetchone()[0]
 
+    def getSystemData(self, key):
+        self.cur.execute("select value from system_data where key = '%s'" % key)
+        return self.cur.fetchone()[0]
+
+    def setSystemData(self, key, value):
+        self.cur.execute("update system_data set value = '%s' where key = '%s'" % (value, key))
+        self.dbcon.commit()
+
     # Create a GitHub issue, specifying its title, body, and one of three
     #     predefined labels: MappingCommon.AlertIssue, MappingCommon.GeneralInquiryIssue, or
     #     MappingCommon.WorkerInquiryIssue
     def createIssue(self, title=None, body=None, label=None):
-        #print self.ghrepo.name
-        #print label
         for llabel, assignee in MappingCommon.IssueTags:
-            #print llabel, assignee
             if label == llabel:
                 break
         else:
             assert False
-        
         issueLabel = self.getConfiguration(llabel)
         issueAssignee = self.getConfiguration(assignee)
-        #print issueLabel, issueAssignee
-
         self.ghrepo.create_issue(title=title, body=body, labels=[issueLabel], assignee=issueAssignee)
     
-        #for issue in self.ghrepo.get_issues(direction="asc"):
-        #    print issue.number, issue.title, issue.state
-
     # Retrieve all HITs created by the createHit() function.
     def getAllHits(self):
         self.cur.execute("""
@@ -133,12 +132,16 @@ class MappingCommon(object):
         hits = {}
         for hit in self.cur.fetchall():
             assignmentsCompleted = 0
+            assignmentsPending = 0
             for asgmt in self.getAssignments(hit[0]):
-                print asgmt
                 if asgmt['status'] not in (MappingCommon.HITAbandoned, MappingCommon.HITReturned):
-                    assignmentsCompleted += 1
+                    if asgmt['status'] in (MappingCommon.HITAccepted, MappingCommon.HITPending):
+                        assignmentsPending += 1
+                    else:
+                        assignmentsCompleted += 1
             hits[hit[0]] = {'kmlName': hit[1], 'kmlType': hit[2], 'maxAssignments': hit[3], 
-                    'reward': hit[4], 'assignmentsCompleted': assignmentsCompleted}
+                    'reward': hit[4], 'assignmentsCompleted': assignmentsCompleted, 
+                    'assignmentsPending': assignmentsPending}
         return hits
 
     # Retrieve all assignments for the specified HIT ID.
@@ -160,11 +163,12 @@ class MappingCommon(object):
 
         hitId = str(uuid.uuid4())
         now = str(datetime.today())
-        mapc.cur.execute("""insert into hit_data 
+        self.cur.execute("""insert into hit_data 
                 (hit_id, name, create_time, max_assignments, duration, reward) 
-                values ('%s', '%s', '%s', '%s')""" % 
+                values ('%s', '%s', '%s', '%s', '%s', '%s')""" % 
                 (hitId, kml, now, maxAssignments, duration, reward))
-        mapc.dbcon.commit()
+        self.dbcon.commit()
+        return hitId
 
     if 0:
         def getHitStatus(self, hitId):
@@ -432,10 +436,6 @@ class MappingCommon(object):
             self.notifyWorkersRS = self.mtcon.notify_workers(workers, subject, body)
             assert self.notifyWorkersRS.status
             return self.notifyWorkersRS
-
-        def getSystemData(self, key):
-            self.cur.execute("select value from system_data where key = '%s'" % key)
-            return self.cur.fetchone()[0]
 
         def setSystemData(self, key, value):
             self.cur.execute("update system_data set value = '%s' where key = '%s'" % (value, key))
