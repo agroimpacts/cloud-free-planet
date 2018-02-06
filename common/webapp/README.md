@@ -1,4 +1,4 @@
-# app directory
+# webapp directory
 
 This directory contains the Flask application code.
 
