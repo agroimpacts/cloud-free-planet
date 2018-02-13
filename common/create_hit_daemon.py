@@ -111,7 +111,7 @@ while True:
         mapc.setSystemData('CurQaqcGid', gid)
 
         # Create the QAQC HIT
-        hitId = mapc.createHit(kml=nextKml)
+        hitId = mapc.createHit(nextKml, fwts=fwts)
         k.write("createHit: Created HIT ID %s for QAQC KML %s\n" % (hitId, nextKml))
 
     # Create any needed FQAQC HITs.
@@ -158,7 +158,7 @@ while True:
         remainingAssignments = hitMaxAssignmentsF - row[1]
 
         # Create the FQAQC HIT
-        hitId = mapc.createHit(kml=nextKml, maxAssignments=remainingAssignments)
+        hitId = mapc.createHit(nextKml, fwts=fwts, maxAssignments=remainingAssignments)
         k.write("createHit: Created HIT ID %s with %d assignments for FQAQC KML %s\n" % 
                 (hitId, remainingAssignments, nextKml))
 
@@ -206,7 +206,7 @@ while True:
         remainingAssignments = hitMaxAssignmentsN - row[1]
 
         # Create the NQAQC HIT
-        hitId = mapc.createHit(kml=nextKml, maxAssignments=remainingAssignments)
+        hitId = mapc.createHit(nextKml, fwts=fwts, maxAssignments=remainingAssignments)
         k.write("createHit: Created HIT ID %s with %d assignments for NQAQC KML %s\n" % 
                 (hitId, remainingAssignments, nextKml))
 
