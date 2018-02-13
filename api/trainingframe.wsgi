@@ -2,7 +2,7 @@ from webob import Request, Response
 import datetime
 import random
 import string
-from MTurkMappingAfrica import MTurkMappingAfrica
+from MappingCommon import MappingCommon
 
 def application(environ, start_response):
     req = Request(environ)
@@ -11,15 +11,15 @@ def application(environ, start_response):
 
     now = str(datetime.datetime.today())
 
-    mtma = MTurkMappingAfrica()
-    logFilePath = mtma.projectRoot + "/log"
-    serverName = mtma.getConfiguration('ServerName')
-    apiUrl = mtma.getConfiguration('APIUrl')
-    mturkExtQuestionScript = mtma.getConfiguration('MTurkExtQuestionScript')
-    hitAcceptThreshold = float(mtma.getConfiguration('HitIAcceptThreshold'))
-    qualTestTfTextStart = mtma.getConfiguration('QualTest_TF_TextStart')
-    qualTestTfTextMiddle = mtma.getConfiguration('QualTest_TF_TextMiddle')
-    qualTestTfTextEnd = mtma.getConfiguration('QualTest_TF_TextEnd')
+    mapc = MappingCommon()
+    logFilePath = mapc.projectRoot + "/log"
+    serverName = mapc.getConfiguration('ServerName')
+    apiUrl = mapc.getConfiguration('APIUrl')
+    mturkExtQuestionScript = mapc.getConfiguration('MTurkExtQuestionScript')
+    hitAcceptThreshold = float(mapc.getConfiguration('HitI_AcceptThreshold'))
+    qualTestTfTextStart = mapc.getConfiguration('QualTest_TF_TextStart')
+    qualTestTfTextMiddle = mapc.getConfiguration('QualTest_TF_TextMiddle')
+    qualTestTfTextEnd = mapc.getConfiguration('QualTest_TF_TextEnd')
 
     kmlUrl = "https://%s%s/%s" % (serverName, apiUrl, mturkExtQuestionScript)
 
@@ -31,11 +31,11 @@ def application(environ, start_response):
         newWorker = False
         trainingId = req.params['trainingId']
         k.write("trainingframe: Training candidate %s has returned.\n" % trainingId)
-        doneCount = int(mtma.querySingleValue("""select count(*) 
+        doneCount = int(mapc.querySingleValue("""select count(*) 
             from qual_assignment_data where training_id = '%s'
             and (completion_time is not null and score >= %s)""" % 
             (trainingId, hitAcceptThreshold)))
-        mtma.cur.execute("""UPDATE qual_worker_data SET last_time = '%s'
+        mapc.cur.execute("""UPDATE qual_worker_data SET last_time = '%s'
             WHERE training_id = '%s'""" % (now, trainingId))
     except KeyError as e:
         newWorker = True
@@ -43,18 +43,18 @@ def application(environ, start_response):
         while True:
             trainingId = ''.join([random.choice( \
                 string.ascii_letters+string.digits) for ch in range(12)])
-            if mtma.querySingleValue("""select count(*) from qual_worker_data 
+            if mapc.querySingleValue("""select count(*) from qual_worker_data 
                     where training_id = '%s'""" % trainingId) == 0:
                 break
         k.write("trainingframe: New Training candidate %s created.\n" % trainingId)
         doneCount = 0
-        mtma.cur.execute("""INSERT INTO qual_worker_data 
+        mapc.cur.execute("""INSERT INTO qual_worker_data 
             (training_id, first_time, last_time) 
             VALUES ('%s', '%s', '%s')""" % (trainingId, now, now))
-    totCount = int(mtma.querySingleValue("""select count(*) from kml_data 
-        where kml_type = '%s'""" % MTurkMappingAfrica.KmlTraining))
+    totCount = int(mapc.querySingleValue("""select count(*) from kml_data 
+        where kml_type = '%s'""" % MappingCommon.KmlTraining))
     if doneCount < totCount:
-        mtma.cur.execute("""select name, hint from kml_data
+        mapc.cur.execute("""select name, hint from kml_data
             left outer join 
                 (select * from qual_assignment_data where training_id = '%s') qad 
                 using (name)
@@ -62,31 +62,31 @@ def application(environ, start_response):
                 and (completion_time is null
                     or score < %s)
             order by gid
-            limit 1""" % (trainingId, MTurkMappingAfrica.KmlTraining, hitAcceptThreshold))
-        nextKml, hint = mtma.cur.fetchone()
+            limit 1""" % (trainingId, MappingCommon.KmlTraining, hitAcceptThreshold))
+        nextKml, hint = mapc.cur.fetchone()
         # Get the type for this kml.
-        mtma.cur.execute("select kml_type from kml_data where name = '%s'" % nextKml)
-        kmlType = mtma.cur.fetchone()[0]
-        if kmlType == MTurkMappingAfrica.KmlQAQC:
+        mapc.cur.execute("select kml_type from kml_data where name = '%s'" % nextKml)
+        kmlType = mapc.cur.fetchone()[0]
+        if kmlType == MappingCommon.KmlQAQC:
             kmlType = 'QAQC'
-        elif kmlType == MTurkMappingAfrica.KmlFQAQC:
+        elif kmlType == MappingCommon.KmlFQAQC:
             kmlType = 'FQAQC'
-        elif kmlType == MTurkMappingAfrica.KmlNormal:
+        elif kmlType == MappingCommon.KmlNormal:
             kmlType = 'non-QAQC'
-        elif kmlType == MTurkMappingAfrica.KmlTraining:
+        elif kmlType == MappingCommon.KmlTraining:
             kmlType = 'training'
         
         # Increment the number of tries by this worker on this map.
-        tries = mtma.querySingleValue("select tries from qual_assignment_data where training_id = '%s' and name = '%s'" % (trainingId, nextKml))
+        tries = mapc.querySingleValue("select tries from qual_assignment_data where training_id = '%s' and name = '%s'" % (trainingId, nextKml))
         if not tries:
             tries = 0
         tries = int(tries) + 1
         if tries == 1:
-            mtma.cur.execute("""INSERT INTO qual_assignment_data 
+            mapc.cur.execute("""INSERT INTO qual_assignment_data 
                 (training_id, name, tries, start_time) 
                 VALUES ('%s', '%s', %s, '%s')""" % (trainingId, nextKml, tries, now))
         else:
-            mtma.cur.execute("""UPDATE qual_assignment_data SET tries = %s 
+            mapc.cur.execute("""UPDATE qual_assignment_data SET tries = %s 
                 WHERE training_id = '%s' and name = '%s'""" % 
                 (tries, trainingId, nextKml))
         k.write("trainingframe: Candidate starting try %d on %s kml = %s\n" % (tries, kmlType, nextKml))
@@ -94,7 +94,7 @@ def application(environ, start_response):
         nextKml = ''
         hint = ''
         tries = 0
-    mtma.dbcon.commit()
+    mapc.dbcon.commit()
 
     if newWorker:
         status = qualTestTfTextStart % { 'totCount': totCount }
@@ -153,6 +153,6 @@ def application(environ, start_response):
     }
     res.text = mainText
 
-    del mtma
+    del mapc
     k.close()
     return res(environ, start_response)
