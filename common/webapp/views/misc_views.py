@@ -133,6 +133,7 @@ def list_employees_by_employer():
     employee_list.sort()
     employer = User.query.filter(User.id == current_user.id).first()
     return render_template('pages/list_employees_by_employer_page.html', company_name=employer.company_name, employee_list=employee_list)
+
 # The Employer submenu is accessible to authenticated users with the 'employer' role
 @main_blueprint.route('/employer/employee_invite')
 @roles_accepted('employer')
@@ -140,7 +141,7 @@ def list_employees_by_employer():
 def employee_invite():
     return redirect(url_for('user.invite'))
 
-# The Employer page is accessible to authenticated users with the 'employer' role.
+# The Employer submenu is accessible to authenticated users with the 'employer' role
 @main_blueprint.route('/employer/suspend_employee', methods=['GET', 'POST'])
 @roles_accepted('employer')
 @login_required
@@ -181,6 +182,34 @@ def suspend_employee():
 @login_required  # Limits access to authenticated users
 def employee_page():
     return render_template('pages/employee_page.html')
+
+# The Employee submenu is accessible to authenticated users with the 'employee' role
+@main_blueprint.route('/employee/assignment_page')
+@roles_accepted('employee')
+@login_required  # Limits access to authenticated users
+def assignment_page():
+    return render_template('pages/employee_page.html')
+
+# The Employee submenu is accessible to authenticated users with the 'employee' role
+@main_blueprint.route('/employee/assignment_history_page')
+@roles_accepted('employee')
+@login_required  # Limits access to authenticated users
+def assignment_history_page():
+    return render_template('pages/employee_page.html')
+
+# The Employee submenu is accessible to authenticated users with the 'employee' role
+@main_blueprint.route('/employee/training_page')
+@roles_accepted('employee')
+@login_required  # Limits access to authenticated users
+def training_page():
+    return render_template('pages/employee_page.html')
+
+# The Employee submenu is accessible to authenticated users with the 'employee' role
+@main_blueprint.route('/employee/qualification_page')
+@roles_accepted('employee')
+@login_required  # Limits access to authenticated users
+def qualification_page():
+    return render_template('pages/qualification_page.html')
 
 # ----------------------------------------------------------------
 # The registration page is accessible to all users by invitation only.

@@ -116,6 +116,12 @@
                     </li>
                     <li>
                         <a href={{ url_for('main.employee_page') }}>{%trans%}Employee{%endtrans%}</a>
+                        <div>
+                            <a href={{ url_for('main.assignment_page') }} }}>{%trans%}Map Agricultural Fields{%endtrans%}</a>
+                            <a href={{ url_for('main.assignment_history_page') }}>{%trans%}View Assignment History{%endtrans%}</a>
+                            <a href={{ url_for('main.training_page') }}>{%trans%}View Training Video{%endtrans%}</a>
+                            <a href={{ url_for('main.qualification_page') }}>{%trans%}Take Qualification Test{%endtrans%}</a>
+                       </div> 
                     </li>
                     <li>
                         {% if current_user.is_authenticated %}
