@@ -100,13 +100,27 @@ class MappingCommon(object):
         self.cur.execute("select value from configuration where key = '%s'" % key)
         return self.cur.fetchone()[0]
 
+    # Retrieve a runtime parameter from the system_data table.
     def getSystemData(self, key):
         self.cur.execute("select value from system_data where key = '%s'" % key)
         return self.cur.fetchone()[0]
 
+    # Set a runtime parameter in the system_data table.
     def setSystemData(self, key, value):
         self.cur.execute("update system_data set value = '%s' where key = '%s'" % (value, key))
         self.dbcon.commit()
+
+    # Request a single value from a single column of a table.
+    # If there is no record that matches the select criteria, return None.
+    def querySingleValue(self, sql):
+        self.cur.execute(sql)
+        try:
+            return self.cur.fetchone()[0]
+        except TypeError as e:
+            if str(e).startswith("'NoneType'"):
+                return None
+            else:
+                raise
 
     # Create a GitHub issue, specifying its title, body, and one of three
     #     predefined labels: MappingCommon.AlertIssue, MappingCommon.GeneralInquiryIssue, or
@@ -157,9 +171,16 @@ class MappingCommon(object):
         return assignments
         
     # Create a HIT for the specified KML ID.
-    def createHit(self, kml=None, maxAssignments=1):
+    def createHit(self, kml=None, fwts=1, maxAssignments=1):
+        self.fwts = int(fwts)
         duration = self.getConfiguration('Hit_Duration')
-        reward = self.getConfiguration('Hit_Reward')
+        reward = int(self.getConfiguration('Hit_Reward'))
+        # Add the difficulty reward increment if KML's fwts > 1.
+        self.hitRewardIncrement = Decimal(self.getConfiguration('Hit_RewardIncrement'))
+        self.hitRewardIncrement2 = Decimal(self.getConfiguration('Hit_RewardIncrement2'))
+        if self.fwts > 1:
+            reward += int(round(self.hitRewardIncrement * (self.fwts - 1) + \
+                self.hitRewardIncrement2 * (self.fwts - 1)**2, 2) * 100)
 
         hitId = str(uuid.uuid4())
         now = str(datetime.today())
@@ -440,18 +461,6 @@ class MappingCommon(object):
         def setSystemData(self, key, value):
             self.cur.execute("update system_data set value = '%s' where key = '%s'" % (value, key))
             self.dbcon.commit()
-
-        # Request a single value from a single column of a table.
-        # If there is no record that matches the select criteria, return None.
-        def querySingleValue(self, sql):
-            self.cur.execute(sql)
-            try:
-                return self.cur.fetchone()[0]
-            except TypeError as e:
-                if str(e).startswith("'NoneType'"):
-                    return None
-                else:
-                    raise
 
         # Obtain serialization lock to allow create_hit_daemon.py, cleanup_absent_worker.py, and 
         # individual ProcessNotifications.py threads to access Mturk and database records
