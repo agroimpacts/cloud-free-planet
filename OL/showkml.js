@@ -44,6 +44,25 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, traini
         undefinedHTML: '&nbsp;'
     });
     
+    // You will need to replace the 'access_token' and 'Map ID' values with your own.
+    var dg1Layer = new ol.layer.Tile({
+        title: 'DigitalGlobe Maps API: Recent Imagery',
+        type: 'base',
+        visible: false,
+        source: new ol.source.XYZ({
+            url: 'http://api.tiles.mapbox.com/v4/digitalglobe.92ee07af/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
+        })
+    })
+                
+    var dg2Layer = new ol.layer.Tile({
+        title: 'DigitalGlobe Maps API: Terrain Map',
+        type: 'base',
+        visible: false,
+        source: new ol.source.XYZ({
+            url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nako1fhg/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
+        })
+    })
+
     //Define Planet base layer.
     var planetLayer = new ol.layer.Tile({
         title: 'Planet Satellite Imagery',
@@ -96,7 +115,7 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, traini
             // Create base layer group.
             new ol.layer.Group({
                 title: 'Base Layer',
-                layers: [planetLayer, mapboxLayer, bingLayer]
+                layers: [dg2Layer, dg1Layer, planetLayer, mapboxLayer, bingLayer]
             })
             // Create multi-band image layer group.
             //new ol.layer.Group({
@@ -110,16 +129,18 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, traini
 
     // Set view and zoom.
     map.setView(new ol.View({
+        projection: 'EPSG:4326',
         center: [0,0],
         zoom: 14,
         minZoom: 1,
         maxZoom: 18
     }));
     
-    // White bounding box KML layer
+    // White bounding box KML layer: URL defined in configuration table.
+    var kmlUrl = eval(`\`${kmlPath}\``);
     var kmlLayer = new ol.layer.Vector({
         source: new ol.source.Vector({
-            url: kmlPath + '/' + kmlName + '.kml',
+            url: kmlUrl,
             format: new ol.format.KML({extractStyles: false})
         }),
         style: new ol.style.Style({
