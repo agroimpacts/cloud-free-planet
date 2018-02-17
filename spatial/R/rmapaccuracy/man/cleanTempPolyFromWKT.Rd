@@ -20,4 +20,3 @@ Reads in PostGIS geometry and creates a temporary shapefile out
 \details{
 Uses callPprepair function to clean up read in polygons and write
 }
-

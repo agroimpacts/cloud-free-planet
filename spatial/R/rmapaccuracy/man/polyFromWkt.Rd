@@ -17,4 +17,3 @@ A SpatialPolygonsDataFrame
 \description{
 Creates a spatialPolygonsDataFrame from a geometry table read in from Postgis
 }
-

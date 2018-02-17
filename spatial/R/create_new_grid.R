@@ -23,47 +23,6 @@ setwd(paste0(getDBName()[2], "/spatial/data"))
 rasterOptions(tmpdir = paste0(getwd(), "/tempraster"))
 
 
-## Define functions
-# make a proj4string for custom albers projections
-make_p4s <- function(pcode = "aea", sp1, sp2, lat_orig, meridian, x_0 = 0, 
-                     y_0 = 0, datum = "WGS84", units = "m", 
-                     defs = "no_defs", ellps = "WGS84", 
-                     towgs84 = "0,0,0") {
-  plist <- list("projection" = c("+proj=", pcode), 
-                "sp1" = c("+lat_1=", sp1), 
-                "sp2" = c("+lat_2=", sp2),
-                "lat_orig" = c("+lat_0=", lat_orig),
-                "meridian" = c("+lon_0=", meridian),
-                "x_0" = c("+x_0=", x_0), 
-                "y_0" = c("+y_0=", y_0),
-                "datum" = c("+datum=", datum), 
-                "units" = c("+units=", units),
-                "defs" = paste0("+", defs),
-                "ellps" = c("+ellps=", ellps),
-                "towgs84" = c("+towgs84=", towgs84))
-  
-  p4s <- paste(unname(sapply(plist, function(x) paste(x, collapse = ""))), 
-               collapse = " ")
-  return(p4s)
-}
-
-# function to generate custom albers projections proj4 string, based on standard
-# parallels, meridian, and latitude of origin calculated from polygon 
-# extents
-custom_alb <- function(x, par_offset = 1 / 7) {
-  p4s <- sapply(1:nrow(x), function(i) {  # i <- 1
-    e <- bbox(x[i, ])[c(1, 3, 2, 4)]
-    merid <- e[1] + diff(e[1:2]) / 2  # meridian 
-    lat_orig <- e[3] + diff(e[3:4]) / 2  # latitude of origin
-    poff <- round((diff(e[3:4]) * par_offset) / 0.5) * 0.5
-    p1 <- e[4] - poff  # 1st standard parallel
-    p2 <- e[3] + poff  # 2nd 
-    make_p4s("aea", sp1 = p1, sp2 = p2, lat_orig = lat_orig, meridian = merid)
-  })
-  return(p4s)
-}
-
-
 ## Define separate projection zones
 # get map of Africa
 map <- getMap(resolution = "li")

@@ -19,4 +19,3 @@ Accuracy measures from user maps
 \description{
 Calculates mapping accuracy for polygons relative to a "true" set of polygons
 }
-

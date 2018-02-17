@@ -20,4 +20,3 @@ Creates polygon grid box from point
 This function is created for use by KMLgenerate, which uses it to 
 convert grid points to polygons.
 }
-

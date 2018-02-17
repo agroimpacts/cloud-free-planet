@@ -21,4 +21,3 @@ Find correct root path and database name
 The function arguments currently default to SouthAfrica*, so expect 
 these to change with project upgrades
 }
-
