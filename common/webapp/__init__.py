@@ -6,6 +6,7 @@
 
 from datetime import datetime
 import os
+from urllib import quote_plus
 
 from flask import Flask
 from flask_mail import Mail
@@ -52,6 +53,8 @@ def create_app(extra_config_settings={}):
     # Register blueprints
     from webapp.views.misc_views import main_blueprint
     app.register_blueprint(main_blueprint)
+    from webapp.views.qualification import qualification_blueprint
+    app.register_blueprint(qualification_blueprint)
 
     # Define bootstrap_is_hidden_field for flask-bootstrap's bootstrap_wtf.html
     from wtforms.fields import HiddenField
@@ -60,6 +63,9 @@ def create_app(extra_config_settings={}):
         return isinstance(field, HiddenField)
 
     app.jinja_env.globals['bootstrap_is_hidden_field'] = is_hidden_field_filter
+
+    # Create a Jinja2 URL encoding filter: quote_plus
+    app.jinja_env.filters['quote_plus'] = lambda u: quote_plus(u)
 
     # Setup an error-logger to send emails to app.config.ADMINS
     init_email_error_handler(app)

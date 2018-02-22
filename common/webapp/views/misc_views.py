@@ -172,44 +172,36 @@ def suspend_employee():
         flash('Employee has been successfully ' + verb, 'success')
 
     # Process GET or invalid POST
-    return render_template('pages/suspend_admin_employer_employee_page.html', form=form)
-    return render_template('pages/suspend_employee_page.html')
+    return render_template('pages/suspend_employee_page.html', form=form)
 
 # ----------------------------------------------------------------
 # The Employee page is accessible to authenticated users with the 'employee' or 'admin' role.
 @main_blueprint.route('/employee')
 @roles_accepted('employee', 'admin')
 @login_required  # Limits access to authenticated users
-def employee_page():
+def employee():
     return render_template('pages/employee_page.html')
 
 # The Employee submenu is accessible to authenticated users with the 'employee' role
-@main_blueprint.route('/employee/assignment_page')
+@main_blueprint.route('/employee/assignment')
 @roles_accepted('employee')
 @login_required  # Limits access to authenticated users
-def assignment_page():
+def assignment():
     return render_template('pages/employee_page.html')
 
 # The Employee submenu is accessible to authenticated users with the 'employee' role
-@main_blueprint.route('/employee/assignment_history_page')
+@main_blueprint.route('/employee/assignment_history')
 @roles_accepted('employee')
 @login_required  # Limits access to authenticated users
-def assignment_history_page():
+def assignment_history():
     return render_template('pages/employee_page.html')
 
 # The Employee submenu is accessible to authenticated users with the 'employee' role
-@main_blueprint.route('/employee/training_page')
+@main_blueprint.route('/employee/training')
 @roles_accepted('employee')
 @login_required  # Limits access to authenticated users
-def training_page():
+def training():
     return render_template('pages/employee_page.html')
-
-# The Employee submenu is accessible to authenticated users with the 'employee' role
-@main_blueprint.route('/employee/qualification_page')
-@roles_accepted('employee')
-@login_required  # Limits access to authenticated users
-def qualification_page():
-    return render_template('pages/qualification_page.html')
 
 # ----------------------------------------------------------------
 # The registration page is accessible to all users by invitation only.
