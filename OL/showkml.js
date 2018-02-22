@@ -24,7 +24,7 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, traini
         saveStrategyActive = true;
         preview = false;
         // Note: double underscore below.
-        foldersName = kmlName + '__' + trainingId + '_' + tryNum;
+        foldersName = kmlName + '_' + trainingId + '_' + tryNum;
     // If this is a worker-feedback map, don't let the user save maps.
     } else if (assignmentId.length == 0 && workerId.length > 0) {
         saveStrategyActive = false;
@@ -592,7 +592,7 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, traini
                 alert("We're sorry, but you failed to correctly map the crop fields in this map. Please click Ok to try again.");
             } else {
                 // alert("statusCode: " + statusCode + "; statusText: '" + statusText + "'");
-                alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance, but you will be paid for your time when it is available again. Please try again later. We apologize for the inconvenience.");
+                alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance, but please try again. We apologize for the inconvenience.");
             }
         // HIT and stand-alone cases.
         } else if (! (statusCode >= 200 && statusCode < 300)) {
@@ -617,7 +617,7 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, traini
                 alert("We're sorry, but you failed to map the crop fields in this map. Please click Ok to try again.");
             } else {
                 // alert("statusCode: " + statusCode + "; statusText: '" + statusText + "'");
-                alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance, but you will be paid for your time when it is available again. Please try again later. We apologize for the inconvenience.");
+                alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance, but please try again. We apologize for the inconvenience.");
             }
             
         // HIT and stand-alone cases.
