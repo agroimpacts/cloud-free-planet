@@ -26,10 +26,10 @@ def mapFix(mapc, mtype, kmlid, assignmentid, testing, tryid=None):
             print "Try ID: %s" % tryid
 
     if mtype == "tr" and tryid is not None:
-        mapc.cur.execute("""SELECT name,ST_AsEWKT(geom),try FROM qual_user_maps WHERE name LIKE '%s_%%' AND worker_id='%s' AND 
+        mapc.cur.execute("""SELECT name,ST_AsEWKT(geom),try FROM qual_user_maps WHERE name LIKE '%s\_%%' AND assignment_id='%s' AND 
             try='%s' ORDER BY name FOR UPDATE""" % (kmlid, assignmentid, tryid))
     elif mtype == "ma" and tryid is None:
-        mapc.cur.execute("""SELECT name,ST_AsEWKT(geom) FROM user_maps WHERE name LIKE '%s_%%' AND assignment_id='%s' ORDER BY name 
+        mapc.cur.execute("""SELECT name,ST_AsEWKT(geom) FROM user_maps WHERE name LIKE '%s\_%%' AND assignment_id='%s' ORDER BY name 
             FOR UPDATE""" % (kmlid, assignmentid))
     else:
         raise Exception ("Invalid maptype or tryid passed to Mapfix")
@@ -38,13 +38,15 @@ def mapFix(mapc, mtype, kmlid, assignmentid, testing, tryid=None):
     if len(poly_table) == 0:
         raise Exception ("Invalid kmlid, assignmentid/trainingid, or tryid passed to Mapfix")
 
-    mp.polyPrepair(mapc, fixshpnm1, poly_table)
-    mp.polyPPrepair(mapc, fixshpnm1, fixshpnm2)
-    poly_fix = mp.shapeReader(mapc, fixshpnm2)
-    poly_fix2 = mp.cleanPolyHash(mapc, poly_fix)
-    mp.shapeWriter(mapc, poly_fix2, fixshpnm3) 
-    mp.polyPPrepair(mapc, fixshpnm3, fixshpnm4)
-    poly_fixf = mp.shapeReader(mapc, fixshpnm4)
+    mp.polyPrepair(mapc, fixshpnm1, poly_table)  # first clean of individual polygons (prepair)
+    mp.polyPPrepair(mapc, fixshpnm1, fixshpnm2)  # first run of pprepair
+    poly_fix = mp.shapeReader(mapc, fixshpnm2)  # read cleaned polys back in
+    poly_fix2 = mp.cleanPolyHash(mapc, poly_fix)  # union divided fields, name correctly
+    mp.shapeWriter(mapc, poly_fix2, fixshpnm3)  # write back out
+    mp.polyPPrepair(mapc, fixshpnm3, fixshpnm4)  # pass to pprepair one more time
+    poly_fixf = mp.shapeReader(mapc, fixshpnm4)  # read in
+    
+    # Write cleaned polygons out to database, assuming numbers line up
     if(len(poly_table) == len(poly_fixf)): 
         for name in poly_fixf:
             if mtype == "tr":

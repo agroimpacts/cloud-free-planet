@@ -35,8 +35,9 @@ def polyPrepair(mapc, shape_name, table):
     ds.Destroy()
 
 def wktPrepair(mapc, wkt):
-    wktfix = subprocess.Popen([mapc.projectRoot + "/prepair/prepair", "--wkt", wkt, "--minarea", "0.000000001"],
-        stdout=subprocess.PIPE).communicate()[0]
+    wktfix = subprocess.Popen([mapc.projectRoot + "/prepair/prepair", "--wkt", wkt, 
+                               "--minarea", "0.00000000000000000001"],
+                              stdout=subprocess.PIPE).communicate()[0]
     return(wktfix)
 
 def polyPPrepair(mapc, shape_name_in, shape_name_out):
