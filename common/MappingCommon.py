@@ -242,6 +242,33 @@ class MappingCommon(object):
         except:
             return None, scoreString
 
+    # Revoke Mapping Africa qualification unconditionally unless not qualified.
+    def revokeQualification(self, workerId, submitTime):
+        # Revoke the qualification if not already done.
+        qualified = self.querySingleValue("SELECT qualified FROM worker_data WHERE worker_id = '%s'" % (workerId))
+        if qualified:
+            # Remove all user maps and training assignments for this worker.
+            self.cur.execute("""DELETE FROM qual_user_maps WHERE assignment_id IN 
+                    (SELECT assignment_id FROM qual_assignment_data WHERE worker_id = %s)""" %
+                    workerId)
+            self.cur.execute("DELETE FROM qual_assignment_data WHERE worker_id = %s" % workerId)
+            # Mark worker as having lost his qualification.
+            self.cur.execute("""UPDATE worker_data SET qualified = false, last_time = '%s' 
+                    WHERE worker_id = %s""" % (submitTime, workerId))
+            self.dbcon.commit()
+
+    # Revoke Mapping Africa qualification if quality score 
+    # shows worker as no longer qualified.
+    def revokeQualificationIfUnqualifed(self, workerId, submitTime):
+        qualityScore = self.getQualityScore(workerId)
+        if qualityScore is None:
+            return False
+        revocationThreshold = float(self.getConfiguration('Qual_RevocationThreshold'))
+        if qualityScore >= revocationThreshold:
+            return False
+        self.revokeQualification(workerId, submitTime)
+        return True
+
     if 0:
         def getHitStatus(self, hitId):
             self.getHitRS = self.mtcon.get_hit(hitId)
@@ -486,15 +513,6 @@ class MappingCommon(object):
             )
             assert self.rejectQualificationRequestRS.status
 
-        def revokeQualification(self, workerId):
-            self.revokeQualificationRS = self.mtcon.revoke_qualification(
-                workerId,
-                # Retrieve the ID and revocation reason for the Mapping Africa qualification.
-                self.getSystemData('Qual_MappingAfricaId'),
-                self.getConfiguration('Qual_RevocationDescription')
-            )
-            assert self.revokeQualificationRS.status
-
         def grantBonus(self, assignmentId, workerId, bonus, reason):
             self.grantBonusRS = self.mtcon.grant_bonus(
                 worker_id = workerId,
@@ -626,30 +644,6 @@ class MappingCommon(object):
                 self.grantBonus(assignmentId, workerId, bonusAmount, bonusReason)
                 return 1
             return 0
-
-        # Revoke Mapping Africa qualification unconditionally unless not qualified.
-        def revokeQualificationUnconditionally(self, workerId, submitTime):
-            # Revoke the qualification if not already done.
-            self.cur.execute("SELECT qualified FROM worker_data WHERE worker_id = '%s'" % (workerId))
-            qualified = self.cur.fetchone()[0]
-            if qualified:
-                # Mark worker as having lost his qualification.
-                self.revokeQualification(workerId)
-                self.cur.execute("""update worker_data set qualified = false, last_time = '%s' 
-                    where worker_id = '%s'""" % (submitTime, workerId))
-                self.dbcon.commit()
-
-        # Revoke Mapping Africa qualification if quality score 
-        # shows worker as no longer qualified.
-        def revokeQualificationIfUnqualifed(self, workerId, submitTime):
-            qualityScore = self.getQualityScore(workerId)
-            if qualityScore is None:
-                return False
-            revocationThreshold = float(self.getConfiguration('Qual_RevocationThreshold'))
-            if qualityScore >= revocationThreshold:
-                return False
-            self.revokeQualificationUnconditionally(workerId, submitTime)
-            return True
 
         # Return True if worker is trusted based on quality score.
         def isWorkerTrusted(self, workerId):

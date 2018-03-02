@@ -179,7 +179,7 @@ def suspend_employee():
 @main_blueprint.route('/employee')
 @roles_accepted('employee', 'admin')
 @login_required  # Limits access to authenticated users
-def employee():
+def employee_page():
     return render_template('pages/employee_page.html')
 
 # The Employee submenu is accessible to authenticated users with the 'employee' role
