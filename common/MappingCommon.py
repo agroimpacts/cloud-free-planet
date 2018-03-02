@@ -1,4 +1,5 @@
 import os
+import subprocess
 import pwd
 from datetime import datetime
 from dateutil import tz
@@ -56,10 +57,6 @@ class MappingCommon(object):
                     (GeneralInquiryIssue, 'IssueGeneralInquiryAssignee'), 
                     (WorkerInquiryIssue, 'IssueWorkerInquiryAssignee')]
     
-    # *** TODO *** Do we need this definition?
-    # MTurk external submit path
-    externalSubmit = '/mturk/externalSubmit'
-
     # Database column name constants
     ScoresCol = 'scores'
     ReturnsCol = 'returns'
@@ -67,24 +64,31 @@ class MappingCommon(object):
     # Serialization lock file name
     lockFile = 'serial_file.lck'
 
-    def __init__(self, debug=0):
+    def __init__(self, projectRoot=None):
         
         # Determine sandbox/mapper based on effective user name.
         self.euser = pwd.getpwuid(os.getuid()).pw_name
-        if self.euser == 'sandbox':
-            self.sandbox = True
-        elif self.euser == 'mapper':
-            self.sandbox = False
+        if self.euser == 'mapper':
+            self.mapper = True
+            self.projectRoot = '/home/mapper/afmap'
         else:
-           raise Exception("Mapping server must run under sandbox or mapper user") 
-        self.projectRoot = '/home/%s/afmap' % self.euser
-        if self.sandbox:
-            db_name = db_sandbox_name
+            if projectRoot is None:
+                if self.euser == 'sandbox':
+                    self.mapper = False
+                    self.projectRoot = '/home/sandbox/afmap'
+                else:
+                   raise Exception("Mapping server must run under sandbox or mapper user") 
+            else:
+                self.mapper = False
+                self.projectRoot = projectRoot
+
+        if self.mapper:
+            self.db_name = db_production_name
         else:
-            db_name = db_production_name
+            self.db_name = db_sandbox_name
         
         self.dbcon = psycopg2.connect("dbname=%s user=%s password=%s" % 
-            (db_name, db_user, db_password))
+            (self.db_name, db_user, db_password))
         self.cur = self.dbcon.cursor()
 
         self.ghrepo = Github(github_token).get_repo(github_repo)
@@ -94,6 +98,10 @@ class MappingCommon(object):
 
     def close(self):
         self.dbcon.close()
+
+    #
+    # *** Utility Functions ***
+    #
 
     # Retrieve a tunable parameter from the configuration table.
     def getConfiguration(self, key):
@@ -122,6 +130,20 @@ class MappingCommon(object):
             else:
                 raise
 
+    # Retrieve the KML type description for a  given KML.
+    def getKmlTypeDescription(self, kmlName):
+        self.cur.execute("select kml_type from kml_data where name = '%s'" % kmlName)
+        kmlType = self.cur.fetchone()[0]
+        if kmlType == MappingCommon.KmlQAQC:
+            kmlType = 'QAQC'
+        elif kmlType == MappingCommon.KmlFQAQC:
+            kmlType = 'FQAQC'
+        elif kmlType == MappingCommon.KmlNormal:
+            kmlType = 'non-QAQC'
+        elif kmlType == MappingCommon.KmlTraining:
+            kmlType = 'training'
+        return kmlType
+
     # Create a GitHub issue, specifying its title, body, and one of three
     #     predefined labels: MappingCommon.AlertIssue, MappingCommon.GeneralInquiryIssue, or
     #     MappingCommon.WorkerInquiryIssue
@@ -135,6 +157,14 @@ class MappingCommon(object):
         issueAssignee = self.getConfiguration(assignee)
         self.ghrepo.create_issue(title=title, body=body, labels=[issueLabel], assignee=issueAssignee)
     
+    # Create an Alert-type GitHub issue.
+    def createAlertIssue(self, title=None, body=None):
+        self.createIssue(title, body, MappingCommon.AlertIssue)
+
+    #
+    # *** HIT-Related Functions ***
+    #
+
     # Retrieve all HITs created by the createHit() function.
     def getAllHits(self):
         self.cur.execute("""
@@ -190,6 +220,27 @@ class MappingCommon(object):
                 (hitId, kml, now, maxAssignments, duration, reward))
         self.dbcon.commit()
         return hitId
+
+    #
+    # *** Accuracy-Related Functions ***
+    #
+
+    # Score worker mapping of an 'I' or 'Q' KML.
+    # Return floating point score (0.0-1.0), or None if could not be scored.
+    def kmlAccuracyCheck(self, kmlType, kmlName, assignmentId, tryNum=None):
+        if kmlType == MappingCommon.KmlTraining:
+            scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, assignmentId, str(tryNum)],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
+        elif kmlType == MappingCommon.KmlQAQC:
+            scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, assignmentId],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
+        else:
+            assert False
+        try:
+            score = float(scoreString)
+            return score, scoreString
+        except:
+            return None, scoreString
 
     if 0:
         def getHitStatus(self, hitId):
