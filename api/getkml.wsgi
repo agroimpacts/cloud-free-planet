@@ -40,7 +40,7 @@ def application(environ, start_response):
         elif kmlType == MappingCommon.KmlTraining:
             kmlType = 'training'
 
-        instructions = 'Please use the toolbar below to map all crop fields that are wholly or partially inside the white square (map the entire field, even the part that falls outside the box). <br/> Then save your changes by clicking on the disk icon to complete the HIT. Please visit our <a href="http://mappingafrica.princeton.edu/blog.html#!/blog/posts/Frequently-Asked-Questions/6" target="_blank">FAQ</a> for tips on dealing with no imagery and for other advice.<br/><i>(Note: if you see a multi-world map, you can reset it by either zooming in (and then out) by one click, panning the map slightly, or refreshing your browser.)</i>'
+        instructions = 'Please use the toolbar below to map all crop fields that are wholly or partially inside the white square (map the entire field, even the part that falls outside the box). <br/> Then save your changes by clicking on the disk icon to complete the HIT. Please visit our <a href="http://mappingafrica.princeton.edu/blog.html#!/blog/posts/Frequently-Asked-Questions/6" target="_blank">FAQ</a> for tips on dealing with no imagery and for other advice.'
 
         # MTurk cases.
         try:
@@ -66,6 +66,7 @@ def application(environ, start_response):
             trainingId = ''
             tryNum = 0
             mapHint = ''
+            csrfToken = req.params['csrfToken']
         # Training, worker feedback, and standalone cases.
         except:
             hitId = ''
@@ -78,9 +79,10 @@ def application(environ, start_response):
                 trainingId = req.params['trainingId']
                 tryNum = int(req.params['tryNum'])
                 mapHint = '<div class="hints">' + req.params['mapHint'] + '</div>'
-                headerHeight = headerHeight + 35
+                headerHeight = headerHeight + 20
                 mapHeight = mturkFrameHeight - headerHeight
                 workerId = ''
+                csrfToken = req.params['csrfToken']
             # Worker feedback and standalone cases.
             except:
                 submitTo = ''
@@ -88,6 +90,7 @@ def application(environ, start_response):
                 trainingId = ''
                 tryNum = 0
                 mapHint = ''
+                csrfToken = ''
                 # Worker feedback case.
                 try:
                     workerId = req.params['workerId']
@@ -122,6 +125,7 @@ def application(environ, start_response):
                 </head>
                 <body onload="init('%(kmlPath)s', '%(polygonPath)s', '%(noPolygonPath)s', '%(kmlName)s', '%(assignmentId)s', '%(trainingId)s', %(tryNum)s, '%(mapPath)s', '%(workerId)s')">
                     <form style='width: 100%%; height: %(headerHeight)spx;' name='mturkform' action='%(submitTo)s' method='POST' target='%(target)s'>
+                        %(csrfToken)s
                         <div class='instructions'>
                             %(instructions)s
                         </div>
@@ -163,7 +167,8 @@ def application(environ, start_response):
             'headerHeight': headerHeight,
             'mapHeight': mapHeight,
             'mapPath': mapUrl,
-            'workerId': workerId
+            'workerId': workerId,
+            'csrfToken': csrfToken
         }
         res.text = mainText
         # If we are running under MTurk,
@@ -173,16 +178,12 @@ def application(environ, start_response):
                 # If this is a new HIT,
                 mapc.cur.execute("SELECT TRUE FROM assignment_data WHERE assignment_id = '%s'" % assignmentId)
                 if not mapc.cur.fetchone():
-                    # If this is a new worker,
-                    mapc.cur.execute("SELECT TRUE FROM worker_data WHERE worker_id = '%s'" % (workerId))
-                    if not mapc.cur.fetchone():
-                        mapc.cur.execute("""INSERT INTO worker_data 
-                            (worker_id, first_time, last_time) 
-                            VALUES ('%s', '%s', '%s')""" % (workerId, now, now))
-                    # Else, this is an existing worker.
-                    else:
-                        mapc.cur.execute("""UPDATE worker_data SET last_time = '%s'
-                            WHERE worker_id = '%s'""" % (now, workerId))
+                    # Perform an UPSERT to handle the rare case where worker skipped the qualification test.
+                    mapc.cur.execute("""UPDATE worker_data SET last_time = '%s' WHERE worker_id = '%s';
+                            INSERT INTO worker_data (worker_id, first_time, last_time)
+                            SELECT '%s', '%s', '%s' WHERE NOT EXISTS
+                            (SELECT true FROM worker_data WHERE worker_id = '%s')"""
+                            % (now, workerId, workerId, now, now, workerId))
                     # Insert the assignment data.
                     mapc.cur.execute("""INSERT INTO assignment_data 
                         (assignment_id, hit_id, worker_id, accept_time, status) 
@@ -235,7 +236,7 @@ def application(environ, start_response):
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                 </head>
                 <body>
-                    <b></b>
+                    <b>No KML specified in URL.</b>
                 </body>
             </html>
         '''

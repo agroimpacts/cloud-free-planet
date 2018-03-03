@@ -3,7 +3,7 @@ from webob import Request, Response
 from xml.dom.minidom import parseString
 import psycopg2
 import datetime
-from MTurkMappingAfrica import MTurkMappingAfrica
+from MappingCommon import MappingCommon
 from mapFix import mapFix
 import traceback
 
@@ -13,8 +13,8 @@ def application(environ, start_response):
 
     now = str(datetime.datetime.today())
 
-    mtma = MTurkMappingAfrica()
-    logFilePath = mtma.projectRoot + "/log"
+    mapc = MappingCommon()
+    logFilePath = mapc.projectRoot + "/log"
 
     k = open(logFilePath + "/OL.log", "a")
     k.write("\npostkml: datetime = %s\n" % now)
@@ -24,26 +24,30 @@ def application(environ, start_response):
         kmlValue = req.params['foldersName'].split('_')
         #k.write("test: kmlvalue: %s\n" % kmlValue)
         kmlName = kmlValue[0]
+
         # Get the type for this kml.
-        mtma.cur.execute("select kml_type from kml_data where name = '%s'" % kmlName)
-        kmlType = mtma.cur.fetchone()[0]
-        if kmlType == MTurkMappingAfrica.KmlQAQC:
+        mapc.cur.execute("select kml_type from kml_data where name = '%s'" % kmlName)
+        kmlType = mapc.cur.fetchone()[0]
+        if kmlType == MappingCommon.KmlQAQC:
             kmlType = 'QAQC'
-        elif kmlType == MTurkMappingAfrica.KmlFQAQC:
+        elif kmlType == MappingCommon.KmlFQAQC:
             kmlType = 'FQAQC'
-        elif kmlType == MTurkMappingAfrica.KmlNormal:
+        elif kmlType == MappingCommon.KmlNormal:
             kmlType = 'non-QAQC'
-        elif kmlType == MTurkMappingAfrica.KmlTraining:
+        elif kmlType == MappingCommon.KmlTraining:
             kmlType = 'training'
 
+        # If regular assignment, then there will be two components to foldersName.
         if len(kmlValue) == 2:
             assignmentId = kmlValue[1]
             trainingId = None
             tryNum = None
-        elif len(kmlValue) == 4:
+        # If training assignment, then there will be three components to foldersName.
+        elif len(kmlValue) == 3:
             assignmentId = None
-            trainingId = kmlValue[2]
-            tryNum = int(kmlValue[3])
+            trainingId = kmlValue[1]
+            tryNum = int(kmlValue[2])
+        # If standalone invocation, then there will be no splits.
         else:
             assignmentId = None
             trainingId = None
@@ -67,45 +71,50 @@ def application(environ, start_response):
             polygon = placemark.getElementsByTagName('Polygon')[0].toxml()
             k.write("postkml: polygon name = %s\n" % polyName)
             k.write("postkml: polygon = %s\n" % polygon)
+
+            # Attempt to convert from KML to ***REMOVED*** geom format.
             try:
+                # If regular or standalone, store into user_maps.
                 if not trainingId:
-                    mtma.cur.execute("""INSERT INTO user_maps (name, geom, completion_time, 
+                    mapc.cur.execute("""INSERT INTO user_maps (name, geom, completion_time, 
                         assignment_id)
                         SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, 
                         %s as assignment_id""",
                         (polyName, polygon, now, assignmentId))
+                # If training, store into qual_user_maps.
                 else:
-                    mtma.cur.execute("""INSERT INTO qual_user_maps (name, geom, completion_time, 
-                        training_id, try)
+                    mapc.cur.execute("""INSERT INTO qual_user_maps (name, geom, completion_time, 
+                        worker_id, try)
                         SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, 
-                        %s as training_id, %s as try""",
+                        %s as worker_id, %s as try""",
                         (polyName, polygon, now, trainingId, tryNum))
-                mtma.dbcon.commit()
+                mapc.dbcon.commit()
             except psycopg2.InternalError as e:
                 k.write("postkml: Database error %s: %s" % (e.pgcode, e.pgerror))
-                mtma.dbcon.rollback()
+                mapc.dbcon.rollback()
                 if e.pgerror.find('invalid KML representation') != -1:
                     k.write("postkml: Ignoring this polygon and continuing\n")
                 else:
+                    mapc.dbcon.rollback()
                     raise
                     break
             except psycopg2.Error as e:
                 k.write("postkml: General database error %s: %s" % (e.pgcode, e.pgerror))
-                mtma.dbcon.rollback()
+                mapc.dbcon.rollback()
                 raise
                 break
         # This gets executed if we did not break out of the loop: i.e., if no errors.
         else:
             if assignmentId:
-                mapFix(mtma, "ma", kmlName, assignmentId, "no")
+                mapFix(mapc, "ma", kmlName, assignmentId, "no")
             elif trainingId:
-                mapFix(mtma, "tr", kmlName, trainingId, "no", tryNum)
-            mtma.dbcon.commit()
+                mapFix(mapc, "tr", kmlName, trainingId, "no", tryNum)
+            mapc.dbcon.commit()
 
         # If this is a training map, then call the scoring routine and 
         # record the results here.
         if trainingId:
-            scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % mtma.projectRoot, "tr", kmlName, trainingId, str(tryNum)], 
+            scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % mapc.projectRoot, "tr", kmlName, trainingId, str(tryNum)], 
                 stdout=subprocess.PIPE).communicate()[0]
             try:
                 score = float(scoreString)
@@ -114,22 +123,22 @@ def application(environ, start_response):
                 score = 1.          # Give worker the benefit of the doubt
                 k.write("postkml: Invalid value '%s' returned from R scoring script; assigning a score of %.2f\n" % 
                     (scoreString, score))
-            hitAcceptThreshold = float(mtma.getConfiguration('HitIAcceptThreshold'))
+            hitAcceptThreshold = float(mapc.getConfiguration('HitIAcceptThreshold'))
             k.write("postkml: training assignment has been scored as: %.2f/%.2f\n" %
                 (score, hitAcceptThreshold))
             if score < hitAcceptThreshold:
                 res.status = '460 Low Score'
 
             # Record the assignment submission time and score.
-            mtma.cur.execute("""update qual_assignment_data set completion_time = '%s',
+            mapc.cur.execute("""update qual_assignment_data set completion_time = '%s',
                 score = '%s' where training_id = '%s' and name = '%s'""" %
                 (now, score, trainingId, kmlName))
-            mtma.dbcon.commit()
+            mapc.dbcon.commit()
     except:
         e = traceback.format_exc()
         k.write("postkml: Error: %s" % e)
 
-    del mtma
+    del mapc
     k.close()
     return res(environ, start_response)
 

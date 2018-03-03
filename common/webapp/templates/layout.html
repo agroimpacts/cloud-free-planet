@@ -23,7 +23,8 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script>
-            // Set menu or submenu link active on current (clicked) page.
+            // Set menu or submenu link active on current page. Remains active 
+            // until page is refreshed with page clicked on in menu/submenu.
             // For submenu item, also causes submenu to be displayed.
             $(document).ready(function(){
                 $('.navigation li > a').click(function() {
@@ -35,7 +36,7 @@
                 });
             });
 
-            // Set link active on final destination page.
+            // Set link active on final destination page (after refresh).
             // NOTE: this script assumes that a user has only one role.
             // It allows a submenu item to be the same link as a menu item.
             // It handles redirects by the link specified in the submenu.
@@ -43,13 +44,13 @@
             $(document).ready(function(){
                 var pathname = document.location.pathname;
                 var role = $("input[name='role']").attr('value');
-                console.log('pathname =', pathname, ', role =', role);
+                // console.log('pathname =', pathname, ', role =', role);
                 found = false;
                 $('.navigation li').each(function (i, li) {
                     atag = $(li).children("a");
                     var href = $(atag).attr('href');
                     var ttext = $(atag).text();
-                    console.log('href =', href, ', text =', ttext);
+                    // console.log('href =', href, ', text =', ttext);
                     if (pathname == href) {
                         found = true;
                     }
@@ -61,13 +62,16 @@
                     $(li).children('div').children('a').each(function (ii, subatag) {
                         href = $(subatag).attr('href');
                         title = $(subatag).attr('title');
-                        console.log('href =', href, ', title =', title, 'matches_col =', matches_col);
+                        // console.log('href =', href, ', title =', title, 'matches_col =', matches_col);
                         // For sub-menu items that redirect, use the title tag to identify the final destination.
                         if ((pathname == href || pathname == title) && matches_col) {
                             $(subatag).addClass('active');
-                            // Display sub-menu for 10 seconds.
-                            $(li).children('div').css('display', 'block');
-                            setTimeout(function(){ $(li).children('div').css('display', '') }, 10000);
+                            // Display sub-menu for 5 seconds if not the result of a POST.
+                            // console.log('req_method =', req_method);
+                            if (typeof req_method === 'undefined' || req_method != 'POST') {
+                                $(li).children('div').css('display', 'block');
+                                setTimeout(function(){ $(li).children('div').css('display', '') }, 5000);
+                            }
                             found = true;
                             return !found;
                         }
@@ -115,12 +119,12 @@
                        </div> 
                     </li>
                     <li>
-                        <a href={{ url_for('main.employee_page') }}>{%trans%}Employee{%endtrans%}</a>
+                        <a href={{ url_for('main.employee') }}>{%trans%}Employee{%endtrans%}</a>
                         <div>
-                            <a href={{ url_for('main.assignment_page') }} }}>{%trans%}Map Agricultural Fields{%endtrans%}</a>
-                            <a href={{ url_for('main.assignment_history_page') }}>{%trans%}View Assignment History{%endtrans%}</a>
-                            <a href={{ url_for('main.training_page') }}>{%trans%}View Training Video{%endtrans%}</a>
-                            <a href={{ url_for('main.qualification_page') }}>{%trans%}Take Qualification Test{%endtrans%}</a>
+                            <a href={{ url_for('main.assignment') }} }}>{%trans%}Map Agricultural Fields{%endtrans%}</a>
+                            <a href={{ url_for('main.assignment_history') }}>{%trans%}View Assignment History{%endtrans%}</a>
+                            <a href={{ url_for('main.training') }}>{%trans%}View Training Video{%endtrans%}</a>
+                            <a href={{ url_for('qualification_blueprint.qualification') }}>{%trans%}Take Qualification Test{%endtrans%}</a>
                        </div> 
                     </li>
                     <li>
@@ -139,7 +143,7 @@
                 </ul>
 			</div>
 		</div>
-        <hr class="no-margins"/>
+        <!--<hr class="no-margins"/>-->
 
         <div id="main-div" class="no-margins">
         {% block pre_content %}{% endblock %}

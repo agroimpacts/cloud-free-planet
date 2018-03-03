@@ -179,3 +179,14 @@ class SuspendUserForm(FlaskForm):
         validators.DataRequired('Email address is required')])
     activate_flag = RadioField('', choices=[('0','Suspend'), ('1','Reactivate')]) 
     submit = SubmitField('Submit')
+
+# Define the Qualification form
+class QualificationForm(FlaskForm):
+    status = StringField()
+    mapHint = StringField()
+    kmlFrameUrl = StringField()
+    kmlName = StringField()
+    workerId = StringField()
+    tryNum = StringField()
+    submitTo = StringField()
+    reqMethod = StringField()
