@@ -182,11 +182,17 @@ class SuspendUserForm(FlaskForm):
 
 # Define the Qualification form
 class QualificationForm(FlaskForm):
-    status = StringField()
-    mapHint = StringField()
-    kmlFrameUrl = StringField()
-    kmlName = StringField()
-    workerId = StringField()
-    tryNum = StringField()
-    submitTo = StringField()
+    # Input fields
     reqMethod = StringField()
+    saveStatusCode = StringField()  # HTTP status code from postkml/putkml calls
+
+    # Input/Output fields
+    kmlName = StringField()
+    assignmentId = StringField()
+    tryNum = StringField()          # Training map try number
+
+    # Output fields
+    progressStatus = StringField()  # Training status (e.g., # KMLs mapped successfully)
+    kmlFrameUrl = StringField()     # URL for generating iframe (e.g., getkml)
+    submitTo = StringField()        # URL for showkml.js to submit to when done
+    resultsAccepted = StringField() # Boolean indicating to showkml.js whether worker mapped successfully
