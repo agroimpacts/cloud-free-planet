@@ -249,7 +249,7 @@ Leave behind `africa_master_brick.tif` in interim folder.
 frm <- paste0(p_intdat, c("af_cropland.tif", "af_cropland_prob_cl.tif", 
                           "africa_countries_gcs.sqlite", 
                           "africa_countries_gcs.tif", 
-                          "africa_master_brick.tif", 
+                          "africa_master_grid.tif", 
                           "africa_gcs_500m_buff.sqlite", 
                           "buffrast.tif"))
 file.remove(frm)
