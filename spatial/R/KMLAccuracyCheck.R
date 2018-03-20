@@ -4,6 +4,7 @@
 # Author: Lyndon Estes
 
 # Static arguments
+diam <- 0.005/2 ## new master grid diameter
 prjsrid <- 102022
 count.err.wt <- 0.1  
 in.err.wt <- 0.7  
@@ -12,10 +13,21 @@ err.switch <- 1  ### 5/2/2016 Changed to 1
 comments <- "F"
 write.err.db <- "T"  
 draw.maps  <- "T"  
-test <- "N"  
+test <- "Y"  
 test.root <- "N"  
 user <- "***REMOVED***"
 password <- "***REMOVED***"
+
+#mtype <- "qa" # test code
+# kmlid <- "SA1147278" # test code
+#kmlid <- "GH0377953" # test code
+#assignmentid <-"3FIUS151DV2LBKU3KGJOYU5Z95TGGF" # test code
+#tryid <-'1' # test code
+
+# mtype <- "tr" # test code
+# kmlid <- "SA3470" # test code
+# assignmentid <-"61" # test code
+# tryid <-'2' # test code
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 # suppressMessages(library(sp)) # have to load this to get connection
@@ -55,7 +67,6 @@ if(test.root == "N") {
     if(is.na(arg[4]) & mtype == "qa") {  # set tryid to null for qa sites
       tryid <- NULL
     }
-    assignmentidtype <- ifelse(mtype == "tr", "training_id", "assignment_id")
     if(comments == "T") print(mtype)
     if(comments == "T") print(kmlid)
     if(comments == "T") print(assignmentid)
@@ -85,8 +96,8 @@ if(test.root == "N") {
     }
   }
   
-  KMLAccuracy(mtype = mtype, kmlid = kmlid, assignmentid = assignmentid, 
-              tryid = tryid, prjsrid = prjsrid, count.err.wt = count.err.wt, 
+  KMLAccuracy(mtype = mtype, kmlid = kmlid, assignmentid = assignmentid,
+              diam = diam, tryid = tryid, prjsrid = prjsrid, count.err.wt = count.err.wt, 
               in.err.wt = in.err.wt, out.err.wt = out.err.wt, 
               err.switch = err.switch, comments = comments, 
               write.err.db = write.err.db, draw.maps = draw.maps, test = test,  
