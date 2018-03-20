@@ -12,10 +12,15 @@ err.switch <- 1  ### 5/2/2016 Changed to 1
 comments <- "F"
 write.err.db <- "T"  
 draw.maps  <- "T"  
-test <- "N"  
+test <- "Y"  
 test.root <- "N"  
 user <- "***REMOVED***"
 password <- "***REMOVED***"
+
+mtype <- "qa" #sy
+kmlid <- "SA1147278" #sy
+assignmentid <-"3FIUS151DV2LBKU3KGJOYU5Z95TGGF" #sy
+tryid <-'1' #sy
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 # suppressMessages(library(sp)) # have to load this to get connection
