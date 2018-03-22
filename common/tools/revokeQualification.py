@@ -13,5 +13,9 @@ if workerId is None:
 
 now = str(datetime.today())
 
-mapc.revokeQualification(workerId, now)
-print("Mapping Africa Qualification revoked from worker %s (%s)" % (workerId, email))
+revoked = mapc.revokeQualification(workerId, now, force=True)
+
+if revoked:
+    print("Mapping Africa Qualification revoked from worker %s (%s)." % (workerId, email))
+else:
+    print("Worker %s (%s) is not currently qualified." % (workerId, email))
