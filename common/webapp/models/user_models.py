@@ -183,8 +183,8 @@ class SuspendUserForm(FlaskForm):
 # Define the Qualification form
 class QualificationForm(FlaskForm):
     # Input fields
-    reqMethod = StringField()
-    saveStatusCode = StringField()  # HTTP status code from postkml/putkml calls
+    reqMethod = StringField()   # Whether POST or GET
+    kmlData = StringField()  # KML object representing worker-mapped polygons.
 
     # Input/Output fields
     kmlName = StringField()
