@@ -1,6 +1,8 @@
 import datetime
 import random
 import string
+import psycopg2
+from urllib import quote_plus
 from xml.dom.minidom import parseString
 from flask import current_app, flash
 from flask import Blueprint, redirect, render_template
@@ -97,38 +99,39 @@ def qualification():
                         mapc.dbcon.commit()
                     elif geomType != 'POLYGON':
                         numFail += 1
-                        errorString += "\nKML shape %s is a %s and not a polygon\n%s\n" % (polyName, geomType, polygon)
+                        errorString += "\nKML shape %s is a %s and not a polygon\n%s\n" % (polyName, geomType, quote_plus(polygon))
                         k.write("qualification: KML shape %s is a %s and not a polygon\n" % (polyName, geomType))
                         k.write("qualification: Ignoring this shape and continuing\n")
                     elif geomValid is False:
                         numFail += 1
-                        errorString += "\nKML shape %s is not valid: %s\n%s\n" % (polyName, geomReason, polygon)
+                        errorString += "\nKML shape %s is not valid: %s\n%s\n" % (polyName, geomReason, quote_plus(polygon))
                         k.write("qualification: KML shape %s is not valid: %s\n" % (polyName, geomReason))
                         k.write("qualification: Ignoring this shape and continuing\n")
                 except psycopg2.InternalError as e:
                     numFail += 1
                     mapc.dbcon.rollback()
-                    errorString += "\nKML shape %s raised an internal datatase exception: %s\n%s%s\n" % (polyName, e.pgcode, e.pgerror, polygon)
+                    errorString += "\nKML shape %s raised an internal datatase exception: %s\n%s%s\n" % (polyName, e.pgcode, e.pgerror, quote_plus(polygon))
                     k.write("qualification: Internal database error %s\n%s" % (e.pgcode, e.pgerror))
                     k.write("qualification: Ignoring this polygon and continuing\n")
                 except psycopg2.Error as e:
                     numFail += 1
                     mapc.dbcon.rollback()
-                    errorString += "\nKML shape %s raised a general datatase exception: %s\n%s%s\n" % (polyName, e.pgcode, e.pgerror, polygon)
+                    errorString += "\nKML shape %s raised a general datatase exception: %s\n%s%s\n" % (polyName, e.pgcode, e.pgerror, quote_plus(polygon))
                     k.write("qualification: General database error %s\n%s" % (e.pgcode, e.pgerror))
                     k.write("qualification: Ignoring this polygon and continuing\n")
 
             # If we have at least one invalid shape.
             if numFail > 0:
+                k.write("NOTE: %s shape(s) out of %s were invalid\n" % (numFail, numPoly))
                 mapc.createAlertIssue("Database geometry problem",
-                        "Worker ID = %s\nAssignment ID = %s; try %s\n%s" % (workerId, assignmentId, tryNum, errorString))
+                        "Worker ID = %s\nAssignment ID = %s; try %s\nNOTE: %s shape(s) out of %s were invalid\n%s" % 
+                        (workerId, assignmentId, tryNum, numFail, numPoly, errorString))
 
             # If we have at least one valid polygon.
             if numPoly > numFail:
                 try:
                     mapFix(mapc, "tr", kmlName, assignmentId, "no", tryNum)
                     mapc.dbcon.commit()
-
                 except Exception as e:
                     assignmentStatus = MappingCommon.HITUnscored
                     score = mapc.getQualityScore(workerId)
@@ -140,7 +143,7 @@ def qualification():
 
             else:
                 assignmentStatus = MappingCommon.HITUnsaved
-                score = 0.                  # Give new worker the min score
+                score = 0.                          # Give new worker the min score
                 qualForm.resultsAccepted.data = 3   # Indicate unsaved results.
 
         # Compute the worker's score on this KML.
