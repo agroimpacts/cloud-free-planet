@@ -19,15 +19,15 @@ user <- "***REMOVED***"
 password <- "***REMOVED***"
 
 #mtype <- "qa" # test code
-# kmlid <- "SA1147278" # test code
+#kmlid <- "SA1147278" # test code
 #kmlid <- "GH0377953" # test code
 #assignmentid <-"3FIUS151DV2LBKU3KGJOYU5Z95TGGF" # test code
 #tryid <-'1' # test code
 
-# mtype <- "tr" # test code
-# kmlid <- "SA3470" # test code
-# assignmentid <-"61" # test code
-# tryid <-'2' # test code
+#mtype <- "tr" # test code
+#kmlid <- "SA3470" # test code
+#assignmentid <-"61" # test code
+#tryid <-'2' # test code
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 # suppressMessages(library(sp)) # have to load this to get connection
