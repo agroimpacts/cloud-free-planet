@@ -183,13 +183,6 @@ def employee_page():
     return render_template('pages/employee_page.html')
 
 # The Employee submenu is accessible to authenticated users with the 'employee' role
-@main_blueprint.route('/employee/assignment')
-@roles_accepted('employee')
-@login_required  # Limits access to authenticated users
-def assignment():
-    return render_template('pages/employee_page.html')
-
-# The Employee submenu is accessible to authenticated users with the 'employee' role
 @main_blueprint.route('/employee/assignment_history')
 @roles_accepted('employee')
 @login_required  # Limits access to authenticated users
