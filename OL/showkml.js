@@ -505,7 +505,7 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
     }
     // All cases (except for worker feedback cases).
     if (resultsAccepted == 3) {
-        alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance. Please try again later. We apologize for the inconvenience.");
+        alert("Error! Through no fault of your own, your work could not be saved. Please try the same map again. We apologize for the inconvenience.");
     }
 
     function checkSaveStrategy(kmlName, noPolygonPath, assignmentId, tryNum) {
@@ -530,37 +530,11 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
                 i = i + 1;
             }
             var kmlFormat = new ol.format.KML();
-            var kmlData = kmlFormat.writeFeatures(features, {featureProjection: 'EPSG:3857'});
+            var kmlData = kmlFormat.writeFeatures(features, {featureProjection: 'EPSG:4326', dataProjection: 'EPSG:4326'});
             //alert(kmlData);
-            jQuery.ajax({
-                type: "POST",
-                url: polygonPath,
-                data: {
-                    kmlData: kmlData,
-                    foldersName: kmlName,
-                    assignmentId: assignmentId,
-                    tryNum: tryNum
-                },
-                complete: function (jqXHR, statusCode) {
-                    //alert("complete: " + statusCode + ": " + jqXHR.status + " " + jqXHR.statusText);
-                    saveKMLStatus(jqXHR.status, jqXHR.statusText);
-                }
-            });
-        // If no polygons drawn, then report this fact.
-        } else {
-            jQuery.ajax({
-                type: "PUT",
-                url: noPolygonPath,
-                data: {
-                    kmlName: kmlName,
-                    assignmentId: assignmentId,
-                    tryNum: tryNum
-                },
-                complete: function (jqXHR, statusCode) {
-                    //alert("complete: " + statusCode + ": " + jqXHR.status + " " + jqXHR.statusText);
-                    saveNotificationStatus(jqXHR.status, jqXHR.statusText);
-                }
-            });
+            //
+            // Save the kmlData in the HTML mappingform.
+            document.mappingform.kmlData.value = kmlData;
         }
         // Don't allow Save button to be used again.
         saveStrategyActive = false
@@ -570,24 +544,6 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
         //    panelControls[i].deactivate();
         //}
         //panelControls[0].activate();
-    }
-
-    // Report polygon status to the worker. 
-    // If it's for a training map with a low score, let him try to remap again.
-    function saveKMLStatus(statusCode, statusText) {
-        // Save the status code in the HTML mappingform.
-        document.mappingform.saveStatusCode.value = statusCode;
-
-        if (assignmentId.length > 0) {
-            document.mappingform.submit();
-        }
-    }
-
-    // Report notification status to the worker. 
-    // If it's for a training map with a low score, let him try to remap again.
-    function saveNotificationStatus(statusCode, statusText) {
-        // Save the status code in the HTML mappingform.
-        document.mappingform.saveStatusCode.value = statusCode;
 
         if (assignmentId.length > 0) {
             document.mappingform.submit();

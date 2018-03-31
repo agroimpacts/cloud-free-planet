@@ -144,6 +144,79 @@ class MappingCommon(object):
             kmlType = 'training'
         return kmlType
 
+    # Save and retrieve circular buffer into database.
+    # NOTE: assumes that rightmost entry is most recent. 
+    # Works well with collections.deque().
+    # Store circular buffer array into specified column for specified worker.
+    def putCB(self, array, dbField, workerId):
+        self.cur.execute("update worker_data set %s=%s where worker_id = %s" % (dbField,'%s','%s'), (array,workerId,))
+        self.dbcon.commit()
+
+    # Retrieve circular buffer from specified column for specified worker.
+    def getCB(self, dbField, workerId):
+        self.cur.execute("select %s from worker_data where worker_id = %s" % (dbField,'%s'), (workerId,))
+        return self.cur.fetchone()[0]
+
+    # Add new value to circular buffer for scores.
+    def pushScore(self, workerId, value):
+        depth = int(self.getConfiguration('Quality_ScoreHistDepth'))
+        scores = self.getCB(self.ScoresCol, workerId)
+        if scores is None:
+            scores = collections.deque(maxlen=depth)
+        else:
+            scores = collections.deque(scores,maxlen=depth)
+        scores.append(value)
+        self.putCB(list(scores), self.ScoresCol, workerId)
+
+    # Add new return state to circular buffer for returns.
+    # State must be True for returns and False for submissions.
+    def pushReturn(self, assignmentId, state):
+        # Get the worker ID for this assignment.
+        self.cur.execute("select worker_id from assignment_data where assignment_id = '%s'" % assignmentId)
+        workerId = self.cur.fetchone()[0]
+        depth = int(self.getConfiguration('Quality_ReturnHistDepth'))
+        returns = self.getCB(self.ReturnsCol, workerId)
+        if returns is None:
+            returns = collections.deque(maxlen=depth)
+        else:
+            returns = collections.deque(returns,maxlen=depth)
+        if state:
+            value = 1.0
+        else:
+            value = 0.0
+        returns.append(value)
+        self.putCB(list(returns), self.ReturnsCol, workerId)
+
+    # Get moving average of scores saved. If number of scores saved is 
+    # less than the required depth, return None.
+    def getAvgScore(self, workerId):
+        depth = int(self.getConfiguration('Quality_ScoreHistDepth'))
+        scores = collections.deque(self.getCB(self.ScoresCol, workerId),maxlen=depth)
+        if len(scores) < depth:
+            return None
+        return sum(scores)/depth
+
+    # Get moving average of scores saved. If number of scores saved is 
+    # less than the required depth, return None.
+    def getReturnRate(self, workerId):
+        depth = int(self.getConfiguration('Quality_ReturnHistDepth'))
+        returns = collections.deque(self.getCB(self.ReturnsCol, workerId),maxlen=depth)
+        if len(returns) < depth:
+            return None
+        return sum(returns)/depth
+
+    # Calculate quality score.
+    def getQualityScore(self, workerId):
+        weight = float(self.getConfiguration('Quality_ReturnWeight'))
+        avgScore = self.getAvgScore(workerId)
+        if avgScore is None:
+            return None
+        returnRate = self.getReturnRate(workerId)
+        if returnRate is None:
+            return None
+        qScore = avgScore - (returnRate * weight)
+        return qScore
+
     # Create a GitHub issue, specifying its title, body, and one of three
     #     predefined labels: MappingCommon.AlertIssue, MappingCommon.GeneralInquiryIssue, or
     #     MappingCommon.WorkerInquiryIssue
@@ -243,10 +316,11 @@ class MappingCommon(object):
             return None, scoreString
 
     # Revoke Mapping Africa qualification unconditionally unless not qualified.
-    def revokeQualification(self, workerId, submitTime):
+    # Returns True if worker was qualified and qualification was revoked; False otherwise.
+    def revokeQualification(self, workerId, submitTime, force=False):
         # Revoke the qualification if not already done.
         qualified = self.querySingleValue("SELECT qualified FROM worker_data WHERE worker_id = '%s'" % (workerId))
-        if qualified:
+        if qualified or force:
             # Remove all user maps and training assignments for this worker.
             self.cur.execute("""DELETE FROM qual_user_maps WHERE assignment_id IN 
                     (SELECT assignment_id FROM qual_assignment_data WHERE worker_id = %s)""" %
@@ -256,6 +330,9 @@ class MappingCommon(object):
             self.cur.execute("""UPDATE worker_data SET qualified = false, last_time = '%s' 
                     WHERE worker_id = %s""" % (submitTime, workerId))
             self.dbcon.commit()
+            return True
+        else:
+            return False
 
     # Revoke Mapping Africa qualification if quality score 
     # shows worker as no longer qualified.
@@ -540,79 +617,6 @@ class MappingCommon(object):
         # Release serialization lock.
         def releaseSerializationLock(self):
             del self.lock
-
-        # Save and retrieve circular buffer into database.
-        # NOTE: assumes that rightmost entry is most recent. 
-        # Works well with collections.deque().
-        # Store circular buffer array into specified column for specified worker.
-        def putCB(self, array, dbField, workerId):
-            self.cur.execute("update worker_data set %s=%s where worker_id = %s" % (dbField,'%s','%s'), (array,workerId,))
-            self.dbcon.commit()
-
-        # Retrieve circular buffer from specified column for specified worker.
-        def getCB(self, dbField, workerId):
-            self.cur.execute("select %s from worker_data where worker_id = %s" % (dbField,'%s'), (workerId,))
-            return self.cur.fetchone()[0]
-
-        # Add new value to circular buffer for scores.
-        def pushScore(self, workerId, value):
-            depth = int(self.getConfiguration('Quality_ScoreHistDepth'))
-            scores = self.getCB(self.ScoresCol, workerId)
-            if scores is None:
-                scores = collections.deque(maxlen=depth)
-            else:
-                scores = collections.deque(scores,maxlen=depth)
-            scores.append(value)
-            self.putCB(list(scores), self.ScoresCol, workerId)
-
-        # Get moving average of scores saved. If number of scores saved is 
-        # less than the required depth, return None.
-        def getAvgScore(self, workerId):
-            depth = int(self.getConfiguration('Quality_ScoreHistDepth'))
-            scores = collections.deque(self.getCB(self.ScoresCol, workerId),maxlen=depth)
-            if len(scores) < depth:
-                return None
-            return sum(scores)/depth
-
-        # Add new return state to circular buffer for returns.
-        # State must be True for returns and False for submissions.
-        def pushReturn(self, assignmentId, state):
-            # Get the worker ID for this assignment.
-            self.cur.execute("select worker_id from assignment_data where assignment_id = '%s'" % assignmentId)
-            workerId = self.cur.fetchone()[0]
-            depth = int(self.getConfiguration('Quality_ReturnHistDepth'))
-            returns = self.getCB(self.ReturnsCol, workerId)
-            if returns is None:
-                returns = collections.deque(maxlen=depth)
-            else:
-                returns = collections.deque(returns,maxlen=depth)
-            if state:
-                value = 1.0
-            else:
-                value = 0.0
-            returns.append(value)
-            self.putCB(list(returns), self.ReturnsCol, workerId)
-
-        # Get moving average of scores saved. If number of scores saved is 
-        # less than the required depth, return None.
-        def getReturnRate(self, workerId):
-            depth = int(self.getConfiguration('Quality_ReturnHistDepth'))
-            returns = collections.deque(self.getCB(self.ReturnsCol, workerId),maxlen=depth)
-            if len(returns) < depth:
-                return None
-            return sum(returns)/depth
-
-        # Calculate quality score.
-        def getQualityScore(self, workerId):
-            weight = float(self.getConfiguration('Quality_ReturnWeight'))
-            avgScore = self.getAvgScore(workerId)
-            if avgScore is None:
-                return None
-            returnRate = self.getReturnRate(workerId)
-            if returnRate is None:
-                return None
-            qScore = avgScore - (returnRate * weight)
-            return qScore
 
         # Pay bonus and return True if quality score shows worker as qualified.
         def payBonusIfQualified(self, workerId, assignmentId):

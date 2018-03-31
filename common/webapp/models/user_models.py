@@ -180,18 +180,19 @@ class SuspendUserForm(FlaskForm):
     activate_flag = RadioField('', choices=[('0','Suspend'), ('1','Reactivate')]) 
     submit = SubmitField('Submit')
 
-# Define the Qualification form
-class QualificationForm(FlaskForm):
+# Define the Mapping form
+class MappingForm(FlaskForm):
     # Input fields
-    reqMethod = StringField()
-    saveStatusCode = StringField()  # HTTP status code from postkml/putkml calls
+    kmlData = StringField()         # KML object representing worker-mapped polygons.
+    comment = StringField()         # Worker comment (assignment only)
 
     # Input/Output fields
     kmlName = StringField()
     assignmentId = StringField()
-    tryNum = StringField()          # Training map try number
+    tryNum = StringField()          # Try number (qualification test only)
 
     # Output fields
+    reqMethod = StringField()       # Whether preceding request was POST or GET
     progressStatus = StringField()  # Training status (e.g., # KMLs mapped successfully)
     kmlFrameUrl = StringField()     # URL for generating iframe (e.g., getkml)
     submitTo = StringField()        # URL for showkml.js to submit to when done
