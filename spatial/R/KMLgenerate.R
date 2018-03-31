@@ -13,13 +13,13 @@ diam <- 0.005 / 2 # half of the pixel resolution
 gcs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 # variables
-data(pgupw)
-dinfo <- getDBName()  # pull working environment
+# data(pgupw)
+dinfo <- rmapaccuracy::getDBName()  # pull working environment
 ## connect to the database
 con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(),
                       dbname = dinfo["db.name"],   
-                      user = pgupw$user,
-                      password = pgupw$password)
+                      user = "***REMOVED***", #pgupw$user,
+                      password = "***REMOVED***")#pgupw$password)
 
 ## File paths
 log_file_path <- paste0(dinfo["project.root"], "/log/")
@@ -120,7 +120,7 @@ repeat {
                 
     # Update the first_avail_line in configuration
     newline <- first_avail_line + kml_batch_size
-    sql <- paste0("UPDATE configuration SET value=", newline,
+    sql <- paste0("UPDATE system_data SET value=", newline,
                   " WHERE key='firstAvailLine'")
     dbExecute(con, sql)
     
