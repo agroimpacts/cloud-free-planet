@@ -1,48 +1,38 @@
-#! /usr/bin/Rscript
-# KMLgenerate.R (updated version)
-
-####################### 
-# Hardcoded 
-test.root <- "N"
-prjsrid   <- 102022  # EPSG identifier for equal area project
-fname <- "KMLgenerate"  # KMLgenerate 
-kml_type <- "N"  # Type of KML (N for non-QAQC)
-diam <- 500
-######################
-
-library(RPostgreSQL)
-library(rmapaccuracy)
+## packages
 library(data.table)
 library(raster)
+library(DBI)
+library(dplyr) # replace RPostgreSQL
+library(dbplyr) 
 
-# Determine working directory and database
-dinfo <- getDBName()  # pull working environment
-
-drv <- dbDriver("PostgreSQL")
-con <- dbConnect(drv, dbname = dinfo["db.name"], user = "***REMOVED***", 
-                 password = "***REMOVED***")
-#dbListConnections(drv); dbGetInfo(drv); summary(con)
-
-# CRS (coordinate reference systems)
-sql <- paste0("select proj4text from spatial_ref_sys where auth_name='map_af' ",
-              "order by auth_srid")
-prjstr <- dbGetQuery(con, sql)$proj4text
-sql <- paste0("select proj4text from spatial_ref_sys where srid=", prjsrid)
-alb <- dbGetQuery(con, sql)$proj4text
+# Hardcoded 
+test.root <- "N"
+fname <- "KMLgenerate"  # KMLgenerate
+kml_type <- "N"  # Type of KML (N for non-QAQC)
+diam <- 0.005 / 2 # half of the pixel resolution
 gcs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
-# File paths
-kml_file_path <- paste0(dinfo["project.root"], "/kmls/")
+# variables
+# data(pgupw)
+dinfo <- rmapaccuracy::getDBName()  # pull working environment
+## connect to the database
+con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(),
+                      dbname = dinfo["db.name"],   
+                      user = "***REMOVED***", #pgupw$user,
+                      password = "***REMOVED***")#pgupw$password)
+
+## File paths
 log_file_path <- paste0(dinfo["project.root"], "/log/")
 
-# Record daemon start time
+## Record daemon start time
 pstart_string <- paste0("KMLgenerate: Daemon starting up at ", 
                         format(Sys.time(), "%a %b %e %H:%M:%S %Z %Y"))
 
-# Initialize csv to log database error message
+## Initialize csv to log database error message
 log_hdr <- rbind("Error messages from KMLgenerate.R", 
                  "Time errcode errmessage",
                  "#####################################################")
+
 ### Possible conflict
 dberrfname <- paste0(log_file_path, "KMLgenerate_dbase_error.log") 
 if(!file.exists(dberrfname)) {
@@ -57,92 +47,67 @@ rlog_hdr <- rbind("Log of KMLgenerate.R start, KML ids written & times",
 logfname <- paste0(log_file_path, fname, ".log")  # Log file name
 if(!file.exists(logfname))  write(rlog_hdr, file = logfname)
 # Write out daemon start stamp
-write(pstart_string, file = logfname, append = TRUE)  
+write(pstart_string, file = logfname, append = TRUE)
 
 repeat {
-  
   # Query polling interval
-  sql <- "select value from configuration where key = 'KMLPollingInterval'"
-  kml_polling_interval <- as.numeric(dbGetQuery(con, sql)$value)
-  
-  # Target batch size: should be at least 500
-  sql <- "select value from configuration where key = 'NKMLBatchSize'"
-  kml_batch_size <- as.numeric(dbGetQuery(con, sql)$value)
-  
+  kml_polling_interval <- as.numeric(
+    (tbl(con, "configuration") %>% filter(key == 'KMLPollingInterval') %>% 
+       collect())$value)
+        
+        # Target batch size: should be at least 500
+  kml_batch_size <- as.numeric(
+    (tbl(con, "configuration") %>% filter(key == 'NKMLBatchSize') %>%
+       collect())$value)
+        
   # how many unmapped kmls should there be, at a minimum
-  sql <- "select value from configuration where key = 'MinAvailNKMLTarget'"
-  min_avail_kml <- as.numeric(dbGetQuery(con, sql)$value)
-  
+  min_avail_kml <- as.numeric(
+    (tbl(con, "configuration") %>% filter(key == 'MinAvailNKMLTarget') %>%
+       collect())$value)        
+        
   # how many unmapped kmls are there? 
-  sql <- paste("select count(*) from kml_data k where not exists",  
-               "(select true from hit_data h where h.name = k.name and", 
-               "delete_time is null) and kml_type = 'N' and mapped_count = 0")
-  avail_kml_count <- dbGetQuery(con, sql)$count
+  avail_kml_count <- as.numeric(
+    tbl(con, "kml_data") %>% 
+      anti_join(
+        (tbl(con, "hit_data") %>% 
+           left_join(tbl(con, "kml_data"), by = "name") %>%
+           filter(is.na(delete_time))), by = "name") %>%
+      filter((kml_type == 'N') & (mapped_count == 0)) %>%
+      summarise(n = n()) %>%collect())
   
-  #write(paste(avail.kml.count, "KMLs are unused"), file = logfname, append = TRUE)
-  
+  first_avail_line <- as.numeric(
+    (tbl(con, "system_data") %>% filter(key == 'firstAvailLine') %>%
+       collect())$value)
+        
   # Select new grid cells for conversion to kmls if N unmapped < min_avail_kml
   start_time <- Sys.time()
   if(avail_kml_count < min_avail_kml) {  
-    
-    # Step 1. Poll the database to see which grid IDs are still available
-    sql <- "select x, y, name, fwts, zone from master_grid where avail = 'T'"
-    xy_tab <- data.table(dbGetQuery(con, sql))
-    
-    # Step 2. Draw weighted random sample = min.kml.batch
-    # Just an ordinary random sample to select cells, because the weighted
-    # draw was already made in creating master_grid
-    set.seed(2)
-    xy_tabs <- xy_tab[{name %in% 
-                         sample(name, size = kml_batch_size, replace = FALSE)}]
-    
-    # Step 3. Convert point data to proper projections
-    gpnts <- sapply(1:nrow(xy_tabs), function(i) {  # i <- 1 
-      zn <- xy_tabs[i, zone]
-      xy <- data.frame(xy_tabs[i, ])
-      coordinates(xy) <- ~x + y # xy[1:2]
-      # xy <- xy[, 3:5]
-      crs(xy) <- alb
-      xy_trans <- spTransform(xy, CRS(prjstr[zn]))
-    })
-    
-    # Step 4. Convert points to polygons
-    gpols <- sapply(1:nrow(xy_tabs), function(i) { 
-      xy_trans <- gpnts[[i]] 
-      proj4 <- proj4string(xy_trans)
-      ptdata <- data.frame(xy_trans)
-      gpol <- point_to_gridpoly(xy = ptdata, w = diam, CRSobj = CRS(proj4))
-      gpol@data$zone <- xy_trans@data$zone
-      gpol@data$id <- i
-      gpol <- spChFIDs(gpol, as.character(gpol@data$id))
-    })
-    
-    # Step 5. Transform to geographic coordinates and write out to kmls
-    gpols_gcs <- sapply(1:length(gpols), function(i) {
-      gpol_gcs <- spTransform(x = gpols[[i]], CRSobj = CRS(gcs))
-      kml_name <- paste0(dinfo["project.root"], "/kmls/", gpol_gcs$name, 
-                         ".kml")
-      rgdal::writeOGR(gpol_gcs, dsn = kml_name, layer = gpol_gcs$name, 
-                      driver = "KML", overwrite = TRUE)
-      gpol_gcs
-    })
-    gpols_gcs <- do.call(rbind, gpols_gcs)
-    
-    # Step 6. Update database tables
+                
+    # Step 1. Read the database table in order
+    # Already finish the weighted sampling in create_master_grid
+    xy_tabs <- con %>% tbl("master_grid") %>%
+      filter((gid >= first_avail_line) & 
+               (gid <= first_avail_line + kml_batch_size - 1)) %>%
+      select(id, name, avail) %>%
+      head(kml_batch_size) %>% collect()
+    xy_tabs <- data.table(xy_tabs)  # convert to data.table (not needed???)
+
+    # Step 2. Update database tables
     # Update kml_data to show new names added and their kml_type
-    sqlrt <-  paste0("('", gpols_gcs$name, "', ", "'", kml_type,"',", 
-                     gpols_gcs$fwts,")", collapse = ",")
-    sql <- paste("insert into kml_data (name, kml_type, fwts) values ", sqlrt)
-    ret <- dbSendQuery(con, sql)
-    
+    # Quit saving the 'fwts'
+    kml_new <- data.frame(name = xy_tabs$name, 
+                          kml_type = rep(kml_type, nrow(xy_tabs)))
+    db_insert_into(con, table = "kml_data", values = kml_new)
+                
     # Update master to show grid is no longer available for selecting/writing
-    sqlrt2 <- paste0(" (", paste0("'", gpols_gcs$name, "'", collapse = ","), ")")
+    sqlrt2 <- paste0(" (", paste0("'", xy_tabs$name, "'", collapse = ","), ")")
     sql <- paste("UPDATE master_grid SET avail='F' where name in", sqlrt2)        
-    ret2 <- dbSendQuery(con, sql)
-    
+    dbExecute(con, sql)
+                
     # Update master_grid_counter
-    sql <- paste("SELECT * from master_grid_counter ORDER BY block")
-    count_tab <- data.table(dbGetQuery(con, sql), key = "block")
+    count_tab <- tbl(con, "master_grid_counter") %>% arrange(block) %>% 
+      collect()
+    count_tab <- data.table(count_tab, key = "counter")
     if(count_tab[, sum(counter)] == 0) {
       active_block <- count_tab[1, ]
     } else {
@@ -151,9 +116,15 @@ repeat {
     newcount <- active_block[, counter] + kml_batch_size
     sql <- paste0("UPDATE master_grid_counter SET counter=", newcount, 
                   " WHERE block=", active_block[, block])
-    ret3 <- dbSendQuery(con, sql)
+    dbExecute(con, sql)
+                
+    # Update the first_avail_line in configuration
+    newline <- first_avail_line + kml_batch_size
+    sql <- paste0("UPDATE system_data SET value=", newline,
+                  " WHERE key='firstAvailLine'")
+    dbExecute(con, sql)
     
-    # Step 7. Database (crude) error handling
+    # Step 3. Database (crude) error handling
     exception <- dbGetException(con)  # update exceptions
     if(exception$errorNum != 0) {
       print("Error updating master_grid")  
@@ -164,7 +135,7 @@ repeat {
     }
   }
   end_time <- Sys.time()
-  
+        
   # Write out kmlID log
   log_timestamp <- c(format(start_time, "%a %b %d %X %Y %Z"), 
                      format(end_time, "%a %b %d %X %Y %Z"))
