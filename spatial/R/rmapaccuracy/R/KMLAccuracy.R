@@ -55,9 +55,8 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid,
   # Read in user data
   if(mtype == "tr") {  # Training case
     user.sql <- paste0("select name,ST_AsEWKT(geom_clean),ST_AsEWKT(geom),try",
-                       " from qual_user_maps where ",  assignmentidtype, "='", 
-                       assignmentid, "'", " and try='",  tryid, 
-                       "' order by name")
+                       " from qual_user_maps where assignment_id=","'", assignmentid,
+                       "'", " and try='",  tryid, "' order by name")
   } else if(mtype == "qa") {  # Test case
     user.sql <- paste0("select name,ST_AsEWKT(geom_clean),ST_AsEWKT(geom) from", 
                        " user_maps where assignment_id=", "'", assignmentid, 
@@ -223,9 +222,9 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid,
                          assignmentid, "', ", paste(err.out, collapse = ", "), 
                          ", ", tss.err,  ")")
     } else if(mtype == "tr") {
-      error.sql <- paste0("insert into qual_error_data(training_id, name,", 
+      error.sql <- paste0("insert into qual_error_data(assignment_id,", 
                           " score, error1, error2, error3, error4, try, tss)", 
-                          " values ('", assignmentid, "', ", "'", kmlid, "', ", 
+                          " values ('", assignmentid, "', ", 
                           paste(err.out, collapse = ", "), ", ", tryid, ", ", 
                           tss.err, ")")  # Write try error data
     }  
