@@ -14,7 +14,7 @@ callPprepair(dirnm, spdfinname, spdfoutname, crs = crs)
 \item{spdfoutname:}{Name of pprepair output shapefile (no .shp ext)}
 }
 \value{
-spdf of cleaned polygons, read in from temporary .shp written to disk
+polyfixed of cleaned polygons, read in from temporary .shp written to disk
 }
 \description{
 Function to make system call to polygon cleaning program pprepair
