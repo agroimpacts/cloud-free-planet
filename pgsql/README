@@ -1,4 +1,9 @@
-To restore the entire Africa database:
+NOTE: use this script only to:
+1) perform an initial installation of the posgresql server, and 
+2) an initial create or restoration of databases (e.g., Africa, AfricaSandbox), and
+3) to setup initial database backups.
+
+NOTE: all steps must be followed in order from the beginning.
 
 NOTE: If updating ***REMOVED*** to a later version, modify the steps below to
 follow the procedure described at this link:

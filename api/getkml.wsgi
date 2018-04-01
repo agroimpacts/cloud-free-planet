@@ -145,7 +145,7 @@ def application(environ, start_response):
                         <input type='hidden' name='kmlName' value='%(kmlName)s' />
                         <input type='hidden' name='assignmentId' value='%(assignmentId)s' />
                         <input type='hidden' name='tryNum' value='%(tryNum)s' />
-                        <input type='hidden' name='saveStatusCode' />
+                        <input type='hidden' name='kmlData' />
                     </form>
                     <div id="kml_display" style="width: 100%%; height: %(mapHeight)spx;"></div>
                 </body>
