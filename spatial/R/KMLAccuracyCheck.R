@@ -55,7 +55,6 @@ if(test.root == "N") {
     if(is.na(arg[4]) & mtype == "qa") {  # set tryid to null for qa sites
       tryid <- NULL
     }
-    assignmentidtype <- ifelse(mtype == "tr", "training_id", "assignment_id")
     if(comments == "T") print(mtype)
     if(comments == "T") print(kmlid)
     if(comments == "T") print(assignmentid)
