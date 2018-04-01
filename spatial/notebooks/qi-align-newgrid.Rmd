@@ -21,9 +21,9 @@ Read in KMLs of static file system and get the centroids for them.
 library(rgdal)
 library(sf)
 library(dplyr)
-library(glue)
 library(data.table)
 library(raster)
+library(rgeos)
 p_kmls <- "kmls_static"
 p_grid <- "spatial/data/interim/"
 p_dat <- "spatial/data/external/"
@@ -92,22 +92,70 @@ proj4string(ptmat) <- crs(mgrid)
 ptmat <- rbind(ptmat, zmq)
 # plot(ptbufs)
 
-ptbufs <- gBuffer(ptmat, width = 0.011, byid = TRUE)
-qids <- extract(mgrid, ptmat, cellnumbers = TRUE)
+# ptbufs <- gBuffer(ptmat, width = 0.011, byid = TRUE)
+# qids <- extract(mgrid, ptmat, cellnumbers = TRUE)
+ptbufs <- st_buffer(st_as_sf(ptmat[1, ]), dist = 0.011)
+# ptbufs <- Buffer(spTransform(ptmat[625:627, ], alb), width = 5000, 
+#                   byid = TRUE)
+qids <- extract(mgrid, ptmat[1, ], cellnumbers = TRUE)
 ptmat$id <- qids[, 2]
 idcoords <- xyFromCell(mgrid, cell = qids[, 1], spatial = TRUE)
 # plot(idcoords)
 
 # then from the original one
-vals <- extract(mgrid, ptbufs, cellnumbers = TRUE)
+vals <- extract(mgrid, as_Spatial(st_geometry(ptbufs)), cellnumbers = TRUE)
 valsdf <- do.call(rbind, vals)
-valsdf[valsdf[, 1] %in% valsdf[which(duplicated(valsdf[, 1])), 1], ]
-length(unique(valsdf[, 1]))
+# valsdf[valsdf[, 1] %in% valsdf[which(duplicated(valsdf[, 1])), 1], ]
+# length(unique(valsdf[, 1]))
 
-tst <- xyFromCell(mgrid, cell = vals[, 1], spatial = TRUE)
+tst <- xyFromCell(mgrid, cell = vals[[1]][, 1], spatial = TRUE)
+plot(ptbufs)
 points(tst)
-plot(tst)
 points(ptmat[1, ])
+
+```
+
+```{r, eval = FALSE}
+point_to_sfgridpoly <- function(xy, w, CRSobj) {
+  dw <- list("x" = c(-w, w, w, -w, -w), "y" = c(w, w, -w, -w, w))
+  pols <- do.call(rbind, lapply(1:nrow(xy), function(i) {  # i <- 1
+    xs <- unlist(sapply(dw$x, function(x) unname(xy[i, "x"] + x)))
+    ys <- unlist(sapply(dw$y, function(x) unname(xy[i, "y"] + x)))
+    p1 <- list(t(sapply(1:length(xs), function(i) c(xs[i], ys[i]))))
+    pol <- st_polygon(p1)
+    poldf <- st_sfc(pol)
+    polsf <- st_sf(xy[i, .(ID, name, fwts)], geom = poldf)
+    st_crs(polsf) <- CRSobj
+    polsf
+  }))
+}
+
+ptbufs <- st_buffer(st_as_sf(ptmat[1, ]), dist = 0.02)
+# ptbufs <- Buffer(spTransform(ptmat[625:627, ], alb), width = 5000, 
+#                   byid = TRUE)
+qids <- extract(mgrid, ptmat[1, ], cellnumbers = TRUE)
+ptmat$id <- qids[, 2]
+idcoords <- xyFromCell(mgrid, cell = qids[, 1], spatial = TRUE)
+# plot(idcoords)
+
+# then from the original one
+vals <- extract(mgrid, as_Spatial(st_geometry(ptbufs)), cellnumbers = TRUE)
+valsdf <- do.call(rbind, vals)
+# valsdf[valsdf[, 1] %in% valsdf[which(duplicated(valsdf[, 1])), 1], ]
+# length(unique(valsdf[, 1]))
+
+tst <- data.table(data.frame(xyFromCell(mgrid, cell = vals[[1]][, 1])))
+tst$ID <- 1:nrow(tst)
+tst$fwts <- 1
+tst$name <- paste0("SA", 1:nrow(tst))
+# tst <- st_as_sf(tst)
+diam <- res(mgrid)[1] / 2
+gpolssf <- point_to_sfgridpoly(tst, diam, proj4string(mgrid))
+
+# plot(st_geometry(ptbufs))
+plot(st_geometry(gpolssf), col = "grey")
+plot(st_geometry(read_sf(dir(p_kmls, full.names = TRUE)[1])), add = TRUE, 
+     border = "red", lwd = 2)
 
 
 ```
