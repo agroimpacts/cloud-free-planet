@@ -3,6 +3,7 @@ import random
 import string
 import cgi
 import psycopg2
+from urllib import quote_plus
 from xml.dom.minidom import parseString
 from flask import current_app, flash
 from flask import Blueprint, redirect, render_template
@@ -12,16 +13,16 @@ from flask_user.views import _get_safe_next_param, render, _send_registered_emai
 from flask_user import signals
 from webapp.models.user_models import MappingForm
 from MappingCommon import MappingCommon
-#from mapFix import mapFix
+from mapFix import mapFix
 
-qual_blueprint = Blueprint('qual_blueprint', __name__)
+map_blueprint = Blueprint('map_blueprint', __name__)
 
-# This is the employee qualification test page builder.
+# This is the employee agricultural fields mapping page builder.
 # The Employee submenu is accessible to authenticated users with the 'employee' role
-@qual_blueprint.route('/employee/qualification', methods=['GET', 'POST'])
+@map_blueprint.route('/employee/assignment', methods=['GET', 'POST'])
 @roles_accepted('employee')
 @login_required  # Limits access to authenticated users
-def qualification():
+def assignment():
     now = str(datetime.datetime.today())
     mapForm = MappingForm(request.form)
 
@@ -31,18 +32,15 @@ def qualification():
     apiUrl = mapc.getConfiguration('APIUrl')
     kmlFrameScript = mapc.getConfiguration('KMLFrameScript')
     hitAcceptThreshold = float(mapc.getConfiguration('HitI_AcceptThreshold'))
-    qualTestTfTextStart = mapc.getConfiguration('QualTest_TF_TextStart')
-    qualTestTfTextMiddle = mapc.getConfiguration('QualTest_TF_TextMiddle')
-    qualTestTfTextEnd = mapc.getConfiguration('QualTest_TF_TextEnd')
 
     kmlFrameUrl = "https://%s%s/%s" % (serverName, apiUrl, kmlFrameScript)
     mapForm.kmlFrameUrl.data = kmlFrameUrl
     # Set submit path to be this script.
-    submitTo = url_for('qual_blueprint.qualification')
+    submitTo = url_for('map_blueprint.assignment')
     mapForm.submitTo.data = submitTo
 
     k = open(logFilePath + "/OL.log", "a")
-    k.write("\nqualification: datetime = %s\n" % now)
+    k.write("\nassignment: datetime = %s\n" % now)
 
     # Use the logged-in user's id as the worker id.
     cu = current_user
@@ -53,7 +51,7 @@ def qualification():
     if request.method == 'POST':
         kmlName = mapForm.kmlName.data
         assignmentId = mapForm.assignmentId.data
-        tryNum = str(mapForm.tryNum.data)
+        comment = mapForm.comment.data
         kmlData = mapForm.kmlData.data
         kmlTypeDescr = mapc.getKmlTypeDescription(kmlName)
         score = None
@@ -61,68 +59,70 @@ def qualification():
 
         # If no kmlData, then no fields were mapped.
         if len(kmlData) == 0:
-            k.write("qualification: OL reported 'save' without mappings for %s kml = %s\n" % (kmlTypeDescr, kmlName))
-            k.write("qualification: Worker ID %s\nTraining assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
+            k.write("assignment: OL reported 'save' without polygons for %s kml = %s\n" % (kmlTypeDescr, kmlName))
+            k.write("assignment: Worker ID %s\nAssignment ID = %s\n" % (workerId, assignmentId))
         else:
-            k.write("qualification: OL saved mapping(s) for %s kml %s\n" % (kmlTypeDescr, kmlName))
-            k.write("qualification: Worker ID %s\nTraining assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
+            k.write("assignment: OL saved polygons for %s kml = %s\n" % (kmlTypeDescr, kmlName))
+            k.write("assignment: Worker ID %s\nAssignment ID = %s\n" % (workerId, assignmentId))
 
             # Loop over every Polygon, and store its name and data in PostGIS DB.
-            numGeom = 0
+            numPoly = 0
             numFail = 0
             errorString = ''
-            k.write("qualification: kmlData = %s\n" % kmlData)
+            k.write("assignment: kmlData = %s\n" % kmlData)
             kmlData = parseString(kmlData)
             for placemark in kmlData.getElementsByTagName('Placemark'):
-                numGeom += 1
-                # Get mapping name, type, and XML description.
+                numPoly += 1
+                # Get shape name, type, and XML description.
                 children = placemark.childNodes
-                geomName = children[0].firstChild.data
-                k.write("qualification: Shape name = %s\n" % geomName)
-                geomType = children[1].tagName
-                k.write("qualification: Shape type = %s\n" % geomType)
-                geometry = children[1].toxml()
-                k.write("qualification: Shape KML = %s\n" % geometry)
+                polyName = children[0].firstChild.data
+                k.write("assignment: Shape name = %s\n" % polyName)
+                polyType = children[1].tagName
+                k.write("assignment: Shape type = %s\n" % polyType)
+                polygon = children[1].toxml()
+                k.write("assignment: Shape KML = %s\n" % polygon)
 
                 # Attempt to convert from KML to ***REMOVED*** geom format.
                 try:
-                    # Report type and validity of this mapping.
-                    geomValue = mapc.querySingleValue("SELECT ST_IsValidDetail(ST_GeomFromKML('%s'))" % geometry)
+                    # Report type and validity of this shape.
+                    geomType = mapc.querySingleValue("SELECT GeometryType(ST_GeomFromKML('%s'))" % polygon)
+                    geomValue = mapc.querySingleValue("SELECT ST_IsValidDetail(ST_GeomFromKML('%s'))" % polygon)
                     # ST_IsValidDetail returns with format '(t/f,"reason",geometry)'
                     geomValid, geomReason, dummy = geomValue[1:-1].split(',')
+                    # Convert geomValid to boolean
                     geomValid = (geomValid == 't')
                     if geomValid:
-                        k.write("qualification: Shape is a valid %s\n" % geomType)
+                        k.write("assignment: Shape is a valid %s\n" % geomType)
                     else:
-                        k.write("qualification: Shape is an invalid %s due to '%s'\n" % (geomType, geomReason))
+                        k.write("assignment: Shape is an invalid %s due to '%s'\n" % (geomType, geomReason))
                     mapc.cur.execute("""INSERT INTO qual_user_maps (name, geom, completion_time, assignment_id, try)
                             SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, %s as assignment_id, %s as try""",
-                            (geomName, geometry, now, assignmentId, tryNum))
+                            (polyName, polygon, now, assignmentId, tryNum))
                     mapc.dbcon.commit()
                 except psycopg2.InternalError as e:
                     numFail += 1
                     mapc.dbcon.rollback()
-                    errorString += "\nKML mapping %s raised an internal datatase exception: %s\n%s%s\n" % (geomName, e.pgcode, e.pgerror, cgi.escape(geometry))
-                    k.write("qualification: Internal database error %s\n%s" % (e.pgcode, e.pgerror))
-                    k.write("qualification: Ignoring this mapping and continuing\n")
+                    errorString += "\nKML shape %s raised an internal datatase exception: %s\n%s%s\n" % (polyName, e.pgcode, e.pgerror, cgi.escape(polygon))
+                    k.write("assignment: Internal database error %s\n%s" % (e.pgcode, e.pgerror))
+                    k.write("assignment: Ignoring this polygon and continuing\n")
                 except psycopg2.Error as e:
                     numFail += 1
                     mapc.dbcon.rollback()
-                    errorString += "\nKML mapping %s raised a general datatase exception: %s\n%s%s\n" % (geomName, e.pgcode, e.pgerror, cgi.escape(geometry))
-                    k.write("qualification: General database error %s\n%s" % (e.pgcode, e.pgerror))
-                    k.write("qualification: Ignoring this mapping and continuing\n")
+                    errorString += "\nKML shape %s raised a general datatase exception: %s\n%s%s\n" % (polyName, e.pgcode, e.pgerror, cgi.escape(polygon))
+                    k.write("assignment: General database error %s\n%s" % (e.pgcode, e.pgerror))
+                    k.write("assignment: Ignoring this polygon and continuing\n")
 
-            # If we have at least one invalid mapping.
+            # If we have at least one invalid shape.
             if numFail > 0:
-                k.write("NOTE: %s mapping(s) out of %s were invalid\n" % (numFail, numGeom))
+                k.write("NOTE: %s shape(s) out of %s were invalid\n" % (numFail, numPoly))
                 mapc.createAlertIssue("Database geometry problem",
-                        "Worker ID = %s\nAssignment ID = %s; try %s\nNOTE: %s mapping(s) out of %s were invalid\n%s" % 
-                        (workerId, assignmentId, tryNum, numFail, numGeom, errorString))
+                        "Worker ID = %s\nAssignment ID = %s; try %s\nNOTE: %s shape(s) out of %s were invalid\n%s" % 
+                        (workerId, assignmentId, tryNum, numFail, numPoly, errorString))
 
-            # If we have at least one valid mapping.
-            if numGeom > numFail:
+            # If we have at least one valid polygon.
+            if numPoly > numFail:
                 try:
-                    #mapFix(mapc, "tr", kmlName, assignmentId, "no", tryNum)
+                    mapFix(mapc, "tr", kmlName, assignmentId, "no", tryNum)
                     mapc.dbcon.commit()
                 except Exception as e:
                     assignmentStatus = MappingCommon.HITUnscored
@@ -130,8 +130,8 @@ def qualification():
                     if score is None:
                         score = 1.          # Give new worker the max score
                     mapForm.resultsAccepted.data = 1
-                    k.write("qualification: mapfix raised an exception: %s\n" % e.message)
-                    mapc.createAlertIssue("mapFix problem", "Mapfix raised an exception: %s\n" % e.message)
+                    k.write("assignment: mapfix raised an exception: %s\n" % e.message)
+                    #mapc.createAlertIssue("mapFix problem", "Mapfix raised an exception: %s\n" % e.message)
 
             else:
                 assignmentStatus = MappingCommon.HITUnsaved
@@ -148,14 +148,14 @@ def qualification():
                 if score is None:
                     score = 1.          # Give new worker the max score
                 mapForm.resultsAccepted.data = 1
-                k.write("qualification: Invalid value returned from R scoring script for:\nKML %s, worker ID %s, assignment ID %s, try %s; assigning a score of %.2f\nReturned value:\n%s\n" % 
+                k.write("assignment: Invalid value returned from R scoring script for:\nKML %s, worker ID %s, assignment ID %s, try %s; assigning a score of %.2f\nReturned value:\n%s\n" % 
                         (kmlName, workerId, assignmentId, tryNum, score, scoreString)) 
-                #mapc.createAlertIssue("KMLAccuracyCheck problem", 
-                #        "Invalid value returned from R scoring script for:\nKML %s, worker ID %s, assignment ID %s, try %s; assigning a score of %.2f\nReturned value:\n%s\n" %
-                #        (kmlName, workerId, assignmentId, tryNum, score, scoreString))
+                mapc.createAlertIssue("KMLAccuracyCheck problem", 
+                        "Invalid value returned from R scoring script for:\nKML %s, worker ID %s, assignment ID %s, try %s; assigning a score of %.2f\nReturned value:\n%s\n" %
+                        (kmlName, workerId, assignmentId, tryNum, score, scoreString))
         # See if score exceeds the Accept threshold
         hitAcceptThreshold = float(mapc.getConfiguration('HitI_AcceptThreshold'))
-        k.write("qualification: training assignment has been scored as: %.2f/%.2f\n" %
+        k.write("assignment: training assignment has been scored as: %.2f/%.2f\n" %
                 (score, hitAcceptThreshold))
 
         if assignmentStatus is None:
@@ -167,7 +167,7 @@ def qualification():
                 mapForm.resultsAccepted.data = 1   # Indicate approved results.
 
         # Record the assignment submission time and score.
-        mapc.cur.execute("""update qual_assignment_data set completion_time = '%s', status = '%s', 
+        mapc.cur.execute("""update assignment_data set completion_time = '%s', status = '%s', 
             score = '%s' where assignment_id = '%s'""" %
             (now, assignmentStatus, score, assignmentId))
         mapc.dbcon.commit()
@@ -186,7 +186,7 @@ def qualification():
         mapc.cur.execute("""INSERT INTO worker_data (worker_id, first_time, last_time) 
                 VALUES ('%s', '%s', '%s')""" % (workerId, now, now))
         # Initialize number of training maps successfully completed.
-        k.write("qualification: New training candidate %s (%s %s - %s) created.\n" % 
+        k.write("assignment: New training candidate %s (%s %s - %s) created.\n" % 
                 (workerId, cu.first_name, cu.last_name, cu.email))
         doneCount = 0
 
@@ -200,7 +200,7 @@ def qualification():
         newWorker = False
         mapc.cur.execute("""UPDATE worker_data SET last_time = '%s'
                 WHERE worker_id = '%s'""" % (now, workerId))
-        k.write("qualification: Training candidate %s (%s %s - %s) has returned.\n" % 
+        k.write("assignment: Training candidate %s (%s %s - %s) has returned.\n" % 
                 (workerId, cu.first_name, cu.last_name, cu.email))
 
         # Calculate number of training maps worker has successfully completed.
@@ -250,13 +250,13 @@ def qualification():
             assignmentId = mapc.cur.fetchone()[0]
         # Or user has simply returned (via the menu or refresh) to continue to the test. 
         else:
-            assignmentId = mapc.querySingleValue("""SELECT assignment_id FROM qual_assignment_data 
+            assignmentId = mapc.querySingleValue("""SELECT assignment_id FROM assignment_data 
                 WHERE worker_id = '%s' and name = '%s'""" %
                 (workerId, kmlName))
 
         mapForm.tryNum.data = tries
         mapForm.assignmentId.data = assignmentId
-        k.write("qualification: Candidate starting try %d on %s kml #%s: %s\n" % (tries, kmlType, doneCount + 1, kmlName))
+        k.write("assignment: Candidate starting try %d on %s kml #%s: %s\n" % (tries, kmlType, doneCount + 1, kmlName))
 
     # Worker is done with training.
     else:
@@ -281,4 +281,4 @@ def qualification():
     # Pass GET/POST method last used for use by JS running the website menu.
     mapForm.reqMethod.data = request.method
 
-    return render_template('pages/qualification_page.html', form=mapForm)
+    return render_template('pages/assignment_page.html', form=mapForm)
