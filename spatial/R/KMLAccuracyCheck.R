@@ -4,7 +4,7 @@
 # Author: Lyndon Estes
 
 # Static arguments
-diam <- 0.005/2 ## new master grid diameter
+diam <- 0.005 / 2 ## new master grid diameter
 prjsrid <- 102022
 count.err.wt <- 0.1  
 in.err.wt <- 0.7  
@@ -97,7 +97,8 @@ if(test.root == "N") {
   }
   
   KMLAccuracy(mtype = mtype, kmlid = kmlid, assignmentid = assignmentid,
-              diam = diam, tryid = tryid, prjsrid = prjsrid, count.err.wt = count.err.wt, 
+              diam = diam, tryid = tryid, prjsrid = prjsrid, 
+              count.err.wt = count.err.wt, 
               in.err.wt = in.err.wt, out.err.wt = out.err.wt, 
               err.switch = err.switch, comments = comments, 
               write.err.db = write.err.db, draw.maps = draw.maps, test = test,  
