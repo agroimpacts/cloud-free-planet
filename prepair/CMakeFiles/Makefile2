@@ -50,10 +50,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/sandbox/afmap/prepair
+CMAKE_SOURCE_DIR = /home/lestes/mapperAL/prepair
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/sandbox/afmap/prepair
+CMAKE_BINARY_DIR = /home/lestes/mapperAL/prepair
 
 #=============================================================================
 # Target rules for target CMakeFiles/prepair.dir
@@ -62,7 +62,7 @@ CMAKE_BINARY_DIR = /home/sandbox/afmap/prepair
 CMakeFiles/prepair.dir/all:
 	$(MAKE) -f CMakeFiles/prepair.dir/build.make CMakeFiles/prepair.dir/depend
 	$(MAKE) -f CMakeFiles/prepair.dir/build.make CMakeFiles/prepair.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/sandbox/afmap/prepair/CMakeFiles  1 2 3
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/lestes/mapperAL/prepair/CMakeFiles  1 2 3
 	@echo "Built target prepair"
 .PHONY : CMakeFiles/prepair.dir/all
 
@@ -72,9 +72,9 @@ all: CMakeFiles/prepair.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/prepair.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/sandbox/afmap/prepair/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lestes/mapperAL/prepair/CMakeFiles 3
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/prepair.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/sandbox/afmap/prepair/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lestes/mapperAL/prepair/CMakeFiles 0
 .PHONY : CMakeFiles/prepair.dir/rule
 
 # Convenience name for target.

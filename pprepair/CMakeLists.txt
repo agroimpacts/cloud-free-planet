@@ -63,6 +63,10 @@ endif()
 
 include_directories( ${GDAL_INCLUDE_DIR} )
 
+# Hardening buildflags
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{CXXFLAGS}")
+set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} $ENV{LDFLAGS}")
+
 # Creating entries for target: pprepair
 # ############################
 
@@ -73,3 +77,6 @@ add_to_cached_list( CGAL_EXECUTABLE_TARGETS pprepair )
 # Link the executable to CGAL and third-party libraries
 target_link_libraries(pprepair   ${CGAL_LIBRARIES} ${CGAL_3RD_PARTY_LIBRARIES} ${GDAL_LIBRARY})
 
+# Driver for output
+#add_definitions(-DDRIVER="GeoJSON")
+add_definitions(-DDRIVER="ESRI Shapefile")
