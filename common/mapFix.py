@@ -36,7 +36,7 @@ def mapFix(mapc, mtype, kmlid, assignmentid, testing, tryid=None):
 
     poly_table = mapc.cur.fetchall()
     if len(poly_table) == 0:
-        raise Exception ("Invalid kmlid, assignmentid/trainingid, or tryid passed to Mapfix")
+        raise Exception ("Invalid kmlid, assignmentid, or tryid passed to Mapfix")
 
     mp.polyPrepair(mapc, fixshpnm1, poly_table)  # first clean of individual polygons (prepair)
     mp.polyPPrepair(mapc, fixshpnm1, fixshpnm2)  # first run of pprepair
@@ -51,7 +51,7 @@ def mapFix(mapc, mtype, kmlid, assignmentid, testing, tryid=None):
         for name in poly_fixf:
             if mtype == "tr":
                 update_str = """UPDATE qual_user_maps SET geom_clean = ST_GeomFromEWKT('SRID=4326;%s')
-                    WHERE name = '%s' AND training_id='%s' AND try='%s'""" % (poly_fixf[name][0], name, assignmentid, tryid)
+                    WHERE name = '%s' AND assignment_id='%s' AND try='%s'""" % (poly_fixf[name][0], name, assignmentid, tryid)
             elif mtype == "ma":
                 update_str = """UPDATE user_maps SET geom_clean = ST_GeomFromEWKT('SRID=4326;%s') 
                     WHERE name = '%s' AND assignment_id='%s'""" % (poly_fixf[name][0], name, assignmentid)
