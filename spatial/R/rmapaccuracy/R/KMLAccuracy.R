@@ -32,10 +32,13 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
   dinfo <- getDBName()  # pull working environment
 
   # Paths and connections
-  drv <- dbDriver("PostgreSQL")
-  con <- dbConnect(drv, dbname = dinfo["db.name"], user = user, 
-                   password = password)
+  # drv <- dbDriver("PostgreSQL")
+  # con <- dbConnect(drv, dbname = dinfo["db.name"], user = user, 
+  #                  password = password)
   
+  con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), dbname = dinfo["db.name"],   
+                        user = user, password = password)
+
   prj.sql <- paste0("select proj4text from spatial_ref_sys where srid=", 
                     prjsrid)
   prjstr <- dbGetQuery(con, prj.sql)$proj4text 
@@ -49,7 +52,7 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
                      " from qaqcfields where name=", "'", kmlid, "'")
   # qaqc.sql <- paste0("select gid, geom_clean, geom",
   #                   " from qaqcfields_SY where name=", "'", kmlid, "'") # test code
-  qaqc.polys <-st_read_db (con, query = qaqc.sql, geom_column = 'geom_clean')
+  qaqc.polys <- st_read_db(con, query = qaqc.sql, geom_column = 'geom_clean')
   qaqc.hasfields <- ifelse(nrow(qaqc.polys) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
     qaqc.nfields <- nrow(qaqc.polys)

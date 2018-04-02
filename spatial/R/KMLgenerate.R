@@ -141,7 +141,7 @@ repeat {
                      format(end_time, "%a %b %d %X %Y %Z"))
   if(avail_kml_count < min_avail_kml) {
     write(log_timestamp[1], file = logfname, append = TRUE)
-    write(gpols$name, file = logfname, append = TRUE, ncolumns = 8)
+    write(kml_new$name, file = logfname, append = TRUE, ncolumns = 8)
     write(log_timestamp[2], file = logfname, append = TRUE)
     write("", file = logfname, append = TRUE)
   } 

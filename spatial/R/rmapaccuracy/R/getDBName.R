@@ -11,7 +11,6 @@ db.production.name = 'Africa') {
   info <- Sys.info()
   euser <- unname(info["effective_user"])
   if(euser == "sandbox") {
-  #if(euser == "sye") {
     sandbox <- TRUE
     uname <- "sandbox"
   } else if(euser == "mapper") {
