@@ -13,7 +13,7 @@ err.switch <- 1  ### 5/2/2016 Changed to 1
 comments <- "F"
 write.err.db <- "T"  
 draw.maps  <- "T"  
-test <- "Y"  
+test <- "N"  
 test.root <- "N"  
 user <- "***REMOVED***"
 password <- "***REMOVED***"
@@ -24,10 +24,10 @@ password <- "***REMOVED***"
 #assignmentid <-"3FIUS151DV2LBKU3KGJOYU5Z95TGGF" # test code
 #tryid <-'1' # test code
 
-#mtype <- "tr" # test code
-#kmlid <- "SA3470" # test code
-#assignmentid <-"61" # test code
-#tryid <-'2' # test code
+mtype <- "tr" # test code
+kmlid <- "ZA0649200" # test code
+assignmentid <-"98" # test code
+tryid <-'1' # test code
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 # suppressMessages(library(sp)) # have to load this to get connection
