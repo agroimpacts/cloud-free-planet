@@ -7,9 +7,11 @@
 # targs = ["SA3470", "69", "2", "tr"]
 # targs = ["SA188774", "20", "1", "tr"]
 # targs = ["SA90531", "9", "1", "tr"]
-targs = ["U_SA3470", "69", "1", "tr"]
+# targs = ["U_SA3470", "69", "1", "tr"]
+# targs = ["ZA0649200", "89", "1", "tr"]
+targs = ["ZA0324023", "88", "1", "tr"]
 
-dTable = "badmaps"  # badmaps|normal
+dTable = "normal"  # badmaps|normal
 testing = "yes"
 testpath = '/home/lestes/mapperAL/common'
 run = "partial" # full|partial
