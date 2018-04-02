@@ -5,11 +5,13 @@
 #' @note The function arguments currently default to SouthAfrica*, so expect 
 #' these to change with project upgrades
 #' @export
-getDBName <- function(db.sandbox.name = 'AfricaSandbox', 
-                      db.production.name = 'Africa') {
+
+getDBName <- function(db.sandbox.name = 'AfricaSandbox',
+db.production.name = 'Africa') {
   info <- Sys.info()
   euser <- unname(info["effective_user"])
   if(euser == "sandbox") {
+  #if(euser == "sye") {
     sandbox <- TRUE
     uname <- "sandbox"
   } else if(euser == "mapper") {
@@ -18,9 +20,9 @@ getDBName <- function(db.sandbox.name = 'AfricaSandbox',
   } else {
     stop("Any R script must run under sandbox or mapper user")
   }
-  
+
   project.root <- paste("/home/", uname, "/afmap", sep = "")  # Project root path
-  
+
   if(sandbox == TRUE) {
     db.name <- db.sandbox.name
   } else {
@@ -28,3 +30,30 @@ getDBName <- function(db.sandbox.name = 'AfricaSandbox',
   }
   return(c("db.name" = db.name, "project.root" = project.root))
 }
+
+## testing code ## connect testing tables 
+# getDBName <- function(db.sandbox.name = 'africa_master_grid_gcs_500',
+#                       db.production.name = 'Africa') {
+#   info <- Sys.info()
+#   euser <- unname(info["effective_user"])
+#   if(euser == "sye") {
+#     #change euser into to programmer name for testing SY
+#     sandbox <- TRUE
+#     uname <- "sandbox"
+#   } else if(euser == "mapper") {
+#     sandbox <- FALSE
+#     uname <- "mapper"
+#   } else {
+#     stop("Any R script must run under sandbox or mapper user")
+#   }
+# 
+#   project.root <- paste("/home/", uname, "/afmap", sep = "")  # Project root path
+# 
+#   if(sandbox == TRUE) {
+#     db.name <- db.sandbox.name
+#   } else {
+#     db.name <- db.production.name
+#   }
+#   return(c("db.name" = db.name, "project.root" = project.root))
+# }
+
