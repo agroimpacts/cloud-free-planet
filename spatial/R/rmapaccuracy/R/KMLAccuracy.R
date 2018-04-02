@@ -32,9 +32,13 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
   dinfo <- getDBName()  # pull working environment
 
   # Paths and connections
-  drv <- dbDriver("PostgreSQL")
-  con <- dbConnect(drv, dbname = dinfo["db.name"], user = user, password = password)
+  # drv <- dbDriver("PostgreSQL")
+  # con <- dbConnect(drv, dbname = dinfo["db.name"], user = user, 
+  #                  password = password)
   
+  con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), dbname = dinfo["db.name"],   
+                        user = user, password = password)
+
   prj.sql <- paste0("select proj4text from spatial_ref_sys where srid=", 
                     prjsrid)
   prjstr <- dbGetQuery(con, prj.sql)$proj4text 
@@ -48,7 +52,7 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
                      " from qaqcfields where name=", "'", kmlid, "'")
   # qaqc.sql <- paste0("select gid, geom_clean, geom",
   #                   " from qaqcfields_SY where name=", "'", kmlid, "'") # test code
-  qaqc.polys <-st_read_db (con, query = qaqc.sql, geom_column = 'geom_clean')
+  qaqc.polys <- st_read_db(con, query = qaqc.sql, geom_column = 'geom_clean')
   qaqc.hasfields <- ifelse(nrow(qaqc.polys) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
     qaqc.nfields <- nrow(qaqc.polys)
@@ -75,16 +79,20 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
   user.polys <-st_read_db (con, query = user.sql, geom_column = 'geom_clean') # geom_column is always the last column in sf
   user.hasfields <- ifelse(nrow(user.polys) > 0, "Y", "N") 
   if(user.hasfields == "Y") {  # Read in user fields if there are any
-    if(any(st_is_empty(user.polys))) {  # invoke cleaning algorithm 
-        user.polysclean <- cleanTempPolyFromWKT(unfixedsfc=st_as_sfc(lapply(as.vector(user.polys$geom), function(vec) structure(vec, class="wkb")),EWKB = TRUE), 
+    if(any(st_is_empty(user.polys))) {  # invoke cleaning algorithm
+      unfixedsfc <- st_as_sfc(lapply(as.vector(user.polys$geom), function(vec) {
+        structure(vec, class = "wkb")
+      }), EWKB = TRUE)
+      user.polysclean <- cleanTempPolyFromWKT(unfixedsfc = unfixedsfc, 
                                               crs = gcs)
-        user.nfields <- nrow(user.polysclean)  #  Record n distinct fields 
-        user.poly <- st_union(st_transform(user.polysclean,crs=prjstr)) # transform user polygons into pcs for calculation
-      } else if(all(!st_is_empty(user.polys))) { 
-        user.nfields <- nrow(user.polys)
-        user.poly <- st_union(st_transform(user.polys,crs=prjstr))
-      }
-    } 
+      user.nfields <- nrow(user.polysclean)  #  Record n distinct fields
+      # transform user polygons into pcs for calculation
+      user.poly <- st_union(st_transform(user.polysclean,crs = prjstr)) 
+    } else if(all(!st_is_empty(user.polys))) { 
+      user.nfields <- nrow(user.polys)
+      user.poly <- st_union(st_transform(user.polys,crs=prjstr))
+    }
+  } 
   
   # Error checks begin
   # Case 1: A null qaqc site recorded as null by the observer; score set to 1
@@ -102,8 +110,10 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
     # con_sand <- dbConnect(drv_sand, dbname = "AfricaSandbox", user = "***REMOVED***", password = '***REMOVED***') # test code
     # xy_tabs <- data.table(con_sand %>% tbl("master_grid") %>% filter(name==kmlid)%>% collect()) # test code
     
-    xy_tabs <- data.table(con %>% tbl("master_grid") %>% filter(name==kmlid) %>% collect())
-    grid.poly <- point_to_gridpoly(xy = xy_tabs, w = diam, NewCRSobj = prjstr, OldCRSobj = gcsstr)
+    xy_tabs <- data.table(con %>% tbl("master_grid") %>% filter(name==kmlid) %>%
+                            collect())
+    grid.poly <- point_to_gridpoly(xy = xy_tabs, w = diam, NewCRSobj = prjstr, 
+                                   OldCRSobj = gcsstr)
   }
   
   # Case 2: A null qaqc site but user mapped field(s)
@@ -250,7 +260,9 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
         plotpos <- c(0.15, 0.4, 0.65, 0.90)
         cols <- c("green4", "red4", "blue4", "grey30")
         for(i in 1:4) {
-          if(objchk[i] == "TRUE") plot(st_geometry(inres[[i + 1]]), add = T, col = cols[i])
+          if(objchk[i] == "TRUE") {
+            plot(st_geometry(inres[[i + 1]]), add = T, col = cols[i])
+          }
           mtext(round(err.out[i], 3), side = 3, line = -1, adj = plotpos[i], 
                 cex = cx)
           mtext(mpi[i], side = 3, line = 0.5, adj = plotpos[i], cex = cx)

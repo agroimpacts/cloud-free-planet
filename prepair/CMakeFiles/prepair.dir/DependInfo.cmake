@@ -4,9 +4,9 @@ SET(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_CXX
-  "/home/sandbox/afmap/prepair/PolygonRepair.cpp" "/home/sandbox/afmap/prepair/CMakeFiles/prepair.dir/PolygonRepair.cpp.o"
-  "/home/sandbox/afmap/prepair/TriangleInfo.cpp" "/home/sandbox/afmap/prepair/CMakeFiles/prepair.dir/TriangleInfo.cpp.o"
-  "/home/sandbox/afmap/prepair/prepair.cpp" "/home/sandbox/afmap/prepair/CMakeFiles/prepair.dir/prepair.cpp.o"
+  "/home/lestes/mapperAL/prepair/PolygonRepair.cpp" "/home/lestes/mapperAL/prepair/CMakeFiles/prepair.dir/PolygonRepair.cpp.o"
+  "/home/lestes/mapperAL/prepair/TriangleInfo.cpp" "/home/lestes/mapperAL/prepair/CMakeFiles/prepair.dir/TriangleInfo.cpp.o"
+  "/home/lestes/mapperAL/prepair/prepair.cpp" "/home/lestes/mapperAL/prepair/CMakeFiles/prepair.dir/prepair.cpp.o"
   )
 SET(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -23,7 +23,7 @@ SET(CMAKE_TARGET_LINKED_INFO_FILES
 # The include file search paths:
 SET(CMAKE_C_TARGET_INCLUDE_PATH
   "."
-  "/usr/include/gdal"
+  "/usr/local/include"
   )
 SET(CMAKE_CXX_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
 SET(CMAKE_Fortran_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})

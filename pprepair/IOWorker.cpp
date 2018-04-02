@@ -27,46 +27,55 @@ IOWorker::IOWorker() {
 
 bool IOWorker::addToTriangulation(Triangulation &triangulation, TaggingVector &edgesToTag, const char *file, unsigned int schemaIndex) {
   // Open file
+#if GDAL_VERSION_MAJOR < 2
 	OGRDataSource *dataSource = OGRSFDriverRegistrar::Open(file, false);
+#else
+	GDALDataset *dataSource = (GDALDataset*) GDALOpenEx(file, GDAL_OF_READONLY, NULL, NULL, NULL);
+#endif
 	if (dataSource == NULL) {
 		std::cerr << "Error: Could not open file." << std::endl;
 		return false;
 	}
   
-  char *name = new char[strlen(dataSource->GetName())+1];
-	strcpy(name, dataSource->GetName());
+  char *name = new char[strlen(file)+1];
+	strcpy(name, file);
 	fileNames.push_back(name);
 	std::cout << "\tPath: " << name << std::endl;
+#if GDAL_VERSION_MAJOR < 2
 	std::cout << "\tType: " << dataSource->GetDriver()->GetName() << std::endl;
+#else
+	std::cout << "\tType: " << dataSource->GetDriverName() << std::endl;
+#endif
 	int numberOfLayers = dataSource->GetLayerCount();
 	std::cout << "\tLayers: " << numberOfLayers << std::endl;
   
-    // Read layer by layer
-    for (int currentLayer = 0; currentLayer < numberOfLayers; currentLayer++) {
-        OGRLayer *dataLayer = dataSource->GetLayer(currentLayer);
-        dataLayer->ResetReading();
-      OGRSpatialReference* tmp = dataLayer->GetSpatialRef();
-      if ( (tmp != NULL) && (spatialReference != NULL) )
-        spatialReference = tmp->CloneGeogCS();
+  // Read layer by layer
+  for (int currentLayer = 0; currentLayer < numberOfLayers; currentLayer++) {
+    OGRLayer *dataLayer = dataSource->GetLayer(currentLayer);
+    dataLayer->ResetReading();
+    OGRSpatialReference* tmp = dataLayer->GetSpatialRef();
+    if ( (tmp != NULL) && (spatialReference != NULL) ) {
+      spatialReference = tmp->Clone();
+    }
 		
 		unsigned int numberOfPolygons = dataLayer->GetFeatureCount(true);
 		std::cout << "\tReading layer #" << currentLayer+1 << " (" << numberOfPolygons << " polygons)...";
 		polygons.reserve(polygons.size()+numberOfPolygons);
-        
-        // Check fields and the schema type
-        OGRFeatureDefn *layerDefinition = dataLayer->GetLayerDefn();
-        insertToStream(std::cout, layerDefinition, 1, schemaIndex);
-        
-        // If it's the first input file, assign the schema type of it
-        if (triangulation.number_of_faces() == 0) {
-            schemaFieldType = layerDefinition->GetFieldDefn(schemaIndex)->GetType();
-        } // Otherwise, check if it matches the previous one
-        else {
-            if (layerDefinition->GetFieldDefn(schemaIndex)->GetType() != schemaFieldType) {
-                std::cerr << "\tError: The schema field type in this layer is incompatible with the previous one. Skipped." << std::endl;
-                continue;
-            }
-        }
+    
+    // Check fields and the schema type
+    OGRFeatureDefn *layerDefinition = dataLayer->GetLayerDefn();
+    insertToStream(std::cout, layerDefinition, 1, schemaIndex);
+    
+    // If it's the first input file, assign the schema type of it
+    if (triangulation.number_of_faces() == 0) {
+      schemaFieldType = layerDefinition->GetFieldDefn(schemaIndex)->GetType();
+    } // Otherwise, check if it matches the previous one
+    else {
+      if (layerDefinition->GetFieldDefn(schemaIndex)->GetType() != schemaFieldType) {
+        std::cerr << "\tError: The schema field type in this layer is incompatible with the previous one. Skipped." << std::endl;
+        continue;
+      }
+    }
     
     // Save the field names and types
 		for (int currentField = 0; currentField < layerDefinition->GetFieldCount(); currentField++) {
@@ -89,6 +98,7 @@ bool IOWorker::addToTriangulation(Triangulation &triangulation, TaggingVector &e
     // Reads all features in this layer
 		OGRFeature *feature;
 		while ((feature = dataLayer->GetNextFeature()) != NULL) {
+      if (!feature->GetGeometryRef()) continue;
 			
 			// STEP 1: Get polygons from input
 			std::vector<std::list<Point> > outerRingsList;
@@ -316,7 +326,11 @@ bool IOWorker::addToTriangulation(Triangulation &triangulation, TaggingVector &e
   }
   
   // Free OGR data source
+#if GDAL_VERSION_MAJOR < 2
 	OGRDataSource::DestroyDataSource(dataSource);
+#else
+	GDALClose(dataSource);
+#endif
   
   return true;
 }
@@ -1247,29 +1261,49 @@ bool IOWorker::reconstructPolygons(Triangulation &triangulation, std::vector<std
 bool IOWorker::exportPolygons(std::vector<std::pair<PolygonHandle *, Polygon> > &outputPolygons, const char *file, bool withProvenance) {
 	
 	// Prepare file
-	const char *driverName = "ESRI Shapefile";
+	const char *driverName = DRIVER;
+#if GDAL_VERSION_MAJOR < 2
 	OGRSFDriver *driver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName(driverName);
+#else
+	GDALDriver *driver = GetGDALDriverManager()->GetDriverByName(driverName);
+#endif
 	if (driver == NULL) {
-		std::cout << "\tError: OGR Shapefile driver not found." << std::endl;
+		std::cout << "\tError: OGR " << DRIVER << " driver not found." << std::endl;
 		return false;
 	}
 	
+#if GDAL_VERSION_MAJOR < 2
 	OGRDataSource *dataSource = driver->Open(file, false);
+#else
+	GDALDataset *dataSource = (GDALDataset*) GDALOpenEx(file, GDAL_OF_READONLY, NULL, NULL, NULL);
+#endif
 	if (dataSource != NULL) {
 		std::cout << "\tOverwriting file..." << std::endl;
+#if GDAL_VERSION_MAJOR < 2
 		if (driver->DeleteDataSource(dataSource->GetName())!= OGRERR_NONE) {
+#else
+		if (driver->Delete(file)!= CE_None) {
+#endif
 			std::cout << "\tError: Couldn't erase file with same name." << std::endl;
 			return false;
+#if GDAL_VERSION_MAJOR < 2
 		} OGRDataSource::DestroyDataSource(dataSource);
+#else
+		} GDALClose(dataSource);
+#endif
 	}
 	
 	std::cout << "\tWriting file... " << std::endl;
+#if GDAL_VERSION_MAJOR < 2
 	dataSource = driver->CreateDataSource(file, NULL);
+#else
+	dataSource = driver->Create(file,0,0,0,GDT_Unknown,NULL);
+#endif
 	if (dataSource == NULL) {
 		std::cout << "\tError: Could not create file." << std::endl;
 		return false;
 	}
-
+  
 	OGRLayer *layer = dataSource->CreateLayer("polygons", spatialReference, wkbPolygon, NULL);
 	if (layer == NULL) {
 		std::cout << "\tError: Could not create layer." << std::endl;
@@ -1356,7 +1390,11 @@ bool IOWorker::exportPolygons(std::vector<std::pair<PolygonHandle *, Polygon> > 
 	}
 	
 	// Free OGR data source
+#if GDAL_VERSION_MAJOR < 2
 	OGRDataSource::DestroyDataSource(dataSource);
+#else
+	GDALClose(dataSource);
+#endif
 	
 	return true;
 }
@@ -1364,24 +1402,44 @@ bool IOWorker::exportPolygons(std::vector<std::pair<PolygonHandle *, Polygon> > 
 bool IOWorker::exportTriangulation(Triangulation &t, const char *file, bool withNumberOfTags, bool withFields, bool withProvenance) {
 	
 	// Prepare file
-	const char *driverName = "ESRI Shapefile";
+	const char *driverName = DRIVER;
+#if GDAL_VERSION_MAJOR < 2
 	OGRSFDriver *driver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName(driverName);
+#else
+	GDALDriver *driver = GetGDALDriverManager()->GetDriverByName(driverName);
+#endif
 	if (driver == NULL) {
 		std::cout << "Driver not found." << std::endl;
 		return false;
 	}
-	
+
+#if GDAL_VERSION_MAJOR < 2
 	OGRDataSource *dataSource = driver->Open(file, false);
+#else
+	GDALDataset *dataSource = (GDALDataset*) GDALOpenEx(file, GDAL_OF_READONLY, NULL, NULL, NULL);
+#endif
 	if (dataSource != NULL) {
 		std::cout << "Erasing current file..." << std::endl;
+#if GDAL_VERSION_MAJOR < 2
 		if (driver->DeleteDataSource(dataSource->GetName())!= OGRERR_NONE) {
+#else
+		if (driver->Delete(file)!= CE_None) {
+#endif
 			std::cout << "Couldn't erase current file." << std::endl;
 			return false;
+#if GDAL_VERSION_MAJOR < 2
 		} OGRDataSource::DestroyDataSource(dataSource);
+#else
+		} GDALClose(dataSource);
+#endif
 	}
 	
 	std::cout << "Writing file... " << std::endl;
+#if GDAL_VERSION_MAJOR < 2
 	dataSource = driver->CreateDataSource(file, NULL);
+#else
+	dataSource = driver->Create(file,0,0,0,GDT_Unknown,NULL);
+#endif
 	if (dataSource == NULL) {
 		std::cout << "Could not create file." << std::endl;
 		return false;
@@ -1496,7 +1554,11 @@ bool IOWorker::exportTriangulation(Triangulation &t, const char *file, bool with
 	}
 	
 	// Free OGR data source
+#if GDAL_VERSION_MAJOR < 2
 	OGRDataSource::DestroyDataSource(dataSource);
+#else
+	GDALClose(dataSource);
+#endif
 	
 	return true;
 }
@@ -1879,7 +1941,7 @@ void IOWorker::tagStack(std::stack<Triangulation::Face_handle> &stack, PolygonHa
 	while (!stack.empty()) {
 		Triangulation::Face_handle currentFace = stack.top();
 		stack.pop();
-		currentFace->info().addTag(handle);
+//		currentFace->info().addTag(handle);
 		if (!currentFace->neighbor(0)->info().hasTag(handle) && !currentFace->is_constrained(0)) {
 			currentFace->neighbor(0)->info().addTag(handle);
 			stack.push(currentFace->neighbor(0));
