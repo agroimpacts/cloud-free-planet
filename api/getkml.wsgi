@@ -11,25 +11,18 @@ def application(environ, start_response):
 
     mapc = MappingCommon()
     logFilePath = mapc.projectRoot + "/log"
-    mturkFrameHeight = int(mapc.getConfiguration('MTurkFrameHeight'))
+    kmlMapHeight = int(mapc.getConfiguration('KMLMapHeight'))
     kmlUrl = mapc.getConfiguration('KMLUrl')
     apiUrl = mapc.getConfiguration('APIUrl')
     mapUrl = mapc.getConfiguration('MapUrl')
-    mturkPostPolygonScript = mapc.getConfiguration('MTurkPostPolygonScript')
-    mturkNoPolygonScript = mapc.getConfiguration('MTurkNoPolygonScript')
     instructions = mapc.getConfiguration('KMLInstructions')
-
-    polygonUrl = apiUrl + '/' + mturkPostPolygonScript
-    noPolygonUrl = apiUrl + '/' + mturkNoPolygonScript
-    headerHeight = 80
-    mapHeight = mturkFrameHeight - headerHeight
 
     k = open(logFilePath + "/OL.log", "a")
     k.write("\ngetkml: datetime = %s\n" % now)
 
     kmlName = req.params['kmlName']
     if len(kmlName) > 0:
-        kmlTypeDescr = mapc.getKmlTypeDescription(kmlName)
+        (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
         mapHint = mapc.querySingleValue("select hint from kml_data where name = '%s'" % kmlName)
 
         # Training and field mapping cases.
@@ -44,17 +37,17 @@ def application(environ, start_response):
             # Training case.
             # This has a tryNum.
             try:
-                tryNum = int(req.params['tryNum'])
+                tryNum = req.params['tryNum']
+                hitId = ''
                 commentsDisabled = 'disabled'
                 target = '_parent'
                 mapHint = '<div class="hints">Hint: %s</div>' % mapHint
-
-                headerHeight = headerHeight + 20
-                mapHeight = mturkFrameHeight - headerHeight
+                kmlMapHeight -= 30        # Reduce map height to leave room for hints.
 
             # Field mapping case.
             except:
-                tryNum = 0
+                tryNum = ''
+                hitId = req.params['hitId']
                 commentsDisabled = ''
                 target = '_self'
                 mapHint = ''
@@ -63,7 +56,8 @@ def application(environ, start_response):
         # These have no assignmentId.
         except:
             assignmentId = ''
-            tryNum = 0
+            tryNum = ''
+            hitId = ''
             resultsAccepted = ''
             submitTo = ''
             csrfToken = ''
@@ -84,8 +78,9 @@ def application(environ, start_response):
         # If mapping or training case,
         if len(assignmentId) > 0:
             # Mapping case.
-            if tryNum == 0:
+            if len(hitId) > 0:
                 k.write("getkml: Mapping request fetched %s kml = %s\n" % (kmlTypeDescr, kmlName))
+                k.write("getkml: Mapping request hitId = %s\n" % hitId)
                 k.write("getkml: Mapping request assignmentId = %s\n" % assignmentId)
             # Else, training case.
             else:
@@ -117,14 +112,9 @@ def application(environ, start_response):
                     <script type="text/javascript" src="/OL/buttoncontrol.js"></script>
                     <script type="text/javascript" src="/OL/togglecontrol.js"></script>
                     <script type="text/javascript" src="/OL/showkml.js"></script>
-                    <style>
-                        html, body {
-                            height: %(mturkFrameHeight)spx;
-                        }
-                    </style>
                 </head>
-                <body onload="init('%(kmlPath)s', '%(polygonPath)s', '%(noPolygonPath)s', '%(kmlName)s', '%(assignmentId)s', '%(tryNum)s', '%(resultsAccepted)s', '%(mapPath)s', '%(workerId)s')">
-                    <form style='width: 100%%; height: %(headerHeight)spx;' name='mappingform' action='%(submitTo)s' method='POST' target='%(target)s'>
+                <body onload="init('%(kmlPath)s', '%(kmlName)s', '%(assignmentId)s', '%(tryNum)s', '%(resultsAccepted)s', '%(mapPath)s', '%(workerId)s')">
+                    <form style='width:100%%;' name='mappingform' action='%(submitTo)s' method='POST' target='%(target)s'>
                         %(csrfToken)s
                         <div class='instructions'>
                             %(instructions)s
@@ -143,18 +133,18 @@ def application(environ, start_response):
                         </tr></table>
                         %(mapHint)s
                         <input type='hidden' name='kmlName' value='%(kmlName)s' />
+                        <input type='hidden' name='hitId' value='%(hitId)s' />
                         <input type='hidden' name='assignmentId' value='%(assignmentId)s' />
                         <input type='hidden' name='tryNum' value='%(tryNum)s' />
                         <input type='hidden' name='kmlData' />
                     </form>
-                    <div id="kml_display" style="width: 100%%; height: %(mapHeight)spx;"></div>
+                    <div id="kml_display" style="width: 100%%; height: %(kmlMapHeight)spx;"></div>
                 </body>
             </html>
         ''' % {
             'kmlPath': kmlUrl,
-            'polygonPath': polygonUrl,
-            'noPolygonPath': noPolygonUrl,
             'kmlName': kmlName,
+            'hitId': hitId,
             'assignmentId': assignmentId,
             'tryNum': tryNum,
             'resultsAccepted': resultsAccepted,
@@ -163,9 +153,7 @@ def application(environ, start_response):
             'instructions': instructions,
             'commentsDisabled': commentsDisabled,
             'mapHint': mapHint,
-            'mturkFrameHeight': mturkFrameHeight,
-            'headerHeight': headerHeight,
-            'mapHeight': mapHeight,
+            'kmlMapHeight': kmlMapHeight,
             'mapPath': mapUrl,
             'workerId': workerId,
             'csrfToken': csrfToken
