@@ -80,25 +80,27 @@ while True:
         # Look for all kmls of the right type whose gid is greater than the last kml chosen.
         # Exclude any kmls that are currently associated with an active HIT.
         mapc.cur.execute("""
-            select name, gid, fwts 
+            select name, k.gid, fwts 
             from kml_data k 
+            inner join master_grid using (name)
             where not exists (select true from hit_data h 
                 where h.name = k.name and delete_time is null)
             and  kml_type = '%s' 
-            and gid > %s 
-            order by gid 
+            and k.gid > %s 
+            order by k.gid 
             limit 1""" % (kmlType, curQaqcGid))
         row = mapc.cur.fetchone()
         # If we have no kmls left, loop back to the beginning of the table.
         if not row:
             curQaqcGid = 0
             mapc.cur.execute("""
-                select name, gid, fwts from kml_data k 
+                select name, k.gid, fwts from kml_data k 
+                inner join master_grid using (name)
                 where not exists (select true from hit_data h 
                     where h.name = k.name and delete_time is null)
                 and  kml_type = '%s' 
-                and gid > %s 
-                order by gid 
+                and k.gid > %s 
+                order by k.gid 
                 limit 1""" % (kmlType, curQaqcGid))
             row = mapc.cur.fetchone()
             # If we still have no kmls left, all kmls are in use as HITs.
@@ -131,11 +133,12 @@ while True:
         mapc.cur.execute("""
             select name, mapped_count, fwts 
             from kml_data k 
+            inner join master_grid using (name)
             where not exists (select true from hit_data h 
                 where h.name = k.name and delete_time is null)
             and  kml_type = '%s' 
             and mapped_count < %s
-            order by gid 
+            order by k.gid 
             limit 1""" % (kmlType, hitMaxAssignmentsF))
         row = mapc.cur.fetchone()
         # If we have no kmls left, all kmls in the kml_data table have been 
@@ -143,9 +146,8 @@ while True:
         if not row:
             if (fqaqcIssueCount % (issueFrequency / hitPollingInterval)) == 0:
                 k.write("createHit: Alert: all FQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.\n")
-                mapc.createIssue(mapc, "No FQAQC KMLs in kml_data table", 
-                        "Alert: all FQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.", 
-                        MappingCommon.AlertIssue)
+                mapc.createAlertIssue("No FQAQC KMLs in kml_data table", 
+                        "Alert: all FQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
             fqaqcIssueCount += 1
             break
         else:
@@ -179,11 +181,12 @@ while True:
         mapc.cur.execute("""
             select name, mapped_count, fwts 
             from kml_data k 
+            inner join master_grid using (name)
             where not exists (select true from hit_data h 
                 where h.name = k.name and delete_time is null)
             and  kml_type = '%s' 
             and mapped_count < %s
-            order by gid 
+            order by k.gid 
             limit 1""" % (kmlType, hitMaxAssignmentsN))
         row = mapc.cur.fetchone()
         # If we have no kmls left, all kmls in the kml_data table have been 
@@ -191,9 +194,8 @@ while True:
         if not row:
             if (nqaqcIssueCount % (issueFrequency / hitPollingInterval)) == 0:
                 k.write("createHit: Alert: all NQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.\n")
-                mapc.createIssue(mapc, "No NQAQC KMLs in kml_data table", 
-                        "Alert: all NQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.", 
-                        MappingCommon.AlertIssue)
+                mapc.createAlertIssue("No NQAQC KMLs in kml_data table", 
+                        "Alert: all NQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
             nqaqcIssueCount += 1
             break
         else:
