@@ -6,7 +6,7 @@ from flask_user import current_user
 from flask_user import UserMixin
 from flask_user.forms import RegisterForm, InviteForm
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, RadioField, validators
+from wtforms import StringField, SubmitField, BooleanField, RadioField, validators
 from webapp import db
 
 
@@ -183,17 +183,20 @@ class SuspendUserForm(FlaskForm):
 # Define the Mapping form
 class MappingForm(FlaskForm):
     # Input fields
+    savedMaps = BooleanField()      # True if worker saved reaults; False if KML was skipped.
     kmlData = StringField()         # KML object representing worker-mapped polygons.
     comment = StringField()         # Worker comment (assignment only)
 
     # Input/Output fields
     kmlName = StringField()
+    hitId = StringField()
     assignmentId = StringField()
     tryNum = StringField()          # Try number (qualification test only)
 
     # Output fields
     reqMethod = StringField()       # Whether preceding request was POST or GET
     progressStatus = StringField()  # Training status (e.g., # KMLs mapped successfully)
+    kmlFrameHeight = StringField()  # Height in pixels of iframe for map display
     kmlFrameUrl = StringField()     # URL for generating iframe (e.g., getkml)
     submitTo = StringField()        # URL for showkml.js to submit to when done
     resultsAccepted = StringField() # Boolean indicating to showkml.js whether worker mapped successfully

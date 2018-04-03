@@ -29,12 +29,14 @@ def qualification():
     logFilePath = mapc.projectRoot + "/log"
     serverName = mapc.getConfiguration('ServerName')
     apiUrl = mapc.getConfiguration('APIUrl')
+    kmlFrameHeight = mapc.getConfiguration('KMLFrameHeight')
     kmlFrameScript = mapc.getConfiguration('KMLFrameScript')
     hitAcceptThreshold = float(mapc.getConfiguration('HitI_AcceptThreshold'))
     qualTestTfTextStart = mapc.getConfiguration('QualTest_TF_TextStart')
     qualTestTfTextMiddle = mapc.getConfiguration('QualTest_TF_TextMiddle')
     qualTestTfTextEnd = mapc.getConfiguration('QualTest_TF_TextEnd')
 
+    mapForm.kmlFrameHeight.data = kmlFrameHeight
     kmlFrameUrl = "https://%s%s/%s" % (serverName, apiUrl, kmlFrameScript)
     mapForm.kmlFrameUrl.data = kmlFrameUrl
     # Set submit path to be this script.
@@ -55,7 +57,7 @@ def qualification():
         assignmentId = mapForm.assignmentId.data
         tryNum = str(mapForm.tryNum.data)
         kmlData = mapForm.kmlData.data
-        kmlTypeDescr = mapc.getKmlTypeDescription(kmlName)
+        (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
         score = None
         assignmentStatus = None
 
@@ -216,7 +218,7 @@ def qualification():
     # If worker is not done yet,
     if doneCount < totCount:
         # Fetch the next training map for them to work on.
-        mapc.cur.execute("""select name from kml_data
+        kmlName = mapc.querySingleValue("""select name from kml_data
             left outer join 
                 (select * from qual_assignment_data where worker_id = '%s') qad 
                 using (name)
@@ -225,9 +227,8 @@ def qualification():
                     or score < %s)
             order by gid
             limit 1""" % (workerId, MappingCommon.KmlTraining, hitAcceptThreshold))
-        kmlName = mapc.cur.fetchone()[0]
         mapForm.kmlName.data = kmlName
-        kmlType = 'training'
+        (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
         
         # Check the number of tries by this worker on this map.
         tries = mapc.querySingleValue("select tries from qual_assignment_data where worker_id = '%s' and name = '%s'" % (workerId, kmlName))

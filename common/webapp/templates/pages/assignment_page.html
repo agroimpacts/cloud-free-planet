@@ -8,13 +8,12 @@
 			<!--<div class="clearfix">-->
                 <span class="mapbody">
                     <div class="trainhdr">
-                        <h3 class="maph3">Welcome to the Mapping Africa Qualification Test</h3>
-                        <p class="mapp">{{ form.progressStatus.data }}</p>
+                        <h3 class="maph3">Mapping Africa Project: Agricultural Field Mapping</h3>
                     </div>
                     <!-- Add the hidden URL-encoded csrf_token as a parameter to the KML frame 
                          script (getkml) so that it can be placed in the mapping html form -->
                     <iframe height="{{ form.kmlFrameHeight.data }}px" width="100%%" scrolling="auto" frameborder="0" align="center" 
-                        src="{{ form.kmlFrameUrl.data }}?kmlName={{ form.kmlName.data }}&assignmentId={{ form.assignmentId.data }}&tryNum={{ form.tryNum.data }}&resultsAccepted={{ form.resultsAccepted.data }}&submitTo={{ form.submitTo.data }}&csrfToken={{ form.hidden_tag()|quote_plus }}"
+                        src="{{ form.kmlFrameUrl.data }}?kmlName={{ form.kmlName.data }}&hitId={{ form.hitId.data }}&assignmentId={{ form.assignmentId.data }}&resultsAccepted={{ form.resultsAccepted.data }}&submitTo={{ form.submitTo.data }}&csrfToken={{ form.hidden_tag()|quote_plus }}"
                         name="Inner Training Frame">
                     </iframe>
                 </span>

@@ -1,18 +1,13 @@
-function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId) {
+function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId) {
 
-    // Constants defining status returned for a training map with a low score.
-    lowScoreCode = 460;
-    lowScoreText = "Low Score";
-
-
-    // If this is a mapping HIT, training map, or standalone invocation, let user save changes.
     var saveStrategyActive, workerFeedback;
-    if (!(assignmentId.length == 0 && workerId.length > 0)) {
+    saveStrategyActive = false;
+    workerFeedback = false;
+
+    // If this is a mapping HIT or training map, let user save changes.
+    if (assignmentId.length > 0) {
         saveStrategyActive = true;
-        workerFeedback = false;
-    // If this is a worker-feedback map, don't let the user save maps.
-    } else {
-        saveStrategyActive = false;
+    } else if (workerId.length > 0) {
         workerFeedback = true;
     }
 
@@ -173,7 +168,7 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
     fieldsLayer.setMap(map);
     
     // If this is a worker-feedback map, create two additional layers.
-    if (assignmentId.length == 0 && workerId.length > 0) {
+    if (workerFeedback) {
         var rMapLayer = new ol.layer.Vector({
             title: "Reference Map",
             source: new ol.source.Vector({
@@ -489,13 +484,17 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
         saveButton.on("change:active", function(e)
         {	
             if (e.active) {
-                checkSaveStrategy(kmlName, noPolygonPath, assignmentId, tryNum);
-                //alert("saveButton is on");
+                checkSaveStrategy(kmlName);
             }
         });
     }
 
-    // Training case.
+    // Add event handler to execute each time a shape is drawn.
+    //fieldsLayer.getSource().on('addfeature', function(event) {
+    //    alert("Completed drawing a shape");
+    //})
+
+    // Training case only.
     if (tryNum > 0) {
         if (resultsAccepted == 1) {
             alert("Congratulations! You successfully mapped the crop fields in this map. Please click OK to work on the next training map.");
@@ -503,16 +502,19 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
             alert("We're sorry, but you failed to correctly map the crop fields in this map. Please click OK to try again.");
         }
     }
-    // All cases (except for worker feedback cases).
+    // Mapping HIT or training map cases.
     if (resultsAccepted == 3) {
         alert("Error! Through no fault of your own, your work could not be saved. Please try the same map again. We apologize for the inconvenience.");
     }
 
-    function checkSaveStrategy(kmlName, noPolygonPath, assignmentId, tryNum) {
+    function checkSaveStrategy(kmlName) {
         var msg;
         if (!saveStrategyActive) {
             return;
         }
+        // Don't allow Save button to be used again.
+        saveStrategyActive = false
+
         var features = fieldsLayer.getSource().getFeatures();
         if (features != '') {
             msg = 'You can only save your mapped fields ONCE!\nPlease confirm that you\'re COMPLETELY done mapping fields.\nIf not done, click Cancel.';
@@ -531,22 +533,9 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
             }
             var kmlFormat = new ol.format.KML();
             var kmlData = kmlFormat.writeFeatures(features, {featureProjection: 'EPSG:4326', dataProjection: 'EPSG:4326'});
-            //alert(kmlData);
-            //
             // Save the kmlData in the HTML mappingform.
             document.mappingform.kmlData.value = kmlData;
         }
-        // Don't allow Save button to be used again.
-        saveStrategyActive = false
-
-        // Set the active control to be Navigation.
-        //for(var i=1, len=panelControls.length; i<len; i++) {
-        //    panelControls[i].deactivate();
-        //}
-        //panelControls[0].activate();
-
-        if (assignmentId.length > 0) {
-            document.mappingform.submit();
-        }
+        document.mappingform.submit();
     }
 }
