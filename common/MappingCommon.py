@@ -640,23 +640,10 @@ class MappingCommon(object):
             )
         assert self.approveAssignmentRS.status
 
-        # Pay the difficulty bonus if KML's fwts > 1.
-        self.hitTypeRewardIncrement = self.getConfiguration('HitType_RewardIncrement')
-        self.hitTypeRewardIncrement2 = self.getConfiguration('HitType_RewardIncrement2')
-        self.cur.execute("""select fwts, name, worker_id, bonus_paid 
-            from assignment_data inner join hit_data using (hit_id) 
-            inner join kml_data using (name) inner join worker_data using (worker_id) 
-            where assignment_id = '%s'""" % assignmentId)
-        (fwts, name, workerId, bonusPaid) = self.cur.fetchone()
-        bonusAmount = Decimal("0.00")
-        if fwts > 1:
-            bonusAmount = round(Decimal(self.hitTypeRewardIncrement) * \
-            (int(fwts) - 1) + Decimal(self.hitTypeRewardIncrement2) * \
-            (int(fwts) - 1)**2, 2)
-            bonusReason = self.getConfiguration('Bonus_ReasonDifficulty')
-            self.grantBonus(assignmentId, workerId, bonusAmount, bonusReason)
-
         # Check to see if training bonus should be paid.
+        bonusPaid = self.querySingleValue("""select bonus_paid from worker_data
+                where worker_id = '%s'""" % workerId)
+
         # Return True if bonus paid.
         trainBonusPaid = False
         if not bonusPaid:
@@ -667,8 +654,24 @@ class MappingCommon(object):
                 (True, workerId))
             self.dbcon.commit()
             trainBonusPaid = True
+        return trainBonusPaid
 
-        return (fwts, bonusAmount, name, trainBonusPaid)
+    def rejectAssignment(self, assignmentId):
+        hitAcceptThreshold = float(self.getConfiguration('HitQAcceptThreshold'))
+        self.rejectAssignmentRS = self.mtcon.reject_assignment(
+            assignment_id = assignmentId,
+            feedback = (self.getConfiguration('HitRejectDescription') % hitAcceptThreshold)
+        )
+        assert self.rejectAssignmentRS.status
+
+    def grantBonus(self, assignmentId, workerId, bonus, reason):
+        self.grantBonusRS = self.mtcon.grant_bonus(
+            worker_id = workerId,
+            assignment_id = assignmentId,
+            bonus_price = MTurkConnection.get_price_as_price(bonus),
+            reason = reason
+        )
+        assert self.grantBonusRS.status
 
     if 0:
         def getHitStatus(self, hitId):
@@ -680,14 +683,6 @@ class MappingCommon(object):
                     # Get the associated HIT's status.
                     self.hitStatus = r.HITStatus
             return self.hitStatus
-
-        def rejectAssignment(self, assignmentId):
-            hitAcceptThreshold = float(self.getConfiguration('HitQAcceptThreshold'))
-            self.rejectAssignmentRS = self.mtcon.reject_assignment(
-                assignment_id = assignmentId,
-                feedback = (self.getConfiguration('HitRejectDescription') % hitAcceptThreshold)
-            )
-            assert self.rejectAssignmentRS.status
 
         def approveRejectedAssignment(self, assignmentId, feedback):
             self.approveRejectedAssignmentRS = self.mtcon.approve_rejected_assignment(
@@ -848,23 +843,10 @@ class MappingCommon(object):
             )
             assert self.rejectQualificationRequestRS.status
 
-        def grantBonus(self, assignmentId, workerId, bonus, reason):
-            self.grantBonusRS = self.mtcon.grant_bonus(
-                worker_id = workerId,
-                assignment_id = assignmentId,
-                bonus_price = MTurkConnection.get_price_as_price(bonus),
-                reason = reason
-            )
-            assert self.grantBonusRS.status
-
         def notifyWorkers(self, workers, subject, body):
             self.notifyWorkersRS = self.mtcon.notify_workers(workers, subject, body)
             assert self.notifyWorkersRS.status
             return self.notifyWorkersRS
-
-        def setSystemData(self, key, value):
-            self.cur.execute("update system_data set value = '%s' where key = '%s'" % (value, key))
-            self.dbcon.commit()
 
         # Obtain serialization lock to allow create_hit_daemon.py, cleanup_absent_worker.py, and 
         # individual ProcessNotifications.py threads to access Mturk and database records
