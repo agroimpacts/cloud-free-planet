@@ -7,7 +7,6 @@ import psycopg2
 from psycopg2.extensions import adapt
 import collections
 from decimal import Decimal
-import uuid
 from github import Github
 #from lock import lock
 
@@ -130,19 +129,19 @@ class MappingCommon(object):
             else:
                 raise
 
-    # Retrieve the KML type description for a  given KML.
-    def getKmlTypeDescription(self, kmlName):
+    # Retrieve the KML type and its description for a  given KML name.
+    def getKmlType(self, kmlName):
         self.cur.execute("select kml_type from kml_data where name = '%s'" % kmlName)
         kmlType = self.cur.fetchone()[0]
         if kmlType == MappingCommon.KmlQAQC:
-            kmlType = 'QAQC'
+            kmlTypeDescr = 'QAQC'
         elif kmlType == MappingCommon.KmlFQAQC:
-            kmlType = 'FQAQC'
+            kmlTypeDescr = 'FQAQC'
         elif kmlType == MappingCommon.KmlNormal:
-            kmlType = 'non-QAQC'
+            kmlTypeDescr = 'non-QAQC'
         elif kmlType == MappingCommon.KmlTraining:
-            kmlType = 'training'
-        return kmlType
+            kmlTypeDescr = 'training'
+        return (kmlType, kmlTypeDescr)
 
     # Save and retrieve circular buffer into database.
     # NOTE: assumes that rightmost entry is most recent. 
@@ -285,12 +284,13 @@ class MappingCommon(object):
             reward += int(round(self.hitRewardIncrement * (self.fwts - 1) + \
                 self.hitRewardIncrement2 * (self.fwts - 1)**2, 2) * 100)
 
-        hitId = str(uuid.uuid4())
         now = str(datetime.today())
-        self.cur.execute("""insert into hit_data 
-                (hit_id, name, create_time, max_assignments, duration, reward) 
-                values ('%s', '%s', '%s', '%s', '%s', '%s')""" % 
-                (hitId, kml, now, maxAssignments, duration, reward))
+        self.cur.execute("""INSERT INTO hit_data 
+                (name, create_time, max_assignments, duration, reward) 
+                values ('%s', '%s', '%s', '%s', '%s')
+                RETURNING hit_id""" % 
+                (kml, now, maxAssignments, duration, reward))
+        hitId = self.cur.fetchone()[0]
         self.dbcon.commit()
         return hitId
 
@@ -314,6 +314,286 @@ class MappingCommon(object):
             return score, scoreString
         except:
             return None, scoreString
+
+    # Do all post-processing for a worker's submitted assignment.
+    def AssignmentSubmitted(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):
+        # Record the submission in order to compute a return rate.
+        self.pushReturn(assignmentId, False)
+
+        # If QAQC HIT, then score it and post-process any preceding FQAQC or non-QAQC HITs for this worker.
+        if kmlType == MappingCommon.KmlQAQC:
+            self.QAQCSubmission(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment)
+        # Else, if FQAQC HIT or non-QAQC HIT, then post-process it or mark it as pending post-processing.
+        elif kmlType == MappingCommon.KmlNormal or kmlType == MappingCommon.KmlFQAQC:
+            self.NormalSubmission(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment)
+
+    def QAQCSubmission(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):
+        # NOTE: We used to call mapFix before calling KMLAccuracyCheck.
+
+        # Compute the worker's score on this KML.
+        score, scoreString = self.kmlAccuracyCheck(kmlType, kmlName, assignmentId)
+
+        # Reward the worker if we couldn't score his work properly.
+        if score is None:
+            assignmentStatus = MappingCommon.HITUnscored
+            score = self.getQualityScore(workerId)
+            if score is None:
+                score = 1.          # Give new worker the max score
+            k.write("assignment: Invalid value returned from R scoring script for:\nQAQC KML %s, HIT ID %s, assignment ID %s, worker ID %s; assigning a score of %.2f\nReturned value:\n%s\n" % 
+                    (kmlName, hitId, assignmentId, workerId, score, scoreString)) 
+            #self.createAlertIssue("KMLAccuracyCheck problem", 
+            #        "Invalid value returned from R scoring script for:\nQAQC KML %s, HIT ID %s, assignment ID %s, worker ID %s; assigning a score of %.2f\nReturned value:\n%s\n" %
+            #        (kmlName, hitId, assignmentId, workerId, score, scoreString))
+
+        # Record score (actual or assumed) to compute moving average.
+        self.pushScore(workerId, score)
+
+        # Check if Mapping Africa qualification should be revoked
+        # (needs to be done for both the approved and rejection cases because a worker may
+        #  earn a quality score for the first time at the revocation level)
+        if self.revokeQualificationIfUnqualifed(workerId, submitTime):
+            k.write("ProcessNotifications: Mapping Africa Qualification revoked from worker %s\n" % workerId)
+
+        hitAcceptThreshold = float(self.getConfiguration('HitQAcceptThreshold'))
+        hitNoWarningThreshold = float(self.getConfiguration('HitQNoWarningThreshold'))
+
+        # If the worker's results could not be scored, or if their score meets 
+        # the acceptance threshold, notify worker that his HIT was accepted.
+        if assignmentStatus != None or score >= hitAcceptThreshold:
+            try:
+                # if score was above the no-warning threshold, then don't include a warning.
+                if score >= hitNoWarningThreshold:
+                    (fwts, bonusAmount, kmlName, trainBonusPaid) = self.approveAssignment(assignmentId)
+                else:
+                    (fwts, bonusAmount, kmlName, trainBonusPaid) = self.approveAssignment(assignmentId, warning=True)
+                if fwts > 1:
+                    k.write("ProcessNotifications: Difficulty bonus of $%s paid for level %s KML %s to worker %s\n" % (bonusAmount, fwts, kmlName, workerId))
+                if trainBonusPaid:
+                    k.write("ProcessNotifications: Training bonus paid to worker %s\n" % workerId)
+            except MTurkRequestError as e:
+                k.write("ProcessNotifications: approveAssignment failed for assignment ID %s:\n%s\n%s\n" % 
+                    (assignmentId, e.error_code, e.error_message))
+                return
+            except AssertionError:
+                k.write("ProcessNotifications: Bad approveAssignment status for assignment ID %s:\n" % assignmentId)
+                return
+            assignmentStatus = MappingCommon.HITApproved
+
+            # Also, check if the worker merits a bonus for approved assignment.
+            bonusStatus = self.payBonusIfQualified(workerId, assignmentId)
+            if bonusStatus > 0:
+                k.write("ProcessNotifications: Accuracy bonus level %s paid to worker %s\n" % (bonusStatus, workerId))
+
+        # Only if the worker's results were saved and scored, and their score did not meet 
+        # the threshold do we reject the HIT.
+        else:
+            try:
+                self.rejectAssignment(assignmentId)
+            except MTurkRequestError as e:
+                k.write("ProcessNotifications: rejectAssignment failed for assignment ID %s:\n%s\n%s\n" % 
+                    (assignmentId, e.error_code, e.error_message))
+                return
+            except AssertionError:
+                k.write("ProcessNotifications: Bad rejectAssignment status for assignment ID %s:\n" % assignmentId)
+                return
+            assignmentStatus = MappingCommon.HITRejected
+
+        # Record the HIT submission time and status, user comment, score, and save status code.
+        self.cur.execute("""update assignment_data set completion_time = '%s', status = '%s', 
+            comment = %s, score = '%s', save_status_code = %s where assignment_id = '%s'""" % 
+            (submitTime, assignmentStatus, adapt(comment), score, saveStatusCode, assignmentId))
+        self.dbcon.commit()
+        k.write("ProcessNotifications: QAQC assignment has been marked on Mturk and DB as %s: %.2f/%.2f/%.2f\n" % 
+            (assignmentStatus.lower(), score, hitAcceptThreshold, hitNoWarningThreshold))
+
+        # Delete the HIT if all assignments have been submitted and have a final status
+        # (i.e., there are no assignments in pending or accepted status).
+        if hitStatus == 'Reviewable':
+            try:
+                self.disposeHit(hitId)
+            except MTurkRequestError as e:
+                k.write("ProcessNotifications: disposeHit failed for HIT ID %s:\n%s\n%s\n" % 
+                    (hitId, e.error_code, e.error_message))
+                return
+            except AssertionError:
+                k.write("ProcessNotifications: Bad disposeHit status for HIT ID %s:\n" % hitId)
+                return
+            # Record the HIT deletion time.
+            self.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % (submitTime, hitId))
+            self.dbcon.commit()
+            k.write("ProcessNotifications: QAQC hit has no remaining assignments and has been deleted\n")
+        else:
+            k.write("ProcessNotifications: Error: QAQC hit is in %s state and cannot be deleted\n" %
+                    hitStatus)
+
+        # Post-process any pending FQAQC or non-QAQC HITs for this worker.
+        self.NormalPostProcessing(k, workerId, submitTime)
+
+### Return assignmentStatus
+
+    def NormalSubmission(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):
+        # Get the save status and worker comment.
+        try:
+            kmlName = params['kmlName']
+            saveStatusCode = params['save_status_code']
+            if len(saveStatusCode) == 0:
+                saveStatusCode = 0
+            saveStatusCode = int(saveStatusCode)
+            resultsSaved = (saveStatusCode >= 200 and saveStatusCode < 300)
+            comment = params['comment'].strip()
+        except:
+            k.write("ProcessNotifications: Missing getAssignment parameter(s) for assignment ID %s:\n" % assignmentId)
+            return
+        k.write("ProcessNotifications: POST/PUT of mapping results returned HTTP status code %s\n" % saveStatusCode)
+        if len(comment) > 2048:
+            comment = comment[:2048]
+
+        # Set the assignment status per the save status.
+        if resultsSaved:
+            workerTrusted = self.isWorkerTrusted(workerId)
+            if workerTrusted is None:
+                # If not enough history, mark HIT as pending in order to save for post-processing.
+                assignmentStatus = MappingCommon.HITPending
+            elif workerTrusted:
+                assignmentStatus = MappingCommon.HITApproved
+
+                # Since results trusted, mark this KML as mapped.
+                self.cur.execute("update kml_data set mapped_count = mapped_count + 1 where name = '%s'" % kmlName)
+                k.write("ProcessNotifications: incremented mapped count by trusted worker for KML %s\n" % kmlName)
+            else:
+                assignmentStatus = MappingCommon.HITUntrusted
+        else:
+            assignmentStatus = MappingCommon.HITUnsaved
+
+        # Record the HIT submission time and status, user comment, and save status code.
+        self.cur.execute("""update assignment_data set completion_time = '%s', status = '%s', 
+            comment = %s, save_status_code = %s where assignment_id = '%s'""" % 
+            (submitTime, assignmentStatus, adapt(comment), saveStatusCode, assignmentId))
+
+        # In all cases, notify worker that his HIT was accepted.
+        try:
+            (fwts, bonusAmount, kmlName, trainBonusPaid) = self.approveAssignment(assignmentId)
+            if fwts > 1:
+                k.write("ProcessNotifications: Difficulty bonus of $%s paid for level %s KML %s to worker %s\n" % (bonusAmount, fwts, kmlName, workerId))
+            if trainBonusPaid:
+                k.write("ProcessNotifications: Training bonus paid to worker %s\n" % workerId)
+        except MTurkRequestError as e:
+            k.write("ProcessNotifications: approveAssignment failed for assignment ID %s:\n%s\n%s\n" %
+                (assignmentId, e.error_code, e.error_message))
+            return
+        except AssertionError:
+            k.write("ProcessNotifications: Bad approveAssignment status for assignment ID %s:\n" % assignmentId)
+            return
+        k.write("ProcessNotifications: FQAQC or non-QAQC assignment has been approved on Mturk and marked in DB as %s\n" % 
+            assignmentStatus.lower())
+        self.dbcon.commit()
+
+        # Delete the HIT if all assignments have been submitted and have a final status
+        # (i.e., there are no assignments in pending or accepted status).
+        if hitStatus == 'Reviewable':
+            nonFinalAssignCount = int(self.querySingleValue("""select count(*) from assignment_data
+                where hit_id = '%s' and status in ('%s','%s')""" %
+                (hitId, MappingCommon.HITPending, MappingCommon.HITAccepted)))
+            if nonFinalAssignCount == 0:
+                try:
+                    self.disposeHit(hitId)
+                except MTurkRequestError as e:
+                    k.write("ProcessNotifications: disposeHit failed for HIT ID %s:\n%s\n%s\n" % 
+                        (hitId, e.error_code, e.error_message))
+                    return
+                except AssertionError:
+                    k.write("ProcessNotifications: Bad disposeHit status for HIT ID %s:\n" % hitId)
+                    return
+                # Record the HIT deletion time.
+                self.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % 
+                        (submitTime, hitId))
+                self.dbcon.commit()
+                k.write("ProcessNotifications: hit has no remaining assignments and has been deleted\n")
+            else:
+                k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
+        else:
+            k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
+
+    def NormalPostProcessing(self, k, workerId, submitTime):
+        # Determine this worker's trust level.
+        workerTrusted = self.isWorkerTrusted(workerId)
+        if workerTrusted is None:
+            k.write("ProcessNotifications: Worker %s has insufficient history for evaluating FQAQC or non-QAQC HITs\n" %
+                    workerId)
+            return
+
+        # Get the the key data for this worker's pending FQAQC or non-QAQC submitted HITs.
+        self.cur.execute("""select name, assignment_id, hit_id
+            from assignment_data inner join hit_data using (hit_id)
+            where worker_id = %s and status = %s order by completion_time""", 
+            (workerId, MappingCommon.HITPending,))
+        assignments = self.cur.fetchall()
+
+        # If none then there's nothing to do.
+        if len(assignments) == 0:
+            return
+
+        k.write("ProcessNotifications: Checking for pending FQAQC or non-QAQC assignments: found %d\n" % len(assignments))
+
+        # Loop on all the pending FQAQC or non-QAQC HITs for this worker, and finalize their status.
+        for assignment in assignments:
+            kmlName = assignment[0]
+            assignmentId = assignment[1]
+            hitId = assignment[2]
+
+            k.write("ProcessNotifications: Post-processing assignmentId = %s\n" % assignmentId)
+
+            # If the worker's results are reliable, we will mark the HIT as approved.
+            if workerTrusted:
+                assignmentStatus = MappingCommon.HITApproved
+
+                # Since results trusted, mark this KML as mapped.
+                self.cur.execute("update kml_data set mapped_count = mapped_count + 1 where name = '%s'" % kmlName)
+                k.write("ProcessNotifications: incremented mapped count by trusted worker for KML %s\n" % kmlName)
+            else:
+                assignmentStatus = MappingCommon.HITUntrusted
+
+            # Record the final FQAQC or non-QAQC HIT status.
+            self.cur.execute("""update assignment_data set status = '%s' where assignment_id = '%s'""" %
+                (assignmentStatus, assignmentId))
+            self.dbcon.commit()
+            k.write("ProcessNotifications: FQAQC or non-QAQC assignment marked in DB as %s\n" %
+                assignmentStatus.lower())
+
+            # Delete the HIT if all assignments have been submitted and have a final status
+            # (i.e., there are no assignments in pending or accepted status).
+            try:
+                hitStatus = self.getHitStatus(hitId)
+            except MTurkRequestError as e:
+                k.write("ProcessNotifications: getHitStatus failed for HIT ID %s:\n%s\n%s\n" % 
+                    (hitId, e.error_code, e.error_message))
+                return
+            except AssertionError:
+                k.write("ProcessNotifications: Bad getHitStatus status for HIT ID %s:\n" % hitId)
+                return
+            if hitStatus == 'Reviewable':
+                nonFinalAssignCount = int(self.querySingleValue("""select count(*) from assignment_data
+                    where hit_id = '%s' and status in ('%s','%s')""" %
+                    (hitId, MappingCommon.HITPending, MappingCommon.HITAccepted)))
+                if nonFinalAssignCount == 0:
+                    try:
+                        self.disposeHit(hitId)
+                    except MTurkRequestError as e:
+                        k.write("ProcessNotifications: disposeHit failed for HIT ID %s:\n%s\n%s\n" % 
+                            (hitId, e.error_code, e.error_message))
+                        return
+                    except AssertionError:
+                        k.write("ProcessNotifications: Bad disposeHit status for HIT ID %s:\n" % hitId)
+                        return
+                    # Record the HIT deletion time.
+                    self.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % 
+                            (submitTime, hitId))
+                    self.dbcon.commit()
+                    k.write("ProcessNotifications: hit has no remaining assignments and has been deleted\n")
+                else:
+                    k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
+            else:
+                k.write("ProcessNotifications: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
 
     # Revoke Mapping Africa qualification unconditionally unless not qualified.
     # Returns True if worker was qualified and qualification was revoked; False otherwise.
@@ -346,6 +626,50 @@ class MappingCommon(object):
         self.revokeQualification(workerId, submitTime)
         return True
 
+    def approveAssignment(self, assignmentId, warning=False):
+        if warning:
+            hitWarningDescription = self.getConfiguration('HitQWarningDescription')
+            hitNoWarningThreshold = float(self.getConfiguration('HitQNoWarningThreshold'))
+            self.approveAssignmentRS = self.mtcon.approve_assignment(
+                assignment_id = assignmentId,
+                feedback = (hitWarningDescription % hitNoWarningThreshold)
+            )
+        else:
+            self.approveAssignmentRS = self.mtcon.approve_assignment(
+                assignment_id = assignmentId
+            )
+        assert self.approveAssignmentRS.status
+
+        # Pay the difficulty bonus if KML's fwts > 1.
+        self.hitTypeRewardIncrement = self.getConfiguration('HitType_RewardIncrement')
+        self.hitTypeRewardIncrement2 = self.getConfiguration('HitType_RewardIncrement2')
+        self.cur.execute("""select fwts, name, worker_id, bonus_paid 
+            from assignment_data inner join hit_data using (hit_id) 
+            inner join kml_data using (name) inner join worker_data using (worker_id) 
+            where assignment_id = '%s'""" % assignmentId)
+        (fwts, name, workerId, bonusPaid) = self.cur.fetchone()
+        bonusAmount = Decimal("0.00")
+        if fwts > 1:
+            bonusAmount = round(Decimal(self.hitTypeRewardIncrement) * \
+            (int(fwts) - 1) + Decimal(self.hitTypeRewardIncrement2) * \
+            (int(fwts) - 1)**2, 2)
+            bonusReason = self.getConfiguration('Bonus_ReasonDifficulty')
+            self.grantBonus(assignmentId, workerId, bonusAmount, bonusReason)
+
+        # Check to see if training bonus should be paid.
+        # Return True if bonus paid.
+        trainBonusPaid = False
+        if not bonusPaid:
+            trainBonusAmount = self.getConfiguration('Bonus_AmountTraining')
+            trainBonusReason = self.getConfiguration('Bonus_ReasonTraining')
+            self.grantBonus(assignmentId, workerId, trainBonusAmount, trainBonusReason)
+            self.cur.execute("update worker_data set bonus_paid = %s where worker_id = %s", \
+                (True, workerId))
+            self.dbcon.commit()
+            trainBonusPaid = True
+
+        return (fwts, bonusAmount, name, trainBonusPaid)
+
     if 0:
         def getHitStatus(self, hitId):
             self.getHitRS = self.mtcon.get_hit(hitId)
@@ -356,72 +680,6 @@ class MappingCommon(object):
                     # Get the associated HIT's status.
                     self.hitStatus = r.HITStatus
             return self.hitStatus
-
-        def getAssignment(self, assignmentId):
-            # Add HITDetail ResponseGroup so as to get back the HITStatus parameter.
-            self.getAssignmentRS = self.mtcon.get_assignment(assignmentId, response_groups='Minimal, HITDetail')
-            assert self.getAssignmentRS.status
-            # Loop through the ResultSet looking for an Assignment object.
-            for r in self.getAssignmentRS:
-                if hasattr(r,'Assignment'):
-                    # Get the ID of the worker for this assignment.
-                    self.workerId = r.WorkerId
-                    # Convert MTurk's submission time (UTC timestamp) to local time.
-                    dtmtk = datetime.strptime(r.SubmitTime, '%Y-%m-%dT%H:%M:%SZ')
-                    dtloc = dtmtk.replace(tzinfo=tz.tzutc()).astimezone(tz.tzlocal())
-                    self.submitTime = dtloc.strftime('%Y-%m-%d %H:%M:%S')
-                    # Get all the HIT return parameters passed by MTurk.
-                    self.params = {}
-                    for kv in r.answers[0]:
-                        self.params[kv.qid] = kv.fields[0]
-                elif hasattr(r,'HIT'):
-                    # Get the associated HIT's status.
-                    self.hitStatus = r.HITStatus
-            return (self.workerId, self.submitTime, self.params, self.hitStatus)
-
-        def approveAssignment(self, assignmentId, warning=False):
-            if warning:
-                hitWarningDescription = self.getConfiguration('HitQWarningDescription')
-                hitNoWarningThreshold = float(self.getConfiguration('HitQNoWarningThreshold'))
-                self.approveAssignmentRS = self.mtcon.approve_assignment(
-                    assignment_id = assignmentId,
-                    feedback = (hitWarningDescription % hitNoWarningThreshold)
-                )
-            else:
-                self.approveAssignmentRS = self.mtcon.approve_assignment(
-                    assignment_id = assignmentId
-                )
-            assert self.approveAssignmentRS.status
-
-            # Pay the difficulty bonus if KML's fwts > 1.
-            self.hitTypeRewardIncrement = self.getConfiguration('HitType_RewardIncrement')
-            self.hitTypeRewardIncrement2 = self.getConfiguration('HitType_RewardIncrement2')
-            self.cur.execute("""select fwts, name, worker_id, bonus_paid 
-                from assignment_data inner join hit_data using (hit_id) 
-                inner join kml_data using (name) inner join worker_data using (worker_id) 
-                where assignment_id = '%s'""" % assignmentId)
-            (fwts, name, workerId, bonusPaid) = self.cur.fetchone()
-            bonusAmount = Decimal("0.00")
-            if fwts > 1:
-                bonusAmount = round(Decimal(self.hitTypeRewardIncrement) * \
-                (int(fwts) - 1) + Decimal(self.hitTypeRewardIncrement2) * \
-                (int(fwts) - 1)**2, 2)
-                bonusReason = self.getConfiguration('Bonus_ReasonDifficulty')
-                self.grantBonus(assignmentId, workerId, bonusAmount, bonusReason)
-
-            # Check to see if training bonus should be paid.
-            # Return True if bonus paid.
-            trainBonusPaid = False
-            if not bonusPaid:
-                trainBonusAmount = self.getConfiguration('Bonus_AmountTraining')
-                trainBonusReason = self.getConfiguration('Bonus_ReasonTraining')
-                self.grantBonus(assignmentId, workerId, trainBonusAmount, trainBonusReason)
-                self.cur.execute("update worker_data set bonus_paid = %s where worker_id = %s", \
-                    (True, workerId))
-                self.dbcon.commit()
-                trainBonusPaid = True
-
-            return (fwts, bonusAmount, name, trainBonusPaid)
 
         def rejectAssignment(self, assignmentId):
             hitAcceptThreshold = float(self.getConfiguration('HitQAcceptThreshold'))
