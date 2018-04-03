@@ -12,7 +12,6 @@ from flask_user.views import _get_safe_next_param, render, _send_registered_emai
 from flask_user import signals
 from webapp.models.user_models import MappingForm
 from MappingCommon import MappingCommon
-#from mapFix import mapFix
 
 qual_blueprint = Blueprint('qual_blueprint', __name__)
 
@@ -97,9 +96,10 @@ def qualification():
                         k.write("qualification: Shape is a valid %s\n" % geomType)
                     else:
                         k.write("qualification: Shape is an invalid %s due to '%s'\n" % (geomType, geomReason))
-                    mapc.cur.execute("""INSERT INTO qual_user_maps (name, geom, completion_time, assignment_id, try)
-                            SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, %s as assignment_id, %s as try""",
-                            (geomName, geometry, now, assignmentId, tryNum))
+                    mapc.cur.execute("""INSERT INTO qual_user_maps (name, geom, completion_time, assignment_id, try, geom_clean)
+                            SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, %s as assignment_id, %s as try, 
+                            ST_MakeValid(ST_GeomFromKML(%s)) as geom_clean""",
+                            (geomName, geometry, now, assignmentId, tryNum, geometry))
                     mapc.dbcon.commit()
                 except psycopg2.InternalError as e:
                     numFail += 1
@@ -121,21 +121,8 @@ def qualification():
                         "Worker ID = %s\nAssignment ID = %s; try %s\nNOTE: %s mapping(s) out of %s were invalid\n%s" % 
                         (workerId, assignmentId, tryNum, numFail, numGeom, errorString))
 
-            # If we have at least one valid mapping.
-            if numGeom > numFail:
-                try:
-                    #mapFix(mapc, "tr", kmlName, assignmentId, "no", tryNum)
-                    mapc.dbcon.commit()
-                except Exception as e:
-                    assignmentStatus = MappingCommon.HITUnscored
-                    score = mapc.getQualityScore(workerId)
-                    if score is None:
-                        score = 1.          # Give new worker the max score
-                    mapForm.resultsAccepted.data = 1
-                    k.write("qualification: mapfix raised an exception: %s\n" % e.message)
-                    mapc.createAlertIssue("mapFix problem", "Mapfix raised an exception: %s\n" % e.message)
-
-            else:
+            # If we have no valid mappings.
+            if numFail == numGeom:
                 assignmentStatus = MappingCommon.HITUnsaved
                 score = 0.                          # Give new worker the min score
                 mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
