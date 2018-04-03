@@ -99,4 +99,3 @@ elif run == "partial":
         mp.tempShapeDel(mapc, cleaning_dir, fixshpnm)
 
     del mapc
-

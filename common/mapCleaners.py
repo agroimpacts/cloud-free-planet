@@ -18,16 +18,19 @@ def polyPrepair(mapc, shape_name, table):
     ds = driver.Create(shape_name_out, 0, 0, 0)  # gdal2 change
     layer = ds.CreateLayer(shape_name, geom_type = ogr.wkbPolygon)
     layer_defn = layer.GetLayerDefn()
-    fd = ogr.FieldDefn('name', ogr.OFTString)
+    # fd = ogr.FieldDefn('name', ogr.OFTString)
+    fd = gdal.FieldDefn('name', gdal.OFTString)
     layer.CreateField(fd)
 
     for i in range(0, len(table)):
         name = table[i][0]
         wkt = re.sub("^SRID=*.*;", "", table[i][1])
         wktfix = wktPrepair(mapc, wkt)
-        geom = ogr.CreateGeometryFromWkt(wktfix)
+        # geom = ogr.CreateGeometryFromWkt(wktfix)
+        geom = gdal.CreateGeometryFromWkt(wktfix)
         featureIndex = i
-        feature = ogr.Feature(layer_defn)
+        # feature = ogr.Feature(layer_defn)
+        feature = gdal.Feature(layer_defn)
         feature.SetGeometry(geom)
         feature.SetFID(featureIndex)
         feature.SetField('name', name)
@@ -54,7 +57,8 @@ def shapeReader(mapc, shape_name_in):
     logFilePath = mapc.projectRoot + "/log"
     shape_in = shape_name_in + ".shp"
     now = str(datetime.today())
-    polys = ogr.Open(shape_in)
+    # polys = ogr.Open(shape_in)
+    polys = gdal.Open(shape_in)
     if polys is None:
         k = open(logFilePath + "/miscellaneous.log", "a")
         k.write("mapFix: OGR couldn't open '%s' at '%s'\n" % (shape_in, now))
@@ -85,14 +89,15 @@ def shapeWriter(mapc, poly_hash, shape_name_out):
     ds = driver.Create(shape_name, 0, 0, 0)  # gdal2 change
     layer = ds.CreateLayer(shape_name, geom_type = ogr.wkbPolygon)
     layer_defn = layer.GetLayerDefn()
-    fd = ogr.FieldDefn('name', ogr.OFTString)
+    # fd = ogr.FieldDefn('name', ogr.OFTString)
+    fd = gdal.FieldDefn('name', gdal.OFTString)
     layer.CreateField(fd)
     fids = 0
     for name in poly_hash:
         fids += 1
-        geom = ogr.CreateGeometryFromWkt(poly_hash[name][0])
+        geom = gdal.CreateGeometryFromWkt(poly_hash[name][0])
         featureIndex = fids
-        feature = ogr.Feature(layer_defn)
+        feature = gdal.Feature(layer_defn)
         feature.SetGeometry(geom)
         feature.SetFID(featureIndex)
         feature.SetField('name', name)
@@ -112,7 +117,7 @@ def cleanPolyHash(mapc, poly_hash):
         else:  # if >1 polygon w/that name (b/c split earlier by prepair)
             poly1 = ogr.CreateGeometryFromWkt(poly_hash[name][0])
             for polygon in poly_hash[name][1:]:
-                geom = ogr.CreateGeometryFromWkt(polygon)
+                geom = gdal.CreateGeometryFromWkt(polygon)
                 union = poly1.Union(geom)                
             unionwkt = union.ExportToWkt()
             unionwkt_fix = wktPrepair(mapc, unionwkt)
