@@ -38,7 +38,8 @@ delete from master_grid_counter;
 delete from n_select;
 
 delete from kml_data;
-insert into kml_data select * from kml_data_static;
+alter sequence kml_data_gid_seq restart
+insert into kml_data (kml_type, name, hint) select kml_type, name, hint from kml_data_static order by gid
 
 update system_data set value=0 where key='CurQaqcGid';
 
