@@ -1,3 +1,5 @@
+#! /usr/bin/Rscript
+
 ## packages
 library(data.table)
 library(raster)
