@@ -246,11 +246,10 @@ def qualification():
         mapForm.assignmentId.data = assignmentId
         k.write("qualification: Candidate starting try %d on %s kml #%s: %s\n" % (tries, kmlType, doneCount + 1, kmlName))
 
-    # Worker is done with training.
+    # Worker is done with training. Record that fact.
     else:
-        mapc.cur.execute("""UPDATE worker_data SET last_time = %s, qualified = true,
-                scores = %s, returns = %s
-                WHERE worker_id = %s""", (now, [], [], workerId))
+        mapc.approveTraining(workerId, now)
+
     mapc.dbcon.commit()
 
     # Complete building the HTTP response.

@@ -55,6 +55,8 @@ def assignment():
         hitId = mapForm.hitId.data
         assignmentId = mapForm.assignmentId.data
         comment = mapForm.comment.data
+        if len(comment) > 2048:
+            comment = comment[:2048]
         kmlData = mapForm.kmlData.data
         (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
         score = None
@@ -64,6 +66,8 @@ def assignment():
         if len(kmlData) == 0:
             k.write("assignment: OL reported 'save' without mappings for %s kml = %s\n" % (kmlTypeDescr, kmlName))
             k.write("assignment: Worker ID %s\nHIT ID = %s\nAssignment ID = %s\n" % (workerId, hitId, assignmentId))
+            # Post-process this worker's results.
+            mapc.AssignmentSubmitted(k, hitId, assignmentId, workerId, now, kmlName, kmlType, comment)
         else:
             k.write("assignment: OL saved mapping(s) for %s kml = %s\n" % (kmlTypeDescr, kmlName))
             k.write("assignment: Worker ID %s\nHIT ID = %s\nAssignment ID = %s\n" % (workerId, hitId, assignmentId))
@@ -96,9 +100,10 @@ def assignment():
                         k.write("assignment: Shape is a valid %s\n" % geomType)
                     else:
                         k.write("assignment: Shape is an invalid %s due to '%s'\n" % (geomType, geomReason))
-                    mapc.cur.execute("""INSERT INTO qual_user_maps (name, geom, completion_time, assignment_id)
-                            SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, %s as assignment_id""",
-                            (geomName, geometry, now, assignmentId))
+                    mapc.cur.execute("""INSERT INTO user_maps (name, geom, completion_time, assignment_id, geom_clean)
+                            SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, %s as assignment_id, 
+                            ST_MakeValid(ST_GeomFromKML(%s)) as geom_clean""",
+                            (geomName, geometry, now, assignmentId, geometry))
                     mapc.dbcon.commit()
                 except psycopg2.InternalError as e:
                     numFail += 1
@@ -123,28 +128,12 @@ def assignment():
             # If we have at least one valid mapping.
             if numGeom > numFail:
                 # Post-process this worker's results.
-                assignmentStatus = mapc.AssignmentSubmitted(k, hitId, assignmentId, workerId, now, kmlName, kmlType, comment)
+                mapc.AssignmentSubmitted(k, hitId, assignmentId, workerId, now, kmlName, kmlType, comment)
+                mapForm.resultsAccepted.data = 0   # Display no results alert in showkml
             else:
                 assignmentStatus = MappingCommon.HITUnsaved
                 score = 0.                         # Give new worker the min score
                 mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
-
-        k.write("assignment: training assignment has been scored as: %.2f/%.2f\n" %
-                (score, hitAcceptThreshold))
-
-        if assignmentStatus is None:
-            if score < hitAcceptThreshold:
-                assignmentStatus = MappingCommon.HITRejected
-                mapForm.resultsAccepted.data = 2   # Indicate rejected results.
-            else:
-                assignmentStatus = MappingCommon.HITApproved
-                mapForm.resultsAccepted.data = 1   # Indicate approved results.
-
-        # Record the assignment submission time and score.
-        mapc.cur.execute("""update assignment_data set completion_time = '%s', status = '%s', 
-            score = '%s' where assignment_id = '%s'""" %
-            (now, assignmentStatus, score, assignmentId))
-        mapc.dbcon.commit()
 
     # If GET request, tell showkml.js to not issue any alerts.
     else:
@@ -154,100 +143,41 @@ def assignment():
     qualified = mapc.querySingleValue("""select qualified from worker_data 
             where worker_id = '%s'""" % workerId)
 
-    # First time for worker.
-    if qualified is None:
-        newWorker = True
-        mapc.cur.execute("""INSERT INTO worker_data (worker_id, first_time, last_time) 
-                VALUES ('%s', '%s', '%s')""" % (workerId, now, now))
-        # Initialize number of training maps successfully completed.
-        k.write("assignment: New training candidate %s (%s %s - %s) created.\n" % 
-                (workerId, cu.first_name, cu.last_name, cu.email))
-        doneCount = 0
+    # Check if worker is qualified.
+    if qualified is None or not qualified:
+        flash("You have not passed the qualification test. You may not map agricultural fields. Please hover on the EMPLOYEE menu and click on 'View Training Video' and then 'Take Qualification Test'")
+        return redirect(url_for('main.employee_page'))
 
-    # Returning worker.
-    else:
-        # Check if worker already qualified.
-        if qualified:
-            flash("You have already passed the qualification test. You may now map agricultural fields.")
-            return redirect(url_for('main.employee_page'))
+    # Record the return of this worker.
+    mapc.cur.execute("""UPDATE worker_data SET last_time = '%s'
+            WHERE worker_id = '%s'""" % (now, workerId))
+    k.write("assignment: Worker %s (%s %s - %s) has returned.\n" % 
+            (workerId, cu.first_name, cu.last_name, cu.email))
 
-        newWorker = False
-        mapc.cur.execute("""UPDATE worker_data SET last_time = '%s'
-                WHERE worker_id = '%s'""" % (now, workerId))
-        k.write("assignment: Training candidate %s (%s %s - %s) has returned.\n" % 
-                (workerId, cu.first_name, cu.last_name, cu.email))
-
-        # Calculate number of training maps worker has successfully completed.
-        doneCount = int(mapc.querySingleValue("""select count(*) 
-                from qual_assignment_data where worker_id = '%s'
-                and (completion_time is not null and score >= %s)""" %
-                (workerId, hitAcceptThreshold)))
-
-    # Get total number of training maps to complete.
-    totCount = int(mapc.querySingleValue("""select count(*) from kml_data 
-        where kml_type = '%s'""" % MappingCommon.KmlTraining))
-
-    # If worker is not done yet,
-    if doneCount < totCount:
-        # Fetch the next training map for them to work on.
-        mapc.cur.execute("""select name from kml_data
-            left outer join 
-                (select * from qual_assignment_data where worker_id = '%s') qad 
-                using (name)
-            where kml_type = '%s'
-                and (completion_time is null
-                    or score < %s)
-            order by gid
-            limit 1""" % (workerId, MappingCommon.KmlTraining, hitAcceptThreshold))
-        kmlName = mapc.cur.fetchone()[0]
-        mapForm.kmlName.data = kmlName
+    # Select the next KML for this worker: an active HIT that this worker
+    # has not yet been assigned to, and in random order.
+    mapc.cur.execute("""select name, hit_id from kml_data k
+        inner join hit_data h using (name)
+        where delete_time is null
+        and not exists (select true from assignment_data a
+        where a.hit_id = h.hit_id and worker_id = '%s')
+        order by random()
+        limit 1""" % workerId)
+    row = mapc.cur.fetchone()
+    kmlName = row[0]
+    hitId = row[1]
+    mapForm.kmlName.data = kmlName
+    (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
         
-        # Check the number of tries by this worker on this map.
-        tries = mapc.querySingleValue("select tries from qual_assignment_data where worker_id = '%s' and name = '%s'" % (workerId, kmlName))
-
-        # If no assignment for this KML, then worker is just starting the qual test,
-        # or has successfully mapped the previous KML.
-        if not tries:
-            tries = 1
-            mapc.cur.execute("""INSERT INTO qual_assignment_data 
-                (worker_id, name, tries, start_time, status) 
-                VALUES ('%s', '%s', %s, '%s', '%s') RETURNING assignment_id""" % (workerId, kmlName, tries, now, MappingCommon.HITAccepted))
-            assignmentId = mapc.cur.fetchone()[0]
-        # Else, the user tried and failed to successfully map the previous KML, 
-        # and must try again.
-        elif request.method == 'POST':
-            tries = int(tries) + 1
-            mapc.cur.execute("""UPDATE qual_assignment_data SET tries = %s 
-                WHERE worker_id = '%s' and name = '%s' RETURNING assignment_id""" % 
-                (tries, workerId, kmlName))
-            assignmentId = mapc.cur.fetchone()[0]
-        # Or user has simply returned (via the menu or refresh) to continue to the test. 
-        else:
-            assignmentId = mapc.querySingleValue("""SELECT assignment_id FROM assignment_data 
-                WHERE worker_id = '%s' and name = '%s'""" %
-                (workerId, kmlName))
-
-        mapForm.hitId.data = hitId
-        mapForm.assignmentId.data = assignmentId
-        mapForm.tryNum.data = tries
-        k.write("assignment: Candidate starting try %d on %s kml #%s: %s\n" % (tries, kmlType, doneCount + 1, kmlName))
-
-    # Worker is done with training.
-    else:
-        mapc.cur.execute("""UPDATE worker_data SET last_time = %s, qualified = true,
-                scores = %s, returns = %s
-                WHERE worker_id = %s""", (now, [], [], workerId))
+    mapc.cur.execute("""INSERT INTO qual_assignment_data 
+        (hit_id, worker_id, start_time, status) 
+        VALUES ('%s', '%s', %s, '%s') RETURNING assignment_id""" % (hitId, workerId, now, MappingCommon.HITAccepted))
+    assignmentId = mapc.cur.fetchone()[0]
     mapc.dbcon.commit()
 
-    # Complete building the HTTP response.
-    if newWorker:
-        progressStatus = qualTestTfTextStart % { 'totCount': totCount }
-    else:
-        if doneCount < totCount:
-            progressStatus = qualTestTfTextMiddle % { 'doneCount': doneCount, 'totCount': totCount }
-        else:
-            progressStatus = qualTestTfTextEnd % { 'totCount': totCount }
-    mapForm.progressStatus.data = progressStatus
+    mapForm.hitId.data = hitId
+    mapForm.assignmentId.data = assignmentId
+    k.write("assignment: Worker starting on %s kml %s\n" % (kmlType, kmlName))
 
     del mapc
     k.close()
