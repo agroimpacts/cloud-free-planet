@@ -313,8 +313,8 @@ class MappingCommon(object):
 
     # Delete a HIT if all assignments have been submitted and have a final status
     # (i.e., there are no assignments in pending or accepted status).
-    def deleteFinalizedHit(self, hitId, submitTime)
-        
+    def deleteFinalizedHit(self, hitId, submitTime):
+        # Count if there are any available assignments left for this HIT.
         nonFinalAssignCount = self.querySingleValue("""SELECT
                 (SELECT max_assignments FROM hit_data WHERE hit_id = '%s') -
                 (SELECT count(*) FROM assignment_data WHERE hit_id ='%s' AND
@@ -583,7 +583,7 @@ class MappingCommon(object):
     # Record worker as qualified and pay training bonus.
     def approveTraining(self, workerId, completionTime):
         # Mark worker as qualified.
-        mapc.cur.execute("""UPDATE worker_data SET last_time = %s, qualified = true,
+        self.cur.execute("""UPDATE worker_data SET last_time = %s, qualified = true,
                 scores = %s, returns = %s
                 WHERE worker_id = %s""", (completionTime, [], [], workerId))
 
@@ -595,9 +595,9 @@ class MappingCommon(object):
             trainBonusAmount = self.getConfiguration('Bonus_AmountTraining')
             trainBonusReason = self.getConfiguration('Bonus_ReasonTraining')
             self.grantBonus(MappingCommon.EVTTrainingBonus, workerId, trainBonusAmount, trainBonusReason)
-            self.cur.execute("UPDATE worker_data SET bonus_paid = true WHERE worker_id = %s", \
-                (workerId))
-        mapc.dbcon.commit()
+            self.cur.execute("UPDATE worker_data SET bonus_paid = true WHERE worker_id = %s" % \
+                workerId)
+        self.dbcon.commit()
 
 
     # Record assignment approval.
@@ -611,27 +611,27 @@ class MappingCommon(object):
         reward = self.querySingleValue("""select reward from hit_data
                 inner join assignment_data using (hit_id)
                 where assignment_id = '%s'""" % assignmentId)
-        self.cur.execute("INSERT INTO assignment_history (event_time, event_type, worker_id, assignment_id, amount, feedback)
-               VALUES (%s, %s, %s, %s, %s, %s) \
+        self.cur.execute("""INSERT INTO assignment_history (event_time, event_type, worker_id, assignment_id, amount, feedback)
+               VALUES (%s, '%s', %s, %s, %s, %s)""" % \
                (submitTime, MappingCommon.EVTApprovedAssignment, workerId, assignmentId, reward, feedback))
-        mapc.dbcon.commit()
+        self.dbcon.commit()
 
     # Record assignment rejection.
     def rejectAssignment(self, workerId, assignmentId, submitTime):
         hitAcceptThreshold = float(self.getConfiguration('HitQAcceptThreshold'))
         feedback = (self.getConfiguration('HitRejectDescription') % hitAcceptThreshold)
-        self.cur.execute("INSERT INTO assignment_history (event_time, event_type, worker_id, assignment_id, amount, feedback)
-               VALUES (%s, %s, %s, %s, %s, %s) \
+        self.cur.execute("""INSERT INTO assignment_history (event_time, event_type, worker_id, assignment_id, amount, feedback)
+               VALUES (%s, '%s', %s, %s, %s, '%s')""" % \
                (submitTime, MappingCommon.EVTRejectedAssignment, workerId, assignmentId, '0', feedback))
-        mapc.dbcon.commit()
+        self.dbcon.commit()
 
     # Records bonuses for training completion and quality work.
     # Automatically inserts current time into row.
     def grantBonus(self, bonusType, workerId, bonus, reason):
-        self.cur.execute("INSERT INTO assignment_history (event_type, worker_id, amount, feedback)
-               VALUES (%s, %s, %s, %s, %s) \
+        self.cur.execute("""INSERT INTO assignment_history (event_type, worker_id, amount, feedback)
+               VALUES ('%s', %s, %s, '%s')""" % \
                (bonusType, workerId, bonus, reason))
-        mapc.dbcon.commit()
+        self.dbcon.commit()
 
     # Pay bonus and return True if quality score shows worker as qualified.
     def payBonusIfQualified(self, workerId):

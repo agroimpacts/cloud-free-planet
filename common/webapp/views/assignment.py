@@ -169,9 +169,9 @@ def assignment():
     mapForm.kmlName.data = kmlName
     (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
         
-    mapc.cur.execute("""INSERT INTO qual_assignment_data 
+    mapc.cur.execute("""INSERT INTO assignment_data 
         (hit_id, worker_id, start_time, status) 
-        VALUES ('%s', '%s', %s, '%s') RETURNING assignment_id""" % (hitId, workerId, now, MappingCommon.HITAccepted))
+        VALUES ('%s', '%s', '%s', '%s') RETURNING assignment_id""" % (hitId, workerId, now, MappingCommon.HITAccepted))
     assignmentId = mapc.cur.fetchone()[0]
     mapc.dbcon.commit()
 
