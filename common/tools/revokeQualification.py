@@ -1,6 +1,7 @@
 #! /usr/bin/python
 
 import sys
+sys.path.append("..")  # search one directory up
 from datetime import datetime
 from MappingCommon import MappingCommon
 
