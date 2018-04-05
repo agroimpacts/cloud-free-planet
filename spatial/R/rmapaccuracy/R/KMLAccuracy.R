@@ -19,7 +19,6 @@
 #' production. test.root allows one to simply the run the function to see if it 
 #' is located in the correct working environment.
 #' @import RPostgreSQL
-#' @import dbplyr 
 #' @importFrom  DBI dbDriver
 #' @import dplyr
 #' @import sf
@@ -39,19 +38,23 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
   con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), dbname = dinfo["db.name"],   
                         user = user, password = password)
 
-  prj.sql <- paste0("select proj4text from spatial_ref_sys where srid=", 
-                    prjsrid)
-  prjstr <- dbGetQuery(con, prj.sql)$proj4text 
+  # prj.sql <- paste0("select proj4text from spatial_ref_sys where srid=", 
+  #                   prjsrid)
+  # prjstr <- dbGetQuery(con, prj.sql)$proj4text 
+  # 
+  prjstr <- as.character(tbl(con, "spatial_ref_sys") %>% 
+                           filter(srid == prjsrid) %>% 
+                           select(proj4text) %>% collect())
   
   gcsstr <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
     
   # Collect QAQC fields (if there are any; if not then "N" value will be 
   # returned). This should work for both training and test sites
   
-  qaqc.sql <- paste0("select gid, geom_clean, geom",
-                     " from qaqcfields where name=", "'", kmlid, "'")
   # qaqc.sql <- paste0("select gid, geom_clean, geom",
-  #                   " from qaqcfields_SY where name=", "'", kmlid, "'") # test code
+  #                    " from qaqcfields where name=", "'", kmlid, "'")
+  qaqc.sql <- paste0("select gid, geom_clean",
+                     " from qaqcfields where name=", "'", kmlid, "'")
   qaqc.polys <- st_read_db(con, query = qaqc.sql, geom_column = 'geom_clean')
   qaqc.hasfields <- ifelse(nrow(qaqc.polys) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
@@ -60,29 +63,26 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
     qaqc.polys <- st_buffer(qaqc.polys, 0)
     qaqc.poly <- st_union(qaqc.polys) 
   } 
-  
+
   # Read in user data
   if(mtype == "tr") {  # Training case
-    user.sql <- paste0("select name, geom_clean, geom,try",
+    user.sql <- paste0("select name, geom_clean, geom, try",
                        " from qual_user_maps where assignment_id=",  "'", 
                        assignmentid, "'", " and try='",  tryid, 
                        "' order by name")
   } else if(mtype == "qa") {  # Test case
-    # user.sql <- paste0("select name, geom_clean, geom from",
-    #                    " user_maps_SY where assignment_id=", "'", assignmentid,
-    #                    "'", " order by name")  # test code
     user.sql <- paste0("select name, geom_clean, geom from",
                        " user_maps where assignment_id=", "'", assignmentid,
                        "'", " order by name")
   }
-  
-  user.polys <-st_read_db (con, query = user.sql, geom_column = 'geom_clean') # geom_column is always the last column in sf
+  user.polys <- st_read_db (con, query = user.sql, geom_column = 'geom_clean') 
   user.hasfields <- ifelse(nrow(user.polys) > 0, "Y", "N") 
   if(user.hasfields == "Y") {  # Read in user fields if there are any
     if(any(st_is_empty(user.polys))) {  # invoke cleaning algorithm
-      unfixedsfc <- st_as_sfc(lapply(as.vector(user.polys$geom), function(vec) {
+      unfixedsfc <- lapply(as.vector(user.polys$geom), function(vec) {
         structure(vec, class = "wkb")
-      }), EWKB = TRUE)
+      })
+      unfixedsfc <- st_as_sfc(unfixedsfc, EWKB = TRUE)
       user.polysclean <- cleanTempPolyFromWKT(unfixedsfc = unfixedsfc, 
                                               crs = gcs)
       user.nfields <- nrow(user.polysclean)  #  Record n distinct fields
@@ -90,7 +90,7 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
       user.poly <- st_union(st_transform(user.polysclean,crs = prjstr)) 
     } else if(all(!st_is_empty(user.polys))) { 
       user.nfields <- nrow(user.polys)
-      user.poly <- st_union(st_transform(user.polys,crs=prjstr))
+      user.poly <- st_union(st_transform(user.polys, crs = prjstr))
     }
   } 
   
@@ -105,15 +105,11 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
   } else {
     # Pick up grid cell from qaqc table, for background location, as it will be 
     # needed for the other 3 cases
-    
-    # drv_sand <- dbDriver("PostgreSQL") # test code
-    # con_sand <- dbConnect(drv_sand, dbname = "AfricaSandbox", user = "***REMOVED***", password = '***REMOVED***') # test code
-    # xy_tabs <- data.table(con_sand %>% tbl("master_grid") %>% filter(name==kmlid)%>% collect()) # test code
-    
-    xy_tabs <- data.table(con %>% tbl("master_grid") %>% filter(name==kmlid) %>%
-                            collect())
+    xy_tabs <- data.table(con %>% tbl("master_grid") %>% filter(name == kmlid) 
+                          %>% select(x, y, name) %>% collect())
     grid.poly <- point_to_gridpoly(xy = xy_tabs, w = diam, NewCRSobj = prjstr, 
                                    OldCRSobj = gcsstr)
+    grid.poly <- st_geometry(grid.poly)  # retain geometry only
   }
   
   # Case 2: A null qaqc site but user mapped field(s)
@@ -124,7 +120,7 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
     count.error <- 0  # zero if QAQC has no fields but user maps even 1 field
     
     # Mapped area differences inside the target grid cell
-    user.poly.in <- st_intersection(grid.poly,user.poly)  
+    user.poly.in <- st_intersection(grid.poly, user.poly)  
     inres <- mapError(maps = user.poly.in, truth = NULL, region = grid.poly)
     
     # Secondary metric - Sensitivity of results outside of kml grid
@@ -187,6 +183,7 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
       inres <- mapError(maps = user.poly.in, truth = qaqc.poly.in, 
                         region = grid.poly)  # Error metric
       
+      
       # Secondary metric - Sensitivity of results outside of kml grid
       if(is.null(nrow(user.poly.out)) & is.null(nrow(qaqc.poly.out))) {
         if(comments == "T") print("No QAQC or User fields outside of grid")
@@ -226,9 +223,9 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
                          assignmentid, "', ", paste(err.out, collapse = ", "),
                          ", ", tss.err,  ")")
     } else if(mtype == "tr") {
-      error.sql <- paste0("insert into qual_error_data(training_id, name,",
+      error.sql <- paste0("insert into qual_error_data(assignment_id,",
                           " score, error1, error2, error3, error4, try, tss)",
-                          " values ('", assignmentid, "', ", "'", kmlid, "', ",
+                          " values ('", assignmentid, "', ",
                           paste(err.out, collapse = ", "), ", ", tryid, ", ",
                           tss.err, ")")  # Write try error data
     }

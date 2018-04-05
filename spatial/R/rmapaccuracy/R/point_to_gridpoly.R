@@ -20,7 +20,7 @@ point_to_gridpoly <- function(xy, w, NewCRSobj,OldCRSobj) {
     poldf <- st_sfc(pol)
     ## create a sf, a table which contains feature atributes and feature geometries (sfc)
     ## .() is actually just an alias to ‘list()’. It returns a data table, whereas not using ‘.()’ only returns a vector
-    polsf <- st_sf(xy[i, .(id, name, fwts)], geom = poldf)
+    polsf <- st_sf(xy[i, .(name)], geom = poldf)
     st_crs(polsf) <- OldCRSobj # first set GCS
     polsf <- st_transform(polsf,crs = NewCRSobj) # then transform into PRS
     polsf
