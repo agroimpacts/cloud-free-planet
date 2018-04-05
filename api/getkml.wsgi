@@ -33,6 +33,7 @@ def application(environ, start_response):
             submitTo = req.params['submitTo']
             csrfToken = req.params['csrfToken']
             workerId = ''
+            target = '_parent'
 
             # Training case.
             # This has a tryNum.
@@ -40,7 +41,6 @@ def application(environ, start_response):
                 tryNum = req.params['tryNum']
                 hitId = ''
                 commentsDisabled = 'disabled'
-                target = '_parent'
                 mapHint = '<div class="hints">Hint: %s</div>' % mapHint
                 kmlMapHeight -= 30        # Reduce map height to leave room for hints.
 
@@ -49,7 +49,6 @@ def application(environ, start_response):
                 tryNum = ''
                 hitId = req.params['hitId']
                 commentsDisabled = ''
-                target = '_self'
                 mapHint = ''
 
         # Worker feedback and standalone cases.
