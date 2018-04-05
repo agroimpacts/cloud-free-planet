@@ -38,10 +38,6 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
   con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), dbname = dinfo["db.name"],   
                         user = user, password = password)
 
-  # prj.sql <- paste0("select proj4text from spatial_ref_sys where srid=", 
-  #                   prjsrid)
-  # prjstr <- dbGetQuery(con, prj.sql)$proj4text 
-  # 
   prjstr <- as.character(tbl(con, "spatial_ref_sys") %>% 
                            filter(srid == prjsrid) %>% 
                            select(proj4text) %>% collect())
@@ -50,12 +46,11 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
     
   # Collect QAQC fields (if there are any; if not then "N" value will be 
   # returned). This should work for both training and test sites
-  
-  # qaqc.sql <- paste0("select gid, geom_clean, geom",
-  #                    " from qaqcfields where name=", "'", kmlid, "'")
   qaqc.sql <- paste0("select gid, geom_clean",
                      " from qaqcfields where name=", "'", kmlid, "'")
-  qaqc.polys <- st_read_db(con, query = qaqc.sql, geom_column = 'geom_clean')
+  qaqc.polys <- suppressWarnings(st_read_db(con, query = qaqc.sql, 
+                                            geom_column = 'geom_clean'))
+  
   qaqc.hasfields <- ifelse(nrow(qaqc.polys) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
     qaqc.nfields <- nrow(qaqc.polys)
@@ -75,7 +70,8 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
                        " user_maps where assignment_id=", "'", assignmentid,
                        "'", " order by name")
   }
-  user.polys <- st_read_db (con, query = user.sql, geom_column = 'geom_clean') 
+  user.polys <- suppressWarnings(st_read_db(con, query = user.sql, 
+                                            geom_column = 'geom_clean'))
   user.hasfields <- ifelse(nrow(user.polys) > 0, "Y", "N") 
   if(user.hasfields == "Y") {  # Read in user fields if there are any
     if(any(st_is_empty(user.polys))) {  # invoke cleaning algorithm
