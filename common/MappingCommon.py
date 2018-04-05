@@ -227,7 +227,7 @@ class MappingCommon(object):
         qualityScore = self.getQualityScore(workerId)
         if qualityScore is None:
             return None
-        trustThreshold = float(self.getConfiguration('HitNTrustThreshold'))
+        trustThreshold = float(self.getConfiguration('HitN_TrustThreshold'))
         if qualityScore >= trustThreshold:
             return True
         else:
@@ -319,7 +319,7 @@ class MappingCommon(object):
                 (SELECT max_assignments FROM hit_data WHERE hit_id = '%s') -
                 (SELECT count(*) FROM assignment_data WHERE hit_id ='%s' AND
                         status NOT IN ('%s', '%s'))""" %
-                (hitId, hit_id, MappingCommon.HITAccepted, MappingCommon.HITPending))
+                (hitId, hitId, MappingCommon.HITAccepted, MappingCommon.HITPending))
         try:
             nonFinalAssignCount = int(nonFinalAssignCount)
         except:
@@ -363,10 +363,10 @@ class MappingCommon(object):
 
         # If QAQC HIT, then score it and post-process any preceding FQAQC or non-QAQC HITs for this worker.
         if kmlType == MappingCommon.KmlQAQC:
-            self.QAQCSubmission(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment)
+            self.QAQCSubmission(k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment)
         # Else, if FQAQC HIT or non-QAQC HIT, then post-process it or mark it as pending post-processing.
         elif kmlType == MappingCommon.KmlNormal or kmlType == MappingCommon.KmlFQAQC:
-            self.NormalSubmission(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment)
+            self.NormalSubmission(k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment)
 
     def QAQCSubmission(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):
         # Compute the worker's score on this KML.
@@ -394,8 +394,8 @@ class MappingCommon(object):
         if self.revokeQualificationIfUnqualifed(workerId, submitTime):
             k.write("assignment: Mapping Africa Qualification revoked from worker %s\n" % workerId)
 
-        hitAcceptThreshold = float(self.getConfiguration('HitQAcceptThreshold'))
-        hitNoWarningThreshold = float(self.getConfiguration('HitQNoWarningThreshold'))
+        hitAcceptThreshold = float(self.getConfiguration('HitQ_AcceptThreshold'))
+        hitNoWarningThreshold = float(self.getConfiguration('HitQ_NoWarningThreshold'))
 
         # If the worker's results could not be scored, or if their score meets 
         # the acceptance threshold, notify worker that his HIT was accepted.
@@ -603,8 +603,8 @@ class MappingCommon(object):
     # Record assignment approval.
     def approveAssignment(self, workerId, assignmentId, submitTime, warning=False):
         if warning:
-            hitWarningDescription = self.getConfiguration('HitQWarningDescription')
-            hitNoWarningThreshold = float(self.getConfiguration('HitQNoWarningThreshold'))
+            hitWarningDescription = self.getConfiguration('HitQ_WarningDescription')
+            hitNoWarningThreshold = float(self.getConfiguration('HitQ_NoWarningThreshold'))
             feedback = (hitWarningDescription % hitNoWarningThreshold)
         else:
             feedback = ''
@@ -612,16 +612,16 @@ class MappingCommon(object):
                 inner join assignment_data using (hit_id)
                 where assignment_id = '%s'""" % assignmentId)
         self.cur.execute("""INSERT INTO assignment_history (event_time, event_type, worker_id, assignment_id, amount, feedback)
-               VALUES (%s, '%s', %s, %s, %s, %s)""" % \
+               VALUES ('%s', '%s', %s, %s, %s, '%s')""" % \
                (submitTime, MappingCommon.EVTApprovedAssignment, workerId, assignmentId, reward, feedback))
         self.dbcon.commit()
 
     # Record assignment rejection.
     def rejectAssignment(self, workerId, assignmentId, submitTime):
-        hitAcceptThreshold = float(self.getConfiguration('HitQAcceptThreshold'))
-        feedback = (self.getConfiguration('HitRejectDescription') % hitAcceptThreshold)
+        hitAcceptThreshold = float(self.getConfiguration('HitQ_AcceptThreshold'))
+        feedback = (self.getConfiguration('Hit_RejectDescription') % hitAcceptThreshold)
         self.cur.execute("""INSERT INTO assignment_history (event_time, event_type, worker_id, assignment_id, amount, feedback)
-               VALUES (%s, '%s', %s, %s, %s, '%s')""" % \
+               VALUES ('%s', '%s', %s, %s, %s, '%s')""" % \
                (submitTime, MappingCommon.EVTRejectedAssignment, workerId, assignmentId, '0', feedback))
         self.dbcon.commit()
 
