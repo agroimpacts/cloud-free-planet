@@ -24,14 +24,12 @@ class MappingCommon(object):
     # HIT assignment_data.status constants
 
     # QAQC and non-QAQC HIT constants
-    HITAccepted = 'Accepted'                    # HIT accepted by worker
+    HITAssigned = 'Assigned'                    # HIT assigned to worker
     HITAbandoned = 'Abandoned'                  # HIT abandoned by worker
     HITReturned = 'Returned'                    # HIT returned by worker
     HITApproved = 'Approved'                    # HIT submitted and approved:
                                                 # a) QAQC had high score
                                                 # b) non-QAQC had high trust level
-    HITUnsaved = 'Unsaved'                      # HIT unsaved, hence approved
-                                                # (non-QAQC KML reused in this case)
     # QAQC constants
     HITRejected = 'Rejected'                    # HIT submitted and rejected
     HITUnscored = 'Unscored'                    # HIT not scorable, hence approved
@@ -278,7 +276,7 @@ class MappingCommon(object):
             assignmentsPending = 0
             for asgmtId, asgmt in self.getAssignments(hit[0]).iteritems():
                 if asgmt['status'] not in (MappingCommon.HITAbandoned, MappingCommon.HITReturned):
-                    if asgmt['status'] in (MappingCommon.HITAccepted, MappingCommon.HITPending):
+                    if asgmt['status'] in (MappingCommon.HITAssigned, MappingCommon.HITPending):
                         assignmentsPending += 1
                     else:
                         assignmentsCompleted += 1
@@ -329,7 +327,7 @@ class MappingCommon(object):
                 (SELECT max_assignments FROM hit_data WHERE hit_id = '%s') -
                 (SELECT count(*) FROM assignment_data WHERE hit_id ='%s' AND
                         status NOT IN ('%s', '%s'))""" %
-                (hitId, hitId, MappingCommon.HITAccepted, MappingCommon.HITPending))
+                (hitId, hitId, MappingCommon.HITAssigned, MappingCommon.HITPending))
         try:
             nonFinalAssignCount = int(nonFinalAssignCount)
         except:
@@ -647,7 +645,7 @@ class MappingCommon(object):
             if hitStatus == 'Reviewable':
                 nonFinalAssignCount = int(self.querySingleValue("""select count(*) from assignment_data
                     where hit_id = '%s' and status in ('%s','%s')""" %
-                    (hitId, MappingCommon.HITPending, MappingCommon.HITAccepted)))
+                    (hitId, MappingCommon.HITPending, MappingCommon.HITAssigned)))
                 if nonFinalAssignCount == 0:
                     try:
                         self.disposeHit(hitId)

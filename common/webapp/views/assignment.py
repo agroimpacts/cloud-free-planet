@@ -110,7 +110,7 @@ def assignment():
         mapc.cur.execute("""SELECT name, hit_id, assignment_id FROM assignment_data
                 INNER JOIN hit_data USING (hit_id)
                 WHERE worker_id = '%s' AND status = '%s' LIMIT 1""" % 
-                (workerId, MappingCommon.HITAccepted))
+                (workerId, MappingCommon.HITAssigned))
         row = mapc.cur.fetchone()
         if row is not None:
             kmlName = row[0]
@@ -153,7 +153,7 @@ def assignment():
                 
             mapc.cur.execute("""INSERT INTO assignment_data 
                 (hit_id, worker_id, start_time, status) 
-                VALUES ('%s', '%s', '%s', '%s') RETURNING assignment_id""" % (hitId, workerId, now, MappingCommon.HITAccepted))
+                VALUES ('%s', '%s', '%s', '%s') RETURNING assignment_id""" % (hitId, workerId, now, MappingCommon.HITAssigned))
             assignmentId = mapc.cur.fetchone()[0]
             mapc.dbcon.commit()
 

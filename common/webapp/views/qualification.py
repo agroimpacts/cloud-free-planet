@@ -153,7 +153,7 @@ def qualification():
                 tries = 1
                 mapc.cur.execute("""INSERT INTO qual_assignment_data 
                     (worker_id, name, tries, start_time, status) 
-                    VALUES ('%s', '%s', %s, '%s', '%s') RETURNING assignment_id""" % (workerId, kmlName, tries, now, MappingCommon.HITAccepted))
+                    VALUES ('%s', '%s', %s, '%s', '%s') RETURNING assignment_id""" % (workerId, kmlName, tries, now, MappingCommon.HITAssigned))
                 assignmentId = mapc.cur.fetchone()[0]
             # Else, the user tried and failed to successfully map the previous KML and must try again.
             elif request.method == 'POST':
