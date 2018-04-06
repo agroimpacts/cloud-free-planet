@@ -266,7 +266,7 @@ class MappingCommon(object):
         for hit in self.cur.fetchall():
             assignmentsCompleted = 0
             assignmentsPending = 0
-            for asgmt in self.getAssignments(hit[0]):
+            for asgmtId, asgmt in self.getAssignments(hit[0]).iteritems():
                 if asgmt['status'] not in (MappingCommon.HITAbandoned, MappingCommon.HITReturned):
                     if asgmt['status'] in (MappingCommon.HITAccepted, MappingCommon.HITPending):
                         assignmentsPending += 1

@@ -47,21 +47,29 @@ while True:
     numFqaqcHits = 0
     numNonQaqcHits = 0
     for hitId, row in hits.iteritems():
-        # Calculate the nuumber of assignable QAQC, FQAQC, and NQAQC HITs 
-        # currently active. For HITs with multiple assignments,
-        # only count HITs whose number of completed assignments does not exceed
-        # the configured threshold.
-        maxAssignments1 = row['maxAssignments'] - 1
+        # Calculate the number of assignable QAQC, FQAQC, and NQAQC HITs 
+        # currently active. For HITs with multiple assignments, only count HITs 
+        # where assignmentsCompleted does not exceed # the configured threshold.
+        # An assignable HIT is one where:
+        #   (maxAssignments - assignmentsCompleted - assignmentsPending) > 0
+        # Note that assignments with Returned or Abandoned statuses are ignored.
+        # assignmentsPending is the count of assignments in a temporary status (i.e., Accepted or Pending)
+        # assignmentsCompleted is the count of assignments in a final status (i.e., any other non-ignored status)
+        maxAssignments = row['maxAssignments']
+        remAssignments = maxAssignments - row['assignmentsCompleted'] - row['assignmentsPending']
         if row['kmlType'] == MappingCommon.KmlQAQC:
-            if row['assignmentsCompleted'] <= maxAssignments1:
+            # Must have a remaining assignment.
+            if remAssignments >= 1:
                 numQaqcHits = numQaqcHits + 1
         elif row['kmlType'] == MappingCommon.KmlFQAQC:
-            threshold = int(round(float(hitActiveAssignPercentF * maxAssignments1) / 100.))
-            if row['assignmentsCompleted'] <= threshold:
+            # Must have at least this many remaining available assignments
+            threshold = maxAssignments - int(round(float(hitActiveAssignPercentF * maxAssignments) / 100.))
+            if remAssignments >= threshold:
                 numFqaqcHits = numFqaqcHits + 1
         elif row['kmlType'] == MappingCommon.KmlNormal:
-            threshold = int(round(float(hitActiveAssignPercentN * maxAssignments1) / 100.))
-            if row['assignmentsCompleted'] <= threshold:
+            # Must have at least this many remaining available assignments
+            threshold = maxAssignments - int(round(float(hitActiveAssignPercentN * maxAssignments) / 100.))
+            if remAssignments >= threshold:
                 numNonQaqcHits = numNonQaqcHits + 1
 
     # Create any needed QAQC HITs.

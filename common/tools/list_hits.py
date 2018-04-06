@@ -11,7 +11,6 @@ nfh = 0
 nnh = 0
 nh = 0
 print "HIT Id, kml name, kml type, reward, status, #assign rem, #assign compl, #assign pend"
-print "Assign Ids"
 for hitId, hit in mapc.getAllHits().iteritems():
     assignmentsRemaining = hit['maxAssignments'] - \
             (hit['assignmentsCompleted'] + hit['assignmentsPending'])
@@ -33,7 +32,11 @@ for hitId, hit in mapc.getAllHits().iteritems():
         kmlType = 'U'       # Unknown
     
     print hitId, hit['kmlName'], kmlType, hit['reward'], hitStatus, assignmentsRemaining, hit['assignmentsCompleted'], hit['assignmentsPending']
-    for asgmtId, asgmt in mapc.getAssignments(hitId=hitId):
-        print asgmtId
+    label = False
+    for asgmtId, asgmt in mapc.getAssignments(hitId=hitId).iteritems():
+        if not label:
+            print "Assign Id(s): %s" % asgmtId
+        else:
+            print ", %s" % asgmtId
 
 print 'Total HITs: %d; # assignable HITs: %d; QAQC HITs: %d; FQAQC HITs: %d; non-QAQC HITs: %d' % (nh, nah, nqh, nfh, nnh)
