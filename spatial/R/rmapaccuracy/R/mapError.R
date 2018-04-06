@@ -28,8 +28,9 @@ mapError <- function(maps, truth, region) {
     tn <- st_difference(st_buffer(null, 0),maps)
   }
   tflist <- c("tp", "fp", "fn", "tn") 
-  areas <- sapply(tflist, function(x) {
-    ifelse(!is.null(get(x)) & is.object(get(x)), st_area(get(x)), 0)
+  areas <- sapply(tflist, function(x) {  
+    xo <- get(x)  # fix to deal with non-null sf objects
+    ifelse(!is.null(xo) & is.object(xo) & length(xo) > 0, st_area(xo), 0)
   })
   names(areas) <- tflist  
   acc_stats <- accStatsSum(tp = areas["tp"], fp = areas["fp"], 
