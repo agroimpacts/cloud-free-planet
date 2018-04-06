@@ -168,13 +168,14 @@ img {
     margin: 0 0 0 10px;
 	color: #b8c6ac;
 	font: bold 14px/24px Arial, Helvetica, sans-serif;
-    text-shadow: -1px -1px 1px #fff, 1px 1px 1px #000;
+    /**text-shadow: -1px -1px 1px #fff, 1px 1px 1px #000;**/
     overflow: hidden;
 	display: inline-block;
 }
 .banner h2 {
-	color: #8c8c8c;
-	font: 19px/24px "Times New Roman", Times, serif;
+	color: #000000;/**#8c8c8c;**/
+	/**font: 19px/24px "Times New Roman", Times, serif;**/
+	font: 19px/26px Arial, Helvetica, sans-serif;
 	letter-spacing: 2px;
 	margin: 0;
 	text-transform: uppercase;

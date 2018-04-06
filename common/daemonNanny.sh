@@ -31,7 +31,6 @@ NOW=`/bin/date '+%m/%d/%Y %H:%M:%S'`
 # This email address has been configured on trac.princeton.edu in
 # /etc/aliases and /usr/local/etc/email2trac.conf to create a ticket
 # under the Internal Alert component.
-#TO="mappingafrica_internal_alert@trac.princeton.edu"
 TO="lestes@clarku.edu,dmcr@princeton.edu"
 
 # Utility functions

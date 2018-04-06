@@ -14,7 +14,6 @@ fi
 
 AFMAP_HOME=`basename $HOME`
 CREATEHIT=`pgrep -f /home/${AFMAP_HOME}*.*create_hit_daemon.py`
-PROCESSQUAL=`pgrep -f /home/${AFMAP_HOME}*.*process_qualification_requests.py`
 CLEANUP=`pgrep -f /home/${AFMAP_HOME}*.*cleanup_absent_worker.py`
 KMLGENERATE=`pgrep -f /home/${AFMAP_HOME}*.*KMLgenerate.R`
 
@@ -24,13 +23,6 @@ if [ -n "$CREATEHIT" ]; then
     kill $CREATEHIT
 else
     echo "create_hit_daemon.py not running"
-fi
-if [ -n "$PROCESSQUAL" ]; then
-    echo "process_qualifications.py PID on $AFMAP_HOME: $PROCESSQUAL"
-    echo "kill $PROCESSQUAL"
-    kill $PROCESSQUAL
-else
-    echo "process_qualifications.py not running"
 fi
 if [ -n "$CLEANUP" ]; then
     echo "cleanup_absent_worker.py PID on $AFMAP_HOME: $CLEANUP"

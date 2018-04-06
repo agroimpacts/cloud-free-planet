@@ -145,6 +145,7 @@ def assignment():
 
     # Check if worker is qualified.
     if qualified is None or not qualified:
+        k.write("assignment: Worker %s tried to map agricultural fields without passing the qualification test.\nNotified and redirected.\n" % workerId)
         flash("You have not passed the qualification test. You may not map agricultural fields. Please hover on the EMPLOYEE menu and click on 'View Training Video' and then 'Take Qualification Test'")
         return redirect(url_for('main.employee_page'))
 
@@ -164,6 +165,15 @@ def assignment():
         order by random()
         limit 1""" % workerId)
     row = mapc.cur.fetchone()
+    # Check if there are any KMLs to hand out.
+    if row is None:
+        mapc.createAlertIssue("No available HITs in hit_data table",
+                """There are no HITs in the hit_data table that are available to worker %s\n
+                Ensure create_hit_daemon is running, and check its log file.""" % 
+                workerId)
+        k.write("assignment: Worker %s tried to map agricultural fields but there were none to map.\nNotified and redirected.\n" % workerId)
+        flash("We apologize, but there are currently no maps for you to work on. We are aware of the problem and will fix it as soon as possible. Please try again later.")
+        return redirect(url_for('main.employee_page'))
     kmlName = row[0]
     hitId = row[1]
     mapForm.kmlName.data = kmlName
