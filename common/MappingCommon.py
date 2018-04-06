@@ -366,19 +366,128 @@ class MappingCommon(object):
         except:
             return None, scoreString
 
+    # Save all the worker's drawm maps.
+    # Note: if tryNum is zero, then this is not a training case.
+    def saveWorkerMaps(self, k, kmlData, workerId, assignmentId, tryNum=0):
+        # Loop over every Polygon, and store its name and data in PostGIS DB.
+        numGeom = 0
+        numFail = 0
+        errorString = ''
+        k.write("saveWorkerMaps: kmlData = %s\n" % kmlData)
+        kmlData = parseString(kmlData)
+        for placemark in kmlData.getElementsByTagName('Placemark'):
+            numGeom += 1
+            # Get mapping name, type, and XML description.
+            children = placemark.childNodes
+            geomName = children[0].firstChild.data
+            k.write("assignment: Shape name = %s\n" % geomName)
+            geomType = children[1].tagName
+            k.write("assignment: Shape type = %s\n" % geomType)
+            geometry = children[1].toxml()
+            k.write("assignment: Shape KML = %s\n" % geometry)
+
+            # Attempt to convert from KML to ***REMOVED*** geom format.
+            try:
+                # Report type and validity of this mapping.
+                geomValue = self.querySingleValue("SELECT ST_IsValidDetail(ST_GeomFromKML('%s'))" % geometry)
+                # ST_IsValidDetail returns with format '(t/f,"reason",geometry)'
+                geomValid, geomReason, dummy = geomValue[1:-1].split(',')
+                geomValid = (geomValid == 't')
+                if geomValid:
+                    k.write("saveWorkerMaps: Shape is a valid %s\n" % geomType)
+                else:
+                    k.write("saveWorkerMaps: Shape is an invalid %s due to '%s'\n" % (geomType, geomReason))
+                if tryNum > 0:
+                    self.cur.execute("""INSERT INTO qual_user_maps (name, geom, completion_time, assignment_id, try, geom_clean)
+                            SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, %s as assignment_id, %s as try,
+                            ST_MakeValid(ST_GeomFromKML(%s)) as geom_clean""",
+                            (geomName, geometry, now, assignmentId, tryNum, geometry))
+                else:
+                    self.cur.execute("""INSERT INTO user_maps (name, geom, completion_time, assignment_id, geom_clean)
+                            SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, %s as assignment_id, 
+                            ST_MakeValid(ST_GeomFromKML(%s)) as geom_clean""",
+                            (geomName, geometry, now, assignmentId, geometry))
+                self.dbcon.commit()
+            except psycopg2.InternalError as e:
+                numFail += 1
+                self.dbcon.rollback()
+                errorString += "\nKML mapping %s raised an internal datatase exception: %s\n%s%s\n" % (geomName, e.pgcode, e.pgerror, cgi.escape(geometry))
+                k.write("saveWorkerMaps: Internal database error %s\n%s" % (e.pgcode, e.pgerror))
+                k.write("saveWorkerMaps: Ignoring this mapping and continuing\n")
+            except psycopg2.Error as e:
+                numFail += 1
+                self.dbcon.rollback()
+                errorString += "\nKML mapping %s raised a general datatase exception: %s\n%s%s\n" % (geomName, e.pgcode, e.pgerror, cgi.escape(geometry))
+                k.write("saveWorkerMaps: General database error %s\n%s" % (e.pgcode, e.pgerror))
+                k.write("saveWorkerMaps: Ignoring this mapping and continuing\n")
+
+        # If we have at least one invalid mapping.
+        if numFail > 0:
+            k.write("saveWorkerMaps: NOTE: %s mapping(s) out of %s were invalid\n" % (numFail, numGeom))
+            if tryNum > 0:
+                self.createAlertIssue("Database geometry problem",
+                    "Worker ID = %s\nAssignment ID = %s; try %s\nNOTE: %s mapping(s) out of %s were invalid\n%s" %
+                    (workerId, assignmentId, tryNum, numFail, numGeom, errorString))
+            else:
+                self.createAlertIssue("Database geometry problem",
+                        "Worker ID = %s\nAssignment ID = %s\nNOTE: %s mapping(s) out of %s were invalid\n%s" % 
+                        (workerId, assignmentId, numFail, numGeom, errorString))
+
+        # If we have at least one valid mapping, return success.
+        if numGeom > numFail:
+            return True
+        else:
+            return False
+
+    # Do post-processing for a training worker's submitted assignment.
+    def trainingAssignmentSubmitted(self, k, hitId, assignmentId, tryNum, workerId, submitTime, kmlName, kmlType):
+        # Compute the worker's score on this KML.
+        score, scoreString = self.kmlAccuracyCheck(MappingCommon.KmlTraining, kmlName, assignmentId, tryNum)
+        # Reward the worker if we couldn't score his work properly.
+        if score is None:
+            assignmentStatus = MappingCommon.HITUnscored
+            score = self.getQualityScore(workerId)
+            if score is None:
+                score = 1.          # Give new worker the max score
+            k.write("qualification: Invalid value returned from R scoring script for:\nKML %s, worker ID %s, assignment ID %s, try %s; assigning a score of %.2f\nReturned value:\n%s\n" %
+                    (kmlName, workerId, assignmentId, tryNum, score, scoreString))
+            self.createAlertIssue("KMLAccuracyCheck problem",
+                    "Invalid value returned from R scoring script for:\nKML %s, worker ID %s, assignment ID %s, try %s; assigning a score of %.2f\nReturned value:\n%s\n" %
+                    (kmlName, workerId, assignmentId, tryNum, score, scoreString))
+
+        # See if score exceeds the Accept threshold
+        hitAcceptThreshold = float(self.getConfiguration('HitI_AcceptThreshold'))
+        k.write("qualification: training assignment has been scored as: %.2f/%.2f\n" %
+                (score, hitAcceptThreshold))
+
+        if assignmentStatus is None:
+            if score >= hitAcceptThreshold:
+                assignmentStatus = MappingCommon.HITApproved
+                approved = True
+            else:
+                assignmentStatus = MappingCommon.HITRejected
+                approved = False
+        return approved
+
+        # Record the assignment submission time and score (unless results were unsaved).
+        self.cur.execute("""update qual_assignment_data set completion_time = '%s', status = '%s',
+            score = '%s' where assignment_id = '%s'""" %
+            (now, assignmentStatus, score, assignmentId))
+        self.dbcon.commit()
+
     # Do all post-processing for a worker's submitted assignment.
-    def AssignmentSubmitted(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):
+    def assignmentSubmitted(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):
         # Record the submission in order to compute a return rate.
         self.pushReturn(assignmentId, False)
 
         # If QAQC HIT, then score it and post-process any preceding FQAQC or non-QAQC HITs for this worker.
         if kmlType == MappingCommon.KmlQAQC:
-            self.QAQCSubmission(k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment)
+            self.qaqcSubmission(k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment)
         # Else, if FQAQC HIT or non-QAQC HIT, then post-process it or mark it as pending post-processing.
         elif kmlType == MappingCommon.KmlNormal or kmlType == MappingCommon.KmlFQAQC:
-            self.NormalSubmission(k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment)
+            self.normalSubmission(k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment)
 
-    def QAQCSubmission(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):
+    def qaqcSubmission(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):
         # Compute the worker's score on this KML.
         # NOTE: We used to call mapFix before calling KMLAccuracyCheck.
         score, scoreString = self.kmlAccuracyCheck(kmlType, kmlName, assignmentId)
@@ -391,9 +500,9 @@ class MappingCommon(object):
                 score = 1.          # Give new worker the max score
             k.write("assignment: Invalid value returned from R scoring script for:\nQAQC KML %s, HIT ID %s, assignment ID %s, worker ID %s; assigning a score of %.2f\nReturned value:\n%s\n" % 
                     (kmlName, hitId, assignmentId, workerId, score, scoreString)) 
-            #self.createAlertIssue("KMLAccuracyCheck problem", 
-            #        "Invalid value returned from R scoring script for:\nQAQC KML %s, HIT ID %s, assignment ID %s, worker ID %s; assigning a score of %.2f\nReturned value:\n%s\n" %
-            #        (kmlName, hitId, assignmentId, workerId, score, scoreString))
+            self.createAlertIssue("KMLAccuracyCheck problem", 
+                    "Invalid value returned from R scoring script for:\nQAQC KML %s, HIT ID %s, assignment ID %s, worker ID %s; assigning a score of %.2f\nReturned value:\n%s\n" %
+                    (kmlName, hitId, assignmentId, workerId, score, scoreString))
 
         # Record score (actual or assumed) to compute moving average.
         self.pushScore(workerId, score)
@@ -447,7 +556,7 @@ class MappingCommon(object):
         # Post-process any pending FQAQC or non-QAQC HITs for this worker.
         self.NormalPostProcessing(k, workerId, submitTime)
 
-    def NormalSubmission(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):
+    def normalSubmission(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):
         workerTrusted = self.isWorkerTrusted(workerId)
         if workerTrusted is None:
             # If not enough history, mark assignment as pending in order to save for post-processing.

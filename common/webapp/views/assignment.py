@@ -64,72 +64,21 @@ def assignment():
         if len(kmlData) == 0:
             k.write("assignment: OL reported 'save' without mappings for %s kml = %s\n" % (kmlTypeDescr, kmlName))
             k.write("assignment: Worker ID %s\nHIT ID = %s\nAssignment ID = %s\n" % (workerId, hitId, assignmentId))
-            # Post-process this worker's results.
-            mapc.AssignmentSubmitted(k, hitId, assignmentId, workerId, now, kmlName, kmlType, comment)
+            resultsSaved = True                 # Can't fail since no maps posted.
         else:
             k.write("assignment: OL saved mapping(s) for %s kml = %s\n" % (kmlTypeDescr, kmlName))
             k.write("assignment: Worker ID %s\nHIT ID = %s\nAssignment ID = %s\n" % (workerId, hitId, assignmentId))
 
-            # Loop over every Polygon, and store its name and data in PostGIS DB.
-            numGeom = 0
-            numFail = 0
-            errorString = ''
-            k.write("assignment: kmlData = %s\n" % kmlData)
-            kmlData = parseString(kmlData)
-            for placemark in kmlData.getElementsByTagName('Placemark'):
-                numGeom += 1
-                # Get mapping name, type, and XML description.
-                children = placemark.childNodes
-                geomName = children[0].firstChild.data
-                k.write("assignment: Shape name = %s\n" % geomName)
-                geomType = children[1].tagName
-                k.write("assignment: Shape type = %s\n" % geomType)
-                geometry = children[1].toxml()
-                k.write("assignment: Shape KML = %s\n" % geometry)
+            # Save all drawn maps.
+            resultsSaved = mapc.saveWorkerMaps(k, kmlData, workerId, assignmentId)
 
-                # Attempt to convert from KML to ***REMOVED*** geom format.
-                try:
-                    # Report type and validity of this mapping.
-                    geomValue = mapc.querySingleValue("SELECT ST_IsValidDetail(ST_GeomFromKML('%s'))" % geometry)
-                    # ST_IsValidDetail returns with format '(t/f,"reason",geometry)'
-                    geomValid, geomReason, dummy = geomValue[1:-1].split(',')
-                    geomValid = (geomValid == 't')
-                    if geomValid:
-                        k.write("assignment: Shape is a valid %s\n" % geomType)
-                    else:
-                        k.write("assignment: Shape is an invalid %s due to '%s'\n" % (geomType, geomReason))
-                    mapc.cur.execute("""INSERT INTO user_maps (name, geom, completion_time, assignment_id, geom_clean)
-                            SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, %s as assignment_id, 
-                            ST_MakeValid(ST_GeomFromKML(%s)) as geom_clean""",
-                            (geomName, geometry, now, assignmentId, geometry))
-                    mapc.dbcon.commit()
-                except psycopg2.InternalError as e:
-                    numFail += 1
-                    mapc.dbcon.rollback()
-                    errorString += "\nKML mapping %s raised an internal datatase exception: %s\n%s%s\n" % (geomName, e.pgcode, e.pgerror, cgi.escape(geometry))
-                    k.write("assignment: Internal database error %s\n%s" % (e.pgcode, e.pgerror))
-                    k.write("assignment: Ignoring this mapping and continuing\n")
-                except psycopg2.Error as e:
-                    numFail += 1
-                    mapc.dbcon.rollback()
-                    errorString += "\nKML mapping %s raised a general datatase exception: %s\n%s%s\n" % (geomName, e.pgcode, e.pgerror, cgi.escape(geometry))
-                    k.write("assignment: General database error %s\n%s" % (e.pgcode, e.pgerror))
-                    k.write("assignment: Ignoring this mapping and continuing\n")
-
-            # If we have at least one invalid mapping.
-            if numFail > 0:
-                k.write("NOTE: %s mapping(s) out of %s were invalid\n" % (numFail, numGeom))
-                mapc.createAlertIssue("Database geometry problem",
-                        "Worker ID = %s\nAssignment ID = %s\nNOTE: %s mapping(s) out of %s were invalid\n%s" % 
-                        (workerId, assignmentId, numFail, numGeom, errorString))
-
-            # If we have at least one valid mapping.
-            if numGeom > numFail:
-                # Post-process this worker's results.
-                mapc.AssignmentSubmitted(k, hitId, assignmentId, workerId, now, kmlName, kmlType, comment)
-                mapForm.resultsAccepted.data = 0   # Display no results alert in showkml
-            else:
-                mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
+        # If we have at least one valid mapping.
+        if resultsSaved:
+            # Post-process this worker's results.
+            mapc.assignmentSubmitted(k, hitId, assignmentId, workerId, now, kmlName, kmlType, comment)
+            mapForm.resultsAccepted.data = 0   # Display no results alert in showkml
+        else:
+            mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
 
     # If GET request, tell showkml.js to not issue any alerts.
     else:
@@ -156,7 +105,7 @@ def assignment():
         k.write("assignment: Presenting worker %s with Unsaved %s kml %s again.\n" % 
                 (workerId, kmlTypeDescr, kmlName))
     else:
-        # Or if this is the return of a worker with an assignment in Accepted state,
+        # Or if this is the return of a worker with an assignment in Assigned state,
         # then present them with that KML.
         mapc.cur.execute("""SELECT name, hit_id, assignment_id FROM assignment_data
                 INNER JOIN hit_data USING (hit_id)
@@ -171,7 +120,7 @@ def assignment():
             (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
             k.write("assignment: Presenting worker %s with Accepted %s kml %s again.\n" % 
                     (workerId, kmlTypeDescr, kmlName))
-        # But if previous POST was saved or GET for worker with Accepted assignment,
+        # But if previous POST was saved or was GET for worker with no Assigned assignment,
         # then select a HIT from which to create a new assignment.
         else:
             # Get serialization lock.
