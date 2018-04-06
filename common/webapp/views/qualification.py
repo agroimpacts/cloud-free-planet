@@ -57,109 +57,30 @@ def qualification():
         tryNum = str(mapForm.tryNum.data)
         kmlData = mapForm.kmlData.data
         (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
-        score = None
         assignmentStatus = None
 
         # If no kmlData, then no fields were mapped.
         if len(kmlData) == 0:
             k.write("qualification: OL reported 'save' without mappings for %s kml = %s\n" % (kmlTypeDescr, kmlName))
             k.write("qualification: Worker ID %s\nTraining assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
+            resultsSaved = True                 # Can't fail since no maps posted.
         else:
             k.write("qualification: OL saved mapping(s) for %s kml %s\n" % (kmlTypeDescr, kmlName))
             k.write("qualification: Worker ID %s\nTraining assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
 
-            # Loop over every Polygon, and store its name and data in PostGIS DB.
-            numGeom = 0
-            numFail = 0
-            errorString = ''
-            k.write("qualification: kmlData = %s\n" % kmlData)
-            kmlData = parseString(kmlData)
-            for placemark in kmlData.getElementsByTagName('Placemark'):
-                numGeom += 1
-                # Get mapping name, type, and XML description.
-                children = placemark.childNodes
-                geomName = children[0].firstChild.data
-                k.write("qualification: Shape name = %s\n" % geomName)
-                geomType = children[1].tagName
-                k.write("qualification: Shape type = %s\n" % geomType)
-                geometry = children[1].toxml()
-                k.write("qualification: Shape KML = %s\n" % geometry)
+            # Save all drawn maps.
+            resultsSaved = mapc.saveWorkerMaps(k, kmlData, workerId, assignmentId, tryNum)
 
-                # Attempt to convert from KML to ***REMOVED*** geom format.
-                try:
-                    # Report type and validity of this mapping.
-                    geomValue = mapc.querySingleValue("SELECT ST_IsValidDetail(ST_GeomFromKML('%s'))" % geometry)
-                    # ST_IsValidDetail returns with format '(t/f,"reason",geometry)'
-                    geomValid, geomReason, dummy = geomValue[1:-1].split(',')
-                    geomValid = (geomValid == 't')
-                    if geomValid:
-                        k.write("qualification: Shape is a valid %s\n" % geomType)
-                    else:
-                        k.write("qualification: Shape is an invalid %s due to '%s'\n" % (geomType, geomReason))
-                    mapc.cur.execute("""INSERT INTO qual_user_maps (name, geom, completion_time, assignment_id, try, geom_clean)
-                            SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, %s as assignment_id, %s as try, 
-                            ST_MakeValid(ST_GeomFromKML(%s)) as geom_clean""",
-                            (geomName, geometry, now, assignmentId, tryNum, geometry))
-                    mapc.dbcon.commit()
-                except psycopg2.InternalError as e:
-                    numFail += 1
-                    mapc.dbcon.rollback()
-                    errorString += "\nKML mapping %s raised an internal datatase exception: %s\n%s%s\n" % (geomName, e.pgcode, e.pgerror, cgi.escape(geometry))
-                    k.write("qualification: Internal database error %s\n%s" % (e.pgcode, e.pgerror))
-                    k.write("qualification: Ignoring this mapping and continuing\n")
-                except psycopg2.Error as e:
-                    numFail += 1
-                    mapc.dbcon.rollback()
-                    errorString += "\nKML mapping %s raised a general datatase exception: %s\n%s%s\n" % (geomName, e.pgcode, e.pgerror, cgi.escape(geometry))
-                    k.write("qualification: General database error %s\n%s" % (e.pgcode, e.pgerror))
-                    k.write("qualification: Ignoring this mapping and continuing\n")
-
-            # If we have at least one invalid mapping.
-            if numFail > 0:
-                k.write("NOTE: %s mapping(s) out of %s were invalid\n" % (numFail, numGeom))
-                mapc.createAlertIssue("Database geometry problem",
-                        "Worker ID = %s\nAssignment ID = %s; try %s\nNOTE: %s mapping(s) out of %s were invalid\n%s" % 
-                        (workerId, assignmentId, tryNum, numFail, numGeom, errorString))
-
-            # If we have no valid mappings.
-            if numFail == numGeom:
-                assignmentStatus = MappingCommon.HITUnsaved
-                score = 0.                          # Give new worker the min score
-                mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
-
-        # Compute the worker's score on this KML.
-        if score is None:
-            score, scoreString = mapc.kmlAccuracyCheck(MappingCommon.KmlTraining, kmlName, assignmentId, tryNum)
-            # Reward the worker if we couldn't score his work properly.
-            if score is None:
-                assignmentStatus = MappingCommon.HITUnscored
-                score = mapc.getQualityScore(workerId)
-                if score is None:
-                    score = 1.          # Give new worker the max score
-                mapForm.resultsAccepted.data = 1
-                k.write("qualification: Invalid value returned from R scoring script for:\nKML %s, worker ID %s, assignment ID %s, try %s; assigning a score of %.2f\nReturned value:\n%s\n" % 
-                        (kmlName, workerId, assignmentId, tryNum, score, scoreString)) 
-                #mapc.createAlertIssue("KMLAccuracyCheck problem", 
-                #        "Invalid value returned from R scoring script for:\nKML %s, worker ID %s, assignment ID %s, try %s; assigning a score of %.2f\nReturned value:\n%s\n" %
-                #        (kmlName, workerId, assignmentId, tryNum, score, scoreString))
-        # See if score exceeds the Accept threshold
-        hitAcceptThreshold = float(mapc.getConfiguration('HitI_AcceptThreshold'))
-        k.write("qualification: training assignment has been scored as: %.2f/%.2f\n" %
-                (score, hitAcceptThreshold))
-
-        if assignmentStatus is None:
-            if score < hitAcceptThreshold:
-                assignmentStatus = MappingCommon.HITRejected
-                mapForm.resultsAccepted.data = 2   # Indicate rejected results.
-            else:
-                assignmentStatus = MappingCommon.HITApproved
+        # If we have at least one valid mapping.
+        if resultsSaved:
+            # Post-process this worker's results.
+            approved = mapc.trainingAssignmentSubmitted(k, hitId, assignmentId, tryNum, workerId, now, kmlName, kmlType)
+            if approved:
                 mapForm.resultsAccepted.data = 1   # Indicate approved results.
-
-        # Record the assignment submission time and score.
-        mapc.cur.execute("""update qual_assignment_data set completion_time = '%s', status = '%s', 
-            score = '%s' where assignment_id = '%s'""" %
-            (now, assignmentStatus, score, assignmentId))
-        mapc.dbcon.commit()
+            else:
+                mapForm.resultsAccepted.data = 2   # Indicate rejected results.
+        else:
+            mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
 
     # If GET request, tell showkml.js to not issue any alerts.
     else:
@@ -205,51 +126,59 @@ def qualification():
 
     # If worker is not done yet,
     if doneCount < totCount:
-        # Fetch the next training map for them to work on.
-        kmlName = mapc.querySingleValue("""select name from kml_data
-            left outer join 
-                (select * from qual_assignment_data where worker_id = '%s') qad 
-                using (name)
-            where kml_type = '%s'
-                and (completion_time is null
-                    or score < %s)
-            order by gid
-            limit 1""" % (workerId, MappingCommon.KmlTraining, hitAcceptThreshold))
-        mapForm.kmlName.data = kmlName
-        (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
-        
-        # Check the number of tries by this worker on this map.
-        tries = mapc.querySingleValue("select tries from qual_assignment_data where worker_id = '%s' and name = '%s'" % (workerId, kmlName))
-
-        # If no assignment for this KML, then worker is just starting the qual test,
-        # or has successfully mapped the previous KML.
-        if not tries:
-            tries = 1
-            mapc.cur.execute("""INSERT INTO qual_assignment_data 
-                (worker_id, name, tries, start_time, status) 
-                VALUES ('%s', '%s', %s, '%s', '%s') RETURNING assignment_id""" % (workerId, kmlName, tries, now, MappingCommon.HITAccepted))
-            assignmentId = mapc.cur.fetchone()[0]
-        # Else, the user tried and failed to successfully map the previous KML, 
-        # and must try again.
-        elif request.method == 'POST':
-            tries = int(tries) + 1
-            mapc.cur.execute("""UPDATE qual_assignment_data SET tries = %s 
-                WHERE worker_id = '%s' and name = '%s' RETURNING assignment_id""" % 
-                (tries, workerId, kmlName))
-            assignmentId = mapc.cur.fetchone()[0]
-        # Or user has simply returned (via the menu or refresh) to continue to the test. 
+        # If worker's previous POST was unsaved, then present them with the same KML again.
+        if mapForm.resultsAccepted.data == 3:
+            k.write("qualification: Presenting worker %s with Unsaved %s kml %s again.\n" % 
+                    (workerId, kmlTypeDescr, kmlName))
         else:
-            assignmentId = mapc.querySingleValue("""SELECT assignment_id FROM qual_assignment_data 
-                WHERE worker_id = '%s' and name = '%s'""" %
-                (workerId, kmlName))
+            # Or else, fetch the next training map for them to work on.
+            kmlName = mapc.querySingleValue("""select name from kml_data
+                left outer join 
+                    (select * from qual_assignment_data where worker_id = '%s') qad 
+                    using (name)
+                where kml_type = '%s'
+                    and (completion_time is null
+                        or score < %s)
+                order by gid
+                limit 1""" % (workerId, MappingCommon.KmlTraining, hitAcceptThreshold))
+            mapForm.kmlName.data = kmlName
+            (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
+            
+            # Check the number of tries by this worker on this map.
+            tries = mapc.querySingleValue("select tries from qual_assignment_data where worker_id = '%s' and name = '%s'" % (workerId, kmlName))
 
-        mapForm.tryNum.data = tries
-        mapForm.assignmentId.data = assignmentId
-        k.write("qualification: Candidate starting try %d on %s kml #%s: %s\n" % (tries, kmlType, doneCount + 1, kmlName))
+            # If no assignment for this KML, then worker is just starting the qual test,
+            # or has successfully mapped the previous KML.
+            if not tries:
+                tries = 1
+                mapc.cur.execute("""INSERT INTO qual_assignment_data 
+                    (worker_id, name, tries, start_time, status) 
+                    VALUES ('%s', '%s', %s, '%s', '%s') RETURNING assignment_id""" % (workerId, kmlName, tries, now, MappingCommon.HITAssigned))
+                assignmentId = mapc.cur.fetchone()[0]
+            # Else, the user tried and failed to successfully map the previous KML and must try again.
+            elif request.method == 'POST':
+                tries = int(tries) + 1
+                mapc.cur.execute("""UPDATE qual_assignment_data SET tries = %s 
+                    WHERE worker_id = '%s' and name = '%s' RETURNING assignment_id""" % 
+                    (tries, workerId, kmlName))
+                assignmentId = mapc.cur.fetchone()[0]
+            # Or user has simply returned (via the menu or refresh) to continue to the test. 
+            else:
+                assignmentId = mapc.querySingleValue("""SELECT assignment_id FROM qual_assignment_data 
+                    WHERE worker_id = '%s' and name = '%s'""" %
+                    (workerId, kmlName))
+
+            mapForm.tryNum.data = tries
+            mapForm.assignmentId.data = assignmentId
+            k.write("qualification: Candidate starting try %d on %s kml #%s: %s\n" % (tries, kmlType, doneCount + 1, kmlName))
 
     # Worker is done with training. Record that fact.
     else:
         mapc.approveTraining(workerId, now)
+        k.write("qualification: Training candidate %s (%s %s - %s) has passed the qualification test. Notified and redirected.\n" % 
+                (workerId, cu.first_name, cu.last_name, cu.email))
+        flash("Congratulations! You have passed the qualification test. You may now map agricultural fields.")
+        return redirect(url_for('main.employee_page'))
 
     mapc.dbcon.commit()
 
