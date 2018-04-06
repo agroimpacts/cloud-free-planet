@@ -59,8 +59,6 @@ def assignment():
             comment = comment[:2048]
         kmlData = mapForm.kmlData.data
         (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
-        score = None
-        assignmentStatus = None
 
         # If no kmlData, then no fields were mapped.
         if len(kmlData) == 0:
@@ -131,8 +129,6 @@ def assignment():
                 mapc.AssignmentSubmitted(k, hitId, assignmentId, workerId, now, kmlName, kmlType, comment)
                 mapForm.resultsAccepted.data = 0   # Display no results alert in showkml
             else:
-                assignmentStatus = MappingCommon.HITUnsaved
-                score = 0.                         # Give new worker the min score
                 mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
 
     # If GET request, tell showkml.js to not issue any alerts.
@@ -155,39 +151,69 @@ def assignment():
     k.write("assignment: Worker %s (%s %s - %s) has returned.\n" % 
             (workerId, cu.first_name, cu.last_name, cu.email))
 
-    # Select the next KML for this worker: an active HIT that this worker
-    # has not yet been assigned to, and in random order.
-    mapc.cur.execute("""select name, hit_id from kml_data k
-        inner join hit_data h using (name)
-        where delete_time is null
-        and not exists (select true from assignment_data a
-        where a.hit_id = h.hit_id and worker_id = '%s')
-        order by random()
-        limit 1""" % workerId)
-    row = mapc.cur.fetchone()
-    # Check if there are any KMLs to hand out.
-    if row is None:
-        mapc.createAlertIssue("No available HITs in hit_data table",
-                """There are no HITs in the hit_data table that are available to worker %s\n
-                Ensure create_hit_daemon is running, and check its log file.""" % 
-                workerId)
-        k.write("assignment: Worker %s tried to map agricultural fields but there were none to map.\nNotified and redirected.\n" % workerId)
-        flash("We apologize, but there are currently no maps for you to work on. We are aware of the problem and will fix it as soon as possible. Please try again later.")
-        return redirect(url_for('main.employee_page'))
-    kmlName = row[0]
-    hitId = row[1]
-    mapForm.kmlName.data = kmlName
-    (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
-        
-    mapc.cur.execute("""INSERT INTO assignment_data 
-        (hit_id, worker_id, start_time, status) 
-        VALUES ('%s', '%s', '%s', '%s') RETURNING assignment_id""" % (hitId, workerId, now, MappingCommon.HITAccepted))
-    assignmentId = mapc.cur.fetchone()[0]
-    mapc.dbcon.commit()
+    # If worker's previous POST was unsaved, then present them with the same KML again.
+    if mapForm.resultsAccepted.data == 3:
+        k.write("assignment: Presenting worker %s with Unsaved %s kml %s again.\n" % 
+                (workerId, kmlTypeDescr, kmlName))
+    else:
+        # Or if this is the return of a worker with an assignment in Accepted state,
+        # then present them with that KML.
+        mapc.cur.execute("""SELECT name, hit_id, assignment_id FROM assignment_data
+                INNER JOIN hit_data USING (hit_id)
+                WHERE worker_id = '%s' AND status = '%s' LIMIT 1""" % 
+                (workerId, MappingCommon.HITAccepted))
+        row = mapc.cur.fetchone()
+        if row is not None:
+            kmlName = row[0]
+            hitId = row[1]
+            assignmentId = row[2]
+            mapForm.kmlName.data = kmlName
+            (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
+            k.write("assignment: Presenting worker %s with Accepted %s kml %s again.\n" % 
+                    (workerId, kmlTypeDescr, kmlName))
+        # But if previous POST was saved or GET for worker with Accepted assignment,
+        # then select a HIT from which to create a new assignment.
+        else:
+            # Get serialization lock.
+            mapc.getSerializationLock()
+
+            # Select the next KML for this worker: an active HIT that this worker
+            # has not yet been assigned to, and in random order.
+            mapc.cur.execute("""SELECT name, hit_id FROM kml_data k
+                INNER JOIN hit_data h USING (name)
+                WHERE delete_time IS NULL
+                AND NOT EXISTS (SELECT true FROM assignment_data a
+                WHERE a.hit_id = h.hit_id AND worker_id = '%s')
+                ORDER BY random()
+                LIMIT 1""" % workerId)
+
+            # Check if there are any KMLs to hand out.
+            row = mapc.cur.fetchone()
+            if row is None:
+                mapc.createAlertIssue("No available HITs in hit_data table",
+                        """There are no HITs in the hit_data table that are available to worker %s\n
+                        Ensure create_hit_daemon is running, and check its log file.""" % 
+                        workerId)
+                k.write("assignment: Worker %s tried to map agricultural fields but there were none to map.\nNotified and redirected.\n" % workerId)
+                flash("We apologize, but there are currently no maps for you to work on. We are aware of the problem and will fix it as soon as possible. Please try again later.")
+                return redirect(url_for('main.employee_page'))
+            kmlName = row[0]
+            hitId = row[1]
+            mapForm.kmlName.data = kmlName
+            (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
+                
+            mapc.cur.execute("""INSERT INTO assignment_data 
+                (hit_id, worker_id, start_time, status) 
+                VALUES ('%s', '%s', '%s', '%s') RETURNING assignment_id""" % (hitId, workerId, now, MappingCommon.HITAccepted))
+            assignmentId = mapc.cur.fetchone()[0]
+            mapc.dbcon.commit()
+
+            # Release serialization lock.
+            mapc.releaseSerializationLock()
 
     mapForm.hitId.data = hitId
     mapForm.assignmentId.data = assignmentId
-    k.write("assignment: Worker starting on %s kml %s\n" % (kmlType, kmlName))
+    k.write("assignment: Worker starting on %s kml %s\n" % (kmlTypeDescr, kmlName))
 
     del mapc
     k.close()

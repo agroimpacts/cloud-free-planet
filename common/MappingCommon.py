@@ -8,7 +8,7 @@ from psycopg2.extensions import adapt
 import collections
 from decimal import Decimal
 from github import Github
-#from lock import lock
+from lock import lock
 
 # Key connection parameters.
 db_production_name = 'Africa'
@@ -122,6 +122,16 @@ class MappingCommon(object):
     def setSystemData(self, key, value):
         self.cur.execute("update system_data set value = '%s' where key = '%s'" % (value, key))
         self.dbcon.commit()
+
+    # Obtain serialization lock to allow create_hit_daemon.py, cleanup_absent_worker.py, and 
+    # individual ProcessNotifications.py threads to access Mturk and database records
+    # without interfering with each other.
+    def getSerializationLock(self):
+        self.lock = lock('%s/common/%s' % (self.projectRoot, MappingCommon.lockFile))
+
+    # Release serialization lock.
+    def releaseSerializationLock(self):
+        del self.lock
 
     # Request a single value from a single column of a table.
     # If there is no record that matches the select criteria, return None.
@@ -832,14 +842,4 @@ class MappingCommon(object):
             self.notifyWorkersRS = self.mtcon.notify_workers(workers, subject, body)
             assert self.notifyWorkersRS.status
             return self.notifyWorkersRS
-
-        # Obtain serialization lock to allow create_hit_daemon.py, cleanup_absent_worker.py, and 
-        # individual ProcessNotifications.py threads to access Mturk and database records
-        # without interfering with each other.
-        def getSerializationLock(self):
-            self.lock = lock('%s/mturk/%s' % (self.projectRoot, MTurkMappingAfrica.lockFile))
-
-        # Release serialization lock.
-        def releaseSerializationLock(self):
-            del self.lock
 

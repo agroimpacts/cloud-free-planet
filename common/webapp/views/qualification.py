@@ -183,6 +183,7 @@ def qualification():
     else:
         # Check if worker already qualified.
         if qualified:
+            k.write("qualification: Training candidate %s (%s %s - %s) has returned\nbut has already passed the qualification test. Notified and redirected.\n" % (workerId, cu.first_name, cu.last_name, cu.email))
             flash("You have already passed the qualification test. You may now map agricultural fields.")
             return redirect(url_for('main.employee_page'))
 

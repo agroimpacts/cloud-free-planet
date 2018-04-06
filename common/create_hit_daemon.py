@@ -39,6 +39,9 @@ while True:
     numAvailFqaqcHits = int(round(float(availHitTarget * fqaqcHitPercentage) / 100.))
     numAvailNonQaqcHits = availHitTarget - numAvailQaqcHits - numAvailFqaqcHits
 
+    # Get serialization lock.
+    mapc.getSerializationLock()
+
     # Get all HITs.
     hits = mapc.getAllHits()
 
@@ -219,6 +222,9 @@ while True:
         hitId = mapc.createHit(nextKml, fwts=fwts, maxAssignments=remainingAssignments)
         k.write("createHit: Created HIT ID %s with %d assignments for NQAQC KML %s\n" % 
                 (hitId, remainingAssignments, nextKml))
+
+    # Release serialization lock.
+    mapc.releaseSerializationLock()
 
     # Sleep for specified polling interval
     k.close()
