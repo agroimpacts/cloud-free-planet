@@ -1,0 +1,53 @@
+---
+title: "I and Q site polygons"
+author: "Lyndon Estes"
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+  theme: architect
+highlight: github
+---
+
+## Purpose
+
+Read in centroid points from I/Q sites corresponding to new master_grid, convert to polygons for viewing in QGIS.
+
+## Paths, connections, and kml_data
+```{r}
+library(rmapaccuracy)
+library(sf)
+
+data("pgupw")
+con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), 
+                      host = "crowdmapper.org",
+                      dbname = "AfricaSandbox", user = pgupw$user, 
+                      password = pgupw$password)
+
+# kml data
+kml_data <- tbl(con, "kml_data") %>% filter(kml_type %in% c("Q", "I")) %>%
+  select(kml_type, name) %>% collect()
+
+# master grid values
+xy_tabs <- tbl(con, "master_grid") %>% filter(name %in% kml_data$name) %>%
+  select(x, y, name) %>% collect()
+
+xys <- left_join(x = xy_tabs, y = kml_data, by = "name")
+
+```
+
+## Convert to polygons
+```{r}
+gcsstr <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+gpols <- point_to_gridpoly(data.table(xys), w = 0.005 / 2, 
+                           NewCRSobj = gcsstr, OldCRSobj = gcsstr)
+gpols2 <- left_join(gpols, xys %>% select(name, kml_type), by = "name")
+
+st_write(gpols2, dsn = "../../data/interim/qi-grids.sqlite", delete_dsn = TRUE)
+
+
+```
+
+
+
+  
+
