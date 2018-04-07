@@ -74,20 +74,22 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
                                             geom_column = 'geom_clean'))
   user.hasfields <- ifelse(nrow(user.polys) > 0, "Y", "N") 
   if(user.hasfields == "Y") {  # Read in user fields if there are any
-    if(any(st_is_empty(user.polys))) {  # invoke cleaning algorithm
-      unfixedsfc <- lapply(as.vector(user.polys$geom), function(vec) {
-        structure(vec, class = "wkb")
-      })
-      unfixedsfc <- st_as_sfc(unfixedsfc, EWKB = TRUE)
-      user.polysclean <- cleanTempPolyFromWKT(unfixedsfc = unfixedsfc, 
-                                              crs = gcs)
-      user.nfields <- nrow(user.polysclean)  #  Record n distinct fields
-      # transform user polygons into pcs for calculation
-      user.poly <- st_union(st_transform(user.polysclean,crs = prjstr)) 
-    } else if(all(!st_is_empty(user.polys))) { 
-      user.nfields <- nrow(user.polys)
-      user.poly <- st_union(st_transform(user.polys, crs = prjstr))
-    }
+    # if(any(st_is_empty(user.polys))) {  # invoke cleaning algorithm
+    #   unfixedsfc <- lapply(as.vector(user.polys$geom), function(vec) {
+    #     structure(vec, class = "wkb")
+    #   })
+    #   unfixedsfc <- st_as_sfc(unfixedsfc, EWKB = TRUE)
+    #   user.polysclean <- cleanTempPolyFromWKT(unfixedsfc = unfixedsfc, 
+    #                                           crs = gcs)
+    #   user.nfields <- nrow(user.polysclean)  #  Record n distinct fields
+    #   # transform user polygons into pcs for calculation
+    #   user.poly <- st_union(st_transform(user.polysclean,crs = prjstr)) 
+    # } else if(all(!st_is_empty(user.polys))) { 
+    #   user.nfields <- nrow(user.polys)
+    #   user.poly <- st_union(st_transform(user.polys, crs = prjstr))
+    # }  # switched off for now--re-enable if we move back to pprepair
+    user.nfields <- nrow(user.polys)
+    user.poly <- st_union(st_transform(user.polys, crs = prjstr))
   } 
   
   # Error checks begin
@@ -121,7 +123,7 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
     
     # Secondary metric - Sensitivity of results outside of kml grid
     user.poly.out <- st_difference(user.poly, grid.poly)
-    if(is.null(nrow(user.poly.out))) {
+    if(length(user.poly.out) == 0) {
       out.error <- 1  # If user finds no fields outside of box, gets credit
     } else {  
       out.error <- 0  # If user maps outside of box when no fields exist
@@ -172,27 +174,27 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
                                               user_rows = user.nfields) 
       
       # Mapped area differences inside the target grid cell
-      user.poly.in <- st_intersection(grid.poly, user.poly)
-      qaqc.poly.in <- st_intersection(grid.poly, qaqc.poly)
-      user.poly.out <- st_difference(user.poly, grid.poly)
-      qaqc.poly.out <- st_difference(qaqc.poly, grid.poly)
+      user.poly.in <- st_intersection(grid.poly, user.poly)  # user maps in cell
+      qaqc.poly.in <- st_intersection(grid.poly, qaqc.poly)  # q maps in cell
+      user.poly.out <- st_difference(user.poly, grid.poly)  # user maps outside
+      qaqc.poly.out <- st_difference(qaqc.poly, grid.poly)  # q maps outside
       inres <- mapError(maps = user.poly.in, truth = qaqc.poly.in, 
                         region = grid.poly)  # Error metric
       
-      
       # Secondary metric - Sensitivity of results outside of kml grid
-      if(is.null(nrow(user.poly.out)) & is.null(nrow(qaqc.poly.out))) {
+      if(length(user.poly.out) == 0 & length(qaqc.poly.out) == 0) {
         if(comments == "T") print("No QAQC or User fields outside of grid")
-        out.error <- 1  
-      } else if(!is.null(nrow(user.poly.out)) & !is.null(nrow(qaqc.poly.out))) {
+        out.error <- 1  # perfect if neither u nor q map outside
+      } else if(length(user.poly.out) > 0 & length(qaqc.poly.out) > 0) {
         if(comments == "T") print("Both QAQC and User fields outside of grid")
-        tpo <- st_intersection(qaqc.poly.out, user.poly.out)  
-        fno <- st_difference(qaqc.poly.out, user.poly.out)  
-        tflisto <- c("tpo", "fno")  
-        areaso <- sapply(tflisto, function(x) {
-          ifelse(!is.null(x) & is.object(x), st_area(x), 0)
+        tpo <- st_intersection(qaqc.poly.out, user.poly.out)  # tp outside
+        fno <- st_difference(qaqc.poly.out, user.poly.out)  # fp outside
+        tflisto <- c("tpo", "fno")
+        areaso <- sapply(tflisto, function(x) {  # calculate tp and fp area
+          xo <- get(x)
+          ifelse(!is.null(xo) & is.object(xo) & length(xo) > 0, st_area(xo), 0)
         })
-        out.error <- areaso[1] / sum(areaso)
+        out.error <- areaso[1] / sum(areaso)  # sensitivity 
       } else {
         if(comments == "T") {
           print("Either QAQC or User fields outside of grid, but not both")
