@@ -440,7 +440,7 @@ class MappingCommon(object):
             return False
 
     # Do post-processing for a training worker's submitted assignment.
-    def trainingAssignmentSubmitted(self, k, hitId, assignmentId, tryNum, workerId, submitTime, kmlName, kmlType):
+    def trainingAssignmentSubmitted(self, k, assignmentId, tryNum, workerId, submitTime, kmlName, kmlType):
         # Compute the worker's score on this KML.
         score, scoreString = self.kmlAccuracyCheck(MappingCommon.KmlTraining, kmlName, assignmentId, tryNum)
         # Reward the worker if we couldn't score his work properly.
