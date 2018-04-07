@@ -3,6 +3,7 @@ import subprocess
 import pwd
 from datetime import datetime
 from dateutil import tz
+from xml.dom.minidom import parseString
 import psycopg2
 from psycopg2.extensions import adapt
 import collections
@@ -395,6 +396,7 @@ class MappingCommon(object):
                     k.write("saveWorkerMaps: Shape is a valid %s\n" % geomType)
                 else:
                     k.write("saveWorkerMaps: Shape is an invalid %s due to '%s'\n" % (geomType, geomReason))
+                now = str(datetime.today())
                 if tryNum > 0:
                     self.cur.execute("""INSERT INTO qual_user_maps (name, geom, completion_time, assignment_id, try, geom_clean)
                             SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, %s as assignment_id, %s as try,
@@ -468,6 +470,7 @@ class MappingCommon(object):
         return approved
 
         # Record the assignment submission time and score (unless results were unsaved).
+        now = str(datetime.today())
         self.cur.execute("""update qual_assignment_data set completion_time = '%s', status = '%s',
             score = '%s' where assignment_id = '%s'""" %
             (now, assignmentStatus, score, assignmentId))
@@ -486,6 +489,8 @@ class MappingCommon(object):
             self.normalSubmission(k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment)
 
     def qaqcSubmission(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):
+        assignmentStatus = None
+
         # Compute the worker's score on this KML.
         # NOTE: We used to call mapFix before calling KMLAccuracyCheck.
         score, scoreString = self.kmlAccuracyCheck(kmlType, kmlName, assignmentId)

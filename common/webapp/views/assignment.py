@@ -4,7 +4,6 @@ import string
 import cgi
 import psycopg2
 from urllib import quote_plus
-from xml.dom.minidom import parseString
 from flask import current_app, flash
 from flask import Blueprint, redirect, render_template
 from flask import request, url_for
@@ -13,7 +12,6 @@ from flask_user.views import _get_safe_next_param, render, _send_registered_emai
 from flask_user import signals
 from webapp.models.user_models import MappingForm
 from MappingCommon import MappingCommon
-#from mapFix import mapFix
 
 map_blueprint = Blueprint('map_blueprint', __name__)
 
@@ -118,7 +116,7 @@ def assignment():
             assignmentId = row[2]
             mapForm.kmlName.data = kmlName
             (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
-            k.write("assignment: Presenting worker %s with Accepted %s kml %s again.\n" % 
+            k.write("assignment: Presenting worker %s with Assigned %s kml %s again.\n" % 
                     (workerId, kmlTypeDescr, kmlName))
         # But if previous POST was saved or was GET for worker with no Assigned assignment,
         # then select a HIT from which to create a new assignment.
