@@ -74,7 +74,7 @@ def qualification():
         # If we have at least one valid mapping.
         if resultsSaved:
             # Post-process this worker's results.
-            approved = mapc.trainingAssignmentSubmitted(k, hitId, assignmentId, tryNum, workerId, now, kmlName, kmlType)
+            approved = mapc.trainingAssignmentSubmitted(k, assignmentId, tryNum, workerId, now, kmlName, kmlType)
             if approved:
                 mapForm.resultsAccepted.data = 1   # Indicate approved results.
             else:
