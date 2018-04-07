@@ -49,7 +49,8 @@ img {
 .trainhdr {
     text-align:center;
     /*background-color:yellow;*/
-    margin: 0;
+    /* margin: 0; */
+    margin-bottom: 3px;
 }
 .maph3 {
     display: block;
@@ -63,7 +64,7 @@ img {
     font-size: 11pt;
     font-family: arial;
     margin-top: 0px;
-    margin-bottom: 2px;
+    /* margin-bottom: 2px; */
 }
 /*------------ Sprites ------------*/
 .more, .subscribe, input[type='submit'] {
