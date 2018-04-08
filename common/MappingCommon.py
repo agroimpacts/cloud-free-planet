@@ -3,7 +3,6 @@ import subprocess
 import pwd
 from datetime import datetime
 from dateutil import tz
-from xml.dom.minidom import parseString
 import psycopg2
 from psycopg2.extensions import adapt
 import collections
@@ -273,17 +272,20 @@ class MappingCommon(object):
             """)
         hits = {}
         for hit in self.cur.fetchall():
-            assignmentsCompleted = 0
+            assignmentsAssigned = 0
             assignmentsPending = 0
+            assignmentsCompleted = 0
             for asgmtId, asgmt in self.getAssignments(hit[0]).iteritems():
                 if asgmt['status'] not in (MappingCommon.HITAbandoned, MappingCommon.HITReturned):
-                    if asgmt['status'] in (MappingCommon.HITAssigned, MappingCommon.HITPending):
+                    if asgmt['status'] == MappingCommon.HITAssigned:
+                        assignmentsAssigned += 1
+                    elif asgmt['status'] == MappingCommon.HITPending:
                         assignmentsPending += 1
                     else:
                         assignmentsCompleted += 1
             hits[hit[0]] = {'kmlName': hit[1], 'kmlType': hit[2], 'maxAssignments': hit[3], 
-                    'reward': hit[4], 'assignmentsCompleted': assignmentsCompleted, 
-                    'assignmentsPending': assignmentsPending}
+                    'reward': hit[4], 'assignmentsAssigned': assignmentsAssigned, 
+                    'assignmentsPending': assignmentsPending, 'assignmentsCompleted': assignmentsCompleted }
         return hits
 
     # Retrieve all assignments for the specified HIT ID.
@@ -321,7 +323,7 @@ class MappingCommon(object):
         return hitId
 
     # Delete a HIT if all assignments have been submitted and have a final status
-    # (i.e., there are no assignments in pending or accepted status).
+    # (i.e., there are no assignments in assigned or pending status).
     def deleteFinalizedHit(self, hitId, submitTime):
         # Count if there are any available assignments left for this HIT.
         nonFinalAssignCount = self.querySingleValue("""SELECT
@@ -396,7 +398,6 @@ class MappingCommon(object):
                     k.write("saveWorkerMaps: Shape is a valid %s\n" % geomType)
                 else:
                     k.write("saveWorkerMaps: Shape is an invalid %s due to '%s'\n" % (geomType, geomReason))
-                now = str(datetime.today())
                 if tryNum > 0:
                     self.cur.execute("""INSERT INTO qual_user_maps (name, geom, completion_time, assignment_id, try, geom_clean)
                             SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, %s as assignment_id, %s as try,
@@ -470,7 +471,6 @@ class MappingCommon(object):
         return approved
 
         # Record the assignment submission time and score (unless results were unsaved).
-        now = str(datetime.today())
         self.cur.execute("""update qual_assignment_data set completion_time = '%s', status = '%s',
             score = '%s' where assignment_id = '%s'""" %
             (now, assignmentStatus, score, assignmentId))
@@ -489,8 +489,6 @@ class MappingCommon(object):
             self.normalSubmission(k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment)
 
     def qaqcSubmission(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):
-        assignmentStatus = None
-
         # Compute the worker's score on this KML.
         # NOTE: We used to call mapFix before calling KMLAccuracyCheck.
         score, scoreString = self.kmlAccuracyCheck(kmlType, kmlName, assignmentId)
@@ -520,7 +518,7 @@ class MappingCommon(object):
         hitNoWarningThreshold = float(self.getConfiguration('HitQ_NoWarningThreshold'))
 
         # If the worker's results could not be scored, or if their score meets 
-        # the acceptance threshold, notify worker that his HIT was accepted.
+        # the acceptance threshold, notify worker that his HIT was approved.
         if assignmentStatus is not None or score >= hitAcceptThreshold:
             # if score was above the no-warning threshold, then don't include a warning.
             warning = False
@@ -550,11 +548,11 @@ class MappingCommon(object):
             (assignmentStatus.lower(), score, hitAcceptThreshold, hitNoWarningThreshold))
 
         # Delete the HIT if all assignments have been submitted and have a final status
-        # (i.e., there are no assignments in pending or accepted status).
+        # (i.e., there are no assignments in pending or assigned status).
         if self.deleteFinalizedHit(hitId, submitTime):
             k.write("assignment: QAQC hit has no remaining assignments and has been deleted\n")
         else:
-            k.write("assignment: QAQC hit still has remaining accepted or pending assignments and cannot be deleted\n")
+            k.write("assignment: QAQC hit still has remaining assigned or pending assignments and cannot be deleted\n")
 
         # Post-process any pending FQAQC or non-QAQC HITs for this worker.
         self.NormalPostProcessing(k, workerId, submitTime)
@@ -572,7 +570,7 @@ class MappingCommon(object):
         else:
             assignmentStatus = MappingCommon.HITUntrusted
 
-        # In all cases, notify worker that his HIT was accepted.
+        # In all cases, notify worker that his HIT was approved.
         self.approveAssignment(workerId, assignmentId, submitTime)
         k.write("assignment: FQAQC or non-QAQC assignment has been approved and marked in DB as %s\n" % 
             assignmentStatus.lower())
@@ -584,11 +582,11 @@ class MappingCommon(object):
         self.dbcon.commit()
 
         # Delete the HIT if all assignments have been submitted and have a final status
-        # (i.e., there are no assignments in pending or accepted status).
+        # (i.e., there are no assignments in pending or assigned status).
         if self.deleteFinalizedHit(hitId, submitTime):
             k.write("assignment: hit has no remaining assignments and has been deleted\n")
         else:
-            k.write("assignment: hit still has remaining accepted or pending assignments and cannot be deleted\n")
+            k.write("assignment: hit still has remaining assigned or pending assignments and cannot be deleted\n")
 
     def NormalPostProcessing(self, k, workerId, submitTime):
         # Determine this worker's trust level.
@@ -637,39 +635,11 @@ class MappingCommon(object):
                 assignmentStatus.lower())
 
             # Delete the HIT if all assignments have been submitted and have a final status
-            # (i.e., there are no assignments in pending or accepted status).
-            try:
-                hitStatus = self.getHitStatus(hitId)
-            except MTurkRequestError as e:
-                k.write("assignment: getHitStatus failed for HIT ID %s:\n%s\n%s\n" % 
-                    (hitId, e.error_code, e.error_message))
-                return
-            except AssertionError:
-                k.write("assignment: Bad getHitStatus status for HIT ID %s:\n" % hitId)
-                return
-            if hitStatus == 'Reviewable':
-                nonFinalAssignCount = int(self.querySingleValue("""select count(*) from assignment_data
-                    where hit_id = '%s' and status in ('%s','%s')""" %
-                    (hitId, MappingCommon.HITPending, MappingCommon.HITAssigned)))
-                if nonFinalAssignCount == 0:
-                    try:
-                        self.disposeHit(hitId)
-                    except MTurkRequestError as e:
-                        k.write("assignment: disposeHit failed for HIT ID %s:\n%s\n%s\n" % 
-                            (hitId, e.error_code, e.error_message))
-                        return
-                    except AssertionError:
-                        k.write("assignment: Bad disposeHit status for HIT ID %s:\n" % hitId)
-                        return
-                    # Record the HIT deletion time.
-                    self.cur.execute("""update hit_data set delete_time = '%s' where hit_id = '%s'""" % 
-                            (submitTime, hitId))
-                    self.dbcon.commit()
-                    k.write("assignment: hit has no remaining assignments and has been deleted\n")
-                else:
-                    k.write("assignment: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
+            # (i.e., there are no assignments in pending or assigned status).
+            if self.deleteFinalizedHit(hitId, submitTime):
+                k.write("assignment: hit has no remaining assignments and has been deleted\n")
             else:
-                k.write("assignment: hit still has remaining Mturk or pending assignments and cannot be deleted\n")
+                k.write("assignment: hit still has remaining assigned or pending assignments and cannot be deleted\n")
 
     # Revoke Mapping Africa qualification unconditionally unless not qualified.
     # Returns True if worker was qualified and qualification was revoked; False otherwise.

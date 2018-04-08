@@ -28,8 +28,8 @@ while True:
     availHitTarget = int(mapc.getConfiguration('AvailHitTarget'))
     qaqcHitPercentage = int(mapc.getConfiguration('QaqcHitPercentage'))
     fqaqcHitPercentage = int(mapc.getConfiguration('FqaqcHitPercentage'))
-    hitActiveAssignPercentF = int(mapc.getConfiguration('Hit_ActiveAssignPercentF'))
-    hitActiveAssignPercentN = int(mapc.getConfiguration('Hit_ActiveAssignPercentN'))
+    hitReplacementThresholdF = int(mapc.getConfiguration('Hit_ReplacementThreshold_F'))
+    hitReplacementThresholdN = int(mapc.getConfiguration('Hit_ReplacementThreshold_N'))
 
     k = open(logFilePath + "/createHit.log", "a+")
     now = str(datetime.today())
@@ -51,28 +51,29 @@ while True:
     numNonQaqcHits = 0
     for hitId, row in hits.iteritems():
         # Calculate the number of assignable QAQC, FQAQC, and NQAQC HITs 
-        # currently active. For HITs with multiple assignments, only count HITs 
-        # where assignmentsCompleted does not exceed # the configured threshold.
-        # An assignable HIT is one where:
-        #   (maxAssignments - assignmentsCompleted - assignmentsPending) > 0
+        # currently available. For HITs with multiple assignments, only count HITs 
+        # where the number of assignments created is less than the configured threshold.
+        # The number of assignments created is the sum of:
+        #   assignmentsAssigned + assignmentsPending + assignmentsCompleted
         # Note that assignments with Returned or Abandoned statuses are ignored.
-        # assignmentsPending is the count of assignments in a temporary status (i.e., Accepted or Pending)
-        # assignmentsCompleted is the count of assignments in a final status (i.e., any other non-ignored status)
+        # assignmentsAssigned is the count of assignments assigned to a worker that have not been completed.
+        # assignmentsPending is the count of completed assignments that have an interim status.
+        # assignmentsCompleted is the count of completed assignments with a final status.
         maxAssignments = row['maxAssignments']
-        remAssignments = maxAssignments - row['assignmentsCompleted'] - row['assignmentsPending']
+        numAssignments = row['assignmentsAssigned'] - row['assignmentsPending'] - row['assignmentsCompleted']
         if row['kmlType'] == MappingCommon.KmlQAQC:
-            # Must have a remaining assignment.
-            if remAssignments >= 1:
+            # Must not have created any assignments.
+            if numAssignments < 1:
                 numQaqcHits = numQaqcHits + 1
         elif row['kmlType'] == MappingCommon.KmlFQAQC:
-            # Must have at least this many remaining available assignments
-            threshold = maxAssignments - int(round(float(hitActiveAssignPercentF * maxAssignments) / 100.))
-            if remAssignments >= threshold:
+            # Must have created less than the threshold number of assignments.
+            threshold = max(int(round(float(hitActiveAssignPercentF) * maxAssignments)), 1)
+            if numAssignments < threshold:
                 numFqaqcHits = numFqaqcHits + 1
         elif row['kmlType'] == MappingCommon.KmlNormal:
-            # Must have at least this many remaining available assignments
-            threshold = maxAssignments - int(round(float(hitActiveAssignPercentN * maxAssignments) / 100.))
-            if remAssignments >= threshold:
+            # Must have created less than the threshold number of assignments.
+            threshold = max(int(round(float(hitActiveAssignPercentN) * maxAssignments)), 1)
+            if numAssignments < threshold:
                 numNonQaqcHits = numNonQaqcHits + 1
 
     # Create any needed QAQC HITs.
