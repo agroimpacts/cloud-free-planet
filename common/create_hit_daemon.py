@@ -28,8 +28,8 @@ while True:
     availHitTarget = int(mapc.getConfiguration('AvailHitTarget'))
     qaqcHitPercentage = int(mapc.getConfiguration('QaqcHitPercentage'))
     fqaqcHitPercentage = int(mapc.getConfiguration('FqaqcHitPercentage'))
-    hitReplacementThresholdF = int(mapc.getConfiguration('Hit_ReplacementThreshold_F'))
-    hitReplacementThresholdN = int(mapc.getConfiguration('Hit_ReplacementThreshold_N'))
+    hitReplacementThresholdF = float(mapc.getConfiguration('Hit_ReplacementThreshold_F'))
+    hitReplacementThresholdN = float(mapc.getConfiguration('Hit_ReplacementThreshold_N'))
 
     k = open(logFilePath + "/createHit.log", "a+")
     now = str(datetime.today())
@@ -67,12 +67,12 @@ while True:
                 numQaqcHits = numQaqcHits + 1
         elif row['kmlType'] == MappingCommon.KmlFQAQC:
             # Must have created less than the threshold number of assignments.
-            threshold = max(int(round(float(hitActiveAssignPercentF) * maxAssignments)), 1)
+            threshold = max(int(round(hitReplacementThresholdF * maxAssignments)), 1)
             if numAssignments < threshold:
                 numFqaqcHits = numFqaqcHits + 1
         elif row['kmlType'] == MappingCommon.KmlNormal:
             # Must have created less than the threshold number of assignments.
-            threshold = max(int(round(float(hitActiveAssignPercentN) * maxAssignments)), 1)
+            threshold = max(int(round(hitReplacementThresholdN * maxAssignments)), 1)
             if numAssignments < threshold:
                 numNonQaqcHits = numNonQaqcHits + 1
 
