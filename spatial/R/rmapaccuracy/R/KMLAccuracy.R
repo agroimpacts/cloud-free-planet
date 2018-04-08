@@ -31,10 +31,6 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
   dinfo <- getDBName()  # pull working environment
 
   # Paths and connections
-  # drv <- dbDriver("PostgreSQL")
-  # con <- dbConnect(drv, dbname = dinfo["db.name"], user = user, 
-  #                  password = password)
-  
   con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), dbname = dinfo["db.name"],   
                         user = user, password = password)
 
@@ -50,7 +46,6 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
                      " from qaqcfields where name=", "'", kmlid, "'")
   qaqc.polys <- suppressWarnings(st_read_db(con, query = qaqc.sql, 
                                             geom_column = 'geom_clean'))
-  
   qaqc.hasfields <- ifelse(nrow(qaqc.polys) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
     qaqc.nfields <- nrow(qaqc.polys)
@@ -103,8 +98,9 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
   } else {
     # Pick up grid cell from qaqc table, for background location, as it will be 
     # needed for the other 3 cases
-    xy_tabs <- data.table(con %>% tbl("master_grid") %>% filter(name == kmlid) 
-                          %>% select(x, y, name) %>% collect())
+    xy_tabs <- data.table(tbl(con, "master_grid") %>% filter(name == kmlid) %>% 
+                            select(x, y, name) %>% collect())
+    
     grid.poly <- point_to_gridpoly(xy = xy_tabs, w = diam, NewCRSobj = prjstr, 
                                    OldCRSobj = gcsstr)
     grid.poly <- st_geometry(grid.poly)  # retain geometry only
@@ -233,6 +229,20 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
   # Map results according to error class
   if(draw.maps == "T") {
     
+  #   error_maps(grid_poly = ifelse(exists("grid.poly"), list(grid.poly), "null")[[1]],
+  #              qaqc_poly = ifelse(exists("qaqc.poly"), list(qaqc.poly), "null")[[1]],
+  #              user_poly = ifelse(exists("user.poly"), list(user.poly), "null")[[1]],
+  #              inres = ifelse(exists("inres"), list(inres), "null")[[1]],  
+  #              err_out = err.out, 
+  #              user_poly_out = ifelse(exists("user.poly.out"), list(user.poly.out), 
+  #                                     "null")[[1]],
+  #              qaqc_poly_out = ifelse(exists("qaqc.poly.out"), list(qaqc.poly.out), 
+  #                                     "null")[[1]],
+  #              tpout = ifelse(exists("tpo"), list(tpo), "null")[[1]],
+  #              fnout = ifelse(exists("fno"), list(fno), "null")[[1]],
+  #              pngout = FALSE)
+  # }
+    
     if(exists("grid.poly")) bbr1 <- st_bbox(grid.poly)
     if(exists("qaqc.poly")) bbr2 <- st_bbox(qaqc.poly)
     if(exists("user.poly")) bbr3 <- st_bbox(user.poly)
@@ -262,20 +272,20 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
                 cex = cx)
           mtext(mpi[i], side = 3, line = 0.5, adj = plotpos[i], cex = cx)
           if(exists("user.poly.out")) {
-            if(!is.null(nrow(user.poly.out))) {
+            if(length(user.poly.out) > 0) {
               plot(st_geometry(user.poly.out), add = T, col = "grey")
             }
           }
           if(exists("qaqc.poly.out")) {
-            if(!is.null(nrow(qaqc.poly.out))) {
+            if(length(qaqc.poly.out) > 0) {
               plot(st_geometry(qaqc.poly.out), add = T, col = "pink")
             }
           }
           if(exists("tpo")) {
-            if(is.object(tpo)) plot(tpo, col = "green1", add = TRUE)
+            if(is.object(tpo) & length(tpo) > 0) plot(tpo, col = "green1", add = TRUE)
           }
           if(exists("fno")) {
-            if(is.object(tpo)) plot(fno, col = "blue1", add = TRUE)
+            if(is.object(fno) & length(fno) > 0) plot(fno, col = "blue1", add = TRUE)
           }
         }
         mtext(paste0(kmlid, "_", assignmentid), side = 1, cex = cx)
