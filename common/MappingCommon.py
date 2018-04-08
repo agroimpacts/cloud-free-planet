@@ -444,6 +444,8 @@ class MappingCommon(object):
 
     # Do post-processing for a training worker's submitted assignment.
     def trainingAssignmentSubmitted(self, k, assignmentId, tryNum, workerId, submitTime, kmlName, kmlType):
+        assignmentStatus = None
+
         # Compute the worker's score on this KML.
         score, scoreString = self.kmlAccuracyCheck(MappingCommon.KmlTraining, kmlName, assignmentId, tryNum)
         # Reward the worker if we couldn't score his work properly.
@@ -470,7 +472,6 @@ class MappingCommon(object):
             else:
                 assignmentStatus = MappingCommon.HITRejected
                 approved = False
-        return approved
 
         # Record the assignment submission time and score (unless results were unsaved).
         now = str(datetime.today())
@@ -478,6 +479,8 @@ class MappingCommon(object):
             score = '%s' where assignment_id = '%s'""" %
             (now, assignmentStatus, score, assignmentId))
         self.dbcon.commit()
+
+        return approved
 
     # Do all post-processing for a worker's submitted assignment.
     def assignmentSubmitted(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):
