@@ -170,7 +170,7 @@ def qualification():
 
             mapForm.tryNum.data = tries
             mapForm.assignmentId.data = assignmentId
-            k.write("qualification: Candidate starting try %d on %s kml #%s: %s\n" % (tries, kmlType, doneCount + 1, kmlName))
+            k.write("qualification: Candidate starting try %d on %s kml #%s: %s\n" % (tries, kmlTypeDescr, doneCount + 1, kmlName))
 
     # Worker is done with training. Record that fact.
     else:
