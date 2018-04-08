@@ -10,10 +10,10 @@ nqh = 0
 nfh = 0
 nnh = 0
 nh = 0
-print "HIT Id, kml name, kml type, reward, status, #assign rem, #assign compl, #assign pend"
+print "HIT Id, kml name, kml type, reward, status, #assign rem, #assign asgnd, #assign pend, #assign compl"
 for hitId, hit in mapc.getAllHits().iteritems():
     assignmentsRemaining = hit['maxAssignments'] - \
-            (hit['assignmentsCompleted'] + hit['assignmentsPending'])
+            (hit['assignmentsAssigned'] + hit['assignmentsPending'] + hit['assignmentsCompleted'])
     nh = nh + 1
     if assignmentsRemaining > 0:
         nah = nah + 1
@@ -31,7 +31,7 @@ for hitId, hit in mapc.getAllHits().iteritems():
     else:
         kmlType = 'U'       # Unknown
     
-    print hitId, hit['kmlName'], kmlType, hit['reward'], hitStatus, assignmentsRemaining, hit['assignmentsCompleted'], hit['assignmentsPending']
+    print hitId, hit['kmlName'], kmlType, hit['reward'], hitStatus, assignmentsRemaining, hit['assignmentsAssigned'], hit['assignmentsPending'], hit['assignmentsCompleted']
     label = False
     for asgmtId, asgmt in mapc.getAssignments(hitId=hitId).iteritems():
         if not label:
