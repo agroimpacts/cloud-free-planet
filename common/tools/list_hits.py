@@ -1,5 +1,6 @@
 #! /usr/bin/python
 
+import sys
 from MappingCommon import MappingCommon
 
 mapc = MappingCommon()
@@ -10,8 +11,8 @@ nqh = 0
 nfh = 0
 nnh = 0
 nh = 0
-print "HIT Id, kml name, kml type, reward, status, #assign rem, #assign asgnd, #assign pend, #assign compl"
-for hitId, hit in mapc.getAllHits().iteritems():
+print "HIT Id\tkml name\ttype\treward\tstatus\t\t#rem\t#asgnd\t#pend\t#compl"
+for hitId, hit in sorted(mapc.getAllHits().iteritems()):
     assignmentsRemaining = hit['maxAssignments'] - \
             (hit['assignmentsAssigned'] + hit['assignmentsPending'] + hit['assignmentsCompleted'])
     nh = nh + 1
@@ -31,12 +32,18 @@ for hitId, hit in mapc.getAllHits().iteritems():
     else:
         kmlType = 'U'       # Unknown
     
-    print hitId, hit['kmlName'], kmlType, hit['reward'], hitStatus, assignmentsRemaining, hit['assignmentsAssigned'], hit['assignmentsPending'], hit['assignmentsCompleted']
+    print "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (hitId, hit['kmlName'], kmlType, hit['reward'], hitStatus, assignmentsRemaining, hit['assignmentsAssigned'], hit['assignmentsPending'], hit['assignmentsCompleted'])
+    found = False
     label = False
-    for asgmtId, asgmt in mapc.getAssignments(hitId=hitId).iteritems():
+    for asgmtId, asgmt in sorted(mapc.getAssignments(hitId=hitId).iteritems()):
+        found = True
         if not label:
-            print "Assign Id(s): %s" % asgmtId
+            sys.stdout.write("Assign Id(s): %s" % asgmtId)
+            label = True
         else:
-            print ", %s" % asgmtId
+            sys.stdout.write(", %s" % asgmtId)
+    else:
+        if found:
+            print
 
-print 'Total HITs: %d; # assignable HITs: %d; QAQC HITs: %d; FQAQC HITs: %d; non-QAQC HITs: %d' % (nh, nah, nqh, nfh, nnh)
+print '\nTotal HITs: %d; QAQC HITs: %d; FQAQC HITs: %d; non-QAQC HITs: %d; # assignable HITs: %d' % (nh, nqh, nfh, nnh, nah)
