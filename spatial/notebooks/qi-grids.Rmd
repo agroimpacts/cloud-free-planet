@@ -72,8 +72,24 @@ qgintcl <- do.call(rbind, qgint[notnulls])
 ```
 
 ## Write back to AfricaSandbox
-```{r, eval = FALSE}
 
+First clean out existing qaqcfields table
+```{r, eval = FALSE}
+qaqcsorig <- unique((tbl(con, "qaqcfields") %>% select(name) %>%
+                      collect())$name)
+qaqcsorig <- sort(qaqcsorig)
+qstr <- paste0(" (", paste0("'", qaqcsorig, "'", collapse = ","), ")")
+sql <- paste0("DELETE from qaqcfields WHERE name in", qstr)
+DBI::dbExecute(con, sql)
+
+st_write_db(con, qgintcl, "qaqcfields", row.names = FALSE, drop = TRUE)
+DBI::dbSendQuery(con, 
+                 "ALTER TABLE qaqcfields RENAME wkb_geometry TO geom_clean")
+DBI::dbSendQuery(con, 
+                 "ALTER TABLE qaqcfields ADD COLUMN gid serial PRIMARY KEY")
+DBI::dbSendQuery(con, "CREATE INDEX qaqcfields_names_idx ON qaqcfields (name);")
+DBI::dbSendQuery(con, "VACUUM ANALYZE qaqcfields;")
+DBI::dbSendQuery(con, "CLUSTER qaqcfields USING qaqcfields_pkey;")
 
 ```
 
