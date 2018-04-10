@@ -31,10 +31,6 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
   dinfo <- getDBName()  # pull working environment
 
   # Paths and connections
-  # drv <- dbDriver("PostgreSQL")
-  # con <- dbConnect(drv, dbname = dinfo["db.name"], user = user, 
-  #                  password = password)
-  
   con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), dbname = dinfo["db.name"],   
                         user = user, password = password)
 
@@ -50,7 +46,6 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
                      " from qaqcfields where name=", "'", kmlid, "'")
   qaqc.polys <- suppressWarnings(st_read_db(con, query = qaqc.sql, 
                                             geom_column = 'geom_clean'))
-  
   qaqc.hasfields <- ifelse(nrow(qaqc.polys) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
     qaqc.nfields <- nrow(qaqc.polys)
@@ -74,20 +69,22 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
                                             geom_column = 'geom_clean'))
   user.hasfields <- ifelse(nrow(user.polys) > 0, "Y", "N") 
   if(user.hasfields == "Y") {  # Read in user fields if there are any
-    if(any(st_is_empty(user.polys))) {  # invoke cleaning algorithm
-      unfixedsfc <- lapply(as.vector(user.polys$geom), function(vec) {
-        structure(vec, class = "wkb")
-      })
-      unfixedsfc <- st_as_sfc(unfixedsfc, EWKB = TRUE)
-      user.polysclean <- cleanTempPolyFromWKT(unfixedsfc = unfixedsfc, 
-                                              crs = gcs)
-      user.nfields <- nrow(user.polysclean)  #  Record n distinct fields
-      # transform user polygons into pcs for calculation
-      user.poly <- st_union(st_transform(user.polysclean,crs = prjstr)) 
-    } else if(all(!st_is_empty(user.polys))) { 
-      user.nfields <- nrow(user.polys)
-      user.poly <- st_union(st_transform(user.polys, crs = prjstr))
-    }
+    # if(any(st_is_empty(user.polys))) {  # invoke cleaning algorithm
+    #   unfixedsfc <- lapply(as.vector(user.polys$geom), function(vec) {
+    #     structure(vec, class = "wkb")
+    #   })
+    #   unfixedsfc <- st_as_sfc(unfixedsfc, EWKB = TRUE)
+    #   user.polysclean <- cleanTempPolyFromWKT(unfixedsfc = unfixedsfc, 
+    #                                           crs = gcs)
+    #   user.nfields <- nrow(user.polysclean)  #  Record n distinct fields
+    #   # transform user polygons into pcs for calculation
+    #   user.poly <- st_union(st_transform(user.polysclean,crs = prjstr)) 
+    # } else if(all(!st_is_empty(user.polys))) { 
+    #   user.nfields <- nrow(user.polys)
+    #   user.poly <- st_union(st_transform(user.polys, crs = prjstr))
+    # }  # switched off for now--re-enable if we move back to pprepair
+    user.nfields <- nrow(user.polys)
+    user.poly <- st_union(st_transform(user.polys, crs = prjstr))
   } 
   
   # Error checks begin
@@ -101,8 +98,9 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
   } else {
     # Pick up grid cell from qaqc table, for background location, as it will be 
     # needed for the other 3 cases
-    xy_tabs <- data.table(con %>% tbl("master_grid") %>% filter(name == kmlid) 
-                          %>% select(x, y, name) %>% collect())
+    xy_tabs <- data.table(tbl(con, "master_grid") %>% filter(name == kmlid) %>% 
+                            select(x, y, name) %>% collect())
+    
     grid.poly <- point_to_gridpoly(xy = xy_tabs, w = diam, NewCRSobj = prjstr, 
                                    OldCRSobj = gcsstr)
     grid.poly <- st_geometry(grid.poly)  # retain geometry only
@@ -121,7 +119,7 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
     
     # Secondary metric - Sensitivity of results outside of kml grid
     user.poly.out <- st_difference(user.poly, grid.poly)
-    if(is.null(nrow(user.poly.out))) {
+    if(length(user.poly.out) == 0) {
       out.error <- 1  # If user finds no fields outside of box, gets credit
     } else {  
       out.error <- 0  # If user maps outside of box when no fields exist
@@ -172,27 +170,27 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
                                               user_rows = user.nfields) 
       
       # Mapped area differences inside the target grid cell
-      user.poly.in <- st_intersection(grid.poly, user.poly)
-      qaqc.poly.in <- st_intersection(grid.poly, qaqc.poly)
-      user.poly.out <- st_difference(user.poly, grid.poly)
-      qaqc.poly.out <- st_difference(qaqc.poly, grid.poly)
+      user.poly.in <- st_intersection(grid.poly, user.poly)  # user maps in cell
+      qaqc.poly.in <- st_intersection(grid.poly, qaqc.poly)  # q maps in cell
+      user.poly.out <- st_difference(user.poly, grid.poly)  # user maps outside
+      qaqc.poly.out <- st_difference(qaqc.poly, grid.poly)  # q maps outside
       inres <- mapError(maps = user.poly.in, truth = qaqc.poly.in, 
                         region = grid.poly)  # Error metric
       
-      
       # Secondary metric - Sensitivity of results outside of kml grid
-      if(is.null(nrow(user.poly.out)) & is.null(nrow(qaqc.poly.out))) {
+      if(length(user.poly.out) == 0 & length(qaqc.poly.out) == 0) {
         if(comments == "T") print("No QAQC or User fields outside of grid")
-        out.error <- 1  
-      } else if(!is.null(nrow(user.poly.out)) & !is.null(nrow(qaqc.poly.out))) {
+        out.error <- 1  # perfect if neither u nor q map outside
+      } else if(length(user.poly.out) > 0 & length(qaqc.poly.out) > 0) {
         if(comments == "T") print("Both QAQC and User fields outside of grid")
-        tpo <- st_intersection(qaqc.poly.out, user.poly.out)  
-        fno <- st_difference(qaqc.poly.out, user.poly.out)  
-        tflisto <- c("tpo", "fno")  
-        areaso <- sapply(tflisto, function(x) {
-          ifelse(!is.null(x) & is.object(x), st_area(x), 0)
+        tpo <- st_intersection(qaqc.poly.out, user.poly.out)  # tp outside
+        fno <- st_difference(qaqc.poly.out, user.poly.out)  # fp outside
+        tflisto <- c("tpo", "fno")
+        areaso <- sapply(tflisto, function(x) {  # calculate tp and fp area
+          xo <- get(x)
+          ifelse(!is.null(xo) & is.object(xo) & length(xo) > 0, st_area(xo), 0)
         })
-        out.error <- areaso[1] / sum(areaso)
+        out.error <- areaso[1] / sum(areaso)  # sensitivity 
       } else {
         if(comments == "T") {
           print("Either QAQC or User fields outside of grid, but not both")
@@ -231,6 +229,20 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
   # Map results according to error class
   if(draw.maps == "T") {
     
+  #   error_maps(grid_poly = ifelse(exists("grid.poly"), list(grid.poly), "null")[[1]],
+  #              qaqc_poly = ifelse(exists("qaqc.poly"), list(qaqc.poly), "null")[[1]],
+  #              user_poly = ifelse(exists("user.poly"), list(user.poly), "null")[[1]],
+  #              inres = ifelse(exists("inres"), list(inres), "null")[[1]],  
+  #              err_out = err.out, 
+  #              user_poly_out = ifelse(exists("user.poly.out"), list(user.poly.out), 
+  #                                     "null")[[1]],
+  #              qaqc_poly_out = ifelse(exists("qaqc.poly.out"), list(qaqc.poly.out), 
+  #                                     "null")[[1]],
+  #              tpout = ifelse(exists("tpo"), list(tpo), "null")[[1]],
+  #              fnout = ifelse(exists("fno"), list(fno), "null")[[1]],
+  #              pngout = FALSE)
+  # }
+    
     if(exists("grid.poly")) bbr1 <- st_bbox(grid.poly)
     if(exists("qaqc.poly")) bbr2 <- st_bbox(qaqc.poly)
     if(exists("user.poly")) bbr3 <- st_bbox(user.poly)
@@ -260,20 +272,20 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
                 cex = cx)
           mtext(mpi[i], side = 3, line = 0.5, adj = plotpos[i], cex = cx)
           if(exists("user.poly.out")) {
-            if(!is.null(nrow(user.poly.out))) {
+            if(length(user.poly.out) > 0) {
               plot(st_geometry(user.poly.out), add = T, col = "grey")
             }
           }
           if(exists("qaqc.poly.out")) {
-            if(!is.null(nrow(qaqc.poly.out))) {
+            if(length(qaqc.poly.out) > 0) {
               plot(st_geometry(qaqc.poly.out), add = T, col = "pink")
             }
           }
           if(exists("tpo")) {
-            if(is.object(tpo)) plot(tpo, col = "green1", add = TRUE)
+            if(is.object(tpo) & length(tpo) > 0) plot(tpo, col = "green1", add = TRUE)
           }
           if(exists("fno")) {
-            if(is.object(tpo)) plot(fno, col = "blue1", add = TRUE)
+            if(is.object(fno) & length(fno) > 0) plot(fno, col = "blue1", add = TRUE)
           }
         }
         mtext(paste0(kmlid, "_", assignmentid), side = 1, cex = cx)

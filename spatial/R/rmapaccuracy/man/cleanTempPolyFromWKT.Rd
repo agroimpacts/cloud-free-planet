@@ -20,3 +20,7 @@ Reads in PostGIS geometry and creates a temporary shapefile out
 \details{
 Uses callPprepair function to clean up read in polygons and write
 }
+\note{
+Deprecated in current version of platform, which uses ST_MakeValid not 
+pprepair
+}
