@@ -64,8 +64,8 @@ while True:
 
             # Record the final QAQC, FQAQC or non-QAQC HIT status.
             assignmentStatus = MappingCommon.HITAbandoned
-            mapc.cur.execute("""update assignment_data set status = '%s' where assignment_id = '%s'""" %
-                (assignmentStatus, assignmentId))
+            mapc.cur.execute("""update assignment_data set status = '%s', completion_time = '%s'
+                    where assignment_id = '%s'""" % (assignmentStatus, now, assignmentId))
             mapc.dbcon.commit()
             k.write("cleanupAbsentWorker: QAQC, FQAQC or non-QAQC assignment marked in DB as %s\n" %
                 assignmentStatus.lower())

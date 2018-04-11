@@ -42,14 +42,11 @@ while True:
     # Get serialization lock.
     mapc.getSerializationLock()
 
-    # Get all HITs.
-    hits = mapc.getAllHits()
-
-    # Do the verification.
+    # Get all HITs  and calculate our needs.
     numQaqcHits = 0
     numFqaqcHits = 0
     numNonQaqcHits = 0
-    for hitId, row in hits.iteritems():
+    for hitId, row in mapc.getHitInfo().iteritems():
         # Calculate the number of assignable QAQC, FQAQC, and NQAQC HITs 
         # currently available. For HITs with multiple assignments, only count HITs 
         # where the number of assignments created is less than the configured threshold.
