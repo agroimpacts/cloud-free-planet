@@ -61,7 +61,7 @@ def assignment():
         # If no kmlData, then no fields were mapped.
         if len(kmlData) == 0:
             k.write("assignment: OL reported 'save' without mappings for %s kml = %s\n" % (kmlTypeDescr, kmlName))
-            k.write("assignment: Worker ID %s\nHIT ID = %s\nAssignment ID = %s\n" % (workerId, hitId, assignmentId))
+            k.write("assignment: Worker ID %s, HIT ID = %s, Assignment ID = %s\n" % (workerId, hitId, assignmentId))
             resultsSaved = True                 # Can't fail since no maps posted.
         else:
             k.write("assignment: OL saved mapping(s) for %s kml = %s\n" % (kmlTypeDescr, kmlName))
@@ -124,19 +124,10 @@ def assignment():
             # Get serialization lock.
             mapc.getSerializationLock()
 
-            # Select the next KML for this worker: an active HIT that this worker
+            # Select the next KML for this worker: an Assignable HIT that this worker
             # has not yet been assigned to, and in random order.
-            mapc.cur.execute("""SELECT name, hit_id FROM kml_data k
-                INNER JOIN hit_data h USING (name)
-                WHERE delete_time IS NULL
-                AND NOT EXISTS (SELECT true FROM assignment_data a
-                WHERE a.hit_id = h.hit_id AND worker_id = '%s')
-                ORDER BY random()
-                LIMIT 1""" % workerId)
-
-            # Check if there are any KMLs to hand out.
-            row = mapc.cur.fetchone()
-            if row is None:
+            (hitId, kmlName) = mapc.getRandomHit(workerId)
+            if hitId is None:
                 mapc.createAlertIssue("No available HITs in hit_data table",
                         """There are no HITs in the hit_data table that are available to worker %s\n
                         Ensure create_hit_daemon is running, and check its log file.""" % 
@@ -144,8 +135,6 @@ def assignment():
                 k.write("assignment: Worker %s tried to map agricultural fields but there were none to map.\nNotified and redirected.\n" % workerId)
                 flash("We apologize, but there are currently no maps for you to work on. We are aware of the problem and will fix it as soon as possible. Please try again later.")
                 return redirect(url_for('main.employee_page'))
-            kmlName = row[0]
-            hitId = row[1]
             mapForm.kmlName.data = kmlName
             (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
                 
