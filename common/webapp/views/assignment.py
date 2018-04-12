@@ -82,7 +82,8 @@ def assignment():
                 mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
 
         # Else, worker returned the assigned KML.
-        mapc.assignmentReturned(k, hitId, assignmentId, now)
+        else:
+            mapc.assignmentReturned(k, hitId, assignmentId, now, comment)
 
     # If GET request, tell showkml.js to not issue any alerts.
     else:

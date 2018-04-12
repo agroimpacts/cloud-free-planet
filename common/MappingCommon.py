@@ -310,19 +310,25 @@ class MappingCommon(object):
         hits = {}
         assignments = {}
         for hit in self.cur.fetchall():
+            assignments = {}
             assignmentsAssigned = 0
             assignmentsPending = 0
             assignmentsCompleted = 0
             for asgmtId, asgmt in self.getAssignments(hit[0]).iteritems():
-                # Note that assignments with Returned or Abandoned statuses are ignored.
-                if asgmt['status'] not in (MappingCommon.HITAbandoned, MappingCommon.HITReturned):
+                # Note that assignments with Abandoned status are not counted.
+                if asgmt['status'] != MappingCommon.HITAbandoned:
+                    # Include all but Abandoned assignments, thus ensuring that workers 
+                    # won't be re-assigned to any of the other assignments again.
                     assignments[asgmtId] = asgmt
+
                     if asgmt['status'] == MappingCommon.HITAssigned:
                         assignmentsAssigned += 1
                     elif asgmt['status'] == MappingCommon.HITPending:
                         assignmentsPending += 1
-                    else:
+                    # All other statuses (except for Returned) are considered final completions.
+                    elif asgmt['status'] != MappingCommon.HITReturned:
                         assignmentsCompleted += 1
+
             assignmentsRemaining = hit[3] - \
                     (assignmentsAssigned + assignmentsPending + assignmentsCompleted)
             status = 'Unassignable'
@@ -528,13 +534,14 @@ class MappingCommon(object):
         return approved
 
     # Do the  post-processing for a worker's returned assignment.
-    def assignmentReturned(self, k, hitId, assignmentId, submitTime):
+    def assignmentReturned(self, k, hitId, assignmentId, submitTime, comment):
         # Record the return in order to compute a return rate.
         self.pushReturn(assignmentId, True)
 
         # Mark the assignment as returned.
-        mtma.cur.execute("""UPDATE assignment_data SET completion_time = '%s', status = '%s'
-            WHERE assignment_id = '%s'""" % (submitTime, MappingCommon.HITReturned, assignmentId))
+        self.cur.execute("""UPDATE assignment_data SET completion_time = '%s', status = '%s',
+                comment = '%s' WHERE assignment_id = '%s'""" % 
+                (submitTime, MappingCommon.HITReturned, comment, assignmentId))
         self.dbcon.commit()
         k.write("assignment: assignment %s has been marked as returned\n" % assignmentId)
 
