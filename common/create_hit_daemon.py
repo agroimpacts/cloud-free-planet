@@ -42,35 +42,28 @@ while True:
     # Get serialization lock.
     mapc.getSerializationLock()
 
-    # Get all HITs  and calculate our needs.
+    # Get all Assignable HITs  and calculate our needs.
     numQaqcHits = 0
     numFqaqcHits = 0
     numNonQaqcHits = 0
-    for hitId, row in mapc.getHitInfo().iteritems():
+    for hitId, row in mapc.getAssignableHitInfo().iteritems():
         # Calculate the number of assignable QAQC, FQAQC, and NQAQC HITs 
         # currently available. For HITs with multiple assignments, only count HITs 
         # where the number of assignments created is less than the configured threshold.
-        # The number of assignments created is the sum of:
-        #   assignmentsAssigned + assignmentsPending + assignmentsCompleted
-        # Note that assignments with Returned or Abandoned statuses are ignored.
-        # assignmentsAssigned is the count of assignments assigned to a worker that have not been completed.
-        # assignmentsPending is the count of completed assignments that have an interim status.
-        # assignmentsCompleted is the count of completed assignments with a final status.
+        kmlType = row['kmlType']
         maxAssignments = row['maxAssignments']
-        numAssignments = row['assignmentsAssigned'] - row['assignmentsPending'] - row['assignmentsCompleted']
-        if row['kmlType'] == MappingCommon.KmlQAQC:
-            # Must not have created any assignments.
-            if numAssignments < 1:
-                numQaqcHits = numQaqcHits + 1
-        elif row['kmlType'] == MappingCommon.KmlFQAQC:
+        createdAssignments = maxAssignments - row['assignmentsRemaining']
+        if kmlType == MappingCommon.KmlQAQC:
+            numQaqcHits = numQaqcHits + 1
+        elif kmlType == MappingCommon.KmlFQAQC:
             # Must have created less than the threshold number of assignments.
             threshold = max(int(round(hitReplacementThresholdF * maxAssignments)), 1)
-            if numAssignments < threshold:
+            if createdAssignments < threshold:
                 numFqaqcHits = numFqaqcHits + 1
-        elif row['kmlType'] == MappingCommon.KmlNormal:
+        elif kmlType == MappingCommon.KmlNormal:
             # Must have created less than the threshold number of assignments.
             threshold = max(int(round(hitReplacementThresholdN * maxAssignments)), 1)
-            if numAssignments < threshold:
+            if createdAssignments < threshold:
                 numNonQaqcHits = numNonQaqcHits + 1
 
     # Create any needed QAQC HITs.

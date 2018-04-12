@@ -100,7 +100,8 @@ def application(environ, start_response):
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                     <link rel="stylesheet" href="https://openlayers.org/en/v3.18.2/css/ol.css" type="text/css">
                     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400">
-                    <link rel="stylesheet" href="/OL/fontello-799a171d/css/fontello.css" type="text/css" />
+                    <!-- <link rel="stylesheet" href="/OL/fontello-799a171d/css/fontello.css" type="text/css" /> -->
+                    <link rel="stylesheet" href="/OL/fontello-b8cf557f/css/fontello.css" type="text/css" />
                     <link rel="stylesheet" href="/OL/ol3-layerswitcher.css" type="text/css">
                     <link rel="stylesheet" href="/OL/controlbar.css" type="text/css">
                     <link rel="stylesheet" href="/OL/showkml.css" type="text/css">
@@ -135,6 +136,7 @@ def application(environ, start_response):
                         <input type='hidden' name='hitId' value='%(hitId)s' />
                         <input type='hidden' name='assignmentId' value='%(assignmentId)s' />
                         <input type='hidden' name='tryNum' value='%(tryNum)s' />
+                        <input type='hidden' name='savedMaps' />
                         <input type='hidden' name='kmlData' />
                     </form>
                     <div id="kml_display" style="width: 100%%; height: %(kmlMapHeight)spx;"></div>
