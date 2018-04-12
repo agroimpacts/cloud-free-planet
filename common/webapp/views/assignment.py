@@ -55,28 +55,34 @@ def assignment():
         comment = mapForm.comment.data
         if len(comment) > 2048:
             comment = comment[:2048]
+        savedMaps = mapForm.savedMaps.data
         kmlData = mapForm.kmlData.data
         (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
 
-        # If no kmlData, then no fields were mapped.
-        if len(kmlData) == 0:
-            k.write("assignment: OL reported 'save' without mappings for %s kml = %s\n" % (kmlTypeDescr, kmlName))
-            k.write("assignment: Worker ID %s, HIT ID = %s, Assignment ID = %s\n" % (workerId, hitId, assignmentId))
-            resultsSaved = True                 # Can't fail since no maps posted.
-        else:
-            k.write("assignment: OL saved mapping(s) for %s kml = %s\n" % (kmlTypeDescr, kmlName))
-            k.write("assignment: Worker ID %s\nHIT ID = %s\nAssignment ID = %s\n" % (workerId, hitId, assignmentId))
+        # If worker saved their results...
+        if savedMaps:
+            # If no kmlData, then no fields were mapped.
+            if len(kmlData) == 0:
+                k.write("assignment: OL reported 'save' without mappings for %s kml = %s\n" % (kmlTypeDescr, kmlName))
+                k.write("assignment: Worker ID %s, HIT ID = %s, Assignment ID = %s\n" % (workerId, hitId, assignmentId))
+                resultsSaved = True                 # Can't fail since no maps posted.
+            else:
+                k.write("assignment: OL saved mapping(s) for %s kml = %s\n" % (kmlTypeDescr, kmlName))
+                k.write("assignment: Worker ID %s\nHIT ID = %s\nAssignment ID = %s\n" % (workerId, hitId, assignmentId))
 
-            # Save all drawn maps.
-            resultsSaved = mapc.saveWorkerMaps(k, kmlData, workerId, assignmentId)
+                # Save all drawn maps.
+                resultsSaved = mapc.saveWorkerMaps(k, kmlData, workerId, assignmentId)
 
-        # If we have at least one valid mapping.
-        if resultsSaved:
-            # Post-process this worker's results.
-            mapc.assignmentSubmitted(k, hitId, assignmentId, workerId, now, kmlName, kmlType, comment)
-            mapForm.resultsAccepted.data = 0   # Display no results alert in showkml
-        else:
-            mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
+            # If we have at least one valid mapping.
+            if resultsSaved:
+                # Post-process this worker's results.
+                mapc.assignmentSubmitted(k, hitId, assignmentId, workerId, now, kmlName, kmlType, comment)
+                mapForm.resultsAccepted.data = 0   # Display no results alert in showkml
+            else:
+                mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
+
+        # Else, worker returned the assigned KML.
+        mapc.assignmentReturned(k, hitId, assignmentId, now)
 
     # If GET request, tell showkml.js to not issue any alerts.
     else:
@@ -126,7 +132,7 @@ def assignment():
 
             # Select the next KML for this worker: an Assignable HIT that this worker
             # has not yet been assigned to, and in random order.
-            (hitId, kmlName) = mapc.getRandomHit(workerId)
+            (hitId, kmlName) = mapc.getRandomAssignableHit(workerId)
             if hitId is None:
                 mapc.createAlertIssue("No available HITs in hit_data table",
                         """There are no HITs in the hit_data table that are available to worker %s\n
