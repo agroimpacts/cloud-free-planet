@@ -495,7 +495,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                     className: "noToggle"
                 });
         mainbar.addControl(returnButton);
-        saveButton.on("change:active", function(e)
+        returnButton.on("change:active", function(e)
         {	
             if (e.active) {
                 checkReturnStrategy(kmlName);
@@ -553,7 +553,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             document.mappingform.kmlData.value = kmlData;
         }
         // Mark that we saved our results.
-        document.mappingform.savedMaps.value = True;
+        document.mappingform.savedMaps.value = true;
 
         document.mappingform.submit();
     }
@@ -573,7 +573,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         saveStrategyActive = false
 
         // Mark that we returned this map.
-        document.mappingform.savedMaps.value = False;
+        document.mappingform.savedMaps.value = false;
 
         document.mappingform.submit();
     }
