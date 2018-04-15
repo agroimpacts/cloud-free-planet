@@ -2,6 +2,7 @@ import os
 import subprocess
 import pwd
 import cgi
+import random
 from datetime import datetime
 from dateutil import tz
 from xml.dom.minidom import parseString
@@ -41,6 +42,10 @@ class MappingCommon(object):
     HITPending = 'Pending'                      # Awaiting enough trust history to calculate trust level
     HITUntrusted = 'Untrusted'                  # Insufficiently high trust level
                                                 # (non-QAQC KML reused in this case)
+
+    # HIT status constants
+    HITAssignable = 'Assignable'
+    HITUnassignable = 'Unassignable'
 
     # KML kml_data.kml_type constants
     KmlNormal = 'N'                             # Normal (non-QAQC) KML
@@ -264,31 +269,83 @@ class MappingCommon(object):
     # *** HIT-Related Functions ***
     #
 
-    # Retrieve all HITs created by the createHit() function.
-    def getAllHits(self):
-        self.cur.execute("""
-            select hit_id, name, kml_type, max_assignments, reward
-            from hit_data
-            inner join kml_data using (name)
-            where delete_time is null
-            """)
+    # Return a random HIT that can be assigned to this worker.
+    def getRandomAssignableHit(self, workerId):
+        # Get all assignable HITs for this worker.
+        hits = self.getAssignableHitInfo(workerId)
+        if len(hits) == 0:
+            return (None, None)
+        # Get a random hitId.
+        hitId = random.choice(hits.keys())
+        # Return hitId and its kmlNname
+        return hitId, hits[hitId]['kmlName']
+
+    # Return all HITs that are Assignable, and, if a workerId is specified, 
+    # that has never been assigned to this worker.
+    def getAssignableHitInfo(self, workerId=None):
+        assignableHits = {}
+        for hitId, hit in self.getHitInfo().iteritems():
+            if hit['status'] == 'Assignable': 
+                if workerId is None:
+                    assignableHits[hitId] = hit
+                else:
+                    # 'else' clause below is executed if no match on workerId.
+                    for asgmtId, asgmt in  hit['assignments'].iteritems():
+                        if asgmt['workerId'] == workerId:
+                            break
+                    else:
+                        assignableHits[hitId] = hit
+        return assignableHits
+
+    # Return one or all HITs created by the createHit() function.
+    # Return all HITs if called without a hitId.
+    def getHitInfo(self, hitId=None):
+        sql = """SELECT hit_id, name, kml_type, max_assignments, reward
+                FROM hit_data
+                INNER JOIN kml_data USING (name)
+                WHERE delete_time IS null"""
+        if hitId is not None:
+            sql += " AND hit_id = %s" % hitId
+        self.cur.execute(sql)
         hits = {}
+        assignments = {}
         for hit in self.cur.fetchall():
+            assignments = {}
             assignmentsAssigned = 0
             assignmentsPending = 0
             assignmentsCompleted = 0
             for asgmtId, asgmt in self.getAssignments(hit[0]).iteritems():
-                if asgmt['status'] not in (MappingCommon.HITAbandoned, MappingCommon.HITReturned):
+                # Note that assignments with Abandoned status are not counted.
+                if asgmt['status'] != MappingCommon.HITAbandoned:
+                    # Include all but Abandoned assignments, thus ensuring that workers 
+                    # won't be re-assigned to any of the other assignments again.
+                    assignments[asgmtId] = asgmt
+
                     if asgmt['status'] == MappingCommon.HITAssigned:
                         assignmentsAssigned += 1
                     elif asgmt['status'] == MappingCommon.HITPending:
                         assignmentsPending += 1
-                    else:
+                    # All other statuses (except for Returned) are considered final completions.
+                    elif asgmt['status'] != MappingCommon.HITReturned:
                         assignmentsCompleted += 1
+
+            assignmentsRemaining = hit[3] - \
+                    (assignmentsAssigned + assignmentsPending + assignmentsCompleted)
+            status = 'Unassignable'
+            if assignmentsRemaining > 0:
+                status = 'Assignable'
             hits[hit[0]] = {'kmlName': hit[1], 'kmlType': hit[2], 'maxAssignments': hit[3], 
                     'reward': hit[4], 'assignmentsAssigned': assignmentsAssigned, 
-                    'assignmentsPending': assignmentsPending, 'assignmentsCompleted': assignmentsCompleted }
-        return hits
+                    'assignmentsPending': assignmentsPending, 'assignmentsCompleted': assignmentsCompleted,
+                    'assignmentsRemaining': assignmentsRemaining, 'status': status, 
+                    'assignments': assignments }
+        if len(hits) == 0:
+            return None
+        else:
+            if hitId is not None:
+                return hits[hitId]
+            else:
+                return hits
 
     # Retrieve all assignments for the specified HIT ID.
     def getAssignments(self, hitId):
@@ -324,25 +381,18 @@ class MappingCommon(object):
         self.dbcon.commit()
         return hitId
 
-    # Delete a HIT if all assignments have been submitted and have a final status
-    # (i.e., there are no assignments in assigned or pending status).
+    # Delete HIT if it is Unassignable and it has no assignments in 
+    # the Assigned or Pending state.
     def deleteFinalizedHit(self, hitId, submitTime):
-        # Count if there are any available assignments left for this HIT.
-        nonFinalAssignCount = self.querySingleValue("""SELECT
-                (SELECT max_assignments FROM hit_data WHERE hit_id = '%s') -
-                (SELECT count(*) FROM assignment_data WHERE hit_id ='%s' AND
-                        status NOT IN ('%s', '%s'))""" %
-                (hitId, hitId, MappingCommon.HITAssigned, MappingCommon.HITPending))
-        try:
-            nonFinalAssignCount = int(nonFinalAssignCount)
-        except:
-            # If a problem with the return from this query, don't delete.
-            nonFinalAssignCount = -1
-            self.createAlertIssue("deleteFinalizedHit problem", 
-                    "Invalid value returned from nonFinalAssignCount query for: HIT ID %s\n" % hitId)
-        if nonFinalAssignCount == 0:
+        hit = self.getHitInfo(hitId)
+        # If non-existent or previously deleted HIT.
+        if hit is None:
+            return None
+        if hit['status'] == 'Unassignable' and \
+                (hit['assignmentsAssigned'] + hit['assignmentsPending']) == 0:
             # Record the HIT deletion time.
-            self.cur.execute("""UPDATE hit_data SET delete_time = '%s' WHERE hit_id = '%s'""" % (submitTime, hitId))
+            self.cur.execute("""UPDATE hit_data SET delete_time = '%s' 
+                    WHERE hit_id = '%s'""" % (submitTime, hitId))
             self.dbcon.commit()
             return True
         else:
@@ -356,10 +406,10 @@ class MappingCommon(object):
     # Return floating point score (0.0-1.0), or None if could not be scored.
     def kmlAccuracyCheck(self, kmlType, kmlName, assignmentId, tryNum=None):
         if kmlType == MappingCommon.KmlTraining:
-            scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, assignmentId, str(tryNum)],
+            scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum)],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         elif kmlType == MappingCommon.KmlQAQC:
-            scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, assignmentId],
+            scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId)],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         else:
             assert False
@@ -476,12 +526,32 @@ class MappingCommon(object):
 
         # Record the assignment submission time and score (unless results were unsaved).
         now = str(datetime.today())
-        self.cur.execute("""update qual_assignment_data set completion_time = '%s', status = '%s',
-            score = '%s' where assignment_id = '%s'""" %
+        self.cur.execute("""UPDATE qual_assignment_data SET completion_time = '%s', status = '%s',
+            score = '%s' WHERE assignment_id = '%s'""" %
             (now, assignmentStatus, score, assignmentId))
         self.dbcon.commit()
 
         return approved
+
+    # Do the  post-processing for a worker's returned assignment.
+    def assignmentReturned(self, k, hitId, assignmentId, submitTime, comment):
+        # Record the return in order to compute a return rate.
+        self.pushReturn(assignmentId, True)
+
+        # Mark the assignment as returned.
+        self.cur.execute("""UPDATE assignment_data SET completion_time = '%s', status = '%s',
+                comment = '%s' WHERE assignment_id = '%s'""" % 
+                (submitTime, MappingCommon.HITReturned, comment, assignmentId))
+        self.dbcon.commit()
+        k.write("assignment: assignment %s has been marked as returned\n" % assignmentId)
+
+        # Delete the HIT if all assignments have been submitted and have a final status
+        # (i.e., there are no assignments in Pending or Assigned status).
+        if self.deleteFinalizedHit(hitId, submitTime):
+            k.write("assignment: hit %s has no remaining assignments and has been deleted\n" % hitId)
+        else:
+            k.write("assignment: hit %s still has remaining assigned or pending assignments and cannot be deleted\n" % hitId)
+
 
     # Do all post-processing for a worker's submitted assignment.
     def assignmentSubmitted(self, k, hitId, assignmentId, workerId, submitTime, kmlName, kmlType, comment):

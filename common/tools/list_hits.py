@@ -12,16 +12,10 @@ nfh = 0
 nnh = 0
 nh = 0
 print "HIT Id\tkml name\ttype\treward\tstatus\t\t#rem\t#asgnd\t#pend\t#compl"
-for hitId, hit in sorted(mapc.getAllHits().iteritems()):
-    assignmentsRemaining = hit['maxAssignments'] - \
-            (hit['assignmentsAssigned'] + hit['assignmentsPending'] + hit['assignmentsCompleted'])
+for hitId, hit in sorted(mapc.getHitInfo().iteritems()):
     nh = nh + 1
-    if assignmentsRemaining > 0:
+    if hit['status'] == 'Assignable':
         nah = nah + 1
-        hitStatus = 'Assignable'
-    else:
-        hitStatus = 'Unassignable'
-
     kmlType = hit['kmlType']
     if kmlType == MappingCommon.KmlQAQC:
         nqh = nqh + 1
@@ -29,19 +23,17 @@ for hitId, hit in sorted(mapc.getAllHits().iteritems()):
         nfh = nfh + 1
     elif kmlType == MappingCommon.KmlNormal:
         nnh = nnh + 1
-    else:
-        kmlType = 'U'       # Unknown
     
-    print "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (hitId, hit['kmlName'], kmlType, hit['reward'], hitStatus, assignmentsRemaining, hit['assignmentsAssigned'], hit['assignmentsPending'], hit['assignmentsCompleted'])
+    print "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (hitId, hit['kmlName'], kmlType, hit['reward'], hit['status'], hit['assignmentsRemaining'], hit['assignmentsAssigned'], hit['assignmentsPending'], hit['assignmentsCompleted'])
     found = False
     label = False
     for asgmtId, asgmt in sorted(mapc.getAssignments(hitId=hitId).iteritems()):
         found = True
         if not label:
-            sys.stdout.write("Assign Id(s): %s" % asgmtId)
+            sys.stdout.write("Assign ID/Worker ID: %s/%s" % (asgmtId, asgmt['workerId']))
             label = True
         else:
-            sys.stdout.write(", %s" % asgmtId)
+            sys.stdout.write(", %s/%s" % (asgmtId, asgmt['workerId']))
     else:
         if found:
             print
