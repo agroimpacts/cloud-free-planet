@@ -6,7 +6,7 @@ from flask_user import current_user
 from flask_user import UserMixin
 from flask_user.forms import RegisterForm, InviteForm
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, BooleanField, RadioField, validators
+from wtforms import StringField, IntegerField, SubmitField, BooleanField, RadioField, validators
 from webapp import db
 
 
@@ -189,9 +189,9 @@ class MappingForm(FlaskForm):
 
     # Input/Output fields
     kmlName = StringField()
-    hitId = StringField()
-    assignmentId = StringField()
-    tryNum = StringField()          # Try number (qualification test only)
+    hitId = IntegerField()
+    assignmentId = IntegerField()
+    tryNum = IntegerField()         # Try number (qualification test only)
 
     # Output fields
     reqMethod = StringField()       # Whether preceding request was POST or GET

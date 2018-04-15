@@ -62,11 +62,11 @@ def qualification():
         # If no kmlData, then no fields were mapped.
         if len(kmlData) == 0:
             k.write("qualification: OL reported 'save' without mappings for %s kml = %s\n" % (kmlTypeDescr, kmlName))
-            k.write("qualification: Worker ID %s\nTraining assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
+            k.write("qualification: Worker ID %s; training assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
             resultsSaved = True                 # Can't fail since no maps posted.
         else:
             k.write("qualification: OL saved mapping(s) for %s kml %s\n" % (kmlTypeDescr, kmlName))
-            k.write("qualification: Worker ID %s\nTraining assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
+            k.write("qualification: Worker ID %s; training assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
 
             # Save all drawn maps.
             resultsSaved = mapc.saveWorkerMaps(k, kmlData, workerId, assignmentId, tryNum)

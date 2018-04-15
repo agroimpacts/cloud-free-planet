@@ -5,5 +5,5 @@ MAILTO=dmcr@princeton.edu
 SHELL=/bin/bash
 # Min Hour(0-23) Day Month DOW Command
 0,5,10,15,20,25,30,35,40,45,50,55 * * * * /home/${USER}/afmap/common/daemonNanny.sh /home/${USER}/afmap/common/create_hit_daemon.py >>/home/${USER}/afmap/log/daemonNanny.log
-#0,5,10,15,20,25,30,35,40,45,50,55 * * * * /home/${USER}/afmap/common/daemonNanny.sh /home/${USER}/afmap/common/cleanup_absent_worker.py >>/home/${USER}/afmap/log/daemonNanny.log
+0,5,10,15,20,25,30,35,40,45,50,55 * * * * /home/${USER}/afmap/common/daemonNanny.sh /home/${USER}/afmap/common/cleanup_absent_worker.py >>/home/${USER}/afmap/log/daemonNanny.log
 0,5,10,15,20,25,30,35,40,45,50,55 * * * * /home/${USER}/afmap/common/daemonNanny.sh /home/${USER}/afmap/spatial/R/KMLgenerate.R >>/home/${USER}/afmap/log/daemonNanny.log

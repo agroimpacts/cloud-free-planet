@@ -487,6 +487,20 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                 checkSaveStrategy(kmlName);
             }
         });
+
+        // Add a return button with on active event
+        var returnButton = new ol.control.Toggle(
+                {	html: '<i class="icon-back"></i>',
+                    title: 'Return map: Click this button if you wish to return this map and be provided with another one. NOTE: this may result in a reduction of your quality score.',
+                    className: "noToggle"
+                });
+        mainbar.addControl(returnButton);
+        returnButton.on("change:active", function(e)
+        {	
+            if (e.active) {
+                checkReturnStrategy(kmlName);
+            }
+        });
     }
 
     // Add event handler to execute each time a shape is drawn.
@@ -509,12 +523,11 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
 
     function checkSaveStrategy(kmlName) {
         var msg;
+
+        // Check if the Save button is enabled.
         if (!saveStrategyActive) {
             return;
         }
-        // Don't allow Save button to be used again.
-        saveStrategyActive = false
-
         var features = fieldsLayer.getSource().getFeatures();
         if (features != '') {
             msg = 'You can only save your mapped fields ONCE!\nPlease confirm that you\'re COMPLETELY done mapping fields.\nIf not done, click Cancel.';
@@ -524,6 +537,9 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         if (!confirm(msg)) {
             return;
         }
+        // Don't allow Save button to be used again.
+        saveStrategyActive = false
+
         // Save the current polygons if there are any.
         if (features != '') {
             var i = 1;
@@ -536,6 +552,30 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             // Save the kmlData in the HTML mappingform.
             document.mappingform.kmlData.value = kmlData;
         }
+        // Mark that we saved our results.
+        document.mappingform.savedMaps.value = true;
+
         document.mappingform.submit();
     }
+
+    function checkReturnStrategy(kmlName) {
+        var msg;
+
+        // Check if the Return button is enabled.
+        if (!saveStrategyActive) {
+            return;
+        }
+        msg = 'You are about to return this map without saving any results!\nPlease confirm that this is what you want to do.\nNOTE: this may result in a reduction of your quality score.\nIf you do not wish to return this map, click Cancel.';
+        if (!confirm(msg)) {
+            return;
+        }
+        // Don't allow Return button to be used again.
+        saveStrategyActive = false
+
+        // Mark that we returned this map.
+        document.mappingform.savedMaps.value = false;
+
+        document.mappingform.submit();
+    }
+
 }
