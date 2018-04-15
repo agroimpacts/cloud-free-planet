@@ -25,7 +25,7 @@ mapError <- function(maps, truth, region) {
     tp <- st_intersection(truth, maps)  
     fp <- st_difference(maps, truth)  
     fn <- st_difference(truth, maps)  
-    tn <- st_difference(st_buffer(null, 0),maps)
+    tn <- st_difference(st_buffer(null, 0), maps)
   }
   tflist <- c("tp", "fp", "fn", "tn") 
   areas <- sapply(tflist, function(x) {  
@@ -35,6 +35,6 @@ mapError <- function(maps, truth, region) {
   names(areas) <- tflist  
   acc_stats <- accStatsSum(tp = areas["tp"], fp = areas["fp"], 
                            fn = areas["fn"], tn = areas["tn"])
-  return(list(acc_stats, tp, fp, fn, tn))
+  return(list("stats" = acc_stats, "tp" = tp, "fp" = fp, "fn" = fn, "tn" = tn))
 }
 

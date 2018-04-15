@@ -174,8 +174,16 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
       qaqc.poly.in <- st_intersection(grid.poly, qaqc.poly)  # q maps in cell
       user.poly.out <- st_difference(user.poly, grid.poly)  # user maps outside
       qaqc.poly.out <- st_difference(qaqc.poly, grid.poly)  # q maps outside
-      inres <- mapError(maps = user.poly.in, truth = qaqc.poly.in, 
-                        region = grid.poly)  # Error metric
+      
+      # Accuracy in the box. 2 possible cases. Normal, user has fields inside 
+      # box. Abnormal, for some reason user only mapped outside of box. Inside
+      # error collapses to same as Case 3 inside error.
+      if(length(user.poly.in) > 0) {  # if user has fields inside
+        inres <- mapError(maps = user.poly.in, truth = qaqc.poly.in, 
+                          region = grid.poly)  # Error metric
+      } else if(length(user.poly.in) == 0) {  
+        inres <- mapError(maps = NULL, truth = qaqc.poly.in, region = grid.poly)
+      }
       
       # Secondary metric - Sensitivity of results outside of kml grid
       if(length(user.poly.out) == 0 & length(qaqc.poly.out) == 0) {
@@ -202,8 +210,9 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
       err <- count.error * count.err.wt + unname(inres[[1]][err.switch]) * 
         in.err.wt + out.error * out.err.wt 
       tss.err <- inres[[1]][2]
-      err.out <- c("total_error" = err, "count_error" = count.error, 
-                   "out_error" = out.error, 
+      err.out <- c("total_error" = unname(err), 
+                   "count_error" = count.error, 
+                   "out_error" = unname(out.error), 
                    "in_error" = unname(inres[[1]][err.switch]), 
                    "user_fldcount" = user.nfields)
     }
@@ -266,26 +275,30 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
         cols <- c("green4", "red4", "blue4", "grey30")
         for(i in 1:4) {
           if(objchk[i] == "TRUE") {
-            plot(st_geometry(inres[[i + 1]]), add = T, col = cols[i])
+            plot(st_geometry(inres[[i + 1]]), add = TRUE, col = cols[i])
           }
           mtext(round(err.out[i], 3), side = 3, line = -1, adj = plotpos[i], 
                 cex = cx)
           mtext(mpi[i], side = 3, line = 0.5, adj = plotpos[i], cex = cx)
           if(exists("user.poly.out")) {
             if(length(user.poly.out) > 0) {
-              plot(st_geometry(user.poly.out), add = T, col = "grey")
+              plot(st_geometry(user.poly.out), add = TRUE, col = "grey")
             }
           }
           if(exists("qaqc.poly.out")) {
             if(length(qaqc.poly.out) > 0) {
-              plot(st_geometry(qaqc.poly.out), add = T, col = "pink")
+              plot(st_geometry(qaqc.poly.out), add = TRUE, col = "pink")
             }
           }
           if(exists("tpo")) {
-            if(is.object(tpo) & length(tpo) > 0) plot(tpo, col = "green1", add = TRUE)
+            if(is.object(tpo) & length(tpo) > 0) {
+              plot(tpo, col = "green1", add = TRUE)
+            }
           }
           if(exists("fno")) {
-            if(is.object(fno) & length(fno) > 0) plot(fno, col = "blue1", add = TRUE)
+            if(is.object(fno) & length(fno) > 0) {
+              plot(fno, col = "blue1", add = TRUE)
+            }
           }
         }
         mtext(paste0(kmlid, "_", assignmentid), side = 1, cex = cx)
