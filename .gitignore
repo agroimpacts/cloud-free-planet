@@ -9,3 +9,4 @@ prepair/CMakeFiles/prepair.dir/*.o
 mturk/*.pyc
 kmls.zip
 .Rhistory
+.DS_Store
