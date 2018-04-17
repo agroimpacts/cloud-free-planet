@@ -21,4 +21,3 @@ Calculates percent agreement between number of fields in qaqc and user kmls
 Rearranges numerator and denominator of equation according to whether 
 user mapped fields are more or less than QAQC fields
 }
-

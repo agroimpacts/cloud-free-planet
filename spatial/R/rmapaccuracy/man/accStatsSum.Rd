@@ -21,4 +21,3 @@ Classification accuracy and the True Skill Statistic
 \description{
 Calculate binary classification accuracy
 }
-

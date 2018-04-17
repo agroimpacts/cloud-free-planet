@@ -4,7 +4,7 @@
 \alias{point_to_gridpoly}
 \title{Creates polygon grid box from point}
 \usage{
-point_to_gridpoly(xy, w, CRSobj)
+point_to_gridpoly(xy, w, NewCRSobj, OldCRSobj)
 }
 \arguments{
 \item{xy}{A data.frame containing x and y coordinates and name of grid point}
@@ -20,4 +20,3 @@ Creates polygon grid box from point
 This function is created for use by KMLgenerate, which uses it to 
 convert grid points to polygons.
 }
-
