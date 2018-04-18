@@ -24,7 +24,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         type: 'base',
         visible: false,
         source: new ol.source.XYZ({
-            url: 'http://api.tiles.mapbox.com/v4/digitalglobe.92ee07af/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
+            url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nal0g75k/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
         })
     })
 
@@ -33,13 +33,13 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         type: 'base',
         visible: false,
         source: new ol.source.XYZ({
-            url: 'http://api.tiles.mapbox.com/v4/digitalglobe.3602132d/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ, 
+            url: 'http://api.tiles.mapbox.com/v4/digitalglobe.3602132d/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
 attribution: "© DigitalGlobe, Inc"
         })
     })
 
                 
-/*    var dg2Layer = new ol.layer.Tile({
+    var dg3Layer = new ol.layer.Tile({
         title: 'DigitalGlobe Maps API: Terrain Map',
         type: 'base',
         visible: false,
@@ -47,7 +47,7 @@ attribution: "© DigitalGlobe, Inc"
             url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nako1fhg/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
         })
     })
-*/
+
     //Define Planet base layer.
     var planetLayer = new ol.layer.Tile({
         title: 'Planet Satellite Imagery',
@@ -100,7 +100,7 @@ attribution: "© DigitalGlobe, Inc"
             // Create base layer group.
             new ol.layer.Group({
                 title: 'Base Layer',
-                layers: [dg2Layer, dg1Layer, planetLayer, mapboxLayer, bingLayer]
+                layers: [dg3layer, dg2Layer, dg1Layer, planetLayer, mapboxLayer, bingLayer]
             })
             // Create multi-band image layer group.
             //new ol.layer.Group({
