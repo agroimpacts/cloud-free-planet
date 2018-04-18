@@ -99,7 +99,7 @@ attribution: "© DigitalGlobe, Inc"
             // Create base layer group.
             new ol.layer.Group({
                 title: 'Base Layer',
-                layers: [dg3layer, dg2Layer, dg1Layer, planetLayer, mapboxLayer, bingLayer]
+                layers: [dg3Layer, dg2Layer, dg1Layer, planetLayer, mapboxLayer, bingLayer]
             })
             // Create multi-band image layer group.
             //new ol.layer.Group({
