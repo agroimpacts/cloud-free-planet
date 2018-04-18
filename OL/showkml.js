@@ -117,7 +117,7 @@ attribution: "© DigitalGlobe, Inc"
         center: [0,0],
         zoom: 14,
         minZoom: 1,
-        maxZoom: 18
+        maxZoom: 19
     }));
     
     // White bounding box KML layer: URL defined in configuration table.
