@@ -27,8 +27,19 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             url: 'http://api.tiles.mapbox.com/v4/digitalglobe.92ee07af/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
         })
     })
-                
+
     var dg2Layer = new ol.layer.Tile({
+        title: 'DigitalGlobe Maps API: Vivid Imagery',
+        type: 'base',
+        visible: false,
+        source: new ol.source.XYZ({
+            url: 'http://api.tiles.mapbox.com/v4/digitalglobe.3602132d/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ, 
+attribution: "© DigitalGlobe, Inc"
+        })
+    })
+
+                
+/*    var dg2Layer = new ol.layer.Tile({
         title: 'DigitalGlobe Maps API: Terrain Map',
         type: 'base',
         visible: false,
@@ -36,7 +47,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nako1fhg/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
         })
     })
-
+*/
     //Define Planet base layer.
     var planetLayer = new ol.layer.Tile({
         title: 'Planet Satellite Imagery',
