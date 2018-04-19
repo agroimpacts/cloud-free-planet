@@ -114,11 +114,19 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
     count.error <- 0  # zero if QAQC has no fields but user maps even 1 field
     
     # Mapped area differences inside the target grid cell
-    user.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, user.poly),0.00001),-0.00001)  
+    user.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, user.poly), 
+                                        0.00001), -0.00001)  
     inres <- mapError(maps = user.poly.in, truth = NULL, region = grid.poly)
     
+    if(length(user.poly.in) > 0) {  # if user has fields inside
+      inres <- mapError(maps = user.poly.in, truth = NULL, region = grid.poly)
+    } else if(length(user.poly.in) == 0) {  # if user has no field inside
+      inres <- mapError(maps = NULL, truth = NULL, region = grid.poly)
+    }
+    
     # Secondary metric - Sensitivity of results outside of kml grid
-    user.poly.out <- st_buffer(st_buffer(st_difference(user.poly, grid.poly),0.00001),-0.00001)
+    user.poly.out <- st_buffer(st_buffer(st_difference(user.poly, grid.poly),
+                                         0.00001), -0.00001)
     if(length(user.poly.out) == 0) {
       out.error <- 1  # If user finds no fields outside of box, gets credit
     } else {  
@@ -170,10 +178,14 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
                                               user_rows = user.nfields) 
       
       # Mapped area differences inside the target grid cell
-      user.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, user.poly),0.00001),-0.00001)  # user maps in cell
-      qaqc.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, qaqc.poly),0.00001),-0.00001)  # q maps in cell
-      user.poly.out <- st_buffer(st_buffer(st_difference(user.poly, grid.poly),0.00001),-0.00001)  # user maps outside
-      qaqc.poly.out <- st_buffer(st_buffer(st_difference(qaqc.poly, grid.poly),0.00001),-0.00001)  # q maps outside
+      user.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, user.poly),
+                                          0.00001), -0.00001)  # u maps in cell
+      qaqc.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, qaqc.poly),
+                                          0.00001), -0.00001)  # q maps in cell
+      user.poly.out <- st_buffer(st_buffer(st_difference(user.poly, grid.poly),
+                                           0.00001), -0.00001)  # u maps outside
+      qaqc.poly.out <- st_buffer(st_buffer(st_difference(qaqc.poly, grid.poly),
+                                           0.00001), -0.00001)  # q maps outside
       
       # Accuracy in the box. 2 possible cases. Normal, user has fields inside 
       # box. Abnormal, for some reason user only mapped outside of box. Inside
