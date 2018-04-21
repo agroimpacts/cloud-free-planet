@@ -1,0 +1,34 @@
+{% extends "common/page_base.html" %}  {# common/page_base.html extends layout.html #}
+
+{% block content %}
+    <!-- Indicate to the layout.html JS header logic whether this page was the result of a GET or a POST. -->
+    <script type='text/javascript'> req_method = "{{ form.reqMethod.data }}"; </script>
+	<div id="contents">
+		<div class="highlight">
+			<!--<div class="clearfix">-->
+                <span class="mapbody">
+                    <div class="trainhdr">
+                        <h3 class="maph3">Mapping Africa Project: Assignment History</h3>
+                    </div>
+                    <form style='width:100%%;' name='historyform' action='{{ form.submitTo.data }}' method='POST'>
+                        <!-- Add the hidden URL-encoded csrf_token -->
+                        {{ form.hidden_tag() }}
+
+                        <table>
+                            {% for row in form.bonusData.data %}
+                                <tr>
+                                    <td>{{row[0]}}</td>
+                                    <td>{{row[1]}}</td>
+                                    <td>{{row[2]}}</td>
+                                    <td>{{row[3]}}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                        <input type='hidden' name='pageNum' value='{{ form.pageNum.data }}' />
+                        <input type='hidden' name='inquiryKmlName' />
+                    </form>
+                </span>
+			<!--</div>-->
+		</div>
+	</div>
+{% endblock %}
