@@ -183,8 +183,8 @@ class SuspendUserForm(FlaskForm):
 # Define the Mapping form
 class MappingForm(FlaskForm):
     # Input fields
-    savedMaps = BooleanField()      # True if worker saved reaults; False if KML was skipped.
-    kmlData = StringField()         # KML object representing worker-mapped polygons.
+    savedMaps = BooleanField()      # True if worker saved results; False if KML was skipped.
+    kmlData = StringField()         # KML object representing worker-mapped polygons
     comment = StringField()         # Worker comment (assignment only)
 
     # Input/Output fields
@@ -200,3 +200,17 @@ class MappingForm(FlaskForm):
     kmlFrameUrl = StringField()     # URL for generating iframe (e.g., getkml)
     submitTo = StringField()        # URL for showkml.js to submit to when done
     resultsAccepted = StringField() # Boolean indicating to showkml.js whether worker mapped successfully
+
+# Define the History form
+class HistoryForm(FlaskForm):
+    # Input fields
+    inquiryKmlName = StringField()  # If non-null, then it's the kmlName the worker is inquiring about
+
+    # Input/Output fields
+    pageNum = IntegerField()        # 20-row page number requested by worker
+
+    # Output fields
+    bonusData = StringField()       # Bonus query results for current page
+    assignmentData = StringField()  # Assignment query results for current page
+    reqMethod = StringField()       # Whether preceding request was POST or GET
+    submitTo = StringField()        # URL for showkml.js to submit to when done
