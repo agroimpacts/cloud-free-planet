@@ -10,7 +10,7 @@ from flask import request, url_for
 from flask_user import current_user, login_required, roles_accepted
 from flask_user.views import _get_safe_next_param, render, _send_registered_email, _endpoint_url, _do_login_user
 from flask_user import signals
-from webapp.models.user_models import MappingForm
+from webapp.models.user_models import HistoryForm
 from MappingCommon import MappingCommon
 
 hist_blueprint = Blueprint('hist_blueprint', __name__)
@@ -45,7 +45,7 @@ def assignment_history():
     # If GET request, show 20 rows of history based on current pagination parameter.
     mapc.cur.execute("""SELECT event_time, event_type, amount, feedback FROM assignment_history 
             WHERE event_type IN ('%s', '%s') AND worker_id = %s ORDER BY event_time DESC""" %
-            (workerId, MappingCommon.EVTQualityBonus, MappingCommon.EVTTrainingBonus))
+            (MappingCommon.EVTQualityBonus, MappingCommon.EVTTrainingBonus, workerId))
     histForm.bonusData.data = mapc.cur.fetchall()
     histForm.pageNum.data = 1
 
