@@ -313,30 +313,33 @@ class MappingCommon(object):
             assignments = {}
             assignmentsAssigned = 0
             assignmentsPending = 0
-            assignmentsCompleted = 0
+            assignmentsApproved = 0
             for asgmtId, asgmt in self.getAssignments(hit[0]).iteritems():
-                # Note that assignments with Abandoned status are not counted.
+                # Include all but Abandoned assignments, thus ensuring that workers 
+                # won't be re-assigned to this HIT again unless they abandoned it earlier.
                 if asgmt['status'] != MappingCommon.HITAbandoned:
-                    # Include all but Abandoned assignments, thus ensuring that workers 
-                    # won't be re-assigned to any of the other assignments again.
                     assignments[asgmtId] = asgmt
 
+                    # Count Assigned, Pending, and Approved assignments.
+                    # Don't count Returned or Untrusted assignments.
                     if asgmt['status'] == MappingCommon.HITAssigned:
                         assignmentsAssigned += 1
                     elif asgmt['status'] == MappingCommon.HITPending:
                         assignmentsPending += 1
-                    # All other statuses (except for Returned) are considered final completions.
-                    elif asgmt['status'] != MappingCommon.HITReturned:
-                        assignmentsCompleted += 1
+                    elif asgmt['status'] == MappingCommon.HITApproved:
+                        assignmentsApproved += 1
 
-            assignmentsRemaining = hit[3] - \
-                    (assignmentsAssigned + assignmentsPending + assignmentsCompleted)
+            # Unassignable means that the sum of completed assignments, 
+            # already-assigned-but-not-completed assignments, and pending (completed
+            # but not yet scored) assignments is equal to a HIT's max_assignments count.
             status = 'Unassignable'
+            assignmentsRemaining = hit[3] - \
+                    (assignmentsAssigned + assignmentsPending + assignmentsApproved)
             if assignmentsRemaining > 0:
                 status = 'Assignable'
             hits[hit[0]] = {'kmlName': hit[1], 'kmlType': hit[2], 'maxAssignments': hit[3], 
                     'reward': hit[4], 'assignmentsAssigned': assignmentsAssigned, 
-                    'assignmentsPending': assignmentsPending, 'assignmentsCompleted': assignmentsCompleted,
+                    'assignmentsPending': assignmentsPending, 'assignmentsApproved': assignmentsApproved,
                     'assignmentsRemaining': assignmentsRemaining, 'status': status, 
                     'assignments': assignments }
         if len(hits) == 0:
