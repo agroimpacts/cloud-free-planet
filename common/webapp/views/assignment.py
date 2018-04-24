@@ -68,7 +68,7 @@ def assignment():
                 resultsSaved = True                 # Can't fail since no maps posted.
             else:
                 k.write("assignment: OL saved mapping(s) for %s kml = %s\n" % (kmlTypeDescr, kmlName))
-                k.write("assignment: Worker ID %s\nHIT ID = %s\nAssignment ID = %s\n" % (workerId, hitId, assignmentId))
+                k.write("assignment: Worker ID %s, HIT ID = %s, Assignment ID = %s\n" % (workerId, hitId, assignmentId))
 
                 # Save all drawn maps.
                 resultsSaved = mapc.saveWorkerMaps(k, kmlData, workerId, assignmentId)

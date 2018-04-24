@@ -484,20 +484,6 @@ attribution: "© DigitalGlobe, Inc"
             }
         }));
 
-        // Add a save button with on active event
-        var saveButton = new ol.control.Toggle(
-                {	html: '<i class="icon-save"></i>',
-                    title: 'Save changes: Click this button only ONCE when all mapped fields have been created, and you are satisfied with your work. Click when done even if there are NO fields to draw on this map.',
-                    className: "noToggle"
-                });
-        mainbar.addControl(saveButton);
-        saveButton.on("change:active", function(e)
-        {	
-            if (e.active) {
-                checkSaveStrategy(kmlName);
-            }
-        });
-
         // Add a return button with on active event
         var returnButton = new ol.control.Toggle(
                 {	html: '<i class="icon-back"></i>',
@@ -509,6 +495,20 @@ attribution: "© DigitalGlobe, Inc"
         {	
             if (e.active) {
                 checkReturnStrategy(kmlName);
+            }
+        });
+
+        // Add a save button with on active event
+        var saveButton = new ol.control.Toggle(
+                {	html: '<i class="icon-save"></i>',
+                    title: 'Save changes: Click this button only ONCE when all mapped fields have been created, and you are satisfied with your work. Click when done even if there are NO fields to draw on this map.',
+                    className: "noToggle"
+                });
+        mainbar.addControl(saveButton);
+        saveButton.on("change:active", function(e)
+        {	
+            if (e.active) {
+                checkSaveStrategy(kmlName);
             }
         });
     }
