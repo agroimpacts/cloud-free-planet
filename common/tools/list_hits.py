@@ -24,7 +24,7 @@ for hitId, hit in sorted(mapc.getHitInfo().iteritems()):
     elif kmlType == MappingCommon.KmlNormal:
         nnh = nnh + 1
     
-    print "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (hitId, hit['kmlName'], kmlType, hit['reward'], hit['status'], hit['assignmentsRemaining'], hit['assignmentsAssigned'], hit['assignmentsPending'], hit['assignmentsApproved'])
+    print "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (hitId, hit['kmlName'], kmlType, hit['reward'], hit['status'], hit['assignmentsRemaining'], hit['assignmentsAssigned'], hit['assignmentsPending'], hit['assignmentsCompleted'])
     found = False
     label = False
     for asgmtId, asgmt in sorted(mapc.getAssignments(hitId=hitId).iteritems()):
