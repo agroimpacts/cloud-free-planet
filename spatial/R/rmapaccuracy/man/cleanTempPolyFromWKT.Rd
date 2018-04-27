@@ -4,19 +4,23 @@
 \alias{cleanTempPolyFromWKT}
 \title{Reads in PostGIS geometry and creates a temporary shapefile out}
 \usage{
-cleanTempPolyFromWKT(geom.tab, crs)
+cleanTempPolyFromWKT(unfixedsfc, crs)
 }
 \arguments{
-\item{geom.tab}{Dataframe with geometry (1st col) and identifiers (2nd col)}
+\item{unfixedsfc}{sfc object for unfixed polygon}
 
 \item{crs}{Coordinate reference system}
 }
 \value{
-A cleaned SpatialPolygonsDataFrame
+A cleaned sf object
 }
 \description{
 Reads in PostGIS geometry and creates a temporary shapefile out
 }
 \details{
 Uses callPprepair function to clean up read in polygons and write
+}
+\note{
+Deprecated in current version of platform, which uses ST_MakeValid not 
+pprepair
 }

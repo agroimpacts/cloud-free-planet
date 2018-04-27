@@ -6,7 +6,7 @@ from flask_user import current_user
 from flask_user import UserMixin
 from flask_user.forms import RegisterForm, InviteForm
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, RadioField, validators
+from wtforms import StringField, IntegerField, SubmitField, BooleanField, RadioField, validators
 from webapp import db
 
 
@@ -180,19 +180,37 @@ class SuspendUserForm(FlaskForm):
     activate_flag = RadioField('', choices=[('0','Suspend'), ('1','Reactivate')]) 
     submit = SubmitField('Submit')
 
-# Define the Qualification form
-class QualificationForm(FlaskForm):
+# Define the Mapping form
+class MappingForm(FlaskForm):
     # Input fields
-    reqMethod = StringField()
-    saveStatusCode = StringField()  # HTTP status code from postkml/putkml calls
+    savedMaps = BooleanField()      # True if worker saved results; False if KML was skipped.
+    kmlData = StringField()         # KML object representing worker-mapped polygons
+    comment = StringField()         # Worker comment (assignment only)
 
     # Input/Output fields
     kmlName = StringField()
-    assignmentId = StringField()
-    tryNum = StringField()          # Training map try number
+    hitId = IntegerField()
+    assignmentId = IntegerField()
+    tryNum = IntegerField()         # Try number (qualification test only)
 
     # Output fields
+    reqMethod = StringField()       # Whether preceding request was POST or GET
     progressStatus = StringField()  # Training status (e.g., # KMLs mapped successfully)
+    kmlFrameHeight = StringField()  # Height in pixels of iframe for map display
     kmlFrameUrl = StringField()     # URL for generating iframe (e.g., getkml)
     submitTo = StringField()        # URL for showkml.js to submit to when done
     resultsAccepted = StringField() # Boolean indicating to showkml.js whether worker mapped successfully
+
+# Define the History form
+class HistoryForm(FlaskForm):
+    # Input fields
+    inquiryKmlName = StringField()  # If non-null, then it's the kmlName the worker is inquiring about
+
+    # Input/Output fields
+    pageNum = IntegerField()        # 20-row page number requested by worker
+
+    # Output fields
+    bonusData = StringField()       # Bonus query results for current page
+    assignmentData = StringField()  # Assignment query results for current page
+    reqMethod = StringField()       # Whether preceding request was POST or GET
+    submitTo = StringField()        # URL for showkml.js to submit to when done

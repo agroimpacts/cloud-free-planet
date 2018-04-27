@@ -53,8 +53,12 @@ def create_app(extra_config_settings={}):
     # Register blueprints
     from webapp.views.misc_views import main_blueprint
     app.register_blueprint(main_blueprint)
-    from webapp.views.qualification import qualification_blueprint
-    app.register_blueprint(qualification_blueprint)
+    from webapp.views.qualification import qual_blueprint
+    app.register_blueprint(qual_blueprint)
+    from webapp.views.assignment import map_blueprint
+    app.register_blueprint(map_blueprint)
+    from webapp.views.assignment_history import hist_blueprint
+    app.register_blueprint(hist_blueprint)
 
     # Define bootstrap_is_hidden_field for flask-bootstrap's bootstrap_wtf.html
     from wtforms.fields import HiddenField

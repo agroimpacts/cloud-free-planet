@@ -95,7 +95,7 @@
                     <a href="http://www2.clarku.edu/"><img src="{{ url_for('static', filename='images/header_bg_tiny.jpg') }}" alt="LOGO" height="52" width="140" style="border:1px solid #b8c6ac;"></a>
                 </div>
                 <div class="banner">
-                    <h2>AgroImpacts<br>CrowdMapping Service</h2>
+                    <h2>Agricultural<br>Mapping Platform</h2>
                 </div>
                 <ul class="navigation">
                     <li>
@@ -121,10 +121,10 @@
                     <li>
                         <a href={{ url_for('main.employee_page') }}>{%trans%}Employee{%endtrans%}</a>
                         <div>
-                            <a href={{ url_for('main.assignment') }} }}>{%trans%}Map Agricultural Fields{%endtrans%}</a>
-                            <a href={{ url_for('main.assignment_history') }}>{%trans%}View Assignment History{%endtrans%}</a>
+                            <a href={{ url_for('map_blueprint.assignment') }} }}>{%trans%}Map Agricultural Fields{%endtrans%}</a>
+                            <a href={{ url_for('hist_blueprint.assignment_history') }}>{%trans%}View Assignment History{%endtrans%}</a>
                             <a href={{ url_for('main.training') }}>{%trans%}View Training Video{%endtrans%}</a>
-                            <a href={{ url_for('qualification_blueprint.qualification') }}>{%trans%}Take Qualification Test{%endtrans%}</a>
+                            <a href={{ url_for('qual_blueprint.qualification') }}>{%trans%}Take Qualification Test{%endtrans%}</a>
                        </div> 
                     </li>
                     <li>

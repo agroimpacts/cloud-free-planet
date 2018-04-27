@@ -4,11 +4,13 @@
 \alias{KMLAccuracy}
 \title{Main function for running worker accuracy assessment}
 \usage{
-KMLAccuracy(mtype, kmlid, assignmentid, tryid, prjsrid, count.err.wt, in.err.wt,
-  out.err.wt, err.switch, comments, write.err.db, draw.maps, test, test.root,
-  user, password)
+KMLAccuracy(mtype, kmlid, assignmentid, tryid, diam, prjsrid, count.err.wt,
+  in.err.wt, out.err.wt, err.switch, comments, write.err.db, draw.maps, test,
+  test.root, user, password)
 }
 \arguments{
+\item{diam}{diameter for master grids}
+
 \item{prjsrid}{EPSG identifier for projected coordinate system}
 
 \item{count.err.wt}{Weighting given to field count error}
