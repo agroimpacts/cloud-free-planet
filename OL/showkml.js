@@ -1,18 +1,13 @@
-function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId) {
+function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId) {
 
-    // Constants defining status returned for a training map with a low score.
-    lowScoreCode = 460;
-    lowScoreText = "Low Score";
-
-
-    // If this is a mapping HIT, training map, or standalone invocation, let user save changes.
     var saveStrategyActive, workerFeedback;
-    if (!(assignmentId.length == 0 && workerId.length > 0)) {
+    saveStrategyActive = false;
+    workerFeedback = false;
+
+    // If this is a mapping HIT or training map, let user save changes.
+    if (assignmentId.length > 0) {
         saveStrategyActive = true;
-        workerFeedback = false;
-    // If this is a worker-feedback map, don't let the user save maps.
-    } else {
-        saveStrategyActive = false;
+    } else if (workerId.length > 0) {
         workerFeedback = true;
     }
 
@@ -29,18 +24,28 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
         type: 'base',
         visible: false,
         source: new ol.source.XYZ({
-            url: 'http://api.tiles.mapbox.com/v4/digitalglobe.92ee07af/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
+            url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nal0g75k/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
         })
-    })
-                
+    });
+
     var dg2Layer = new ol.layer.Tile({
+        title: 'DigitalGlobe Maps API: Vivid Imagery',
+        type: 'base',
+        visible: false,
+        source: new ol.source.XYZ({
+            url: 'http://api.tiles.mapbox.com/v4/digitalglobe.3602132d/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
+attribution: "© DigitalGlobe, Inc"
+        })
+    });
+
+    var dg3Layer = new ol.layer.Tile({
         title: 'DigitalGlobe Maps API: Terrain Map',
         type: 'base',
         visible: false,
         source: new ol.source.XYZ({
             url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nako1fhg/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
         })
-    })
+    });
 
     //Define Planet base layer.
     var planetLayer = new ol.layer.Tile({
@@ -94,7 +99,7 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
             // Create base layer group.
             new ol.layer.Group({
                 title: 'Base Layer',
-                layers: [dg2Layer, dg1Layer, planetLayer, mapboxLayer, bingLayer]
+                layers: [dg3Layer, dg2Layer, dg1Layer, planetLayer, mapboxLayer, bingLayer]
             })
             // Create multi-band image layer group.
             //new ol.layer.Group({
@@ -112,7 +117,7 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
         center: [0,0],
         zoom: 14,
         minZoom: 1,
-        maxZoom: 18
+        maxZoom: 19
     }));
     
     // White bounding box KML layer: URL defined in configuration table.
@@ -173,7 +178,7 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
     fieldsLayer.setMap(map);
     
     // If this is a worker-feedback map, create two additional layers.
-    if (assignmentId.length == 0 && workerId.length > 0) {
+    if (workerFeedback) {
         var rMapLayer = new ol.layer.Vector({
             title: "Reference Map",
             source: new ol.source.Vector({
@@ -479,6 +484,20 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
             }
         }));
 
+        // Add a return button with on active event
+        var returnButton = new ol.control.Toggle(
+                {	html: '<i class="icon-back"></i>',
+                    title: 'Return map: Click this button if you wish to return this map and be provided with another one. NOTE: this may result in a reduction of your quality score.',
+                    className: "noToggle"
+                });
+        mainbar.addControl(returnButton);
+        returnButton.on("change:active", function(e)
+        {	
+            if (e.active) {
+                checkReturnStrategy(kmlName);
+            }
+        });
+
         // Add a save button with on active event
         var saveButton = new ol.control.Toggle(
                 {	html: '<i class="icon-save"></i>',
@@ -489,13 +508,17 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
         saveButton.on("change:active", function(e)
         {	
             if (e.active) {
-                checkSaveStrategy(kmlName, noPolygonPath, assignmentId, tryNum);
-                //alert("saveButton is on");
+                checkSaveStrategy(kmlName);
             }
         });
     }
 
-    // Training case.
+    // Add event handler to execute each time a shape is drawn.
+    //fieldsLayer.getSource().on('addfeature', function(event) {
+    //    alert("Completed drawing a shape");
+    //})
+
+    // Training case only.
     if (tryNum > 0) {
         if (resultsAccepted == 1) {
             alert("Congratulations! You successfully mapped the crop fields in this map. Please click OK to work on the next training map.");
@@ -503,13 +526,15 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
             alert("We're sorry, but you failed to correctly map the crop fields in this map. Please click OK to try again.");
         }
     }
-    // All cases (except for worker feedback cases).
+    // Mapping HIT or training map cases.
     if (resultsAccepted == 3) {
-        alert("Error! Your work could not be saved. The Mapping Africa server may be down for maintenance. Please try again later. We apologize for the inconvenience.");
+        alert("Error! Through no fault of your own, your work could not be saved. Please try the same map again. We apologize for the inconvenience.");
     }
 
-    function checkSaveStrategy(kmlName, noPolygonPath, assignmentId, tryNum) {
+    function checkSaveStrategy(kmlName) {
         var msg;
+
+        // Check if the Save button is enabled.
         if (!saveStrategyActive) {
             return;
         }
@@ -522,6 +547,9 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
         if (!confirm(msg)) {
             return;
         }
+        // Don't allow Save button to be used again.
+        saveStrategyActive = false
+
         // Save the current polygons if there are any.
         if (features != '') {
             var i = 1;
@@ -530,67 +558,34 @@ function init(kmlPath, polygonPath, noPolygonPath, kmlName, assignmentId, tryNum
                 i = i + 1;
             }
             var kmlFormat = new ol.format.KML();
-            var kmlData = kmlFormat.writeFeatures(features, {featureProjection: 'EPSG:3857'});
-            //alert(kmlData);
-            jQuery.ajax({
-                type: "POST",
-                url: polygonPath,
-                data: {
-                    kmlData: kmlData,
-                    foldersName: kmlName,
-                    assignmentId: assignmentId,
-                    tryNum: tryNum
-                },
-                complete: function (jqXHR, statusCode) {
-                    //alert("complete: " + statusCode + ": " + jqXHR.status + " " + jqXHR.statusText);
-                    saveKMLStatus(jqXHR.status, jqXHR.statusText);
-                }
-            });
-        // If no polygons drawn, then report this fact.
-        } else {
-            jQuery.ajax({
-                type: "PUT",
-                url: noPolygonPath,
-                data: {
-                    kmlName: kmlName,
-                    assignmentId: assignmentId,
-                    tryNum: tryNum
-                },
-                complete: function (jqXHR, statusCode) {
-                    //alert("complete: " + statusCode + ": " + jqXHR.status + " " + jqXHR.statusText);
-                    saveNotificationStatus(jqXHR.status, jqXHR.statusText);
-                }
-            });
+            var kmlData = kmlFormat.writeFeatures(features, {featureProjection: 'EPSG:4326', dataProjection: 'EPSG:4326'});
+            // Save the kmlData in the HTML mappingform.
+            document.mappingform.kmlData.value = kmlData;
         }
-        // Don't allow Save button to be used again.
+        // Mark that we saved our results.
+        document.mappingform.savedMaps.value = true;
+
+        document.mappingform.submit();
+    }
+
+    function checkReturnStrategy(kmlName) {
+        var msg;
+
+        // Check if the Return button is enabled.
+        if (!saveStrategyActive) {
+            return;
+        }
+        msg = 'You are about to return this map without saving any results!\nPlease confirm that this is what you want to do.\nNOTE: this may result in a reduction of your quality score.\nIf you do not wish to return this map, click Cancel.';
+        if (!confirm(msg)) {
+            return;
+        }
+        // Don't allow Return button to be used again.
         saveStrategyActive = false
 
-        // Set the active control to be Navigation.
-        //for(var i=1, len=panelControls.length; i<len; i++) {
-        //    panelControls[i].deactivate();
-        //}
-        //panelControls[0].activate();
+        // Mark that we returned this map.
+        document.mappingform.savedMaps.value = false;
+
+        document.mappingform.submit();
     }
 
-    // Report polygon status to the worker. 
-    // If it's for a training map with a low score, let him try to remap again.
-    function saveKMLStatus(statusCode, statusText) {
-        // Save the status code in the HTML mappingform.
-        document.mappingform.saveStatusCode.value = statusCode;
-
-        if (assignmentId.length > 0) {
-            document.mappingform.submit();
-        }
-    }
-
-    // Report notification status to the worker. 
-    // If it's for a training map with a low score, let him try to remap again.
-    function saveNotificationStatus(statusCode, statusText) {
-        // Save the status code in the HTML mappingform.
-        document.mappingform.saveStatusCode.value = statusCode;
-
-        if (assignmentId.length > 0) {
-            document.mappingform.submit();
-        }
-    }
 }
