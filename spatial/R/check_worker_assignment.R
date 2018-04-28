@@ -4,6 +4,7 @@
 # Libraries
 # suppressMessages(library(RPostgreSQL))
 suppressMessages(library(rmapaccuracy))
+suppressMessages(library(sf))
 
 # Get HIT ID, assignment ID
 args <- commandArgs(TRUE)
@@ -11,15 +12,16 @@ if(length(args) < 3) stop("Need at least 3 arguments")
 # hitid <- '30'; workerid <- "24"; test_root <- "Y"; testlocal <- "TRUE"
 hitid <- args[1] 
 workerid <- args[2]   
-testroot <- args[3] 
+test_root <- args[3] 
 
 # Find working location
 # dinfo <- c(db.name = "AfricaSandbox",
 #            project.root = "/Users/lestes/Dropbox/projects/activelearning/mapperAL/")
 dinfo <- getDBName()  # pull working environment
+data(pgupw)
 
 initial_options <- commandArgs(trailingOnly = FALSE)
-kml_path <- paste0(dinfo["project.root"], "maps/")
+kml_path <- paste0(dinfo["project.root"], "/maps/")
 kml_root <- strsplit(dinfo["project.root"], "/")[[1]][3]
 
 if(test_root == "Y") {
@@ -32,10 +34,10 @@ if(test_root == "Y") {
 if(test_root == "N") {
   
   # Paths and connections
-  host <- ifelse(testlocal == TRUE, "crowdmapper.org", "")
-  con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), host = host, 
+  # host <- ifelse(getwd() %in% c"/home/sandbox", "crowdmapper.org", "")
+  con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), #host = host, 
                         dbname = dinfo["db.name"],   
-                        user = user, password = password)
+                        user = pgupw$user, password = pgupw$password)
   
   # Read in hit and assignment ids  
   hits <- tbl(con, "hit_data") %>% filter(hit_id == hitid) %>%
@@ -55,34 +57,33 @@ if(test_root == "N") {
                      " from qaqcfields where name=", "'", hits$name, "'")
   qaqc_polys <- suppressWarnings(st_read_db(con, query = qaqc_sql, 
                                             geom_column = 'geom_clean'))
-
+  
   # Read in user data
   user_sql <- paste0("select name, geom_clean from user_maps where ",
                      "assignment_id=", "'", assignments$assignment_id, "'",
                      " order by name")
   user_polys <- suppressWarnings(st_read_db(con, query = user_sql, 
                                             geom_column = 'geom_clean'))
-
+  
   # Create unique directory for worker if file doesn't exist
   worker_path <- paste(kml_path, workerid, sep = "")
   if(!file.exists(worker_path)) dir.create(path = worker_path)
   
   # Write KMLs out to worker specific directory
   # setwd(worker_path)
+  nm <- paste(hits$name, assignments$assignment_id, sep = "_")
   if(nrow(user_polys) > 0) {  # Write it
-    user_poly <- user_polys %>% transmute(kmlname = paste0(hits$name, "_w"))
-    st_write(user_poly, dsn = paste0(worker_path, "/", hits$name, "_w.kml"), 
-             layer = paste0(hits$name, "_w"), driver = "KML", quiet = TRUE, 
-             delete_dsn = TRUE)
+    user_poly <- user_polys %>% transmute(kmlname = paste0(nm, "_w"))
+    st_write(user_poly, dsn = paste0(worker_path, "/", nm, "_w.kml"), 
+             layer = paste0(nm, "_w"), driver = "KML", quiet = TRUE, delete_dsn = TRUE)
   }
   if(nrow(qaqc_polys) > 0) {  # First convert to geographic coords
-    qaqc_poly <- qaqc_polys %>% transmute(kmlname = paste0(hits$name, "_r"))
-    st_write(user_poly, dsn = paste0(worker_path, "/", hits$name, "_r.kml"), 
-             layer = paste0(hits$name, "_r"), driver = "KML", quiet = TRUE, 
-             delete_dsn = TRUE)
+    qaqc_poly <- qaqc_polys %>% transmute(kmlname = paste0(nm, "_r"))
+    st_write(qaqc_poly, dsn = paste0(worker_path, "/", nm, "_r.kml"), 
+             layer = paste0(nm, "_r"), driver = "KML", quiet = TRUE, delete_dsn = TRUE)
   }
   worker_url <- paste0("http://", kml_root, 
-                       ".crowdmapper.org/api/getkml?workerId=", worker_id, 
-                       "&kmlName=", hits$name)
+                       ".crowdmapper.org/api/getkml?workerId=", workerid, 
+                       "&kmlName=", nm)
   cat(worker_url, "\n") # Return details
 }
