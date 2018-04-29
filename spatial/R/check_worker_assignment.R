@@ -4,7 +4,7 @@
 # Libraries
 # suppressMessages(library(RPostgreSQL))
 suppressMessages(library(rmapaccuracy))
-suppressMessages(library(sf))
+suppressWarnings(suppressMessages(library(sf)))
 
 # Get HIT ID, assignment ID
 args <- commandArgs(TRUE)
@@ -16,9 +16,8 @@ test_root <- args[3]
 
 # Find working location
 # dinfo <- c(db.name = "AfricaSandbox",
-#            project.root = "/Users/lestes/Dropbox/projects/activelearning/mapperAL/")
+#            project.root = "/Users/lestes/Dropbox/projects/activelearning/mapperAL")
 dinfo <- getDBName()  # pull working environment
-data(pgupw)
 
 initial_options <- commandArgs(trailingOnly = FALSE)
 kml_path <- paste0(dinfo["project.root"], "/maps/")
@@ -34,8 +33,9 @@ if(test_root == "Y") {
 if(test_root == "N") {
   
   # Paths and connections
-  # host <- ifelse(getwd() %in% c"/home/sandbox", "crowdmapper.org", "")
-  con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), #host = host, 
+  host <- ifelse(!getwd() %in% c("/home/sandbox/afmap/", "/home/africa/afmap/"), 
+                 "crowdmapper.org", "")
+  con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), host = host, 
                         dbname = dinfo["db.name"],   
                         user = pgupw$user, password = pgupw$password)
   
@@ -71,19 +71,22 @@ if(test_root == "N") {
   
   # Write KMLs out to worker specific directory
   # setwd(worker_path)
-  nm <- paste(hits$name, assignments$assignment_id, sep = "_")
+  # nm <- paste(hits$name, assignments$assignment_id, sep = "_")
+  kmlid <- hits$name
   if(nrow(user_polys) > 0) {  # Write it
-    user_poly <- user_polys %>% transmute(kmlname = paste0(nm, "_w"))
-    st_write(user_poly, dsn = paste0(worker_path, "/", nm, "_w.kml"), 
-             layer = paste0(nm, "_w"), driver = "KML", quiet = TRUE, delete_dsn = TRUE)
+    suppressWarnings(user_poly <- user_polys %>% 
+                       transmute(kmlname = paste0(kmlid, "_w")))
+    suppressWarnings(write_sf(user_poly, delete_dsn = TRUE,
+                              dsn = paste0(worker_path, "/", kmlid, "_w.kml")))
   }
   if(nrow(qaqc_polys) > 0) {  # First convert to geographic coords
-    qaqc_poly <- qaqc_polys %>% transmute(kmlname = paste0(nm, "_r"))
-    st_write(qaqc_poly, dsn = paste0(worker_path, "/", nm, "_r.kml"), 
-             layer = paste0(nm, "_r"), driver = "KML", quiet = TRUE, delete_dsn = TRUE)
+    suppressWarnings(qaqc_poly <- qaqc_polys %>% 
+                       transmute(kmlname = paste0(kmlid, "_r")))
+    suppressWarnings(write_sf(qaqc_poly, delete_dsn = TRUE,
+                              dsn = paste0(worker_path, "/", kmlid, "_r.kml")))
   }
-  worker_url <- paste0("http://", kml_root, 
-                       ".crowdmapper.org/api/getkml?workerId=", workerid, 
-                       "&kmlName=", nm)
+  worker_url <- paste0("https://", kml_root, 
+                       ".crowdmapper.org/api/getkml?kmlName=", kmlid, 
+                       "&workerId=", workerid)
   cat(worker_url, "\n") # Return details
 }
