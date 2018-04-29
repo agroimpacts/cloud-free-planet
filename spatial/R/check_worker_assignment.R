@@ -9,7 +9,7 @@ suppressWarnings(suppressMessages(library(sf)))
 # Get HIT ID, assignment ID
 args <- commandArgs(TRUE)
 if(length(args) < 3) stop("Need at least 3 arguments")
-# hitid <- '30'; workerid <- "24"; test_root <- "Y"; testlocal <- "TRUE"
+# hitid <- '257'; workerid <- "24"; test_root <- "N"; testlocal <- "TRUE"
 hitid <- args[1] 
 workerid <- args[2]   
 test_root <- args[3] 
@@ -25,7 +25,7 @@ kml_root <- strsplit(dinfo["project.root"], "/")[[1]][3]
 
 if(test_root == "Y") {
   print(paste("database =", dinfo["db.name"], "; kml.root =", kml_root, 
-              "; worker kml directory =", kml_path, "; hit =", hit_id))
+              "; worker kml directory =", kml_path, "; hit =", hitid))
   print(paste("Stopping here: Just making sure we are working and writing to", 
               "the right places"))
 } 
@@ -33,9 +33,9 @@ if(test_root == "Y") {
 if(test_root == "N") {
   
   # Paths and connections
-  host <- ifelse(!getwd() %in% c("/home/sandbox/afmap/", "/home/africa/afmap/"), 
-                 "crowdmapper.org", "")
-  con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), host = host, 
+  # host <- ifelse(!getwd() %in% c("/home/sandbox/afmap/", "/home/africa/afmap/"),
+  #                "crowdmapper.org", "")
+  con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), #host = host, 
                         dbname = dinfo["db.name"],   
                         user = pgupw$user, password = pgupw$password)
   
@@ -43,7 +43,7 @@ if(test_root == "N") {
   hits <- tbl(con, "hit_data") %>% filter(hit_id == hitid) %>%
     select(name) %>% collect()
   assignments <- tbl(con, "assignment_data") %>% 
-    filter(hit_id == hitid & worker_id == workerid) %>% 
+    filter(hit_id == hitid & worker_id == workerid & status != "Abandoned") %>% 
     select(assignment_id) %>% collect()
   
   if(nrow(assignments) > 1) {
@@ -61,7 +61,7 @@ if(test_root == "N") {
   # Read in user data
   user_sql <- paste0("select name, geom_clean from user_maps where ",
                      "assignment_id=", "'", assignments$assignment_id, "'",
-                     " order by name")
+                     "order by name")
   user_polys <- suppressWarnings(st_read_db(con, query = user_sql, 
                                             geom_column = 'geom_clean'))
   
