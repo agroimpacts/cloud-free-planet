@@ -3,32 +3,108 @@
 {% block content %}
     <!-- Indicate to the layout.html JS header logic whether this page was the result of a GET or a POST. -->
     <script type='text/javascript'> req_method = "{{ form.reqMethod.data }}"; </script>
-	<div id="contents">
-		<div class="highlight">
-			<!--<div class="clearfix">-->
-                <span class="mapbody">
-                    <div class="trainhdr">
-                        <h3 class="maph3">Mapping Africa Project: Assignment History</h3>
-                    </div>
-                    <form style='width:100%%;' name='historyform' action='{{ form.submitTo.data }}' method='POST'>
-                        <!-- Add the hidden URL-encoded csrf_token -->
-                        {{ form.hidden_tag() }}
+    {% if form.timeZone.data is none %}
+        <script type="text/javascript">
+            $(document).ready(function() {
+                var workerTime = new Date();
+                var workerTimezone = workerTime.getTimezoneOffset();
+                //confirm('timeZone=' + workerTimezone)
+                //jQuery.ajax({
+                //    type: "POST",
+                //    url: '{{ form.submitTo.data }}',
+                //    data: { timeZone: workerTimezone },
+                //    success: function(response){
+                //        document.write(response);
+                //        onPageLoad();
+                        //$(document).ready(function(){
+                        //    onPageLoad();
+                        //});
+                //    }
+                //});
+                document.tzform.timeZone.value = workerTimezone;
+                document.tzform.submit();
+            });
+        </script>
+        <form name='tzform' action='{{ form.submitTo.data }}' method='POST'>
+            <!-- Add the hidden URL-encoded csrf_token -->
+            {{ form.hidden_tag() }}
+            <input type='hidden' name='timeZone' />
+        </form>
+    {% else %}
+        <script type="text/javascript">
+            function getMessage(inquiryId) {
+                var inquiryMessage = prompt("Please provide details regarding this inquiry", "");
+                jQuery.ajax({
+                    type: "POST",
+                    url: '{{ form.submitTo.data }}',
+                    data: { 
+                        inquiryId: inquiryId,
+                        inquiryMessage: inquiryMessage
+                    },
+                    dataType: "text",
+                    success: function(response){
+                        //confirm(response);
+                        document.getElementById("dialog").innerHTML = response;
+                        $("#dialog").dialog({
+                            modal: true,
+                            autoOpen: false,
+                            width: 600
+                        });
+                        $('#dialog').dialog('open');
+                    }
+                });
+            }
+        </script>
+        <!-- Modal box div element used to display responses to worker inquiries -->
+        <div id="dialog" title="Response to your inquiry" style="display:none;"></div>
 
-                        <table>
-                            {% for row in form.bonusData.data %}
+        <div id="contents">
+            <div class="highlight">
+                <div class="clearfix">
+                    <span class="mapbody">
+                        <div class="trainhdr">
+                            <h3 class="maph3">Mapping Africa Project: Assignment History</h3>
+                        </div>
+                        <h4>Assignments</h4>
+                        <form style='width:100%%;' name='assignhistform' action='{{ form.submitTo.data }}' method='POST'>
+                            <!-- Add the hidden URL-encoded csrf_token -->
+                            {{ form.hidden_tag() }}
+                            <table class="histTable">
                                 <tr>
-                                    <td>{{row[0]}}</td>
-                                    <td>{{row[1]}}</td>
-                                    <td>{{row[2]}}</td>
-                                    <td>{{row[3]}}</td>
+                                    <th>Ask</th><th>Date</th><th>Event</th><th align="right">Points</th><th>Message</th>
                                 </tr>
-                            {% endfor %}
-                        </table>
-                        <input type='hidden' name='pageNum' value='{{ form.pageNum.data }}' />
-                        <input type='hidden' name='inquiryKmlName' />
-                    </form>
-                </span>
-			<!--</div>-->
-		</div>
-	</div>
+                                {% for row in form.assignmentData.data %}
+                                    <tr>
+                                        <td><button onclick='getMessage("{{row[4]}}")' type="button">?</button></td>
+                                        <td width="140px">{{row[0]}}</td><td width="150px">{{row[1]}}</td>
+                                        <td align="right">{{row[2]}}</td><td>{{row[3]}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                            <input type='hidden' name='pageNum' value='{{ form.pageNum.data }}' />
+                            <input type='hidden' name='inquiryMessage' />
+                        </form>
+                        <hr>
+                        <h4>Bonuses</h4>
+                        <form style='width:100%%;' name='bonushistform' action='{{ form.submitTo.data }}' method='POST'>
+                            <!-- Add the hidden URL-encoded csrf_token -->
+                            {{ form.hidden_tag() }}
+                            <table class="histTable">
+                                <tr>
+                                    <th>Date</th><th>Event</th><th align="right">Points</th><th>Message</th>
+                                </tr>
+                                {% for row in form.bonusData.data %}
+                                    <tr>
+                                        <td width="140px">{{row[0]}}</td><td width="100px">{{row[1]}}</td>
+                                        <td align="right">{{row[2]}}</td><td>{{row[3]}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                            <input type='hidden' name='pageNum' value='{{ form.pageNum.data }}' />
+                        </form>
+                    </span>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

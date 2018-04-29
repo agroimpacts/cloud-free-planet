@@ -106,7 +106,11 @@ def application(environ, start_response):
                     <link rel="stylesheet" href="/OL/controlbar.css" type="text/css">
                     <link rel="stylesheet" href="/OL/showkml.css" type="text/css">
                     <script src="https://openlayers.org/en/v3.18.2/build/ol.js" type="text/javascript"></script>
-                    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+                    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>-->
+                    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+                        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+                        crossorigin="anonymous">
+                    </script>
                     <script type="text/javascript" src="/OL/ol3-layerswitcher.js"></script>
                     <script type="text/javascript" src="/OL/controlbar.js"></script>
                     <script type="text/javascript" src="/OL/buttoncontrol.js"></script>

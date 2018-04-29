@@ -11,7 +11,7 @@ nqh = 0
 nfh = 0
 nnh = 0
 nh = 0
-print "HIT Id\tkml name\ttype\treward\tstatus\t\t#rem\t#asgnd\t#pend\t#apprvd"
+print "HIT Id\tkml name\ttype\treward\tstatus\t\t#rem\t#asgnd\t#pend\t#comp"
 for hitId, hit in sorted(mapc.getHitInfo().iteritems()):
     nh = nh + 1
     if hit['status'] == 'Assignable':
