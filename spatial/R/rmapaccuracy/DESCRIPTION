@@ -10,5 +10,6 @@ Depends: R (>= 2.15), data.table, dplyr
 Imports: RPostgreSQL, DBI, sf
 License: GPL
 RoxygenNote: 6.0.1
+LazyData: true
 NeedsCompilation: no
 Packaged: 2017-07-28 23:07:02 UTC; root
