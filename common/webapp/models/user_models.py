@@ -204,13 +204,15 @@ class MappingForm(FlaskForm):
 # Define the History form
 class HistoryForm(FlaskForm):
     # Input fields
-    inquiryKmlName = StringField()  # If non-null, then it's the kmlName the worker is inquiring about
+    inquiryId = IntegerField()      # Assignment ID of a worker inquiry
+    inquiryMessage = StringField()  # Associated explanatory worker message
 
     # Input/Output fields
+    timeZone = IntegerField()       # Contains worker's offset in minutes from UTC
     pageNum = IntegerField()        # 20-row page number requested by worker
 
     # Output fields
-    bonusData = StringField()       # Bonus query results for current page
     assignmentData = StringField()  # Assignment query results for current page
+    bonusData = StringField()       # Bonus query results for current page
     reqMethod = StringField()       # Whether preceding request was POST or GET
     submitTo = StringField()        # URL for showkml.js to submit to when done

@@ -9,7 +9,8 @@ APP_NAME = "AgroImpacts CrowdMapping Service"
 APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
 
 # Flask settings
-CSRF_ENABLED = True
+# *** TODO: Should we re-enable the CSRF protection? ***
+CSRF_ENABLED = False
 
 # Flask-SQLAlchemy settings
 SQLALCHEMY_TRACK_MODIFICATIONS = False

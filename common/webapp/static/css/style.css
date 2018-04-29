@@ -66,6 +66,17 @@ img {
     margin-top: 0px;
     /* margin-bottom: 2px; */
 }
+/*------------ Special styles for assignment history page ----------*/
+.histTable {
+    border: 1px dotted black;
+    border-collapse: collapse;
+    font-size:10pt;
+    font-family:arial;
+}
+.histTable th, .histTable td {
+    border: 1px dotted black;
+    padding: 3px;
+}
 /*------------ Sprites ------------*/
 .more, .subscribe, input[type='submit'] {
 	background: url(../images/interface.png) no-repeat;

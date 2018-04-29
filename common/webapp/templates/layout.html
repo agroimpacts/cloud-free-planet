@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
     <head>
         <!-- These 3 meta tags MUST come first -->
@@ -11,6 +10,7 @@
 
         <!-- Bootstrap CSS and JS -->
         <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='bootstrap/css/jquery-ui.min.css') }}" rel="stylesheet">
         <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -22,11 +22,23 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <!--<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous">
+        </script>-->
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+            crossorigin="anonymous">
+        </script>
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
         <script>
-            // Set menu or submenu link active on current page. Remains active 
-            // until page is refreshed with page clicked on in menu/submenu.
-            // For submenu item, also causes submenu to be displayed.
             $(document).ready(function(){
+                onPageLoad();
+            });
+            function onPageLoad(){
+                // Set menu or submenu link active on current page. Remains active 
+                // until page is refreshed with page clicked on in menu/submenu.
+                // For submenu item, also causes submenu to be displayed.
                 $('.navigation li > a').click(function() {
                     $(this).addClass("active");
                 });
@@ -34,14 +46,12 @@
                     $(this).addClass("active");
                     $(this).parent().css('display', 'block');
                 });
-            });
 
-            // Set link active on final destination page (after refresh).
-            // NOTE: this script assumes that a user has only one role.
-            // It allows a submenu item to be the same link as a menu item.
-            // It handles redirects by the link specified in the submenu.
-            // It handles the same link appearing in more than one column.
-            $(document).ready(function(){
+                // Set link active on final destination page (after refresh).
+                // NOTE: this script assumes that a user has only one role.
+                // It allows a submenu item to be the same link as a menu item.
+                // It handles redirects by the link specified in the submenu.
+                // It handles the same link appearing in more than one column.
                 var pathname = document.location.pathname;
                 var role = $("input[name='role']").attr('value');
                 // console.log('pathname =', pathname, ', role =', role);
@@ -82,7 +92,7 @@
                         return !found;
                     }
                 })
-            });
+            }
         </script>
     </head>
     <body>
@@ -175,6 +185,7 @@
 
         <!-- Bootstrap JS -->
         <script src="{{ url_for('static', filename='bootstrap/js/jquery.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='bootstrap/js/jquery-ui.min.js') }}"></script>
         <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
 
         <!-- Optional Google Analytics: change UA-XXXXX-X to be your site's ID.
