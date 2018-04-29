@@ -25,7 +25,7 @@ kml_root <- strsplit(dinfo["project.root"], "/")[[1]][3]
 
 if(test_root == "Y") {
   print(paste("database =", dinfo["db.name"], "; kml.root =", kml_root, 
-              "; worker kml directory =", kml_path, "; hit =", hit_id))
+              "; worker kml directory =", kml_path, "; hit =", hitid))
   print(paste("Stopping here: Just making sure we are working and writing to", 
               "the right places"))
 } 
@@ -33,9 +33,9 @@ if(test_root == "Y") {
 if(test_root == "N") {
   
   # Paths and connections
-  host <- ifelse(!getwd() %in% c("/home/sandbox/afmap/", "/home/africa/afmap/"), 
-                 "crowdmapper.org", "")
-  con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), host = host, 
+  # host <- ifelse(!getwd() %in% c("/home/sandbox/afmap/", "/home/africa/afmap/"), 
+  #                "crowdmapper.org", "")
+  con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), #host = host, 
                         dbname = dinfo["db.name"],   
                         user = pgupw$user, password = pgupw$password)
   
