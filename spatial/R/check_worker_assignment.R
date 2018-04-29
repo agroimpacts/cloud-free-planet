@@ -57,7 +57,7 @@ if(test_root == "N") {
                      " from qaqcfields where name=", "'", hits$name, "'")
   qaqc_polys <- suppressWarnings(st_read_db(con, query = qaqc_sql, 
                                             geom_column = 'geom_clean'))
-
+  
   # Read in user data
   user_sql <- paste0("select name, geom_clean from user_maps where ",
                      "assignment_id=", "'", assignments$assignment_id, "'",
