@@ -19,28 +19,31 @@
         <script type="text/javascript">
             // Handle worker inquiries here.
             function getMessage(inquiryId) {
-                var inquiryMessage = prompt("Please provide details regarding this inquiry", "");
-                if (!(inquiryMessage == null || inquiryMessage == "")) {
-                    jQuery.ajax({
-                        type: "POST",
-                        url: '{{ form.submitTo.data }}',
-                        data: { 
-                            inquiryId: inquiryId,
-                            inquiryMessage: inquiryMessage
-                        },
-                        dataType: "text",
-                        success: function(response){
-                            //confirm(response);
-                            document.getElementById("dialog").innerHTML = response;
-                            $("#dialog").dialog({
-                                modal: true,
-                                autoOpen: false,
-                                width: 600
-                            });
-                            $('#dialog').dialog('open');
-                        }
-                    });
-                }
+                do {
+                    var inquiryMessage = prompt("Please provide details regarding this inquiry (required)", "");
+                    if (inquiryMessage == null) {
+                        return;
+                    }
+                } while (inquiryMessage == "");
+                jQuery.ajax({
+                    type: "POST",
+                    url: '{{ form.submitTo.data }}',
+                    data: { 
+                        inquiryId: inquiryId,
+                        inquiryMessage: inquiryMessage
+                    },
+                    dataType: "text",
+                    success: function(response){
+                        //confirm(response);
+                        document.getElementById("dialog").innerHTML = response;
+                        $("#dialog").dialog({
+                            modal: true,
+                            autoOpen: false,
+                            width: 600
+                        });
+                        $('#dialog').dialog('open');
+                    }
+                });
             }
             // Handle pagination here.
             var jq = $.noConflict();
