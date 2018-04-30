@@ -56,8 +56,8 @@ def assignment_history():
             url = url.rstrip()
             inquiryResponse = "Thank you for your inquiry regarding:<br/>HIT ID: %s<br/>Your inquiry message was:<br/>%s<br/><br/>This has been sent to our administrators, who review all inquiries. Though we cannot individually respond to all inquiries, please click on the URL below, which shows your map in relation to ours. We hope this comparison will help address your question.<br/><br/>Map URL: <a href='%s' target='_blank'>Map Comparison</a>" % \
                     (hitId, histForm.inquiryMessage.data, url)
-            #mapc.createIssue("Inquiry from worker %s: %s %s (%s)" % (workerId, cu.first_name, cu.last_name, cu.email), \
-            #        inquiryResponse, MappingCommon.WorkerInquiryIssue)
+            mapc.createIssue("Inquiry from worker %s: %s %s (%s)" % (workerId, cu.first_name, cu.last_name, cu.email), \
+                    inquiryResponse, MappingCommon.WorkerInquiryIssue)
             return inquiryResponse
 
     # If no timeZone, then we must get that first.
