@@ -214,3 +214,14 @@ class HistoryForm(FlaskForm):
     assignmentData = StringField()  # Assignment query results for current page
     bonusData = StringField()       # Bonus query results for current page
     submitTo = StringField()        # URL for showkml.js to submit to when done
+
+# Define the Training Video form
+class TrainingVideoForm(FlaskForm):
+    # Output fields
+    introUrl = StringField()            # Intro video's URL         
+    introWidth = StringField()          # Intro video's width in pixels
+    introHeight = StringField()         # Intro video's height in pixels
+    instructionalUrl = StringField()    # Instructional video's URL
+    instructionalWidth = StringField()  # Instruction video's width in pixels
+    instructionalHeight = StringField() # Instruction video's height in pixels
+

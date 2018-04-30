@@ -13,6 +13,8 @@ from flask_user import signals
 from webapp import db
 from webapp.models.user_models import User, Role, AdminRegisterForm, EmployerRegisterForm, EmployeeRegisterForm
 from webapp.models.user_models import AdminProfileForm, EmployerProfileForm, EmployeeProfileForm, SuspendUserForm
+from webapp.models.user_models import TrainingVideoForm
+from MappingCommon import MappingCommon
 
 # When using a Flask app factory we must use a blueprint to avoid needing 'app' for '@app.route'
 main_blueprint = Blueprint('main', __name__, template_folder='templates')
@@ -187,7 +189,32 @@ def employee_page():
 @roles_accepted('employee')
 @login_required  # Limits access to authenticated users
 def training():
-    return render_template('pages/employee_page.html')
+    trainingForm = TrainingVideoForm(request.form)
+    mapc = MappingCommon()
+
+    # Read configuration parameters.
+    serverName = mapc.getConfiguration('ServerName')
+    videoUrl = mapc.getConfiguration('VideoUrl')
+    introVideo = mapc.getConfiguration('QualTest_IntroVideo')
+    introWidth = mapc.getConfiguration('QualTest_IntroVideoWidth')
+    introHeight = mapc.getConfiguration('QualTest_IntroVideoHeight')
+    instructionalVideo = mapc.getConfiguration('QualTest_InstructionalVideo')
+    instructionalWidth = mapc.getConfiguration('QualTest_InstructionalVideoWidth')
+    instructionalHeight = mapc.getConfiguration('QualTest_InstructionalVideoHeight')
+    introUrl = "https://%s%s/%s" % \
+        (serverName, videoUrl, introVideo)
+    instructionalUrl = "https://%s%s/%s" % \
+        (serverName, videoUrl, instructionalVideo)
+
+    # Load up the training form.
+    trainingForm.introUrl.data = introUrl
+    trainingForm.introWidth.data = introWidth
+    trainingForm.introHeight.data = introHeight
+    trainingForm.instructionalUrl.data = instructionalUrl
+    trainingForm.instructionalWidth.data = instructionalWidth
+    trainingForm.instructionalHeight.data = instructionalHeight
+
+    return render_template('pages/training_page.html', form=trainingForm)
 
 # ----------------------------------------------------------------
 # The registration page is accessible to all users by invitation only.
