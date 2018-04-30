@@ -11,6 +11,8 @@
         <!-- Bootstrap CSS and JS -->
         <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
         <link href="{{ url_for('static', filename='bootstrap/css/jquery-ui.min.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='bootstrap/css/simplePagination.css') }}" rel="stylesheet">
+
         <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -21,16 +23,13 @@
         <!-- Application specific CSS-->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <!--<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+
+        <!-- This next jquery link is needed> -->
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"
             integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
             crossorigin="anonymous">
-        </script>-->
-        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
-            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
-            crossorigin="anonymous">
         </script>
-        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+
         <script>
             $(document).ready(function(){
                 onPageLoad();
@@ -187,6 +186,7 @@
         <script src="{{ url_for('static', filename='bootstrap/js/jquery.min.js') }}"></script>
         <script src="{{ url_for('static', filename='bootstrap/js/jquery-ui.min.js') }}"></script>
         <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='bootstrap/js/jquery.simplePagination.js') }}"></script>
 
         <!-- Optional Google Analytics: change UA-XXXXX-X to be your site's ID.
         <script>

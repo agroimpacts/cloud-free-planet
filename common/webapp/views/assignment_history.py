@@ -3,6 +3,7 @@ import random
 import string
 import cgi
 import psycopg2
+import subprocess
 from urllib import quote_plus
 from flask import current_app, flash
 from flask import Blueprint, redirect, render_template
@@ -44,15 +45,14 @@ def assignment_history():
 
     # If this is a POST request, then handle worker inquiry or pagination request.
     if request.method == 'POST':
-        # If worker inquiry,
+        # Handle worker inquiries here.
         if histForm.inquiryId.data is not None:
             k.write("worker inquiry: inquiryId (assignmentId) = %s\n" % histForm.inquiryId.data)
             k.write("worker inquiry: inquiryMessage = %s\n" % histForm.inquiryMessage.data)
             hitId = mapc.querySingleValue("SELECT hit_id FROM assignment_data WHERE assignment_id = %s" % 
                     histForm.inquiryId.data)
-            #url = subprocess.Popen(["Rscript", "%s/spatial/R/CheckWorkerAssignment.R" % mapc.projectRoot, hitId, workerId, "N"], 
-            #        stdout=subprocess.PIPE).communicate()[0]
-            url = "https://sandbox.crowdmapper.org/api/getkml?kmlName=ZA0649200"
+            url = subprocess.Popen(["Rscript", "%s/spatial/R/check_worker_assignment.R" % mapc.projectRoot, str(hitId), str(workerId), "N"], 
+                    stdout=subprocess.PIPE).communicate()[0]
             url = url.rstrip()
             inquiryResponse = "Thank you for your inquiry regarding:<br/>HIT ID: %s<br/>Your inquiry message was:<br/>%s<br/><br/>This has been sent to our administrators, who review all inquiries. Though we cannot individually respond to all inquiries, please click on the URL below, which shows your map in relation to ours. We hope this comparison will help address your question.<br/><br/>Map URL: <a href='%s' target='_blank'>Map Comparison</a>" % \
                     (hitId, histForm.inquiryMessage.data, url)
@@ -76,13 +76,7 @@ def assignment_history():
                 (histForm.timeZone.data / 60, MappingCommon.EVTQualityBonus, MappingCommon.EVTTrainingBonus, workerId))
         histForm.bonusData.data = mapc.cur.fetchall()
 
-        histForm.pageNum.data = 1
-
         k.write("history: Worker requested history.\n")
-
-    # Pass GET/POST method last used for use by JS running the website menu.
-    #histForm.reqMethod.data = request.method
-    histForm.reqMethod.data = 'GET'
 
     del mapc
     k.close()
