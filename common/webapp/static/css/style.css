@@ -68,13 +68,13 @@ img {
 }
 /*------------ Special styles for assignment history page ----------*/
 .histTable {
-    border: 1px dotted black;
+    border: 1px solid black;
     border-collapse: collapse;
     font-size:10pt;
     font-family:arial;
 }
 .histTable th, .histTable td {
-    border: 1px dotted black;
+    border: 1px solid black;
     padding: 3px;
 }
 /*------------ Sprites ------------*/
@@ -205,10 +205,10 @@ img {
 	position: relative;
 }
 .navigation li > a {
-	color: #b8c6ac;
+	color: #C0C0C0;/*#b8c6ac;*/
 	font: bold 14px/24px Arial, Helvetica, sans-serif;
 	text-decoration: none;
-	text-shadow: 1px 1px #000;
+	/*text-shadow: 1px 1px #000;*/
 	text-transform: uppercase;
 	/* text-decoration: underline; */
 }
@@ -229,7 +229,7 @@ img {
 	display: block;
 }
 .navigation li > div a {
-	color: #b8c6ac;
+	color: #C0C0C0;/*#b8c6ac;*/
 	font: bold 14px/24px Arial, Helvetica, sans-serif;
 	display: block;
 	text-align: left;
