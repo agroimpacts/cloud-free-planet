@@ -20,7 +20,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     
     // You will need to replace the 'access_token' and 'Map ID' values with your own.
     var dg1Layer = new ol.layer.Tile({
-        title: 'DigitalGlobe Maps API: Recent Imagery',
+        title: 'DigitalGlobe Recent',
         type: 'base',
         visible: false,
         source: new ol.source.XYZ({
@@ -29,7 +29,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     });
 
     var dg2Layer = new ol.layer.Tile({
-        title: 'DigitalGlobe Maps API: Vivid Imagery',
+        title: 'DigitalGlobe Vivid',
         type: 'base',
         visible: false,
         source: new ol.source.XYZ({
@@ -39,7 +39,7 @@ attribution: "© DigitalGlobe, Inc"
     });
 
     var dg3Layer = new ol.layer.Tile({
-        title: 'DigitalGlobe Maps API: Terrain Map',
+        title: 'DigitalGlobe Terrain',
         type: 'base',
         visible: false,
         source: new ol.source.XYZ({
@@ -49,7 +49,7 @@ attribution: "© DigitalGlobe, Inc"
 
     //Define Planet base layer.
     var planetLayer = new ol.layer.Tile({
-        title: 'Planet Satellite Imagery',
+        title: 'PlanetScope',
         type: 'base',
         visible: false,
         source: new ol.source.XYZ({
@@ -60,7 +60,7 @@ attribution: "© DigitalGlobe, Inc"
 
     //Define Mapbox base layer.
     var mapboxLayer = new ol.layer.Tile({
-        title: 'Mapbox Satellite Imagery',
+        title: 'Mapbox',
         type: 'base',
         visible: false,
         source: new ol.source.XYZ({
@@ -72,7 +72,7 @@ attribution: "© DigitalGlobe, Inc"
 
     //Define Bing base layer.
     var bingLayer = new ol.layer.Tile({
-        title: 'Bing Satellite Imagery',
+        title: 'Bing Aerial',
         type: 'base',
         visible: true,
         source: new ol.source.BingMaps({

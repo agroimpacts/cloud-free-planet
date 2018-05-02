@@ -30,9 +30,9 @@ class User(db.Model, UserMixin):
     state_province = db.Column(db.Unicode(50), nullable=True, server_default=u'')
     postal_code = db.Column(db.Unicode(50), nullable=True, server_default=u'')
     country = db.Column(db.Unicode(50), nullable=True, server_default=u'')
-    phone = db.Column(db.Integer, nullable=True, server_default=u'')
-    fax = db.Column(db.Integer, nullable=True, server_default=u'')
-    date_of_birth = db.Column(db.DateTime, nullable=True, server_default=u'')
+    phone = db.Column(db.Unicode(50), nullable=True, server_default=u'')
+    fax = db.Column(db.Unicode(50), nullable=True, server_default=u'')
+    date_of_birth = db.Column(db.Unicode(50), nullable=True, server_default=u'')
 
     # Relationships
 
