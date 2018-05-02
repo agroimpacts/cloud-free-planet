@@ -257,13 +257,13 @@ img {
 }
 h1 {
 	color: #57614e;
-	font: 29px/30px "Times New Roman", Times, serif;
+	font: 29px/30px Arial, Helvetica, sans-serif;/*"Times New Roman", Times, serif;*/
 	margin: 0 0 12px;
 	text-transform: uppercase;
 }
 h2 {
 	color: #626262;
-	font: 19px/24px "Times New Roman", Times, serif;
+	font: 19px/24px Arial, Helvetica, sans-serif;/*"Times New Roman", Times, serif;*/
 	letter-spacing: 2px;
 	margin: 0;
 	text-transform: uppercase;
