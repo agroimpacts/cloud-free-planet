@@ -34,7 +34,7 @@ while True:
     k = open(logFilePath + "/createHit.log", "a+")
     now = str(datetime.today())
 
-    # Determine the number of QAQC, FQAQC and NQAQC HITs that should exist.
+    # Determine the number of QAQC, FQAQC and non-QAQC HITs that should exist.
     numAvailQaqcHits = int(round(float(availHitTarget * qaqcHitPercentage) / 100.))
     numAvailFqaqcHits = int(round(float(availHitTarget * fqaqcHitPercentage) / 100.))
     numAvailNonQaqcHits = availHitTarget - numAvailQaqcHits - numAvailFqaqcHits
@@ -47,7 +47,7 @@ while True:
     numFqaqcHits = 0
     numNonQaqcHits = 0
     for hitId, row in mapc.getAssignableHitInfo().iteritems():
-        # Calculate the number of assignable QAQC, FQAQC, and NQAQC HITs 
+        # Calculate the number of assignable QAQC, FQAQC, and non-QAQC HITs 
         # currently available. For HITs with multiple assignments, only count HITs 
         # where the number of assignments created is less than the configured threshold.
         kmlType = row['kmlType']
@@ -166,12 +166,12 @@ while True:
         k.write("createHit: Created HIT ID %s with %d assignments for FQAQC KML %s\n" % 
                 (hitId, remainingAssignments, nextKml))
 
-    # Create any needed NQAQC HITs.
+    # Create any needed non-QAQC HITs.
     kmlType = MappingCommon.KmlNormal
     numReqdNonQaqcHits = max(numAvailNonQaqcHits - numNonQaqcHits, 0)
     if numReqdNonQaqcHits > 0:
         k.write("\ncreateHit: datetime = %s\n" % now)
-        k.write("createHit: createHit sees %s NQAQC HITs, and needs to create %s HITs\n" % 
+        k.write("createHit: createHit sees %s non-QAQC HITs, and needs to create %s HITs\n" % 
             (numNonQaqcHits, numReqdNonQaqcHits))
 
     for i in xrange(numReqdNonQaqcHits):
@@ -195,9 +195,9 @@ while True:
         # successfully processed. Notify Lyndon that more kmls are needed.
         if not row:
             if (nqaqcIssueCount % (issueFrequency / hitPollingInterval)) == 0:
-                k.write("createHit: Alert: all NQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.\n")
-                mapc.createAlertIssue("No NQAQC KMLs in kml_data table", 
-                        "Alert: all NQAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
+                k.write("createHit: Alert: all non-QAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.\n")
+                mapc.createAlertIssue("No non-QAQC KMLs in kml_data table", 
+                        "Alert: all non-QAQC KMLs in kml_data table have been successfully processed. More KMLs needed to create more HITs of this type.")
             nqaqcIssueCount += 1
             break
         else:
@@ -209,9 +209,9 @@ while True:
         fwts = row[2]
         remainingAssignments = hitMaxAssignmentsN - row[1]
 
-        # Create the NQAQC HIT
+        # Create the non-QAQC HIT
         hitId = mapc.createHit(nextKml, fwts=fwts, maxAssignments=remainingAssignments)
-        k.write("createHit: Created HIT ID %s with %d assignments for NQAQC KML %s\n" % 
+        k.write("createHit: Created HIT ID %s with %d assignments for non-QAQC KML %s\n" % 
                 (hitId, remainingAssignments, nextKml))
 
     # Release serialization lock.

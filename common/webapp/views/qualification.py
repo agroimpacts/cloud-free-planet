@@ -174,7 +174,7 @@ def qualification():
 
     # Worker is done with training. Record that fact.
     else:
-        mapc.approveTraining(workerId, now)
+        mapc.grantQualification(workerId, now)
         k.write("qualification: Training candidate %s (%s %s - %s) has passed the qualification test. Notified and redirected.\n" % 
                 (workerId, cu.first_name, cu.last_name, cu.email))
         flash("Congratulations! You have passed the qualification test. You may now map agricultural fields.")

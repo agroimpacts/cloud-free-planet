@@ -759,7 +759,7 @@ class MappingCommon(object):
         return True
 
     # Record worker as qualified and pay training bonus.
-    def approveTraining(self, workerId, completionTime):
+    def grantQualification(self, workerId, completionTime):
         # Mark worker as qualified.
         self.cur.execute("""UPDATE worker_data SET last_time = %s, qualified = true,
                 scores = %s, returns = %s
