@@ -77,6 +77,12 @@ img {
     border: 1px solid black;
     padding: 3px;
 }
+.unstyled-button {
+    border: none;
+    padding: 0;
+    background: none;
+}
+
 /*------------ Sprites ------------*/
 .more, .subscribe, input[type='submit'] {
 	background: url(../images/interface.png) no-repeat;

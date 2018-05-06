@@ -113,7 +113,9 @@
                                 </tr>
                                 {% for row in form.assignmentData.data %}
                                     <tr class="paginate">
-                                        <td><button onclick='getMessage("{{row[4]}}")' type="button">?</button></td>
+                                        <td><button class="unstyled-button" onclick='getMessage("{{row[4]}}")' type="button">
+                                                <img src="{{ url_for('static', filename='images/info-24.png') }}" 
+                                                alt="Info" height="24" width="24"></button></td>
                                         <td width="140px">{{row[0]}}</td><td width="150px">{{row[1]}}</td>
                                         <td align="right">{{row[2]}}</td><td>{{row[3]}}</td>
                                     </tr>
