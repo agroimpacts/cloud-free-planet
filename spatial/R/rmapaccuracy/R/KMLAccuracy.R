@@ -4,6 +4,11 @@
 #' @param count.err.wt Weighting given to field count error
 #' @param in.err.wt Weighting for in grid map discrepancy
 #' @param out.err.wt Weighting for out of grid map discrepancy
+#' @param new.in.err.wt Weighting for in grid map in new score
+#' @param new.out.err.wt Weighting for out of grid map in new score
+#' @param frag.err.wt Weighting for fragmentation accuracy
+#' @param edge.err.wt Weighting for edge accuracy
+#' @param edge.buf buffer for edge accuracy
 #' @param err.switch in grid error metric: 1 = overall accuracy; 2 = TSS
 #' @param comments For testing, can turn off (F) or on (T) print statements
 #' @param write.err.db Write error metrics into error_data table ("T" or "F") 
@@ -24,7 +29,8 @@
 #' @import sf
 #' @export
 KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
-                        prjsrid, count.err.wt, in.err.wt, out.err.wt, 
+                        prjsrid, count.err.wt, in.err.wt, out.err.wt,
+                        new.in.err.wt, new.out.err.wt, frag.err.wt, edge.err.wt, edge.buf, 
                         err.switch, comments, write.err.db, draw.maps, test,  
                         test.root, user, password) {
   
@@ -84,17 +90,23 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
     #   user.poly <- st_union(st_transform(user.polys, crs = prjstr))
     # }  # switched off for now--re-enable if we move back to pprepair
     user.nfields <- nrow(user.polys)
-    user.poly <- st_union(st_transform(user.polys, crs = prjstr))
+    user.polys <-st_transform(user.polys, crs = prjstr)
+    user.poly <- st_union(user.polys)
   } 
   
   # Error checks begin
   # Case 1: A null qaqc site recorded as null by the observer; score set to 1
   if((qaqc.hasfields == "N") & (user.hasfields == "N")) {
     if(comments == "T") print("No QAQC or User fields")
-    err <- 1
+    new.score <- 1
+    old.score <- 1
     tss.err <- 1  
-    err.out <- c("total_error" = err, "count_error" = 1, "out_error" = 1, 
-                 "in_error" = 1, "user_fldcount" = 0)
+    count.err <- 1
+    frag.err <- 1 
+    edge.err <- 1
+    in.err <- 1
+    out.err <- 1
+    user.fldcount <- 0
   } else {
     # Pick up grid cell from qaqc table, for background location, as it will be 
     # needed for the other 3 cases
@@ -110,37 +122,40 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
   if((qaqc.hasfields == "N") & (user.hasfields == "Y")) {
     if(comments == "T") print("No QAQC fields, but there are User fields") 
     
-    # Accuracy measures
-    count.error <- 0  # zero if QAQC has no fields but user maps even 1 field
-    
+
     # Mapped area differences inside the target grid cell
-    user.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, user.poly), 
-                                        0.00001), -0.00001)  
-    inres <- mapError(maps = user.poly.in, truth = NULL, region = grid.poly)
-    
+    user.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, user.poly),
+                                        0.00001),-0.00001)  
     if(length(user.poly.in) > 0) {  # if user has fields inside
       inres <- mapError(maps = user.poly.in, truth = NULL, region = grid.poly)
     } else if(length(user.poly.in) == 0) {  # if user has no field inside
       inres <- mapError(maps = NULL, truth = NULL, region = grid.poly)
     }
+    tss.err <- inres[[1]][2]
+    in.err <- unname(inres[[1]][err.switch])
+ 
+    # Accuracy measures
+    count.err <- 0  # zero if QAQC has no fields but user maps even 1 field
+    frag.err <- 1 
+    edge.err <- 1   # frag and edge error are both based upon hits on qaqc field, if  no QAQC fields,
+                     # they are both 1
+    
     
     # Secondary metric - Sensitivity of results outside of kml grid
     user.poly.out <- st_buffer(st_buffer(st_difference(user.poly, grid.poly),
-                                         0.00001), -0.00001)
+                                         0.00001),-0.00001)
     if(length(user.poly.out) == 0) {
-      out.error <- 1  # If user finds no fields outside of box, gets credit
+      out.err <- 1  # If user finds no fields outside of box, gets credit
     } else {  
-      out.error <- 0  # If user maps outside of box when no fields exist
+      out.err <- 0  # If user maps outside of box when no fields exist
     }
     
     # Combine error metric
-    err <- count.error * count.err.wt + unname(inres[[1]][err.switch]) * 
-      in.err.wt + out.error * out.err.wt 
-    tss.err <- inres[[1]][2]
-    err.out <- c("total_error" = err, "count_error" = count.error, 
-                 "out_error" = out.error, 
-                 "in_error" = unname(inres[[1]][err.switch]), 
-                 "user_fldcount" = user.nfields)
+    old.score <- count.err * count.err.wt + in.err * 
+      in.err.wt + out.err * out.err.wt 
+    new.score <- in.err * new.in.err.wt + 
+      out.err * new.out.err.wt + frag.err * frag.err.wt + edge.err * edge.err.wt
+    user.fldcount <- user.nfields
   }
   
   # Cases 3 & 4
@@ -149,43 +164,46 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
     #  Case 3. QAQC has fields, User has no fields
     if(user.hasfields == "N") {
       if(comments == "T") print("QAQC fields but no User fields")
-      # Accuracy measures
-      count.error <- 0  # if QAQC has fields but user maps none
-      
       # Mapped area differences inside the target grid cell
-      qaqc.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, qaqc.poly),0.00001),-0.00001)  
-      qaqc.poly.out <- st_buffer(st_buffer(st_difference(qaqc.poly, grid.poly),0.00001),-0.00001)
+      qaqc.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, qaqc.poly),
+                                          0.00001),-0.00001)  
+      qaqc.poly.out <- st_buffer(st_buffer(st_difference(qaqc.poly, grid.poly),
+                                           0.00001),-0.00001)
       inres <- mapError(maps = NULL, truth = qaqc.poly.in, region = grid.poly)
       
-      # Secondary metric - Sensitivity of results outside of kml grid
-      out.error <- 0  # 0 if there is neither true positive nor false negative
-      
       # Combine error metric
-      err <- count.error * count.err.wt + unname(inres[[1]][err.switch]) * 
-        in.err.wt + out.error * out.err.wt 
       tss.err <- inres[[1]][2]
-      err.out <- c("total_error" = err, "count_error" = count.error, 
-                   "out_error" = out.error, 
-                   "in_error" = unname(inres[[1]][err.switch]), 
-                   "user_fldcount" = 0)
+      # Accuracy measures
+      # Accuracy measures
+      count.err <- 0  # if QAQC has fields but user maps none
+      frag.err <- 0 
+      edge.err <- 0 # miss qaqc fields, give zero for frag and edge acc
+      # Secondary metric - Sensitivity of results outside of kml grid
+      out.err <- 0  # 0 if there is neither true positive nor false negative
+      in.err <- unname(inres[[1]][err.switch])
+      old.score <- count.err * count.err.wt + in.err * 
+        in.err.wt + out.err * out.err.wt
+      new.score <- in.err * new.in.err.wt + out.err * new.out.err.wt +
+        frag.err * frag.err.wt + edge.err * edge.err.wt
+      user.fldcount <- 0
       
       # Case 4. QAQC has fields, User has fields
     } else if(user.hasfields == "Y") {
       if(comments == "T") print("QAQC fields and User fields")
       
       # Accuracy measures
-      count.error <- rmapaccuracy::countError(qaqc_rows = qaqc.nfields, 
+      count.err <- rmapaccuracy::countError(qaqc_rows = qaqc.nfields, 
                                               user_rows = user.nfields) 
       
       # Mapped area differences inside the target grid cell
       user.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, user.poly),
-                                          0.00001), -0.00001)  # u maps in cell
+                                          0.00001),-0.00001)  # user maps in cell
       qaqc.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, qaqc.poly),
-                                          0.00001), -0.00001)  # q maps in cell
+                                          0.00001),-0.00001)  # q maps in cell
       user.poly.out <- st_buffer(st_buffer(st_difference(user.poly, grid.poly),
-                                           0.00001), -0.00001)  # u maps outside
+                                           0.00001),-0.00001)  # user maps outside
       qaqc.poly.out <- st_buffer(st_buffer(st_difference(qaqc.poly, grid.poly),
-                                           0.00001), -0.00001)  # q maps outside
+                                           0.00001),-0.00001)  # q maps outside
       
       # Accuracy in the box. 2 possible cases. Normal, user has fields inside 
       # box. Abnormal, for some reason user only mapped outside of box. Inside
@@ -197,10 +215,19 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
         inres <- mapError(maps = NULL, truth = qaqc.poly.in, region = grid.poly)
       }
       
+     
+      
+      # Combine error metric
+      #geometric accurgrid.polyacy assessment
+      geores <- GeometricError(qaqc.polys, user.polys, edge.buf) # buf is set as 3 planet pixels
+      tss.err <- inres[[1]][2]
+      frag.err <- unname(geores[[1]][1])
+      edge.err <- unname(geores[[2]][1])  
+      in.err <- unname(inres[[1]][err.switch])
       # Secondary metric - Sensitivity of results outside of kml grid
       if(length(user.poly.out) == 0 & length(qaqc.poly.out) == 0) {
         if(comments == "T") print("No QAQC or User fields outside of grid")
-        out.error <- 1  # perfect if neither u nor q map outside
+        out.err <- 1  # perfect if neither u nor q map outside
       } else if(length(user.poly.out) > 0 & length(qaqc.poly.out) > 0) {
         if(comments == "T") print("Both QAQC and User fields outside of grid")
         tpo <- st_intersection(qaqc.poly.out, user.poly.out)  # tp outside
@@ -210,36 +237,42 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
           xo <- get(x)
           ifelse(!is.null(xo) & is.object(xo) & length(xo) > 0, st_area(xo), 0)
         })
-        out.error <- areaso[1] / sum(areaso)  # sensitivity 
+        out.err <- unname(areaso[1]) / sum(areaso)  # sensitivity 
       } else {
         if(comments == "T") {
           print("Either QAQC or User fields outside of grid, but not both")
         }
-        out.error <- 0
+        out.err <- 0
       }
-      
-      # Combine error metric
-      err <- count.error * count.err.wt + unname(inres[[1]][err.switch]) * 
-        in.err.wt + out.error * out.err.wt 
-      tss.err <- inres[[1]][2]
-      err.out <- c("total_error" = unname(err), 
-                   "count_error" = count.error, 
-                   "out_error" = unname(out.error), 
-                   "in_error" = unname(inres[[1]][err.switch]), 
-                   "user_fldcount" = user.nfields)
+      old.score <- count.err * count.err.wt + in.err * 
+          in.err.wt + out.err * out.err.wt 
+      new.score <- in.err * new.in.err.wt + 
+        out.err * new.out.err.wt+ frag.err * frag.err.wt + edge.err * edge.err.wt
+      user.fldcount <- user.nfields
+
+    
     }
   } 
+  
+  err.out <- c("new_score" = new.score, "old_score" = old.score,
+               "count_acc" = count.err, 
+               "frag_acc" =frag.err, "edge_acc" = edge.err,
+               "in_acc" = in.err, 
+               "out_acc" = out.err, 
+               "user_count" = user.fldcount)
   
   # Insert error component statistics into the database 
   if(write.err.db == "T") {
     if(mtype == "qa") {
-      error.sql <- paste0("insert into error_data (assignment_id, score,
-                          error1, error2, error3, error4, tss) values ('",
-                         assignmentid, "', ", paste(err.out, collapse = ", "),
+      error.sql <- paste0("insert into new_error_data (assignment_id, new_score,
+                           old_score, count_acc, fragmentation_acc, edge_acc,
+                          ingrid_acc, outgrid_acc, num_userpolygons, tss)
+                          values ('", assignmentid, "', ", paste(err.out, collapse = ", "),
                          ", ", tss.err,  ")")
     } else if(mtype == "tr") {
-      error.sql <- paste0("insert into qual_error_data(assignment_id,",
-                          " score, error1, error2, error3, error4, try, tss)",
+      error.sql <- paste0("insert into new_qual_error_data(assignment_id, new_score,
+                           old_score, count_acc, fragmentation_acc, edge_acc,
+                          ingrid_acc, outgrid_acc, num_userpolygons, try, tss)",
                           " values ('", assignmentid, "', ",
                           paste(err.out, collapse = ", "), ", ", tryid, ", ",
                           tss.err, ")")  # Write try error data
@@ -283,15 +316,12 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
         plot(st_geometry(grid.poly), xlim = vals[1, ], ylim = vals[2, ])
         objchk <- sapply(2:5, function(x) is.object(inres[[x]]))
         mpi <- names(err.out)
-        plotpos <- c(0.15, 0.4, 0.65, 0.90)
+        #plotpos <- c(0.15, 0.4, 0.65, 0.90)
         cols <- c("green4", "red4", "blue4", "grey30")
         for(i in 1:4) {
           if(objchk[i] == "TRUE") {
             plot(st_geometry(inres[[i + 1]]), add = TRUE, col = cols[i])
           }
-          mtext(round(err.out[i], 3), side = 3, line = -1, adj = plotpos[i], 
-                cex = cx)
-          mtext(mpi[i], side = 3, line = 0.5, adj = plotpos[i], cex = cx)
           if(exists("user.poly.out")) {
             if(length(user.poly.out) > 0) {
               plot(st_geometry(user.poly.out), add = TRUE, col = "grey")
@@ -312,6 +342,12 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
               plot(fno, col = "blue1", add = TRUE)
             }
           }
+        }
+        
+        for(i in 1:7) {
+          mtext(round(err.out[i], 3), side = 3, line = -1, adj = 1 * (i-1) / (length(err.out)-2), 
+                cex = cx)
+          mtext(mpi[i], side = 3, line = 0.5, adj = 1 * (i-1) / (length(err.out)-2), cex = cx)
         }
         mtext(paste0(kmlid, "_", assignmentid), side = 1, cex = cx)
         legend(x = "right", legend = c("TP", "FP", "FN", "TN"), pch = 15, 
