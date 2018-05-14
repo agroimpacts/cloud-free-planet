@@ -1,14 +1,14 @@
 ---
 title: "Project Timelines"
-author: "Lyndon Estes"
-output: html_document
+output: 
+  html_document:
+    keep_md: TRUE
+    
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
-
-## Project Timeline
 
 For Summer 2018. Hover over items to see people assigned. Scroll up or down over areas in timeline on which you wish to zoom in or out.
 
@@ -22,6 +22,5 @@ timelines <- read_excel("timelines.xlsx")
 grps <- unique(timelines$group)
 timevis(data = timelines, 
         groups = data.frame(id = grps, content = grps))
-
 ```
 
