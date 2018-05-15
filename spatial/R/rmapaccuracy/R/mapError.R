@@ -5,7 +5,8 @@
 #' @importFrom sf st_difference st_intersection
 #' @return Accuracy measures from user maps
 #' @export
-mapError <- function(maps, truth, region) {
+map_error <- function(maps, truth, region) {
+# mapError <- function(maps, truth, region) {
   if(is.null(truth) & !is.null(maps)) {  # Yes U, no Q
     null <- region  # Actual null area is whole region
     tp <- 0  # True positive area is 0
@@ -38,8 +39,9 @@ mapError <- function(maps, truth, region) {
     ifelse(!is.null(xo) & is.object(xo) & length(xo) > 0, st_area(xo), 0)
   })
   names(areas) <- tflist  
-  acc_stats <- accStatsSum(tp = areas["tp"], fp = areas["fp"], 
-                           fn = areas["fn"], tn = areas["tn"])
+  # acc_stats <- accStatsSum(tp = areas["tp"], fp = areas["fp"], 
+  acc_stats <- acc_stats_sum(tp = areas["tp"], fp = areas["fp"], 
+                             fn = areas["fn"], tn = areas["tn"])
   return(list("stats" = acc_stats, "tp" = tp, "fp" = fp, "fn" = fn, "tn" = tn))
 }
 

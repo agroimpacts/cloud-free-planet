@@ -5,7 +5,8 @@
 #' @param fn False negatives
 #' @return Classification accuracy and the True Skill Statistic
 #' @export
-accStatsSum <- function(tp, fp, tn, fn) {
+# accStatsSum <- function(tp, fp, tn, fn) {
+acc_stats_sum <- function(tp, fp, tn, fn) {
   agree <- tp / sum(tp, fn)  # Simple agreement class 1
   if(is.na(agree)) agree <- 0  # Set to 0 if NA
   accuracy <- sum(tp, tn) / sum(tp, tn, fp, fn)
