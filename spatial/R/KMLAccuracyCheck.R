@@ -9,6 +9,11 @@ prjsrid <- 102022
 count.err.wt <- 0.1  
 in.err.wt <- 0.7  
 out.err.wt <- 0.2  
+new.in.err.wt <- 0.6 ## for new score
+new.out.err.wt <-0.2 ## for new score
+frag.err.wt <- 0.1 ## for new score
+edge.err.wt <- 0.1 ## for new score
+edge.buf <- 9 ## for new score, 3 planet pixels
 err.switch <- 1  ### 5/2/2016 Changed to 1
 comments <- "F"
 write.err.db <- "T"  
@@ -18,16 +23,11 @@ test.root <- "N"
 user <- "***REMOVED***"
 password <- "***REMOVED***"
 
-#mtype <- "qa" # test code
-#kmlid <- "SA1147278" # test code
-#kmlid <- "GH0377953" # test code
-#assignmentid <-"3FIUS151DV2LBKU3KGJOYU5Z95TGGF" # test code
-#tryid <-'1' # test code
 
 # mtype <- "tr" # test code
 # kmlid <- "ZA0649200" # test code
-# assignmentid <-"98" # test code
-# tryid <-'1' # test code
+# assignmentid <-"215" # test code
+# tryid <- '2' # test code
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 # suppressMessages(library(sp)) # have to load this to get connection
@@ -99,7 +99,12 @@ if(test.root == "N") {
   KMLAccuracy(mtype = mtype, kmlid = kmlid, assignmentid = assignmentid,
               diam = diam, tryid = tryid, prjsrid = prjsrid, 
               count.err.wt = count.err.wt, 
-              in.err.wt = in.err.wt, out.err.wt = out.err.wt, 
+              in.err.wt = in.err.wt, out.err.wt = out.err.wt,
+              new.in.err.wt = new.in.err.wt,
+              new.out.err.wt = new.out.err.wt,
+              frag.err.wt = frag.err.wt,
+              edge.err.wt = edge.err.wt,
+              edge.buf = edge.buf,
               err.switch = err.switch, comments = comments, 
               write.err.db = write.err.db, draw.maps = draw.maps, test = test,  
               test.root = test.root, user = user, password = password)
