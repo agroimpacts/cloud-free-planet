@@ -90,7 +90,7 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
     #   user.poly <- st_union(st_transform(user.polys, crs = prjstr))
     # }  # switched off for now--re-enable if we move back to pprepair
     user.nfields <- nrow(user.polys)
-    user.polys <-st_transform(user.polys, crs = prjstr)
+    user.polys <- st_transform(user.polys, crs = prjstr)
     user.poly <- st_union(user.polys)
   } 
   
@@ -118,6 +118,9 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
     grid.poly <- st_geometry(grid.poly)  # retain geometry only
   }
   
+
+    
+  
   # Case 2: A null qaqc site but user mapped field(s)
   if((qaqc.hasfields == "N") & (user.hasfields == "Y")) {
     if(comments == "T") print("No QAQC fields, but there are User fields") 
@@ -139,11 +142,10 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
     frag.err <- 1 
     edge.err <- 1   # frag and edge error are both based upon hits on qaqc field, if  no QAQC fields,
                      # they are both 1
-    
-    
+
     # Secondary metric - Sensitivity of results outside of kml grid
     user.poly.out <- st_buffer(st_buffer(st_difference(user.poly, grid.poly),
-                                         0.00001),-0.00001)
+                                         0.00001), -0.00001)
     if(length(user.poly.out) == 0) {
       out.err <- 1  # If user finds no fields outside of box, gets credit
     } else {  
@@ -197,13 +199,13 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
       
       # Mapped area differences inside the target grid cell
       user.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, user.poly),
-                                          0.00001),-0.00001)  # user maps in cell
+                                          0.00001), -0.00001)  # u maps in cell
       qaqc.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, qaqc.poly),
-                                          0.00001),-0.00001)  # q maps in cell
+                                          0.00001), -0.00001)  # q maps in cell
       user.poly.out <- st_buffer(st_buffer(st_difference(user.poly, grid.poly),
-                                           0.00001),-0.00001)  # user maps outside
+                                           0.00001), -0.00001)  # u maps outside
       qaqc.poly.out <- st_buffer(st_buffer(st_difference(qaqc.poly, grid.poly),
-                                           0.00001),-0.00001)  # q maps outside
+                                           0.00001), -0.00001)  # q maps outside
       
       # Accuracy in the box. 2 possible cases. Normal, user has fields inside 
       # box. Abnormal, for some reason user only mapped outside of box. Inside
@@ -215,11 +217,10 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
         inres <- mapError(maps = NULL, truth = qaqc.poly.in, region = grid.poly)
       }
       
-     
-      
       # Combine error metric
-      #geometric accurgrid.polyacy assessment
-      geores <- GeometricError(qaqc.polys, user.polys, edge.buf) # buf is set as 3 planet pixels
+      # geometric accurgrid.polyacy assessment
+      # buf is set as 3 planet pixels      
+      geores <- geometric_error(qaqc.polys, user.polys, edge.buf) 
       tss.err <- inres[[1]][2]
       frag.err <- unname(geores[[1]][1])
       edge.err <- unname(geores[[2]][1])  
@@ -244,13 +245,11 @@ KMLAccuracy <- function(mtype, kmlid, assignmentid, tryid, diam,
         }
         out.err <- 0
       }
-      old.score <- count.err * count.err.wt + in.err * 
-          in.err.wt + out.err * out.err.wt 
-      new.score <- in.err * new.in.err.wt + 
-        out.err * new.out.err.wt+ frag.err * frag.err.wt + edge.err * edge.err.wt
+      old.score <- count.err * count.err.wt + in.err * in.err.wt + 
+        out.err * out.err.wt 
+      new.score <- in.err * new.in.err.wt + out.err * new.out.err.wt + 
+        frag.err * frag.err.wt + edge.err * edge.err.wt
       user.fldcount <- user.nfields
-
-    
     }
   } 
   
