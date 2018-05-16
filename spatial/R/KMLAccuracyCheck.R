@@ -23,6 +23,7 @@ test <- "N"
 test.root <- "N"  
 alt.root <- NULL
 host <- NULL
+pngout <- TRUE
 user <- "***REMOVED***"
 password <- "***REMOVED***"
 
