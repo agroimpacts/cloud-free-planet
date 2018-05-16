@@ -4,8 +4,8 @@
 #' @param region: A polygon defining the region in which accuracy is assessed
 #' @importFrom sf st_difference st_intersection
 #' @return Accuracy measures from user maps
-#' @export
-map_error <- function(maps, truth, region) {
+#' @keywords internal
+map_accuracy <- function(maps, truth, region) {
 # mapError <- function(maps, truth, region) {
   if(is.null(truth) & !is.null(maps)) {  # Yes U, no Q
     null <- region  # Actual null area is whole region

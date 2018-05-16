@@ -1,11 +1,11 @@
 Package: rmapaccuracy
 Type: Package
 Title: Accuracy assessment of user created map polygons
-Version: 1.1.4
-Date: 2018-04-18
+Version: 1.2.0
+Date: 2018-05-15
 Author: Lyndon Estes, Dennis McRitchie, and Su Ye
 Maintainer: Lyndon Estes <lestes@clarku.edu>
-Description: This package provides the functions used in Mapping Africa
+Description: This package provides mapper's accuracy assessment functions
 Depends: R (>= 2.15), data.table, dplyr
 Imports: RPostgreSQL, DBI, sf
 License: GPL

@@ -6,17 +6,26 @@
 # Static arguments
 diam <- 0.005 / 2 ## new master grid diameter
 prjsrid <- 102022
-count.err.wt <- 0.1  
-in.err.wt <- 0.7  
-out.err.wt <- 0.2  
-new.in.err.wt <- 0.6 ## for new score
-new.out.err.wt <-0.2 ## for new score
-frag.err.wt <- 0.1 ## for new score
-edge.err.wt <- 0.1 ## for new score
-edge.buf <- 9 ## for new score, 3 planet pixels
-err.switch <- 1  ### 5/2/2016 Changed to 1
-comments <- "F"
-write.err.db <- "T"  
+count.acc.wt <- 0.1
+in.acc.wt <- 0.7  
+out.acc.wt <- 0.2  
+new.in.acc.wt <- 0.6 ## for new score
+new.out.acc.wt <- 0.2 ## for new score
+frag.acc.wt <- 0.1 ## for new score
+edge.acc.wt <- 0.1 ## for new score
+# count.err.wt <- 0.1
+# in.err.wt <- 0.7  
+# out.err.wt <- 0.2  
+# new.in.err.wt <- 0.6 ## for new score
+# new.out.err.wt <-0.2 ## for new score
+# frag.err.wt <- 0.1 ## for new score
+# edge.err.wt <- 0.1 ## for new score
+# edge.buf <- 9 ## for new score, 3 planet pixels
+# err.switch <- 1  ### 5/2/2016 Changed to 1
+acc.switch <- 1  ### 5/2/2016 Changed to 1
+comments <- "T"
+# write.err.db <- "F"  
+write.acc.db <- "F"  
 draw.maps  <- "T"  
 test <- "N"  
 test.root <- "N"  
@@ -96,18 +105,17 @@ if(test.root == "N") {
     }
   }
   
-  KMLAccuracy(mtype = mtype, kmlid = kmlid, assignmentid = assignmentid,
-              diam = diam, tryid = tryid, prjsrid = prjsrid, 
-              count.err.wt = count.err.wt, 
-              in.err.wt = in.err.wt, out.err.wt = out.err.wt,
-              new.in.err.wt = new.in.err.wt,
-              new.out.err.wt = new.out.err.wt,
-              frag.err.wt = frag.err.wt,
-              edge.err.wt = edge.err.wt,
-              edge.buf = edge.buf,
-              err.switch = err.switch, comments = comments, 
-              write.err.db = write.err.db, draw.maps = draw.maps, test = test,  
-              test.root = test.root, user = user, password = password)
+  kml_accuracy(mtype = mtype, kmlid = kmlid, assignmentid = assignmentid,
+               diam = diam, tryid = tryid, prjsrid = prjsrid, 
+               count.acc.wt = count.acc.wt, in.acc.wt = in.acc.wt, 
+               out.acc.wt = out.acc.wt, new.in.acc.wt = new.in.acc.wt,
+               new.out.acc.wt = new.out.acc.wt, frag.acc.wt = frag.acc.wt,
+               edge.acc.wt = edge.acc.wt, edge.buf = edge.buf,
+               acc.switch = acc.switch, comments = comments, 
+               write.acc.db = write.acc.db, draw.maps = draw.maps, 
+               pngout = pngout, test = test,  test.root = test.root, 
+               user = user, password = password,db.tester.name = db.tester.name, alt.root = alt.root, 
+               host = host)
 }
   
   
