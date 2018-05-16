@@ -151,7 +151,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                         assignmentid, "', ", paste(acc.out, collapse = ", "), 
                         ", ", tryid, ")")
     }
-    ret <- dbSendQuery(con, acc.sql)
+    ret <- dbSendQuery(coninfo$con, acc.sql)
   }
 
   # Map results according to error class
