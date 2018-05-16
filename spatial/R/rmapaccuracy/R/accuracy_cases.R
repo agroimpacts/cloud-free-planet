@@ -1,0 +1,257 @@
+#' Case 2 accuracy metric
+#' @param grid.poly Polygon of sampling grid
+#' @param user.polys User's field boundary polygons
+#' @param count.acc.wt Weighting given to field count accuracy
+#' @param in.acc.wt Weighting for in grid map discrepancy
+#' @param out.acc.wt Weighting for out of grid map discrepancy
+#' @param new.in.acc.wt Weighting for in grid map in new score
+#' @param new.out.acc.wt Weighting for out of grid map in new score
+#' @param frag.acc.wt Weighting for fragmentation accuracy
+#' @param edge.acc.wt Weighting for edge accuracy
+#' @details Accuracy assessment for case when worker maps fields but none exist
+#' @import RPostgreSQL
+#' @importFrom  DBI dbDriver
+#' @import dplyr
+#' @import sf
+#' @keywords internal
+case2_accuracy <- function(grid.poly, user.polys, in.acc.wt, 
+                           out.acc.wt, count.acc.wt, new.in.acc.wt, 
+                           new.out.acc.wt, frag.acc.wt, edge.acc.wt) {
+  
+  user.nfields <- nrow(user.polys)  # n fields, for original count accuracy
+  user.poly <- st_union(user.polys)  # union for area accuracys
+  
+  # area of overlap inside grid (hack for now because of Linux rounding issue)
+  user.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, user.poly),
+                                      0.00001), -0.00001)  
+  
+  if(length(user.poly.in) > 0) {  # if user has fields inside
+    inres <- map_accuracy(maps = user.poly.in, truth = NULL, region = grid.poly)
+  } else if(length(user.poly.in) == 0) {  # if user has no field inside
+    inres <- map_accuracy(maps = NULL, truth = NULL, region = grid.poly)
+  }
+  # tss.acc <- inres[[1]][2]
+  in.acc <- unname(inres[[1]][acc.switch])
+  
+  # Accuracy measures
+  count.acc <- 0  # zero if QAQC has no fields but user maps even 1 field
+  frag.acc <- 1 
+  # frag & edge accuracy are both based upon hits on qaqc field, if no Q flds,
+  # they are both 1
+  edge.acc <- 1   
+  
+  # Secondary metric - Sensitivity of results outside of kml grid
+  user.poly.out <- st_buffer(st_buffer(st_difference(user.poly, grid.poly),
+                                       0.00001), -0.00001)
+  if(length(user.poly.out) == 0) {
+    out.acc <- 1  # If user finds no fields outside of box, gets credit
+  } else {  
+    out.acc <- 0  # If user maps outside of box when no fields exist
+  }
+  
+  # Combine accuracy metrics
+  old.score <- count.acc * count.acc.wt + in.acc * 
+    in.acc.wt + out.acc * out.acc.wt 
+  new.score <- in.acc * new.in.acc.wt + 
+    out.acc * new.out.acc.wt + frag.acc * frag.acc.wt + edge.acc * edge.acc.wt
+  user.fldcount <- user.nfields
+  
+  # output accuracy metrics
+  acc.out <- c("new_score" = new.score, "old_score" = old.score,
+               "count_acc" = count.acc, 
+               "frag_acc" = frag.acc, "edge_acc" = edge.acc,
+               "in_acc" = in.acc, 
+               "out_acc" = out.acc, 
+               "user_count" = user.fldcount)
+  # output maps
+  maps <- list("gpol" = grid.poly, "qpol" = NULL, "upol" = user.poly, 
+               "inres" = inres, "upolout" = user.poly.out, 
+               "qpolout" = NULL, "tpo" = NULL, "fno" = NULL)
+  return(list("acc.out" = acc.out, "maps" = maps))
+}
+
+#' Case 3 accuracy metric
+#' @param grid.poly Polygon of sampling grid
+#' @param qaqc.polys QAQC polygons
+#' @param count.acc.wt Weighting given to field count accuracy
+#' @param in.acc.wt Weighting for in grid map discrepancy
+#' @param out.acc.wt Weighting for out of grid map discrepancy
+#' @param new.in.acc.wt Weighting for in grid map in new score
+#' @param new.out.acc.wt Weighting for out of grid map in new score
+#' @param frag.acc.wt Weighting for fragmentation accuracy
+#' @param edge.acc.wt Weighting for edge accuracy
+#' @param acc.switch 1 for conventional accuracy, 2 for TSS
+#' @details Accuracy assessment for case when worker doesn't map fields but 
+#' they do exist. Note that the TSS version of accuracy is still retainined 
+#' here, but is no longer used because if return NULL values in certain cases. 
+#' @import RPostgreSQL
+#' @importFrom  DBI dbDriver
+#' @import dplyr
+#' @import sf
+#' @keywords internal
+case3_accuracy <- function(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt, 
+                           count.acc.wt, new.in.acc.wt, new.out.acc.wt, 
+                           frag.acc.wt, edge.acc.wt, acc.switch = 1) {
+  
+  qaqc.poly <- st_union(qaqc.polys)  # union for area accuracys
+
+  # Mapped area differences inside the target grid cell
+  qaqc.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, qaqc.poly),
+                                      0.00001), -0.00001)  
+  qaqc.poly.out <- st_buffer(st_buffer(st_difference(qaqc.poly, grid.poly),
+                                       0.00001), -0.00001)
+  inres <- map_accuracy(maps = NULL, truth = qaqc.poly.in, region = grid.poly)
+  
+  # Combine accuracy metric
+  # tss.acc <- inres[[1]][2]
+  # Accuracy measures
+  # Accuracy measures
+  count.acc <- 0  # if QAQC has fields but user maps none
+  frag.acc <- 0 
+  edge.acc <- 0 # miss qaqc fields, give zero for frag and edge acc
+  # Secondary metric - Sensitivity of results outside of kml grid
+  out.acc <- 0  # 0 if there is neither true positive nor false negative
+  in.acc <- unname(inres[[1]][acc.switch])
+  old.score <- count.acc * count.acc.wt + in.acc * 
+    in.acc.wt + out.acc * out.acc.wt
+  new.score <- in.acc * new.in.acc.wt + out.acc * new.out.acc.wt +
+    frag.acc * frag.acc.wt + edge.acc * edge.acc.wt
+  user.fldcount <- 0
+
+  # output accuracy metrics
+  acc.out <- c("new_score" = new.score, "old_score" = old.score,
+               "count_acc" = count.acc, "frag_acc" = frag.acc, 
+               "edge_acc" = edge.acc,
+               "in_acc" = in.acc, "out_acc" = out.acc, 
+               "user_count" = user.fldcount)
+  # output maps
+  maps <- list("gpol" = grid.poly, "qpol" = qaqc.poly, "upol" = NULL, 
+               "inres" = inres, "upolout" = NULL, "qpolout" = qaqc.poly.out, 
+               "tpo" = NULL, "fno" = qaqc.poly.out)  # fno is same q poly out
+  return(list("acc.out" = acc.out, "maps" = maps))
+}
+
+#' Case 4 accuracy metric
+#' @param grid.poly Polygon of sampling grid
+#' @param user.polys User's field boundary polygons
+#' @param qaqc.polys QAQC polygons
+#' @param count.acc.wt Weighting given to field count accuracy
+#' @param in.acc.wt Weighting for in grid map discrepancy
+#' @param out.acc.wt Weighting for out of grid map discrepancy
+#' @param new.in.acc.wt Weighting for in grid map in new score
+#' @param new.out.acc.wt Weighting for out of grid map in new score
+#' @param frag.acc.wt Weighting for fragmentation accuracy
+#' @param edge.acc.wt Weighting for edge accuracy
+#' @param edge.buf buffer for edge accuracy
+#' @param comments Should comments be printed, "T" or "F" (default)? 
+#' @param acc.switch 1 for conventional accuracy, 2 for TSS
+#' @details Accuracy assessment for case when worker maps fields where they  
+#' they do exist. Note that the TSS version of accuracy is still retainined 
+#' here, but is no longer used because if return NULL values in certain cases. 
+#' @import RPostgreSQL
+#' @importFrom  DBI dbDriver
+#' @import dplyr
+#' @import sf
+#' @keywords internal
+case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt, 
+                           in.acc.wt, out.acc.wt, new.in.acc.wt, 
+                           new.out.acc.wt, frag.acc.wt, edge.acc.wt, edge.buf, 
+                           comments = "F", acc.switch = 1) {
+  
+  # prep polygons
+  user.nfields <- nrow(user.polys)  # n fields, for original count accuracy
+  user.poly <- st_union(user.polys)  # union for area accuracys
+  qaqc.nfields <- nrow(qaqc.polys)  # n fields, for original count accuracy
+  qaqc.poly <- st_union(qaqc.polys)  # union for area accuracys
+  
+
+  # Mapped area differences inside the target grid cell
+  user.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, user.poly),
+                                      0.00001), -0.00001)  # u maps in cell
+  qaqc.poly.in <- st_buffer(st_buffer(st_intersection(grid.poly, qaqc.poly),
+                                      0.00001), -0.00001)  # q maps in cell
+  user.poly.out <- st_buffer(st_buffer(st_difference(user.poly, grid.poly),
+                                       0.00001), -0.00001)  # u maps outside
+  qaqc.poly.out <- st_buffer(st_buffer(st_difference(qaqc.poly, grid.poly),
+                                       0.00001), -0.00001)  # q maps outside
+  
+  # Accuracy measures
+  # original count accuracy
+  cden <- ifelse(qaqc.nfields >= user.nfields, qaqc.nfields, user.nfields)
+  cnu1 <- ifelse(qaqc.nfields >= user.nfields, qaqc.nfields, user.nfields)
+  cnu2 <- ifelse(qaqc.nfields >= user.nfields, user.nfields, qaqc.nfields)
+  count.acc <- 1 - (cnu1 - cnu2) / cden  # Percent agreement
+  
+  # Accuracy in the box. 2 possible cases. Normal, user has fields inside 
+  # box. Abnormal, for some reason user only mapped outside of box. Inside
+  # accuracy collapses to same as Case 3 inside accuracy.
+  if(length(user.poly.in) > 0) {  # if user has fields inside
+    inres <- map_accuracy(maps = user.poly.in, truth = qaqc.poly.in, 
+                          region = grid.poly)  # accuracy metric
+  } else if(length(user.poly.in) == 0) {  
+    inres <- map_accuracy(maps = NULL, truth = qaqc.poly.in, region = grid.poly)
+  }
+  
+  # Combine accuracy metrics
+  # geometric accuracy assessment
+  # buf is set as 3 planet pixels      
+  geores <- geometric_accuracy(qaqc.polys, user.polys, edge.buf) 
+  # tss.acc <- inres[[1]][2]
+  frag.acc <- unname(geores[1])
+  edge.acc <- unname(geores[2])  
+  in.acc <- unname(inres[[1]][acc.switch])
+  
+  # Secondary metric - Sensitivity of results outside of kml grid
+  if(length(user.poly.out) == 0 & length(qaqc.poly.out) == 0) {
+    if(comments == "T") print("No QAQC or User fields outside of grid")
+    out.acc <- 1  # perfect if neither u nor q map outside
+  } else if(length(user.poly.out) > 0 & length(qaqc.poly.out) > 0) {
+    if(comments == "T") print("Both QAQC and User fields outside of grid")
+    tpo <- st_intersection(qaqc.poly.out, user.poly.out)  # tp outside
+    fno <- st_difference(qaqc.poly.out, user.poly.out)  # fp outside
+    tflisto <- c("tpo", "fno")
+    areaso <- sapply(tflisto, function(x) {  # calculate tp and fp area
+      xo <- get(x)
+      ifelse(!is.null(xo) & is.object(xo) & length(xo) > 0, st_area(xo), 0)
+    })
+    out.acc <- unname(areaso[1]) / sum(areaso)  # sensitivity 
+  } else {
+    if(comments == "T") {
+      print("Either QAQC or User fields outside of grid, but not both")
+    }
+    out.acc <- 0
+  }
+  old.score <- count.acc * count.acc.wt + in.acc * in.acc.wt + 
+    out.acc * out.acc.wt 
+  new.score <- in.acc * new.in.acc.wt + out.acc * new.out.acc.wt + 
+    frag.acc * frag.acc.wt + edge.acc * edge.acc.wt
+  user.fldcount <- user.nfields
+  
+  # output accuracy metrics
+  acc.out <- c("new_score" = new.score, "old_score" = old.score,
+               "count_acc" = count.acc, 
+               "frag_acc" = frag.acc, "edge_acc" = edge.acc,
+               "in_acc" = in.acc, 
+               "out_acc" = out.acc, 
+               "user_count" = user.fldcount)
+  
+  # Function to handle missing objects or empty geometry sf objects & make NULL 
+  checkexists <- function(x) {
+    if(exists(x)) {
+      a <- eval(parse(text = x))
+      if(length(a) > 0) o <- a
+      if(length(a) == 0) o <- NULL
+    } else {
+      o <- NULL
+    }
+    return(o)
+  }
+
+  # output maps
+  maps <- list("gpol" = grid.poly, "qpol" = qaqc.poly, "upol" = user.poly, 
+               "inres" = inres, "upolo" = checkexists("user.poly.out"),  
+               "qpolo" = checkexists("qaqc.poly.out"), 
+               "tpo" = checkexists("tpo"), "fno" = checkexists("tpo"))
+  return(list("acc.out" = acc.out, "maps" = maps))
+}
+

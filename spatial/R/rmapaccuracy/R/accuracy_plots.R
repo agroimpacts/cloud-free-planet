@@ -15,8 +15,8 @@
 #' @import sf
 #' @keywords internal
 accuracy_plots <- function(acc.out, grid.poly, qaqc.poly, user.poly, inres, 
-                          user.poly.out, qaqc.poly.out, tpo, fno, proj.root, 
-                          pngout = TRUE) {
+                           user.poly.out, qaqc.poly.out, tpo, fno, proj.root, 
+                           pngout = TRUE) {
 
   if(!is.null(grid.poly)) bbr1 <- st_bbox(grid.poly)
   if(!is.null(qaqc.poly)) bbr2 <- st_bbox(qaqc.poly)
@@ -32,7 +32,7 @@ accuracy_plots <- function(acc.out, grid.poly, qaqc.poly, user.poly, inres,
     if(!is.null(grid.poly)) {
       tm <- format(Sys.time(), "%Y%m%d%H%M%OS2")
       if(pngout == TRUE) {
-        pngname <- paste0(dinfo["project.root"], "/spatial/R/Error_records/", 
+        pngname <- paste0(proj.root, "/spatial/R/Error_records/", 
                           kmlid, "_", assignmentid, "_", tm, ".png")
         png(pngname, height = 700, width = 700, antialias = "none")
       }
