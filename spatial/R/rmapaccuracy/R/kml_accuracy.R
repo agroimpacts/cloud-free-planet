@@ -21,8 +21,8 @@
 #' @param db.tester.name User name for testing (default NULL)
 #' @param alt.root Alternative location for writing out maps (default NULL)
 #' @param host NULL or "crowdmapper.org", if testing from remote location
-#' @details For the test argument, it can be set to "Y" if one wants to test a 
-#' given only a single kmlid. In this case, the function code will pull the 
+#' @details For the test argument, it can be set to "Y" if one wants to test 
+#' only a single kmlid. In this case, the function code will pull the 
 #' entire assignment_data and hit_data tables from the database to find the 
 #' right assignment ids to test. This option must be set to "N" when in  
 #' production. test.root allows one to simply the run the function to see if it 
@@ -42,9 +42,9 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
   # dinfo <- getDBName()  # pull working environment
 
   # Paths and connections
-  # con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), dbname = dinfo["db.name"],   
+  # con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), dbname = dinfo["db.name"],
   #                       user = user, password = password)
-  coninfo <- mapper_connect(user = user, password = password, 
+  coninfo <- mapper_connect(user = user, password = password,
                             db.tester.name = db.tester.name, 
                             alt.root = alt.root, host = host)
   
@@ -56,65 +56,44 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     
   # Collect QAQC fields (if there are any; if not then "N" value will be 
   # returned). This should work for both training and test sites
-  qaqc.sql <- paste0("select gid, geom_clean",
-                     " from qaqcfields where name=", "'", kmlid, "'")
-  qaqc.polys <- suppressWarnings(st_read_db(coninfo$con, query = qaqc.sql, 
-                                            geom_column = 'geom_clean'))
+  qaqc.sql <- paste0("select gid from qaqcfields where name=", "'", kmlid, "'")
+  qaqc.polys <- DBI::dbGetQuery(coninfo$con, qaqc.sql)
   qaqc.hasfields <- ifelse(nrow(qaqc.polys) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
-    # qaqc.nfields <- nrow(qaqc.polys)
+    qaqc.sql <- paste0("select gid, geom_clean",
+                       " from qaqcfields where name=", "'", kmlid, "'")
+    qaqc.polys <- suppressWarnings(st_read(coninfo$con, query = qaqc.sql, 
+                                           geom_column = 'geom_clean'))
     qaqc.polys <- st_transform(qaqc.polys, crs=prjstr)
     qaqc.polys <- st_buffer(qaqc.polys, 0)
-    # qaqc.poly <- st_union(qaqc.polys) 
   } 
 
   # Read in user data
   if(mtype == "tr") {  # Training case
-    user.sql <- paste0("select name, geom_clean, geom, try",
+    user.sql <- paste0("select name, try, geom_clean",
                        " from qual_user_maps where assignment_id=",  "'", 
                        assignmentid, "'", " and try='",  tryid, 
                        "' order by name")
   } else if(mtype == "qa") {  # Test case
-    user.sql <- paste0("select name, geom_clean, geom from",
+    user.sql <- paste0("select name, geom_clean from",
                        " user_maps where assignment_id=", "'", assignmentid,
                        "'", " order by name")
   }
-  user.polys <- suppressWarnings(st_read_db(coninfo$con, query = user.sql, 
-                                            geom_column = 'geom_clean'))
+  
+  # test if user fields exist
+  user.polys <- DBI::dbGetQuery(coninfo$con, gsub(", geom_clean", "", user.sql))
   user.hasfields <- ifelse(nrow(user.polys) > 0, "Y", "N") 
   if(user.hasfields == "Y") {  # Read in user fields if there are any
-    # if(any(st_is_empty(user.polys))) {  # invoke cleaning algorithm
-    #   unfixedsfc <- lapply(as.vector(user.polys$geom), function(vec) {
-    #     structure(vec, class = "wkb")
-    #   })
-    #   unfixedsfc <- st_as_sfc(unfixedsfc, EWKB = TRUE)
-    #   user.polysclean <- cleanTempPolyFromWKT(unfixedsfc = unfixedsfc, 
-    #                                           crs = gcs)
-    #   user.nfields <- nrow(user.polysclean)  #  Record n distinct fields
-    #   # transform user polygons into pcs for calculation
-    #   user.poly <- st_union(st_transform(user.polysclean,crs = prjstr)) 
-    # } else if(all(!st_is_empty(user.polys))) { 
-    #   user.nfields <- nrow(user.polys)
-    #   user.poly <- st_union(st_transform(user.polys, crs = prjstr))
-    # }  # switched off for now--re-enable if we move back to pprepair
-    # user.nfields <- nrow(user.polys)
+    # In old versions invoked cleaning algorithm here (since removed)
+    user.polys <- suppressWarnings(st_read(coninfo$con, query = user.sql, 
+                                           geom_column = 'geom_clean'))
     user.polys <- st_transform(user.polys, crs = prjstr)
-    # user.poly <- st_union(user.polys)
   } 
   
   # Accuracy checks begin
   # Case 1: A null qaqc site recorded as null by the observer; score set to 1
   if((qaqc.hasfields == "N") & (user.hasfields == "N")) {
     if(comments == "T") print("No QAQC or User fields")
-    # new.score <- 1
-    # old.score <- 1
-    # tss.err <- 1  
-    # count.err <- 1
-    # frag.err <- 1 
-    # edge.err <- 1
-    # in.err <- 1
-    # out.err <- 1
-    # user.fldcount <- 0
     acc.out <- c("new_score" = 1, "old_score" = 1, "count_acc" = 1, 
                  "frag_acc" = 1, "edge_acc" = 1, "in_acc" = 1, "out_acc" = 1, 
                  "user_count" = 0)
@@ -132,8 +111,8 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
   
   # Case 2: A null qaqc site but user mapped field(s)
   if((qaqc.hasfields == "N") & (user.hasfields == "Y")) {
-    if(comments == "T") print("No QAQC fields, but there are User fields") 
-    acc.out <- case2_accuracy(grid.poly, user.poly, in.acc.wt, out.acc.wt, 
+    if(comments == "T") print("Case 2: No QAQC fields, but User fields") 
+    acc.out <- case2_accuracy(grid.poly, user.polys, in.acc.wt, out.acc.wt, 
                               count.acc.wt, new.in.acc.wt, new.out.acc.wt, 
                               frag.acc.wt, edge.acc.wt)
   }
@@ -174,16 +153,16 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
 
   #  Case 3. QAQC has fields, User has no fields
   if(qaqc.hasfields == "Y" & user.hasfields == "N") {
-    if(comments == "T") print("QAQC fields but no User fields")
-    acc.out <- case3_accuracy(grid.poly, user.poly, in.acc.wt, out.acc.wt, 
+    if(comments == "T") print("Case 3: QAQC fields but no User fields")
+    acc.out <- case3_accuracy(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt, 
                               count.acc.wt, new.in.acc.wt, new.out.acc.wt, 
                               frag.acc.wt, edge.acc.wt, acc.switch)
   }
   
   # Case 4. QAQC has fields, User has fields
   if(qaqc.hasfields == "Y" & user.hasfields == "Y") {
-    if(comments == "T") print("QAQC fields and User fields")
-    acc.out <- case4_accuracy(grid.poly, user.polys, qaqc.polys, count.acc.wt, 
+    if(comments == "T") print("Case 4: QAQC fields and User fields")
+    acc.out <- case4_accuracy(grid.poly, user.polys, qaqc.polys, count.acc.wt,
                               in.acc.wt, out.acc.wt, new.in.acc.wt, 
                               new.out.acc.wt, frag.acc.wt, edge.acc.wt, 
                               edge.buf, comments, acc.switch)
@@ -344,8 +323,8 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     
     accuracy_plots(acc.out = acc.out$acc.out, grid.poly = maps$gpol, 
                   qaqc.poly = maps$qpol, user.poly = maps$upol,
-                  inres = maps$inres, user.poly.out = maps$upolout, 
-                  qaqc.poly.out = maps$qpolout, tpo = maps$tpo, fno = maps$fno,
+                  inres = maps$inres, user.poly.out = maps$upolo, 
+                  qaqc.poly.out = maps$qpolo, tpo = maps$tpo, fno = maps$fno,
                   proj.root = coninfo$dinfo["project.root"], pngout = pngout)
   }
   #   
@@ -419,9 +398,9 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
   
   # Return error metrics
   if(comments == "T") {
-    cat(acc.out)  # All metrics if comments are on (testing only)
+    cat(acc.out$acc.out)  # All metrics if comments are on (testing only)
   } else {
-    cat(unname(acc.out[1]))  # First metric if in production
+    cat(unname(acc.out$acc.out[1]))  # First metric if in production
   }
 }
 

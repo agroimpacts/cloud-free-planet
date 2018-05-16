@@ -10,8 +10,8 @@
 geometric_accuracy <- function(qaqc.polys, user.polys, buf) {
   match_num <- 0 # the number of matched polygons
   acc_edge_sum <- 0 # accumulated edge accuracy
-  for(s in 1:nrow(qaqc.polys)) {
-    for(t in 1:nrow(user.polys)) {
+  for(s in 1:nrow(qaqc.polys)) {  # s <- 1
+    for(t in 1:nrow(user.polys)) {  # t <- 1
       qaqc_single <- st_geometry(qaqc.polys[s, ])
       user_single <- st_geometry(user.polys[t, ])
       tmp <- st_intersection(qaqc_single, user_single)
@@ -44,7 +44,7 @@ geometric_accuracy <- function(qaqc.polys, user.polys, buf) {
     edge_acc <- as.numeric(acc_edge_sum / match_num) 
     # using the number of qaqc not the maximum between qaqc and user is because 
     # extra user polys (false alarms) are factored into thematic accuracy
-    frag_acc <- as.numeric(match_num / nrow(qaqc_polys)) 
+    frag_acc <- as.numeric(match_num / nrow(qaqc.polys)) 
   }
   # return(list("fragmentaccuracy" = frag_acc, "edgeaccuracy" = edge_acc))
   return(c("fragmentaccuracy" = frag_acc, "edgeaccuracy" = edge_acc))

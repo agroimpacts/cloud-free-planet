@@ -20,7 +20,7 @@ edge.acc.wt <- 0.1 ## for new score
 # new.out.err.wt <-0.2 ## for new score
 # frag.err.wt <- 0.1 ## for new score
 # edge.err.wt <- 0.1 ## for new score
-# edge.buf <- 9 ## for new score, 3 planet pixels
+edge.buf <- 9 ## for new score, 3 planet pixels
 # err.switch <- 1  ### 5/2/2016 Changed to 1
 acc.switch <- 1  ### 5/2/2016 Changed to 1
 comments <- "T"

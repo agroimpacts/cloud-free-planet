@@ -59,8 +59,8 @@ kml_accuracy(mtype, diam, prjsrid, kmlid, assignmentid, tryid, count.acc.wt,
 Main function for running worker accuracy assessment
 }
 \details{
-For the test argument, it can be set to "Y" if one wants to test a 
-given only a single kmlid. In this case, the function code will pull the 
+For the test argument, it can be set to "Y" if one wants to test 
+only a single kmlid. In this case, the function code will pull the 
 entire assignment_data and hit_data tables from the database to find the 
 right assignment ids to test. This option must be set to "N" when in  
 production. test.root allows one to simply the run the function to see if it 
