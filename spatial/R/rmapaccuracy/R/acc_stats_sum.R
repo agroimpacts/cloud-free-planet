@@ -4,7 +4,7 @@
 #' @param tn True negatives
 #' @param fn False negatives
 #' @return Classification accuracy and the True Skill Statistic
-#' @export
+#' @keywords internal
 # accStatsSum <- function(tp, fp, tn, fn) {
 acc_stats_sum <- function(tp, fp, tn, fn) {
   agree <- tp / sum(tp, fn)  # Simple agreement class 1
