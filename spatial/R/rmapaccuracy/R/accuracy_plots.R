@@ -46,24 +46,16 @@ accuracy_plots <- function(acc.out, grid.poly, qaqc.poly, user.poly, inres,
           plot(st_geometry(inres[[i + 1]]), add = TRUE, col = cols[i])
         }
         if(!is.null(user.poly.out)) {
-          if(length(user.poly.out) > 0) {
-            plot(st_geometry(user.poly.out), add = TRUE, col = "grey")
-          }
+          plot(st_geometry(user.poly.out), add = TRUE, col = "grey")
         }
         if(!is.null(qaqc.poly.out)) {
-          if(length(qaqc.poly.out) > 0) {
-            plot(st_geometry(qaqc.poly.out), add = TRUE, col = "pink")
-          }
+          plot(st_geometry(qaqc.poly.out), add = TRUE, col = "pink")
         }
         if(!is.null(tpo)) {
-          if(is.object(tpo) & length(tpo) > 0) {
-            plot(tpo, col = "green1", add = TRUE)
-          }
+          plot(tpo, col = "green1", add = TRUE)
         }
         if(!is.null(fno)) {
-          if(is.object(fno) & length(fno) > 0) {
-            plot(fno, col = "blue1", add = TRUE)
-          }
+          plot(fno, col = "blue1", add = TRUE)
         }
       }
       for(i in 1:7) {
