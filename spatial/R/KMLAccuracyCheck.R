@@ -21,6 +21,7 @@ write.acc.db <- "T"
 draw.maps  <- "T"  
 test <- "N"  
 test.root <- "N"  
+alt.root <- NULL
 user <- "***REMOVED***"
 password <- "***REMOVED***"
 
@@ -98,8 +99,8 @@ if(test.root == "N") {
                acc.switch = acc.switch, comments = comments, 
                write.acc.db = write.acc.db, draw.maps = draw.maps, 
                pngout = pngout, test = test,  test.root = test.root, 
-               user = user, password = password,db.tester.name = db.tester.name, alt.root = alt.root, 
-               host = host)
+               user = user, password = password,db.tester.name = db.tester.name, 
+               alt.root = alt.root, host = host)
 }
   
   
