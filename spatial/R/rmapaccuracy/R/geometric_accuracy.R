@@ -29,8 +29,6 @@ geometric_accuracy <- function(qaqc.polys, user.polys, buf) {
           intsect <- st_intersection(boundary_qaqc_single, boundary_user_single)
           intsect_ratio <- st_area(intsect) / st_area(boundary_user_single)
           acc_edge_single <- as.numeric(intsect_ratio)
-          # acc_edge_single <- as.numeric(st_area(st_intersection(boundary_qaqc_single, boundary_user_single)) 
-          #                               / st_area(boundary_user_single)) 
           acc_edge_sum <- acc_edge_sum + acc_edge_single
         }
       }

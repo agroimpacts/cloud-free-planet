@@ -1,3 +1,21 @@
+#' Function to handle missing objects or empty geometry sf objects & make NULL 
+#' @param x A string naming the map object to check
+#' @param env Environment variable
+#' @details Used internally by case*_accuracy to check if objects exists, have 
+#' geometries, and convert to NULL if they don't
+#' @keywords internal
+checkexists <- function(x, env) {
+  if(exists(x, envir = env)) {
+    a <- get(x, envir = env)
+    # a <- eval(parse(text = x))
+    if(length(a) > 0) o <- a
+    if(length(a) == 0) o <- NULL
+  } else {
+    o <- NULL
+  }
+  return(o)
+}
+
 #' Case 2 accuracy metric
 #' @param grid.poly Polygon of sampling grid
 #' @param user.polys User's field boundary polygons
@@ -35,10 +53,8 @@ case2_accuracy <- function(grid.poly, user.polys, in.acc.wt,
   
   # Accuracy measures
   count.acc <- 0  # zero if QAQC has no fields but user maps even 1 field
-  frag.acc <- 1 
-  # frag & edge accuracy are both based upon hits on qaqc field, if no Q flds,
-  # they are both 1
-  edge.acc <- 1   
+  frag.acc <- 0  # user gets no credit if mapped where no fields exists
+  edge.acc <- 0   
   
   # Secondary metric - Sensitivity of results outside of kml grid
   user.poly.out <- st_buffer(st_buffer(st_difference(user.poly, grid.poly),
@@ -64,8 +80,9 @@ case2_accuracy <- function(grid.poly, user.polys, in.acc.wt,
                "out_acc" = out.acc, 
                "user_count" = user.fldcount)
   # output maps
+  env <- environment()  # get environment
   maps <- list("gpol" = grid.poly, "qpol" = NULL, "upol" = user.poly, 
-               "inres" = inres, "upolout" = user.poly.out, 
+               "inres" = inres, "upolout" = checkexists("user.poly.out", env), 
                "qpolout" = NULL, "tpo" = NULL, "fno" = NULL)
   return(list("acc.out" = acc.out, "maps" = maps))
 }
@@ -105,7 +122,6 @@ case3_accuracy <- function(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt,
   # Combine accuracy metric
   # tss.acc <- inres[[1]][2]
   # Accuracy measures
-  # Accuracy measures
   count.acc <- 0  # if QAQC has fields but user maps none
   frag.acc <- 0 
   edge.acc <- 0 # miss qaqc fields, give zero for frag and edge acc
@@ -125,9 +141,11 @@ case3_accuracy <- function(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt,
                "in_acc" = in.acc, "out_acc" = out.acc, 
                "user_count" = user.fldcount)
   # output maps
+  env <- environment()  # get environment
   maps <- list("gpol" = grid.poly, "qpol" = qaqc.poly, "upol" = NULL, 
-               "inres" = inres, "upolout" = NULL, "qpolout" = qaqc.poly.out, 
-               "tpo" = NULL, "fno" = qaqc.poly.out)  # fno is same q poly out
+               "inres" = inres, "upolout" = NULL, 
+               "qpolout" = checkexists("qaqc.poly.out", env), "tpo" = NULL, 
+               "fno" = checkexists("qaqc.poly.out", env))  # fno = qpolout
   return(list("acc.out" = acc.out, "maps" = maps))
 }
 
@@ -235,23 +253,12 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
                "out_acc" = out.acc, 
                "user_count" = user.fldcount)
   
-  # Function to handle missing objects or empty geometry sf objects & make NULL 
-  checkexists <- function(x) {
-    if(exists(x)) {
-      a <- eval(parse(text = x))
-      if(length(a) > 0) o <- a
-      if(length(a) == 0) o <- NULL
-    } else {
-      o <- NULL
-    }
-    return(o)
-  }
-
   # output maps
+  env <- environment()  # get environment
   maps <- list("gpol" = grid.poly, "qpol" = qaqc.poly, "upol" = user.poly, 
-               "inres" = inres, "upolo" = checkexists("user.poly.out"),  
-               "qpolo" = checkexists("qaqc.poly.out"), 
-               "tpo" = checkexists("tpo"), "fno" = checkexists("tpo"))
+               "inres" = inres, "upolo" = checkexists("user.poly.out", env),  
+               "qpolo" = checkexists("qaqc.poly.out", env), 
+               "tpo" = checkexists("tpo", env), "fno" = checkexists("fno", env))
   return(list("acc.out" = acc.out, "maps" = maps))
 }
 

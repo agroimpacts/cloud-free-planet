@@ -13,34 +13,18 @@ new.in.acc.wt <- 0.6 ## for new score
 new.out.acc.wt <- 0.2 ## for new score
 frag.acc.wt <- 0.1 ## for new score
 edge.acc.wt <- 0.1 ## for new score
-# count.err.wt <- 0.1
-# in.err.wt <- 0.7  
-# out.err.wt <- 0.2  
-# new.in.err.wt <- 0.6 ## for new score
-# new.out.err.wt <-0.2 ## for new score
-# frag.err.wt <- 0.1 ## for new score
-# edge.err.wt <- 0.1 ## for new score
 edge.buf <- 9 ## for new score, 3 planet pixels
 # err.switch <- 1  ### 5/2/2016 Changed to 1
 acc.switch <- 1  ### 5/2/2016 Changed to 1
-comments <- "T"
-# write.err.db <- "F"  
-write.acc.db <- "F"  
+comments <- "F"
+write.acc.db <- "T"  
 draw.maps  <- "T"  
 test <- "N"  
 test.root <- "N"  
 user <- "***REMOVED***"
 password <- "***REMOVED***"
 
-
-# mtype <- "tr" # test code
-# kmlid <- "ZA0649200" # test code
-# assignmentid <-"215" # test code
-# tryid <- '2' # test code
-
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
-# suppressMessages(library(sp)) # have to load this to get connection
-# suppressMessages(library(RPostgreSQL))
 
 # Test working environment
 if(test.root == "Y") {
