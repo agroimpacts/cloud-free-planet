@@ -142,13 +142,14 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                         "old_score, count_acc, fragmentation_acc, edge_acc,",
                         "ingrid_acc, outgrid_acc, num_userpolygons)",
                         "values ('", assignmentid, "', ", 
-                        paste(acc.out, collapse = ", "), ")")
+                        paste(acc.out$acc.out, collapse = ", "), ")")
     } else if(mtype == "tr") {
       acc.sql <- paste0("insert into new_qual_error_data(assignment_id,", 
                         "new_score, old_score, count_acc, fragmentation_acc,",
                         "edge_acc, ingrid_acc, outgrid_acc,", 
                         "num_userpolygons, try)"," values ('", 
-                        assignmentid, "', ", paste(acc.out, collapse = ", "), 
+                        assignmentid, "', ", 
+                        paste(acc.out$acc.out, collapse = ", "), 
                         ", ", tryid, ")")
     }
     ret <- dbSendQuery(coninfo$con, acc.sql)
