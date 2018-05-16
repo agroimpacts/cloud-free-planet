@@ -26,14 +26,13 @@ def assignment():
 
     mapc = MappingCommon()
     logFilePath = mapc.projectRoot + "/log"
-    serverName = mapc.getConfiguration('ServerName')
     apiUrl = mapc.getConfiguration('APIUrl')
     kmlFrameHeight = mapc.getConfiguration('KMLFrameHeight')
     kmlFrameScript = mapc.getConfiguration('KMLFrameScript')
     #hitAcceptThreshold = float(mapc.getConfiguration('HitI_AcceptThreshold'))
 
     mapForm.kmlFrameHeight.data = kmlFrameHeight
-    kmlFrameUrl = "https://%s%s/%s" % (serverName, apiUrl, kmlFrameScript)
+    kmlFrameUrl = "%s/%s" % (apiUrl, kmlFrameScript)
     mapForm.kmlFrameUrl.data = kmlFrameUrl
     # Set submit path to be this script.
     submitTo = url_for('map_blueprint.assignment')

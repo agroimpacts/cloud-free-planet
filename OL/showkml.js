@@ -20,7 +20,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     
     // You will need to replace the 'access_token' and 'Map ID' values with your own.
     var dg1Layer = new ol.layer.Tile({
-        title: 'DigitalGlobe Recent',
+        title: 'DG Recent',
         type: 'base',
         visible: false,
         source: new ol.source.XYZ({
@@ -28,35 +28,35 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         })
     });
 
-    var dg2Layer = new ol.layer.Tile({
-        title: 'DigitalGlobe Vivid',
-        type: 'base',
-        visible: false,
-        source: new ol.source.XYZ({
-            url: 'http://api.tiles.mapbox.com/v4/digitalglobe.3602132d/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
-attribution: "© DigitalGlobe, Inc"
-        })
-    });
+    //var dg2Layer = new ol.layer.Tile({
+    //    title: 'DigitalGlobe Vivid',
+    //    type: 'base',
+    //    visible: false,
+    //    source: new ol.source.XYZ({
+    //        url: 'http://api.tiles.mapbox.com/v4/digitalglobe.3602132d/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
+    //        attribution: "© DigitalGlobe, Inc"
+    //    })
+    //});
 
-    var dg3Layer = new ol.layer.Tile({
-        title: 'DigitalGlobe Terrain',
-        type: 'base',
-        visible: false,
-        source: new ol.source.XYZ({
-            url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nako1fhg/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
-        })
-    });
+    //var dg3Layer = new ol.layer.Tile({
+    //    title: 'DigitalGlobe Terrain',
+    //    type: 'base',
+    //    visible: false,
+    //    source: new ol.source.XYZ({
+    //        url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nako1fhg/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
+    //    })
+    //});
 
     //Define Planet base layer.
-    var planetLayer = new ol.layer.Tile({
-        title: 'PlanetScope',
-        type: 'base',
-        visible: false,
-        source: new ol.source.XYZ({
-            tileSize: [512, 512],
-            url: 'https://tiles{1-3}.planet.com/v1/PSScene3Band/20170419_051605_0c45/{z}/{x}/{y}.png?api_key=86ba55123d60492ab315935bf9e62945'
-        })
-    });
+    //var planetLayer = new ol.layer.Tile({
+    //    title: 'PlanetScope',
+    //    type: 'base',
+    //    visible: false,
+    //    source: new ol.source.XYZ({
+    //        tileSize: [512, 512],
+    //        url: 'https://tiles{1-3}.planet.com/v1/PSScene3Band/20170419_051605_0c45/{z}/{x}/{y}.png?api_key=86ba55123d60492ab315935bf9e62945'
+    //    })
+    //});
 
     //Define Mapbox base layer.
     var mapboxLayer = new ol.layer.Tile({
@@ -99,12 +99,13 @@ attribution: "© DigitalGlobe, Inc"
             // Create base layer group.
             new ol.layer.Group({
                 title: 'Base Layer',
-                layers: [dg3Layer, dg2Layer, dg1Layer, planetLayer, mapboxLayer, bingLayer]
+                //layers: [dg3Layer, dg2Layer, dg1Layer, planetLayer, mapboxLayer, bingLayer]
+                layers: [dg1Layer, mapboxLayer, bingLayer]
             })
             // Create multi-band image layer group.
             //new ol.layer.Group({
             //    title: 'Satellite Image Overlays',
-                //  *** TODO: add WMS layer definitions here. ***
+            //  *** TODO: add WMS layer definitions here. ***
             //    layers: []
             //})
         ],
@@ -177,6 +178,18 @@ attribution: "© DigitalGlobe, Inc"
     });
     fieldsLayer.setMap(map);
     
+    //var recentLayer = new ol.layer.Image({
+    //    source: new ol.source.ImageWMS({
+    //        url: geoserverUrl,
+    //        params: {
+    //            layers: 'MappingAfrica:' + image_name,
+    //            styles: 'true_color'
+    //        },
+    //        serverType: 'geoserver'
+    //    });
+    //});    
+    //recentLayer.setMap(map);
+
     // If this is a worker-feedback map, create two additional layers.
     if (workerFeedback) {
         var rMapLayer = new ol.layer.Vector({
@@ -218,6 +231,7 @@ attribution: "© DigitalGlobe, Inc"
         overlayGroup.getLayers().push(wMapLayer);
         overlayGroup.getLayers().push(rMapLayer);
     } else {
+        //overlayGroup.getLayers().push(recentLayer);
         overlayGroup.getLayers().push(fieldsLayer);
     }
 
