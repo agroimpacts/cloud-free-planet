@@ -12,10 +12,11 @@ def application(environ, start_response):
     mapc = MappingCommon()
     logFilePath = mapc.projectRoot + "/log"
     kmlMapHeight = int(mapc.getConfiguration('KMLMapHeight'))
-    kmlUrl = mapc.getConfiguration('KMLUrl')
     apiUrl = mapc.getConfiguration('APIUrl')
+    kmlGenScript = mapc.getConfiguration('KMLGenScript')
     mapUrl = mapc.getConfiguration('MapUrl')
     instructions = mapc.getConfiguration('KMLInstructions')
+    kmlGenUrl = "%s/%s" % (apiUrl, kmlGenScript)
 
     k = open(logFilePath + "/OL.log", "a")
     k.write("\ngetkml: datetime = %s\n" % now)
@@ -147,7 +148,7 @@ def application(environ, start_response):
                 </body>
             </html>
         ''' % {
-            'kmlPath': kmlUrl,
+            'kmlPath': kmlGenUrl,
             'kmlName': kmlName,
             'hitId': hitId,
             'assignmentId': assignmentId,

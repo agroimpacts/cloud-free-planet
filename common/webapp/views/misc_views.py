@@ -193,7 +193,6 @@ def training():
     mapc = MappingCommon()
 
     # Read configuration parameters.
-    serverName = mapc.getConfiguration('ServerName')
     videoUrl = mapc.getConfiguration('VideoUrl')
     introVideo = mapc.getConfiguration('QualTest_IntroVideo')
     introWidth = mapc.getConfiguration('QualTest_IntroVideoWidth')
@@ -201,10 +200,8 @@ def training():
     instructionalVideo = mapc.getConfiguration('QualTest_InstructionalVideo')
     instructionalWidth = mapc.getConfiguration('QualTest_InstructionalVideoWidth')
     instructionalHeight = mapc.getConfiguration('QualTest_InstructionalVideoHeight')
-    introUrl = "https://%s%s/%s" % \
-        (serverName, videoUrl, introVideo)
-    instructionalUrl = "https://%s%s/%s" % \
-        (serverName, videoUrl, instructionalVideo)
+    introUrl = "%s/%s" % (videoUrl, introVideo)
+    instructionalUrl = "%s/%s" % (videoUrl, instructionalVideo)
 
     # Load up the training form.
     trainingForm.introUrl.data = introUrl

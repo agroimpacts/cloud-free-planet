@@ -162,7 +162,5 @@ UPDATE configuration SET value = 'You will now briefly work on %(totCount)d maps
 UPDATE configuration SET value = 'Qualification Test for the Mapping Africa Project' WHERE key = 'QualTest_Title';
 -- Master training script.
 UPDATE configuration SET value = 'trainingframe' WHERE key = 'QualTest_TrainingScript';
--- MappingAfrica server name (for building absolute URLs)
-UPDATE configuration SET value = 'mapper.princeton.edu' WHERE key = 'ServerName';
 -- Relative URL to videos on Mapping Africa server
 UPDATE configuration SET value = '/videos' WHERE key = 'VideoUrl';
