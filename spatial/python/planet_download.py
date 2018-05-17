@@ -646,8 +646,11 @@ def download_clip(clip_download_url, outpath, scene_id):
         zipped_item.extractall(outpath)   #(outpath + scene_id)  
   
         # Delete zip file
-        zipped_item.close()  #The following line couldn't execute because it was still being accessed by something
-        os.remove(outfname)  #deletes the zip file
+        try:
+            zipped_item.close()  #The following line couldn't execute because it was still being accessed by something
+            os.remove(outfname)  #deletes the zip file
+        except:
+            pass
 
         for fname in names:
             if fname.lower().endswith('.tif'):  #, re.IGNORECASE):
@@ -753,9 +756,9 @@ def use_new_clip_and_ship_to_download_udms(query, client, session, aoi, outpath)
             best_id = targ["item_id"]
             best_percent_good = percent_good
             best_item = item[3]
-        else:      #Delete the bad udm files.  For testing purposes, comment out for now so we can see them
-            filelist = list(outfname)
-            delete_udm_files(filelist, "")
+#        elif percent_good > 0:     #Delete the bad udm files.  For testing purposes, comment out for now so we can see them
+#            filelist = list(outfname)
+#            delete_udm_files(filelist, "")
             
         logging.info("percent good (this UDM) = " + str(percent_good))
         logging.info("best percent (this round) = " + str(best_percent_good)); 
