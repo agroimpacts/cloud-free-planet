@@ -290,7 +290,7 @@ def download_and_window_specific_scene(client, session, scene_dict, prefix="", a
 
     return window_fname
 
-def download_scene_by_id(lst_item_types, asset_type, scene_id, outdir, api_key_passed="", window_out=False, xmin=0, xmax=0, ymin=0, ymax=0):
+def download_scene_by_id(lst_item_types, asset_type, scene_id, outdir, api_key_passed="", prefix = "", window_out=False, xmin=0, xmax=0, ymin=0, ymax=0):
     #scene_id is item_id, which is 20 digits long
     #if no api_key_passed, it will check the environment for an apikey
 
@@ -321,13 +321,12 @@ def download_scene_by_id(lst_item_types, asset_type, scene_id, outdir, api_key_p
                 logging.info("Unable to find requested item")  #Using "unable to" instead of "could not", so I can distinguish when I wrote the error or the "message" contained the error
             output_fname = ""
             return output_fname
-        prefix = ""
         if window_out:
             params["xmin"] = xmin 
             params["xmax"] = xmax 
             params["ymin"] = ymin 
             params["ymax"] = ymax 
-            download_and_window_specific_scene(client, session, scene_dict, prefix, asset_type)
+            output_fname = download_and_window_specific_scene(client, session, scene_dict, prefix, asset_type)
         else:     
             output_fname = download_scene(asset_type, client, session, scene_dict) 
     except:
@@ -441,8 +440,12 @@ def download_planet_data_new(client,session,outdir,start_date_short,end_date_sho
         global_best_percent = best_percent_good
 
     except:
-        logging.info("Error encountered while communicating with Planet website or downloading files.")
-        return "Error encountered while communicating with Planet website or downloading files."
+        logging.info("Error encountered while communicating with Planet website or downloading files.")  
+        if best_percent_good > 0:
+            msg = "skipped.  " + best_scene_dict["id"] + "  " + str(best_percent_good) + " %"
+            return msg
+        else:
+            return "Error encountered while communicating with Planet website or downloading files."
 
     if best_percent_good > 0:
         logging.info('best_scene_dict=')
@@ -700,8 +703,15 @@ def use_new_clip_and_ship_to_download_udms(query, client, session, aoi, outpath)
         targ["asset_type"] = "udm"  #params["asset_type"]  
         list_targ = []
     
-        #for item in (udm_items).items_iter(params["maximgs"]):  #items_iter is an iterative containing all the items that fit that filter's parameters       
-        for item in sorted_lst:         
+    except:
+        logging.info('Error encountered in "use_new_clip_and_ship_to_download_udms"')
+        best_fname = "None"
+        best_item = {}
+        return best_fname, best_item, best_percent_good
+
+    #for item in (udm_items).items_iter(params["maximgs"]):  #items_iter is an iterative containing all the items that fit that filter's parameters       
+    for item in sorted_lst:         
+        try:
             ##targ["item_id"] = item['id']
             targ["item_id"] =  item[2]  
             logging.info(item[2])
@@ -720,44 +730,48 @@ def use_new_clip_and_ship_to_download_udms(query, client, session, aoi, outpath)
             if outfname == "":
                 logging.info("Unable to download clip for " + targ["id"] + ". Skipping this UDM.")
                 continue #skip this one
+        except:
+            logging.info("Exception occurred. " + targ["id"] + ". Skipping this UDM.")
+            continue  #skip this one
 
-            #Compare the UDMs:
+        #Compare the UDMs:
+        try:
             percent_good = calculate_percent_good_cells_in_tiff(outfname)
-            if percent_good >= perfect: # I'm using >= instead of == in case we temporarily lower our standards to get clouds for testing purposes; perfect is usually 1
-                best_fname = outfname
-                best_id = targ["item_id"]
-                best_percent_good = percent_good
-                best_item = item[3]
-                break   #we're done. stop now.
-            elif percent_good > best_percent_good:
-                #save this as the best scene so far & continue to check for a better scene
-                best_fname = outfname
-                best_id = targ["item_id"]
-                best_percent_good = percent_good
-                best_item = item[3]
-            #else:      #Delete the bad udm files.  For testing purposes, comment out for now so we can see them
-                #filelist = list(outfname)
-                #delete_udm_files(filelist, "")
+        except:
+            logging.info("Unable to calculate percent good for  " + targ["id"] + ". Skipping this UDM.")
+            continue
+
+        if percent_good >= perfect: # I'm using >= instead of == in case we temporarily lower our standards to get clouds for testing purposes; perfect is usually 1
+            best_fname = outfname
+            best_id = targ["item_id"]
+            best_percent_good = percent_good
+            best_item = item[3]
+            break   #we're done. stop now.
+        elif percent_good > best_percent_good:
+            #save this as the best scene so far & continue to check for a better scene
+            best_fname = outfname
+            best_id = targ["item_id"]
+            best_percent_good = percent_good
+            best_item = item[3]
+        else:      #Delete the bad udm files.  For testing purposes, comment out for now so we can see them
+            filelist = list(outfname)
+            delete_udm_files(filelist, "")
             
-            logging.info("percent good (this UDM) = " + str(percent_good))
-            logging.info("best percent (this round) = " + str(best_percent_good)); 
-            logging.info(" ")
+        logging.info("percent good (this UDM) = " + str(percent_good))
+        logging.info("best percent (this round) = " + str(best_percent_good)); 
+        logging.info(" ")
 
-            list_targ.clear()   
+        list_targ.clear()   
 
-        if best_percent_good > 0:
-            return best_fname, best_item, best_percent_good  #success
-        else:
-            logging.info("best_percent_good = 0")
-            best_fname = "None"
-            best_item = {}
-            return best_fname, best_item, best_percent_good
-    
-    except:
-        logging.info('Error encountered in "use_new_clip_and_ship_to_download_udms"')
+    if best_percent_good > 0:
+        return best_fname, best_item, best_percent_good  #success
+    else:
+        logging.info("best_percent_good = 0")
         best_fname = "None"
         best_item = {}
         return best_fname, best_item, best_percent_good
+    #I should put a condition in where it's >0 but < 90, and it records that as a questionable grid cell - flagged to be checked later
+    
 
 def delete_udm_files(filelist, not_this_one):
     """
