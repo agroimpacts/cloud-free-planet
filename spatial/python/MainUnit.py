@@ -23,7 +23,7 @@ param_dict["end_date_short"] = '2018-03-15' #'2017-09-15' #'2017-07-30'
 param_dict["max_clouds"] = 0.25  #max proportion of pixels that are clouds
 param_dict["max_bad_pixels"] = 0.25 #max proportion of bad pixels (transmission errors, etc.)
 param_dict["asset_type"] = "analytic_sr" #"udm"  #"analytic"  #analytic_sr"
-param_dict["maximgs"] = 10 #50 #20        #This will be higher, e.g. 20, 50, 100, 200.  Right now it is low for testing purposes
+param_dict["maximgs"] = 20 #50 #20        #This will be higher, e.g. 20, 50, 100, 200.  Right now it is low for testing purposes
 param_dict["lst_item_types"] = ['PSScene4Band']  #needs to be a list
 param_dict["buffer_size"] = 0.00025  # a 10-pixel buffer; resolution = 0.000025
 
@@ -75,6 +75,31 @@ def download_and_window_scene_for_ron_by_id():
     ymax = 5.75
     download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, xmin, xmax, ymin, ymax)
     
+def download_and_window_manually():
+    outdir = r'd:\PlanetTest\Data'
+    asset_type = "analytic_sr"
+    item_type = ['PSScene4Band']  
+    apikey = ryans_api_key
+    window_out = True
+
+    prefix = "GH0700059"
+    scene_id = "20180225_105315_104a"
+    xmin = -3.081
+    xmax = -3.076
+    ymin = 6.085
+    ymax = 6.09
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, window_out, xmin, xmax, ymin, ymax)
+
+    prefix = "ProblemClip"
+    #scene_id = "20180421_095029_1025"
+    scene_id = "20180227_105246_1054"
+    xmin = -3.081
+    xmax = -3.076
+    ymin = 6.085
+    ymax = 6.09
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, window_out, xmin, xmax, ymin, ymax)
+    
+    
 #download_scene_for_ron_by_id()
 
 #csvname = r'D:\Users\twoodard\documents\ron_bigger.csv'
@@ -113,10 +138,9 @@ def copy_center_pt_csv_to_grid_cell_csv(csv_in_name, csv_out_name):
 
 add_logging()
 
-csvname = r'D:\Users\twoodard\documents\lyndon_sites_all_but_Asamankese.csv'
-param_dict["start_date_short"] =  '2018-03-01'
-param_dict["end_date_short"] = '2018-04-30'
-download_scenes_from_aois_in_csv(csvname,ryans_api_key, **param_dict)
+download_and_window_manually()
+
+
 
 
 #csvname = r'D:\Users\twoodard\documents\lyndon_sites_Asamankese_only.csv'
@@ -124,6 +148,13 @@ csvname = r'D:\Users\twoodard\documents\lyndon_sites_Asamankese_only - copy.csv'
 param_dict["start_date_short"] =  '2018-02-01'
 param_dict["end_date_short"] = '2018-03-31'
 download_scenes_from_aois_in_csv(csvname,ryans_api_key, **param_dict)
+
+#csvname = r'D:\Users\twoodard\documents\lyndon_sites_all_but_Asamankese.csv'
+csvname = r'D:\Users\twoodard\documents\lyndon_sites_all_but_Asamankese-skipped.csv'  #the ones that need to be redone
+param_dict["start_date_short"] =  '2018-03-01'
+param_dict["end_date_short"] = '2018-04-30'
+download_scenes_from_aois_in_csv(csvname,ryans_api_key, **param_dict)
+
 
 #need to download this one by id later:
 #20180225_105315_104a
@@ -135,3 +166,59 @@ param_dict["maximgs"] = 1 #Lets speed up the testing process! Just do 1 image pe
 param_dict["asset_type"] = "analytic_sr"
 download_scenes_from_aois_in_csv(csvname,Tammys_APIkey, **param_dict)
 
+
+
+##############################################################################################################
+##                               Not needed anymore                                                         ##
+##############################################################################################################
+"""
+
+    #GH0624590:
+    scene_id = "20180416_095125_1021"
+    xmin = 0.164  
+    xmax = 0.169
+    ymin = 6.285
+    ymax = 6.29  
+    download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, window_out, xmin, xmax, ymin, ymax)  
+    
+    #GH0625426:
+    scene_id = "20180416_095125_1021"
+    xmin = 0.164
+    xmax = 0.169
+    ymin = 6.28
+    ymax = 6.285
+    download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, window_out, xmin, xmax, ymin, ymax)    
+    
+    prefix = "GH0656874"
+    scene_id = "20180411_100353_0f18"
+    xmin = -3.066
+    xmax = -3.061
+    ymin = 6.09
+    ymax = 6.095
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, window_out, xmin, xmax, ymin, ymax)
+    
+    prefix = "GH0659442"
+    scene_id = "20180411_100353_0f18"
+    xmin = -2.991
+    xmax = -2.986
+    ymin = 6.075
+    ymax = 6.08
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, window_out, xmin, xmax, ymin, ymax)
+
+    prefix = "GH0657724"
+    scene_id = "20180411_100353_0f18"
+    xmin = -3.081
+    xmax = -3.076
+    ymin = 6.085
+    ymax = 6.09
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, window_out, xmin, xmax, ymin, ymax)
+
+    prefix = "GH0643235"
+    scene_id = "20180421_100445_0f4e"
+    xmin = -3.016
+    xmax = -3.011
+    ymin = 6.17
+    ymax = 6.175
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, window_out, xmin, xmax, ymin, ymax)
+
+    """
