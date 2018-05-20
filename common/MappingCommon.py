@@ -116,7 +116,13 @@ class MappingCommon(object):
     # Retrieve a tunable parameter from the configuration table.
     def getConfiguration(self, key):
         self.cur.execute("select value from configuration where key = '%s'" % key)
-        return self.cur.fetchone()[0]
+        try:
+            return self.cur.fetchone()[0]
+        except TypeError as e:
+            if str(e).startswith("'NoneType'"):
+                return None
+            else:
+                raise
 
     # Retrieve a runtime parameter from the system_data table.
     def getSystemData(self, key):
