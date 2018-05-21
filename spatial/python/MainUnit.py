@@ -10,6 +10,7 @@ from planet_download import download_scenes_from_aois_in_csv
 from planet_download import download_planet_data_new
 from planet_download import download_scene_by_id
 from planet_download import add_logging
+from planet_download import calculate_percent_good_cells_in_tiff2  #temporarily here for testing purposes
 
 #params expected are outdir,start_date,end_date,maximgs,xmin,xmax,ymin,ymax,max_clouds,max_bad_pixels,asset_type,lst_item_types
 param_dict = {}
@@ -23,9 +24,11 @@ param_dict["end_date_short"] = '2018-03-15' #'2017-09-15' #'2017-07-30'
 param_dict["max_clouds"] = 0.25  #max proportion of pixels that are clouds
 param_dict["max_bad_pixels"] = 0.25 #max proportion of bad pixels (transmission errors, etc.)
 param_dict["asset_type"] = "analytic_sr" #"udm"  #"analytic"  #analytic_sr"
-param_dict["maximgs"] = 20 #50 #20        #This will be higher, e.g. 20, 50, 100, 200.  Right now it is low for testing purposes
+param_dict["maximgs"] = 10 #20 
 param_dict["lst_item_types"] = ['PSScene4Band']  #needs to be a list
 param_dict["buffer_size"] = 0.00025  # a 10-pixel buffer; resolution = 0.000025
+param_dict["suffix"] = "_SR_GS"  #analytic_sr for growing season
+#param_dict["suffix"] = "_SR_OS"  #analytic_sr for off-season
 
 
 #output_fname = download_planet_data(**param_dict)  
@@ -35,9 +38,6 @@ session = None
 
 Tammys_APIkey = "***REMOVED***"
 ryans_api_key = ryans_apikey = "***REMOVED***" #To access areas outside of California
-#csvname = r'D:\Users\twoodard\documents\extents_qual_sites.csv'
-#download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
-
 
 def download_scene_for_ron_by_id():
     outdir = r'd:\PlanetTest\Data'
@@ -60,7 +60,9 @@ def download_scene_for_ron_by_id():
     #The above downloads usually took 4-5 minutes each
     
     apikey = ryans_api_key
-    download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey)
+    prefix=""
+    suffix="_SR"
+    download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix)
 
 def download_and_window_scene_for_ron_by_id():
     outdir = r'd:\PlanetTest\Data'
@@ -73,7 +75,9 @@ def download_and_window_scene_for_ron_by_id():
     xmax = -0.525
     ymin = 5.7
     ymax = 5.75
-    download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, xmin, xmax, ymin, ymax)
+    prefix=""
+    suffix="_SR"
+    download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, xmin, xmax, ymin, ymax)
     
 def download_and_window_manually():
     outdir = r'd:\PlanetTest\Data'
@@ -81,6 +85,7 @@ def download_and_window_manually():
     item_type = ['PSScene4Band']  
     apikey = ryans_api_key
     window_out = True
+    suffix = "_SR_GS"
 
     prefix = "GH0700059"
     scene_id = "20180225_105315_104a"
@@ -88,7 +93,7 @@ def download_and_window_manually():
     xmax = -3.076
     ymin = 6.085
     ymax = 6.09
-    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, window_out, xmin, xmax, ymin, ymax)
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
 
     prefix = "ProblemClip"
     #scene_id = "20180421_095029_1025"
@@ -97,7 +102,7 @@ def download_and_window_manually():
     xmax = -3.076
     ymin = 6.085
     ymax = 6.09
-    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, window_out, xmin, xmax, ymin, ymax)
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
     
     
 #download_scene_for_ron_by_id()
@@ -138,9 +143,22 @@ def copy_center_pt_csv_to_grid_cell_csv(csv_in_name, csv_out_name):
 
 add_logging()
 
-download_and_window_manually()
+#download_and_window_manually()
 
 
+csvname = r'D:\Users\twoodard\documents\extents_qual_sites.csv'
+param_dict["outdir"] = r'd:\PlanetTest\Data\SA_GrowingSeason'
+param_dict["start_date_short"] =  '2017-01-01' 
+param_dict["end_date_short"] = '2018-03-01'
+param_dict["suffix"] = "_SR_GS" 
+download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+
+csvname = r'D:\Users\twoodard\documents\extents_qual_sites.csv'
+param_dict["outdir"] = r'd:\PlanetTest\Data\SA_OffSeason'
+param_dict["start_date_short"] =  '2017-06-30' 
+param_dict["end_date_short"] = '2018-08-311'
+param_dict["suffix"] = "_SR_OS" 
+download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
 
 
 #csvname = r'D:\Users\twoodard\documents\lyndon_sites_Asamankese_only.csv'
@@ -179,15 +197,15 @@ download_scenes_from_aois_in_csv(csvname,Tammys_APIkey, **param_dict)
     xmax = 0.169
     ymin = 6.285
     ymax = 6.29  
-    download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, window_out, xmin, xmax, ymin, ymax)  
-    
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
+        
     #GH0625426:
     scene_id = "20180416_095125_1021"
     xmin = 0.164
     xmax = 0.169
     ymin = 6.28
     ymax = 6.285
-    download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, window_out, xmin, xmax, ymin, ymax)    
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
     
     prefix = "GH0656874"
     scene_id = "20180411_100353_0f18"
@@ -195,7 +213,7 @@ download_scenes_from_aois_in_csv(csvname,Tammys_APIkey, **param_dict)
     xmax = -3.061
     ymin = 6.09
     ymax = 6.095
-    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, window_out, xmin, xmax, ymin, ymax)
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
     
     prefix = "GH0659442"
     scene_id = "20180411_100353_0f18"
@@ -203,22 +221,22 @@ download_scenes_from_aois_in_csv(csvname,Tammys_APIkey, **param_dict)
     xmax = -2.986
     ymin = 6.075
     ymax = 6.08
-    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, window_out, xmin, xmax, ymin, ymax)
-
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
+    
     prefix = "GH0657724"
     scene_id = "20180411_100353_0f18"
     xmin = -3.081
     xmax = -3.076
     ymin = 6.085
     ymax = 6.09
-    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, window_out, xmin, xmax, ymin, ymax)
-
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
+    
     prefix = "GH0643235"
     scene_id = "20180421_100445_0f4e"
     xmin = -3.016
     xmax = -3.011
     ymin = 6.17
     ymax = 6.175
-    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, window_out, xmin, xmax, ymin, ymax)
-
+    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
+    
     """
