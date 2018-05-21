@@ -31,6 +31,7 @@ from tqdm import tqdm   # Fast, Extensible Progress Meter  (low overhead, fast p
 import zipfile  # To unzip downloaded clip files
 import ntpath   # Will use this to get the separate the filename (basename) from the path.  This is a robust way of getting filenames of various OS's
 import logging 
+from shutil import copyfile
    
 #Initialize these variables outside of a function so that they will be global:
 params = {}
@@ -41,6 +42,7 @@ aoi = {}
 CAS_URL =  r"https://api.planet.com/compute/ops/clips/v1/"
 Tammys_APIkey = "***REMOVED***"
 global_best_percent = 0.0
+global_best_scene_id = "" #5/18/18
 
 ASSET_URL = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets/'
 SEARCH_URL = 'https://api.planet.com/data/v1/quick-search'
@@ -262,7 +264,76 @@ def calculate_percent_good_cells_in_tiff(fname):
     #Do I need to do dataset.close() or something similar?
     return percent_good
 
-def download_and_window_specific_scene(client, session, scene_dict, prefix="", asset_type="analytic_sr"):
+def calculate_percent_good_cells_in_tiff2(fname):
+    """
+    Changed: now will only count clouds & background as bad cells, not transmission errors.    
+    Takes a UDM file (fname) in TIFF format 
+    returns the percent of cells that are good (i.e. that have a udm cell value of 0).
+    """
+    try:
+        #1: fill the array
+        dataset = gdal.Open(fname, gdal.GA_ReadOnly)
+        band = dataset.GetRasterBand(1)
+        cells = band.ReadAsArray()   #what type of array will cells be?  Might not be a numpy array
+        
+        #2: count good cells
+        good_cells = 0
+        count = 0
+        exclude = 0
+        total_cells = len(cells.flat)
+        udm_cols = cells.shape[1]
+        udm_rows = cells.shape[0]
+
+        margin_size_x = int(udm_cols * .2381)
+        margin_size_y = int(udm_rows * .2381)
+        top_margin = margin_size_y * udm_cols  #The amount of pixels in udm_buffer above where grid data starts
+        bottom_margin_start = total_cells - top_margin
+        grid_right_col = udm_cols - margin_size_x
+        
+        for cell in cells.flat:   #.flat allows you to iterate over each element of the array as if it were one dimensional
+            count += 1
+
+            #Remove transmission error values:
+            if cell > 2:
+                if cell > 63:
+                    cell -= 64
+                if cell > 31:
+                    cell -= 32
+                if cell > 15:
+                    cell -= 16
+                if cell > 7:
+                    cell -= 8
+                if cell > 3:
+                    cell -= 4
+                
+            #Now it should be either 2=clouds, 1=background or 0=No other problems
+            if cell == 0:
+                good_cells += 1
+            """
+            elif cell == 1:  #It is background / no data
+                #Don't include in calculations if bkgd values fall outside of center grid area
+                if count < top_margin:  
+                    exclude += 1
+                elif count > bottom_margin_start:  #Don't include in calculations if bkgd values fall outside of center grid area
+                    exclude += 1
+                elif (count % udm_cols) < margin_size_x:  #in left-side margin
+                    exclude += 1
+                elif (count % udm_cols) > grid_right_col:  #in right-side margin
+                    exclude += 1
+            # This was misleading because it didn't eliminate good cells (0's) from the margins, only missing data (1's), so the % looked higher than you would expect.
+            """
+                     
+        if exclude == total_cells:
+            percent_good = 0
+        else:
+            percent_good = good_cells / (total_cells - exclude)   
+    except:
+        return 0
+
+    #Do I need to do dataset.close() or something similar?
+    return percent_good
+
+def download_and_window_specific_scene(client, session, scene_dict, prefix="", suffix = "_SR",asset_type="analytic_sr"):
     """
     Given scene dict (used for scene id & more), download the scene from Planet, then window/reproject it & return the local filename.
     """
@@ -275,9 +346,9 @@ def download_and_window_specific_scene(client, session, scene_dict, prefix="", a
 
         scene_fname = download_scene(asset_type, client, session, scene_dict)
     
-        #destname = sub('.tif','_win.tif',scene_fname)
         shortname = ntpath.basename(scene_fname)
-        destname = params["outdir"] + "\\" + prefix + "_" + sub('.tif','_win.tif',shortname)
+        #destname = params["outdir"] + "\\" + prefix + "_" + sub('.tif','_win.tif',shortname)
+        destname = params["outdir"] + "\\" + prefix + "_" + scene_id + suffix + '.tif' #5/18/18 - changed the filenaming scheme.  Now will end with "_SR_GS.tif" or "_SR_OS.tif"
         logging.info("destname = " + destname); logging.info(" ")
 
         window_fname = window_from_downloaded_file(scene_fname,params["xmin"], params["xmax"], params["ymin"], params["ymax"], dstname=destname, outtype='GTiff')
@@ -290,7 +361,7 @@ def download_and_window_specific_scene(client, session, scene_dict, prefix="", a
 
     return window_fname
 
-def download_scene_by_id(lst_item_types, asset_type, scene_id, outdir, api_key_passed="", prefix = "", window_out=False, xmin=0, xmax=0, ymin=0, ymax=0):
+def download_scene_by_id(lst_item_types, asset_type, scene_id, outdir, api_key_passed="", prefix = "", suffix="", window_out=False, xmin=0, xmax=0, ymin=0, ymax=0):
     #scene_id is item_id, which is 20 digits long
     #if no api_key_passed, it will check the environment for an apikey
 
@@ -326,7 +397,7 @@ def download_scene_by_id(lst_item_types, asset_type, scene_id, outdir, api_key_p
             params["xmax"] = xmax 
             params["ymin"] = ymin 
             params["ymax"] = ymax 
-            output_fname = download_and_window_specific_scene(client, session, scene_dict, prefix, asset_type)
+            output_fname = download_and_window_specific_scene(client, session, scene_dict, prefix, suffix, asset_type)
         else:     
             output_fname = download_scene(asset_type, client, session, scene_dict) 
     except:
@@ -370,7 +441,17 @@ def download_scene(asset_type, client, session, scene_dict):
 
     return local_filename  
 
-def download_planet_data_new(client,session,outdir,start_date_short,end_date_short,xmin,xmax,ymin,ymax,prefix="",asset_type="analytic_sr",maximgs=50,max_clouds=0.1,max_bad_pixels=0.1,lst_item_types=['PSScene4Band'],buffer_size=0.00025):
+def add_prefix_to_fname_and_copy(prefix, fname):     #5/18/18
+    #Take fname, add prefix
+
+    shortname = ntpath.basename(fname)
+    path = ntpath.dirname(fname)
+    outname = path + "\\" + prefix + "_" + shortname
+    
+    copyfile(fname, outname)
+    
+
+def download_planet_data_new(client,session,outdir,start_date_short,end_date_short,xmin,xmax,ymin,ymax,prefix="",suffix="",asset_type="analytic_sr",maximgs=50,max_clouds=0.1,max_bad_pixels=0.1,lst_item_types=['PSScene4Band'],buffer_size=0.00025):
     """
     This is the main (outer) function that will be called.
     Download planet data from web site using date range, bounding rectangle, and cloud cover standards to filter choices.
@@ -430,9 +511,13 @@ def download_planet_data_new(client,session,outdir,start_date_short,end_date_sho
         if len(query)>0:
             best_scene_fname, best_scene_dict, best_percent_good = use_new_clip_and_ship_to_download_udms(query, client, session, aoi_udm, outdir) 
             if best_scene_fname != "None":
-                download_and_window_specific_scene(client,session,best_scene_dict,prefix,"analytic_sr")
-            else:
+                download_and_window_specific_scene(client,session,best_scene_dict,prefix, suffix, "analytic_sr")
                 logging.info('best-scene_fname = "None"'); logging.info(" ")
+
+                #5/18/18 - add prefix to udm file, so that it doesn't get overwritten by later udm window downloads                
+                if best_percent_good < 1.0:      #Don't need UDM file if 100% good cells
+                    add_prefix_to_fname_and_copy(prefix, best_scene_fname)     
+                
 
         logging.info("final best percent = " + str(best_percent_good))
         logging.info("best_scene_fname = " + best_scene_fname)
@@ -442,8 +527,11 @@ def download_planet_data_new(client,session,outdir,start_date_short,end_date_sho
     except:
         logging.info("Error encountered while communicating with Planet website or downloading files.")  
         if best_percent_good > 0:
-            msg = "skipped.  " + best_scene_dict["id"] + "  " + str(best_percent_good) + " %"
-            return msg
+            #msg = "skipped.  " + best_scene_dict["id"] + "  " + str(best_percent_good) + " %"
+            #return msg
+            global_best_scene_id = best_scene_dict["id"]    #5/18/18
+            global_best_percent = best_percent_good         #5/18/18
+            return "Error encountered while communicating with Planet website or downloading files."
         else:
             return "Error encountered while communicating with Planet website or downloading files."
 
@@ -476,7 +564,7 @@ def Identify_intersecting_scenes(query, client):
     
     return results         
 
-def download_scenes_from_aois_in_csv(csvname, passed_apikey, outdir,start_date_short,end_date_short,xmin,xmax,ymin,ymax,asset_type,maximgs=50,max_clouds=0.3,max_bad_pixels=0.3,lst_item_types=['PSScene4Band'],buffer_size=0.00025):
+def download_scenes_from_aois_in_csv(csvname, passed_apikey, outdir,start_date_short,end_date_short,xmin,xmax,ymin,ymax,asset_type,suffix="",maximgs=50,max_clouds=0.3,max_bad_pixels=0.3,lst_item_types=['PSScene4Band'],buffer_size=0.00025):
     """
     Open csv file containing scene_name, xmin, xmax, ymin & ymax values (in separate fields)
     Top row contains column headers
@@ -503,7 +591,8 @@ def download_scenes_from_aois_in_csv(csvname, passed_apikey, outdir,start_date_s
         params_local["max_bad_pixels"] = float(max_bad_pixels)
         params_local["asset_type"] = str(asset_type)   
         params_local["lst_item_types"] = lst_item_types
-        params_local["buffer_size"] = buffer_size   # a 10-pixel buffer; resolution = 0.000025        
+        params_local["buffer_size"] = buffer_size   # a 10-pixel buffer; resolution = 0.000025       
+        params_local["suffix"] = suffix 
     except:
         return "Error processing input parameters."
 
@@ -542,6 +631,8 @@ def download_scenes_from_aois_in_csv(csvname, passed_apikey, outdir,start_date_s
             skippedfilelog = outdir + '\\not_downloaded.txt'
             skippedf = open(skippedfilelog, 'a')
             msg = name # + global_best_percent
+            if global_best_scene_id != "":
+                msg = msg + "  Best scene found before skipping : " + global_best_scene_id + "  " + global_best_percent + "%"
             print(msg,file=skippedf)
             skippedf.close()
     
@@ -739,7 +830,7 @@ def use_new_clip_and_ship_to_download_udms(query, client, session, aoi, outpath)
 
         #Compare the UDMs:
         try:
-            percent_good = calculate_percent_good_cells_in_tiff(outfname)
+            percent_good = calculate_percent_good_cells_in_tiff2(outfname)  #5/18/18 - changed call to new procedure - diff algorithm. ignores anomalous pixels
         except:
             logging.info("Unable to calculate percent good for  " + targ["id"] + ". Skipping this UDM.")
             continue
