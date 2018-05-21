@@ -528,9 +528,15 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     }
 
     // Add event handler to execute each time a shape is drawn.
-    //fieldsLayer.getSource().on('addfeature', function(event) {
-    //    alert("Completed drawing a shape");
-    //})
+    fieldsLayer.getSource().on('addfeature', function(event) {
+        var features = fieldsLayer.getSource().getFeatures();
+        var feature = event.feature;
+        var featureGeom = feature.getGeometry();
+        var endNodeCoordinates = featureGeom.getLastCoordinate();
+        console.log('endNodeCoordinates: ' + endNodeCoordinates);
+        var pixel = map.getPixelFromCoordinate(endNodeCoordinates);
+        console.log('pixel: ' + pixel);
+    })
 
     // Training case only.
     if (tryNum > 0) {
