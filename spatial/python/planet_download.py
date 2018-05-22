@@ -348,7 +348,13 @@ def download_and_window_specific_scene(client, session, scene_dict, prefix="", s
     
         shortname = ntpath.basename(scene_fname)
         #destname = params["outdir"] + "\\" + prefix + "_" + sub('.tif','_win.tif',shortname)
-        destname = params["outdir"] + "\\" + prefix + "_" + scene_id + suffix + '.tif' #5/18/18 - changed the filenaming scheme.  Now will end with "_SR_GS.tif" or "_SR_OS.tif"
+        #destname = params["outdir"] + "\\" + prefix + "_" + scene_id + suffix + '.tif' #5/18/18 - changed the filenaming scheme.  Now will end with "_SR_GS.tif" or "_SR_OS.tif"  
+            #e.g. ZA0669180_20180103_072358_103d_SR_GS.tif
+        
+        #5/21: New change to output filename:  Will now contain more than the scene_id & the suffix.  Will contain the 1st 26 characters of the filename, then the suffix.
+            #ZA0669180_20180103_072358_103d_3B_MS_SR_GS.tif  
+        destname = params["outdir"] + "\\" + prefix + "_" + shortname[:24] + shortname[32:34] + suffix + '.tif'  #e.g. 
+        
         logging.info("destname = " + destname); logging.info(" ")
 
         window_fname = window_from_downloaded_file(scene_fname,params["xmin"], params["xmax"], params["ymin"], params["ymax"], dstname=destname, outtype='GTiff')
@@ -572,6 +578,7 @@ def download_scenes_from_aois_in_csv(csvname, passed_apikey, outdir,start_date_s
     Download & window each scene & place result in the outdir.
     """
     global apikey
+    global_best_scene_id
     apikey = passed_apikey
 
     import csv
@@ -659,14 +666,18 @@ def clip(clip_payload):
     logging.debug("after clip request") 
     #logging.debug("request=" + request)
 
-    if (request == 400):
+    try:
+        if (request == 400):
+            return ""
+        elif (request == 429):
+            logging.info("request denied.  Will try again in 30 seconds.")
+            sleep(30)
+            request = requests.post(CAS_URL, auth=(apikey, ''), json=clip_payload)
+            logging.info("after retrying request")
+            logging.info(request)
+    except:
+        logging.info("Error encountered while checking result of clip request.")
         return ""
-    elif (request == 429):
-        logging.info("request denied.  Will try again in 30 seconds.")
-        sleep(30)
-        request = requests.post(CAS_URL, auth=(apikey, ''), json=clip_payload)
-        logging.info("after retrying request")
-        logging.info(request)
 
     """ 
     Need to identify what response is & handle it if it's 400 or higher
@@ -687,32 +698,36 @@ def clip(clip_payload):
         clip_url = request.json()['_links']['_self']
     except:
         logging.info("Unable to get clip_url from request")
-        sleep(30)
+        #sleep(30)
         #clip_url = request.json()['_links']['_self']
-        msg = request.joson()['general'][0]  #I saw an informational error message in this field once "AOI does not intersect targets".  Perhaps this is where they tell us what went wrong...?
-        logging.info(msg)
-
+        #msg = request.joson()['general'][0]  #I saw an informational error message in this field once "AOI does not intersect targets".  Perhaps this is where they tell us what went wrong...?
+        #logging.info(msg)
+        return ""
 
     logging.info(" "); logging.info("clip_url = " + clip_url)
 
     # Poll API to monitor clip status. Once finished, download and upzip the scene
     clip_succeeded = False
-    while not clip_succeeded:
+    try:
+        while not clip_succeeded:
 
-        # Poll API
-        check_state_request = requests.get(clip_url, auth=(apikey, ''))
-        #logging.info(check_state_request)
+            # Poll API
+            check_state_request = requests.get(clip_url, auth=(apikey, ''))
+            #logging.info(check_state_request)
     
-        # If clipping process succeeded , we are done
-        if check_state_request.json()['state'] == 'succeeded':
-            clip_download_url = check_state_request.json()['_links']['results'][0]
-            clip_succeeded = True
-            logging.info("Clip of scene succeeded and is ready to download") 
+            # If clipping process succeeded , we are done
+            if check_state_request.json()['state'] == 'succeeded':
+                clip_download_url = check_state_request.json()['_links']['results'][0]
+                clip_succeeded = True
+                logging.info("Clip of scene succeeded and is ready to download") 
     
-        # Still activating. Wait 1 second and check again.
-        else:
-            logging.info("...Still waiting for clipping to complete...")
-            time.sleep(15)
+            # Still activating. Wait 1 second and check again.
+            else:
+                logging.info("...Still waiting for clipping to complete...")
+                time.sleep(15)
+    except:
+        logging.info("Error encountered while waiting for clip_download_url")
+        return ""
 
     return clip_download_url   
 
