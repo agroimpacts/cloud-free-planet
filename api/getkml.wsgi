@@ -2,8 +2,8 @@ from webob import Request, Response
 import datetime
 from MappingCommon import MappingCommon
 
-def buildSelect(self):
-    select = '<select id="categLabel>\n'
+def buildSelect(mapc):
+    select = '<select id="categLabel">\n'
     categMaxNum = int(mapc.getConfiguration("CategMaxNum"))
     categText = []
     categCode = []
@@ -51,7 +51,7 @@ def application(environ, start_response):
             csrfToken = req.params['csrfToken']
             workerId = ''
             target = '_parent'
-            select = self.buildSelect()
+            select = buildSelect(mapc)
 
             # Training case.
             # This has a tryNum.
@@ -92,7 +92,7 @@ def application(environ, start_response):
             # This has no workerId.
             except:
                 workerId = ''
-                select = self.buildSelect()
+                select = buildSelect(mapc)
 
         # If mapping or training case,
         if len(assignmentId) > 0:
@@ -164,11 +164,11 @@ def application(environ, start_response):
                         <input type='hidden' name='kmlData' />
                     </form>
                     <div id="kml_display" style="width: 100%%; height: %(kmlMapHeight)spx;"></div>
-                    <div id=labelBlock style="display: block; position:absolute; top:10px; left:10px;">
-                        %(select)s
-                        <input type="text" id="commentLabel">
-                        <button id='labelDone'>Done</button>
-                    </div>
+                    <table id=labelBlock style="display: none; position:absolute; top:80px; left:40px;">
+                        <tr><th>Category</th><td>%(select)s</td></tr>
+                        <tr><th>Comment</th><td><textarea id="commentLabel"></textarea></td></tr>
+                        <tr><th></th><td><button id="labelDone">Click when Done</button></td></tr>
+                    </table>
                 </body>
             </html>
         ''' % {
