@@ -39,6 +39,8 @@ session = None
 Tammys_APIkey = "***REMOVED***"
 ryans_api_key = ryans_apikey = "***REMOVED***" #To access areas outside of California
 
+add_logging()
+
 def download_scene_for_ron_by_id():
     outdir = r'd:\PlanetTest\Data'
     asset_type = "analytic_sr"
@@ -56,8 +58,12 @@ def download_scene_for_ron_by_id():
     #scene_id = "20180303_105144_1050" "worked"
     #scene_id = "20180310_095138_102e" "worked"
     #scene_id = "20180306_095153_0f52" "worked"
-    scene_id = "20180228_095050_102f" "worked"
+    #scene_id = "20180228_095050_102f" "worked"
     #The above downloads usually took 4-5 minutes each
+
+    scene_id = "20180215_085907_0f1a"
+    scene_id = "20180128_073049_1006"
+    scene_id = "20180216_073804_1032"
     
     apikey = ryans_api_key
     prefix=""
@@ -87,21 +93,20 @@ def download_and_window_manually():
     window_out = True
     suffix = "_SR_GS"
 
-    prefix = "GH0700059"
-    scene_id = "20180225_105315_104a"
-    xmin = -3.081
-    xmax = -3.076
-    ymin = 6.085
-    ymax = 6.09
+    prefix = "ZA0649200"
+    scene_id = "20180214_073031_101e"
+    xmin = 30.209
+    xmax = 30.214
+    ymin = -25.575
+    ymax = -25.57
     output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
-
-    prefix = "ProblemClip"
-    #scene_id = "20180421_095029_1025"
-    scene_id = "20180227_105246_1054"
-    xmin = -3.081
-    xmax = -3.076
-    ymin = 6.085
-    ymax = 6.09
+    
+    prefix = "ZA1182104"
+    scene_id = "20180215_085907_0f1a"
+    xmin = 32.659
+    xmax = 32.664
+    ymin = -26.975
+    ymax = -26.97
     output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
     
     
@@ -141,25 +146,22 @@ def copy_center_pt_csv_to_grid_cell_csv(csv_in_name, csv_out_name):
 #csvname = r'D:\Users\twoodard\documents\lyndon_sites.csv'
 #copy_center_pt_csv_to_grid_cell_csv(csv_centerpts,csvname)
 
-add_logging()
-
 #download_and_window_manually()
 
 
-csvname = r'D:\Users\twoodard\documents\extents_qual_sites.csv'
+csvname = r'D:\Users\twoodard\documents\extents_qual_sites_complete_orig_set.csv'
+param_dict["outdir"] = r'd:\PlanetTest\Data\SA_OffSeason'
+param_dict["start_date_short"] =  '2017-06-30' 
+param_dict["end_date_short"] = '2018-08-31'
+param_dict["suffix"] = "_SR_OS" 
+download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+
+csvname = r'D:\Users\twoodard\documents\extents_qual_sites_leftover.csv'
 param_dict["outdir"] = r'd:\PlanetTest\Data\SA_GrowingSeason'
 param_dict["start_date_short"] =  '2017-01-01' 
 param_dict["end_date_short"] = '2018-03-01'
 param_dict["suffix"] = "_SR_GS" 
 download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
-
-csvname = r'D:\Users\twoodard\documents\extents_qual_sites.csv'
-param_dict["outdir"] = r'd:\PlanetTest\Data\SA_OffSeason'
-param_dict["start_date_short"] =  '2017-06-30' 
-param_dict["end_date_short"] = '2018-08-311'
-param_dict["suffix"] = "_SR_OS" 
-download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
-
 
 #csvname = r'D:\Users\twoodard\documents\lyndon_sites_Asamankese_only.csv'
 csvname = r'D:\Users\twoodard\documents\lyndon_sites_Asamankese_only - copy.csv'  #This one has completed grid cells removed.  Gets smaller as I debug & test.
