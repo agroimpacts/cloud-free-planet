@@ -529,14 +529,21 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
 
     // Add event handler to execute each time a shape is drawn.
     fieldsLayer.getSource().on('addfeature', function(event) {
-        var features = fieldsLayer.getSource().getFeatures();
-        var feature = event.feature;
-        var featureGeom = feature.getGeometry();
-        var endNodeCoordinates = featureGeom.getLastCoordinate();
-        console.log('endNodeCoordinates: ' + endNodeCoordinates);
-        var pixel = map.getPixelFromCoordinate(endNodeCoordinates);
-        console.log('pixel: ' + pixel);
+        //console.log('addfeature event pixel: ' + clickpixel);
+        //console.log('left: ' + Math.round(clickpixel[0]) + ' top: ' + Math.round(clickpixel[1]));
+        var style = document.getElementById("labelBlock").style;
+        style.left = Math.round(clickpixel[0]) + "px";
+        style.top = (Math.round(clickpixel[1]) + 80) + "px";
+        style.fontSize = "small";
+        document.getElementById("labelBlock").style.display = "none";
     })
+
+    // Save all click pixel coordinates for use by addfeature function above.
+    var clickpixel;
+    map.on('click', function(event) {
+        clickpixel = event.pixel;
+        //console.log('click event pixel: ' + clickpixel);
+    });
 
     // Training case only.
     if (tryNum > 0) {
