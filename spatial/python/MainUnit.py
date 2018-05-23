@@ -45,7 +45,7 @@ def download_scene_for_ron_by_id():
     outdir = r'd:\PlanetTest\Data'
     asset_type = "analytic_sr"
     #asset_type = "analytic"
-    #asset_type = "udm"
+    asset_type = "udm"
     item_type = ['PSScene4Band']  
     scene_id = "20170620_232623_0c79"   #Worked for analytic_sr, analytic & udm
     #scene_id = "20180314_095229_1042"  #Worked for analytic_sr, analytic & udm
@@ -64,6 +64,7 @@ def download_scene_for_ron_by_id():
     scene_id = "20180215_085907_0f1a"
     scene_id = "20180128_073049_1006"
     scene_id = "20180216_073804_1032"
+    scene_id = "20180521_072352_1013"
     
     apikey = ryans_api_key
     prefix=""
@@ -75,7 +76,7 @@ def download_and_window_scene_for_ron_by_id():
     asset_type = "analytic_sr"
     item_type = ['PSScene4Band']  
     #scene_id = "20170620_232623_0c79"
-    scene_id = "20180314_095229_1042"
+    scene_id = "20180521_072352_1013"
     apikey = ryans_api_key
     xmin = -0.575
     xmax = -0.525
@@ -149,19 +150,22 @@ def copy_center_pt_csv_to_grid_cell_csv(csv_in_name, csv_out_name):
 #download_and_window_manually()
 
 
-csvname = r'D:\Users\twoodard\documents\extents_qual_sites_complete_orig_set.csv'
-param_dict["outdir"] = r'd:\PlanetTest\Data\SA_OffSeason'
-param_dict["start_date_short"] =  '2017-06-30' 
-param_dict["end_date_short"] = '2018-08-31'
-param_dict["suffix"] = "_SR_OS" 
-download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
-
 csvname = r'D:\Users\twoodard\documents\extents_qual_sites_leftover.csv'
 param_dict["outdir"] = r'd:\PlanetTest\Data\SA_GrowingSeason'
 param_dict["start_date_short"] =  '2017-01-01' 
 param_dict["end_date_short"] = '2018-03-01'
 param_dict["suffix"] = "_SR_GS" 
 download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+
+#csvname = r'D:\Users\twoodard\documents\extents_qual_sites_complete_orig_set.csv'
+csvname = r'D:\Users\twoodard\documents\extents_qual_sites_leftover_offseason.csv'
+param_dict["outdir"] = r'd:\PlanetTest\Data\SA_OffSeason'
+param_dict["start_date_short"] =  '2017-06-30' 
+param_dict["end_date_short"] = '2018-08-31'
+param_dict["suffix"] = "_SR_OS" 
+download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+
+
 
 #csvname = r'D:\Users\twoodard\documents\lyndon_sites_Asamankese_only.csv'
 csvname = r'D:\Users\twoodard\documents\lyndon_sites_Asamankese_only - copy.csv'  #This one has completed grid cells removed.  Gets smaller as I debug & test.
