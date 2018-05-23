@@ -666,11 +666,13 @@ def clip(clip_payload):
     logging.debug("after clip request") 
     #logging.debug("request=" + request)
 
+    #Need to identify what response is & handle it if it's 400 or higher
     try:
         if (request == 400):
+            logging.info("Response to clip request is 400")
             return ""
         elif (request == 429):
-            logging.info("request denied.  Will try again in 30 seconds.")
+            logging.info("Request denied.  Will try again in 30 seconds.")
             sleep(30)
             request = requests.post(CAS_URL, auth=(apikey, ''), json=clip_payload)
             logging.info("after retrying request")
@@ -678,19 +680,6 @@ def clip(clip_payload):
     except:
         logging.info("Error encountered while checking result of clip request.")
         return ""
-
-    """ 
-    Need to identify what response is & handle it if it's 400 or higher
-    if request = 400:
-        skip this scene
-
-    if request = 429:
-        sleep(30)
-        logging.info("request denied.  Will try again in 30 seconds.")
-        request = requests.post(CAS_URL, auth=(apikey, ''), json=clip_payload)
-        logging.info("after retrying request")
-        logging.info(request)
-    """
 
     logging.debug("after request")
 
@@ -818,10 +807,8 @@ def use_new_clip_and_ship_to_download_udms(query, client, session, aoi, outpath)
         best_item = {}
         return best_fname, best_item, best_percent_good
 
-    #for item in (udm_items).items_iter(params["maximgs"]):  #items_iter is an iterative containing all the items that fit that filter's parameters       
     for item in sorted_lst:         
         try:
-            ##targ["item_id"] = item['id']
             targ["item_id"] =  item[2]  
             logging.info(item[2])
             logging.info(item)
@@ -832,22 +819,22 @@ def use_new_clip_and_ship_to_download_udms(query, client, session, aoi, outpath)
             #Tell Planet to clip & download clipped results:
             clip_download_url = clip(options)     
             if clip_download_url == "":
-                logging.info("Unable to clip " + targ["id"] + ". Skipping this UDM.")
+                logging.info("Unable to clip " + targ["item_id"] + ". Skipping this UDM."); logging.info("")
                 continue #skip this one
 
             outfname = download_clip(clip_download_url, outpath, targ["item_id"])
             if outfname == "":
-                logging.info("Unable to download clip for " + targ["id"] + ". Skipping this UDM.")
+                logging.info("Unable to download clip for " + targ["item_id"] + ". Skipping this UDM."); logging.info("")
                 continue #skip this one
         except:
-            logging.info("Exception occurred. " + targ["id"] + ". Skipping this UDM.")
+            logging.info("Exception occurred. " + targ["item_id"] + ". Skipping this UDM."); logging.info("")
             continue  #skip this one
 
         #Compare the UDMs:
         try:
             percent_good = calculate_percent_good_cells_in_tiff2(outfname)  #5/18/18 - changed call to new procedure - diff algorithm. ignores anomalous pixels
         except:
-            logging.info("Unable to calculate percent good for  " + targ["id"] + ". Skipping this UDM.")
+            logging.info("Unable to calculate percent good for  " + targ["item_id"] + ". Skipping this UDM.")
             continue
 
         if percent_good >= perfect: # I'm using >= instead of == in case we temporarily lower our standards to get clouds for testing purposes; perfect is usually 1
@@ -862,7 +849,7 @@ def use_new_clip_and_ship_to_download_udms(query, client, session, aoi, outpath)
             best_id = targ["item_id"]
             best_percent_good = percent_good
             best_item = item[3]
-#        elif percent_good > 0:     #Delete the bad udm files.  For testing purposes, comment out for now so we can see them
+#        elif percent_good > 0:     #Delete the bad udm files.  For testing purposes, comment out for now so we can see them.  Plus, it may need a tweak to work.
 #            filelist = list(outfname)
 #            delete_udm_files(filelist, "")
             
