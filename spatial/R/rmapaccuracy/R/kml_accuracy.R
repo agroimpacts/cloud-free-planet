@@ -76,7 +76,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                        "' order by name")
   } else if(mtype == "qa") {  # Test case
     user.sql <- paste0("select name, geom_clean from",
-                       " user_maps where assignment_id=", "'", assignmentid,
+                       " user_maps_sye where assignment_id=", "'", assignmentid,
                        "'", " order by name")
   }
   
@@ -161,7 +161,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     accuracy_plots(acc.out = acc.out$acc.out, grid.poly = maps$gpol, 
                   qaqc.poly = maps$qpol, user.poly = maps$upol,
                   inres = maps$inres, user.poly.out = maps$upolo, 
-                  qaqc.poly.out = maps$qpolo, tpo = maps$tpo, fno = maps$fno,
+                  qaqc.poly.out = maps$qpolo, tpo = maps$tpo,fpo = maps$fpo, fno = maps$fno,
                   proj.root = coninfo$dinfo["project.root"], pngout = pngout)
   }
 

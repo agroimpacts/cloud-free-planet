@@ -7,6 +7,7 @@
 #' @param user.poly.out sf polygon for portion of user map outside of grid
 #' @param qaqc.poly.out sf polygon for portion of q map outside of grid
 #' @param tpo sf polygon of correct user maps outside of grid (if exists) 
+#' @param fpo sf polygon of false positive user maps outside of grid (if exists) 
 #' @param fno sf polygon of false negative area outside of grid (if exists) 
 #' @param proj.root Project directory path (use dinfo["project.root"])
 #' @param pngout Output plot to png? (default: TRUE)
@@ -15,7 +16,7 @@
 #' @import sf
 #' @keywords internal
 accuracy_plots <- function(acc.out, grid.poly, qaqc.poly, user.poly, inres, 
-                           user.poly.out, qaqc.poly.out, tpo, fno, proj.root, 
+                           user.poly.out, qaqc.poly.out, tpo, fpo, fno, proj.root, 
                            pngout = TRUE) {
 
   if(!is.null(grid.poly)) bbr1 <- st_bbox(grid.poly)
@@ -53,6 +54,9 @@ accuracy_plots <- function(acc.out, grid.poly, qaqc.poly, user.poly, inres,
         }
         if(!is.null(tpo)) {
           plot(tpo, col = "green1", add = TRUE)
+        }
+        if(!is.null(fpo)) {
+          plot(fpo, col = "red1", add = TRUE)
         }
         if(!is.null(fno)) {
           plot(fno, col = "blue1", add = TRUE)

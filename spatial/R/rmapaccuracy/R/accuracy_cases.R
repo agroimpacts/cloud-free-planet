@@ -83,7 +83,7 @@ case2_accuracy <- function(grid.poly, user.polys, in.acc.wt,
   env <- environment()  # get environment
   maps <- list("gpol" = grid.poly, "qpol" = NULL, "upol" = user.poly, 
                "inres" = inres, "upolout" = checkexists("user.poly.out", env), 
-               "qpolout" = NULL, "tpo" = NULL, "fno" = NULL)
+               "qpolout" = NULL, "tpo" = NULL, "fpo" = checkexists("user.poly.out", env), "fno" = NULL)
   return(list("acc.out" = acc.out, "maps" = maps))
 }
 
@@ -144,7 +144,7 @@ case3_accuracy <- function(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt,
   env <- environment()  # get environment
   maps <- list("gpol" = grid.poly, "qpol" = qaqc.poly, "upol" = NULL, 
                "inres" = inres, "upolout" = NULL, 
-               "qpolout" = checkexists("qaqc.poly.out", env), "tpo" = NULL, 
+               "qpolout" = checkexists("qaqc.poly.out", env), "tpo" = NULL, "fpo" = NULL,
                "fno" = checkexists("qaqc.poly.out", env))  # fno = qpolout
   return(list("acc.out" = acc.out, "maps" = maps))
 }
@@ -226,13 +226,14 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
   } else if(length(user.poly.out) > 0 & length(qaqc.poly.out) > 0) {
     if(comments == "T") print("Both QAQC and User fields outside of grid")
     tpo <- st_intersection(qaqc.poly.out, user.poly.out)  # tp outside
-    fno <- st_difference(qaqc.poly.out, user.poly.out)  # fp outside
-    tflisto <- c("tpo", "fno")
+    fpo <- st_difference(user.poly.out, qaqc.poly.out)  # fp outside
+    fno <- st_difference(qaqc.poly.out, user.poly.out)  # fn outside
+    tflisto <- c("tpo", "fpo", "fno")
     areaso <- sapply(tflisto, function(x) {  # calculate tp and fp area
       xo <- get(x)
       ifelse(!is.null(xo) & is.object(xo) & length(xo) > 0, st_area(xo), 0)
     })
-    out.acc <- unname(areaso[1]) / sum(areaso)  # sensitivity 
+    out.acc <- (2 * unname(areaso[1])) / (sum(areaso)+unname(areaso[1]))  # 2TP / (2TP + FP + FN) 
   } else {
     if(comments == "T") {
       print("Either QAQC or User fields outside of grid, but not both")
@@ -258,7 +259,7 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
   maps <- list("gpol" = grid.poly, "qpol" = qaqc.poly, "upol" = user.poly, 
                "inres" = inres, "upolo" = checkexists("user.poly.out", env),  
                "qpolo" = checkexists("qaqc.poly.out", env), 
-               "tpo" = checkexists("tpo", env), "fno" = checkexists("fno", env))
+               "tpo" = checkexists("tpo", env), "fpo" = checkexists("fpo", env), "fno" = checkexists("fno", env))
   return(list("acc.out" = acc.out, "maps" = maps))
 }
 
