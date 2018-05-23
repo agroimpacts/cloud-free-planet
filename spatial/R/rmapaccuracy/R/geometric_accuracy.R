@@ -30,6 +30,7 @@ geometric_accuracy <- function(qaqc.polys, user.polys, buf) {
           intsect_ratio <- st_area(intsect) / st_area(boundary_user_single)
           acc_edge_single <- as.numeric(intsect_ratio)
           acc_edge_sum <- acc_edge_sum + acc_edge_single
+          break
         }
       }
     }
