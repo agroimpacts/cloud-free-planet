@@ -86,6 +86,9 @@ class MappingCommon(object):
                 if self.euser == 'sandbox':
                     self.mapper = False
                     self.projectRoot = '/home/sandbox/afmap'
+                elif self.euser == 'dmcr':
+                    self.mapper = False
+                    self.projectRoot = '/home/dmcr/afmap_private'
                 else:
                    raise Exception("Mapping server must run under sandbox or mapper user") 
             else:
@@ -434,7 +437,7 @@ class MappingCommon(object):
 
     # Save all the worker's drawm maps.
     # Note: if tryNum is zero, then this is not a training case.
-    def saveWorkerMaps(self, k, kmlData, workerId, assignmentId, tryNum=0):
+    def saveWorkerMaps(self, k, kmlData, categories, categComments, workerId, assignmentId, tryNum=0):
         # Loop over every Polygon, and store its name and data in PostGIS DB.
         numGeom = 0
         numFail = 0
@@ -446,11 +449,16 @@ class MappingCommon(object):
             # Get mapping name, type, and XML description.
             children = placemark.childNodes
             geomName = children[0].firstChild.data
-            k.write("assignment: Shape name = %s\n" % geomName)
+            k.write("saveWorkerMaps: Shape name = %s\n" % geomName)
             geomType = children[1].tagName
-            k.write("assignment: Shape type = %s\n" % geomType)
+            k.write("saveWorkerMaps: Shape type = %s\n" % geomType)
+            category = categories[numGeom - 1]
+            k.write("saveWorkerMaps: Shape category = %s\n" % category)
+            categComment = categComments[numGeom - 1]
+            if len(categComment) > 0:
+                k.write("saveWorkerMaps: Shape category comment = %s\n" % categComment)
             geometry = children[1].toxml()
-            k.write("assignment: Shape KML = %s\n" % geometry)
+            k.write("saveWorkerMaps: Shape KML = %s\n" % geometry)
 
             # Attempt to convert from KML to ***REMOVED*** geom format.
             try:
@@ -465,15 +473,19 @@ class MappingCommon(object):
                     k.write("saveWorkerMaps: Shape is an invalid %s due to '%s'\n" % (geomType, geomReason))
                 now = str(datetime.today())
                 if tryNum > 0:
-                    self.cur.execute("""INSERT INTO qual_user_maps (name, geom, completion_time, assignment_id, try, geom_clean)
-                            SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, %s as assignment_id, %s as try,
-                            ST_MakeValid(ST_GeomFromKML(%s)) as geom_clean""",
-                            (geomName, geometry, now, assignmentId, tryNum, geometry))
+                    self.cur.execute("""INSERT INTO qual_user_maps (name, geom, completion_time, 
+                            category, categ_comment, assignment_id, try, geom_clean)
+                            SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, 
+                            %s AS category, %s AS categ_comment, %s AS assignment_id, %s AS try,
+                            ST_MakeValid(ST_GeomFromKML(%s)) AS geom_clean""",
+                            (geomName, geometry, now, category, categComment, assignmentId, tryNum, geometry))
                 else:
-                    self.cur.execute("""INSERT INTO user_maps (name, geom, completion_time, assignment_id, geom_clean)
-                            SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, %s as assignment_id, 
-                            ST_MakeValid(ST_GeomFromKML(%s)) as geom_clean""",
-                            (geomName, geometry, now, assignmentId, geometry))
+                    self.cur.execute("""INSERT INTO user_maps (name, geom, completion_time, 
+                            category, categ_comment, assignment_id, geom_clean)
+                            SELECT %s AS name, ST_GeomFromKML(%s) AS geom, %s AS datetime, 
+                            %s AS category, %s AS categ_comment, %s AS assignment_id, 
+                            ST_MakeValid(ST_GeomFromKML(%s)) AS geom_clean""",
+                            (geomName, geometry, now, category, categComment, assignmentId, geometry))
                 self.dbcon.commit()
             except psycopg2.InternalError as e:
                 numFail += 1
