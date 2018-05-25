@@ -234,14 +234,17 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
       ifelse(!is.null(xo) & is.object(xo) & length(xo) > 0, st_area(xo), 0)
     })
     out.acc <- (2 * unname(areaso[1])) / (sum(areaso)+unname(areaso[1]))  # 2TP / (2TP + FP + FN) 
+    out.acc.old <- unname(areaso[1]) / (unname(areaso[1])+unname(areaso[3]))  # TP / (TP + FN) 
+    
   } else {
     if(comments == "T") {
       print("Either QAQC or User fields outside of grid, but not both")
     }
     out.acc <- 0
+    out.acc.old <- 0
   }
   old.score <- count.acc * count.acc.wt + in.acc * in.acc.wt + 
-    out.acc * out.acc.wt 
+    out.acc.old * out.acc.wt 
   new.score <- in.acc * new.in.acc.wt + out.acc * new.out.acc.wt + 
     frag.acc * frag.acc.wt + edge.acc * edge.acc.wt
   user.fldcount <- user.nfields

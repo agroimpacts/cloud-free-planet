@@ -76,7 +76,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                        "' order by name")
   } else if(mtype == "qa") {  # Test case
     user.sql <- paste0("select name, geom_clean from",
-                       " user_maps_sye where assignment_id=", "'", assignmentid,
+                       " user_maps where assignment_id=", "'", assignmentid,
                        "'", " order by name")
   }
   
