@@ -56,6 +56,9 @@ def assignment():
             comment = comment[:2048]
         savedMaps = mapForm.savedMaps.data
         kmlData = mapForm.kmlData.data
+        categories = mapForm.categories.data.split(',')
+        categComments = mapForm.categComments.data.split(',')
+
         (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
 
         # If worker saved their results...
@@ -70,7 +73,7 @@ def assignment():
                 k.write("assignment: Worker ID %s, HIT ID = %s, Assignment ID = %s\n" % (workerId, hitId, assignmentId))
 
                 # Save all drawn maps.
-                resultsSaved = mapc.saveWorkerMaps(k, kmlData, workerId, assignmentId)
+                resultsSaved = mapc.saveWorkerMaps(k, kmlData, categories, categComments, workerId, assignmentId)
 
             # If we have at least one valid mapping.
             if resultsSaved:
