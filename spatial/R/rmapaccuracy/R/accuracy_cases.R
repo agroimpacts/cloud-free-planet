@@ -233,8 +233,9 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
       xo <- get(x)
       ifelse(!is.null(xo) & is.object(xo) & length(xo) > 0, st_area(xo), 0)
     })
-    out.acc <- (2 * unname(areaso[1])) / (sum(areaso)+unname(areaso[1]))  # 2TP / (2TP + FP + FN) 
-    out.acc.old <- unname(areaso[1]) / (unname(areaso[1])+unname(areaso[3]))  # TP / (TP + FN) 
+    # out acc: new = 2TP / (2TP + FP + FN); old = TP / (TP + FN) 
+    out.acc <- (2 * unname(areaso[1])) / (sum(areaso) + unname(areaso[1]))  
+    out.acc.old <- unname(areaso[1]) / (unname(areaso[1]) + unname(areaso[3]))  
     
   } else {
     if(comments == "T") {

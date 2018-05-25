@@ -1,8 +1,8 @@
 Package: rmapaccuracy
 Type: Package
 Title: Accuracy assessment of user created map polygons
-Version: 1.2.1
-Date: 2018-05-16
+Version: 1.2.2
+Date: 2018-05-25
 Author: Lyndon Estes, Dennis McRitchie, and Su Ye
 Maintainer: Lyndon Estes <lestes@clarku.edu>
 Description: This package provides mapper's accuracy assessment functions
