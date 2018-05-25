@@ -2,6 +2,22 @@ from webob import Request, Response
 import datetime
 from MappingCommon import MappingCommon
 
+def buildSelect(mapc):
+    select = '<select id="categLabel">\n'
+    categMaxNum = int(mapc.getConfiguration("CategMaxNum"))
+    categText = []
+    categCode = []
+    for ndx in range(1, categMaxNum + 1):
+        categText = mapc.getConfiguration("CategText" + str(ndx))
+        if categText is None:
+            break
+        categCode = mapc.getConfiguration("CategCode" + str(ndx))
+        if categCode is None:
+            categCode = categText
+        select += "<option value='%s'>%s</option>\n" % (categCode, categText)
+    select += "</select>\n"
+    return select
+
 def application(environ, start_response):
     req = Request(environ)
     res = Response()
@@ -35,6 +51,7 @@ def application(environ, start_response):
             csrfToken = req.params['csrfToken']
             workerId = ''
             target = '_parent'
+            select = buildSelect(mapc)
 
             # Training case.
             # This has a tryNum.
@@ -69,11 +86,13 @@ def application(environ, start_response):
             # This has a workerId.
             try:
                 workerId = req.params['workerId']
+                select = ''
 
             # Standalone case.
             # This has no workerId.
             except:
                 workerId = ''
+                select = buildSelect(mapc)
 
         # If mapping or training case,
         if len(assignmentId) > 0:
@@ -120,7 +139,6 @@ def application(environ, start_response):
                 </head>
                 <body onload="init('%(kmlPath)s', '%(kmlName)s', '%(assignmentId)s', '%(tryNum)s', '%(resultsAccepted)s', '%(mapPath)s', '%(workerId)s')">
                     <form style='width:100%%;' name='mappingform' action='%(submitTo)s' method='POST' target='%(target)s'>
-                        %(csrfToken)s
                         <div class='instructions'>
                             %(instructions)s
                         </div>
@@ -137,6 +155,7 @@ def application(environ, start_response):
                         </th>
                         </tr></table>
                         %(mapHint)s
+                        %(csrfToken)s
                         <input type='hidden' name='kmlName' value='%(kmlName)s' />
                         <input type='hidden' name='hitId' value='%(hitId)s' />
                         <input type='hidden' name='assignmentId' value='%(assignmentId)s' />
@@ -145,6 +164,11 @@ def application(environ, start_response):
                         <input type='hidden' name='kmlData' />
                     </form>
                     <div id="kml_display" style="width: 100%%; height: %(kmlMapHeight)spx;"></div>
+                    <table id=labelBlock style="display: none; position:absolute; top:80px; left:40px;">
+                        <tr><th>Category</th><td>%(select)s</td></tr>
+                        <tr><th>Comment</th><td><textarea id="commentLabel"></textarea></td></tr>
+                        <tr><th></th><td><button id="labelDone">Click when Done</button></td></tr>
+                    </table>
                 </body>
             </html>
         ''' % {
@@ -162,6 +186,7 @@ def application(environ, start_response):
             'kmlMapHeight': kmlMapHeight,
             'mapPath': mapUrl,
             'workerId': workerId,
+            'select': select,
             'csrfToken': csrfToken
         }
         res.text = mainText
