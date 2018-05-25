@@ -26,6 +26,7 @@ host <- NULL
 pngout <- TRUE
 user <- "***REMOVED***"
 password <- "***REMOVED***"
+db.tester.name <- NULL
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
