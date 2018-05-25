@@ -5,7 +5,7 @@
 \title{Plotting function for kml_accuracy}
 \usage{
 accuracy_plots(acc.out, grid.poly, qaqc.poly, user.poly, inres, user.poly.out,
-  qaqc.poly.out, tpo, fno, proj.root, pngout = TRUE)
+  qaqc.poly.out, tpo, fpo, fno, proj.root, pngout = TRUE)
 }
 \arguments{
 \item{acc.out}{Vector of accuracy terms}
@@ -23,6 +23,8 @@ accuracy_plots(acc.out, grid.poly, qaqc.poly, user.poly, inres, user.poly.out,
 \item{qaqc.poly.out}{sf polygon for portion of q map outside of grid}
 
 \item{tpo}{sf polygon of correct user maps outside of grid (if exists)}
+
+\item{fpo}{sf polygon of false positive user maps outside of grid (if exists)}
 
 \item{fno}{sf polygon of false negative area outside of grid (if exists)}
 

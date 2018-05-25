@@ -6,7 +6,7 @@
 #' convert grid points to polygons. 
 #' @import sf
 #' @export
-point_to_gridpoly <- function(xy, w, NewCRSobj,OldCRSobj) {
+point_to_gridpoly <- function(xy, w, NewCRSobj, OldCRSobj) {
   dw <- list("x" = c(-w, w, w, -w, -w), "y" = c(w, w, -w, -w, w))
   pols <- do.call(rbind, lapply(1:nrow(xy), function(i) {  # i <- 1
     xs <- unlist(sapply(dw$x, function(x) unname(xy[i, "x"] + x)))
@@ -22,7 +22,7 @@ point_to_gridpoly <- function(xy, w, NewCRSobj,OldCRSobj) {
     ## .() is actually just an alias to ‘list()’. It returns a data table, whereas not using ‘.()’ only returns a vector
     polsf <- st_sf(xy[i, .(name)], geom = poldf)
     st_crs(polsf) <- OldCRSobj # first set GCS
-    polsf <- st_transform(polsf,crs = NewCRSobj) # then transform into PRS
+    polsf <- st_transform(polsf, crs = NewCRSobj) # then transform into PRS
     polsf
   }))
   return (pols)
