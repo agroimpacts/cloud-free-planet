@@ -455,6 +455,8 @@ class MappingCommon(object):
             category = categories[numGeom - 1]
             k.write("saveWorkerMaps: Shape category = %s\n" % category)
             categComment = categComments[numGeom - 1]
+            if len(categComment) > 2048:
+                categComment = categComment[:2048]
             if len(categComment) > 0:
                 k.write("saveWorkerMaps: Shape category comment = %s\n" % categComment)
             geometry = children[1].toxml()
@@ -527,6 +529,7 @@ class MappingCommon(object):
         # Reward the worker if we couldn't score his work properly.
         if score is None:
             assignmentStatus = MappingCommon.HITUnscored
+            approved = True
             score = self.getQualityScore(workerId)
             if score is None:
                 score = 1.          # Give new worker the max score

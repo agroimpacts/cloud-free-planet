@@ -559,8 +559,6 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         curFeature.set('category', category);
         var comment = document.getElementById("commentLabel").value;
         curFeature.set('comment', comment);
-        //console.log("category: " + category);
-        //console.log("comment: " + comment);
 
         // Hide the labeling block and reset the imputs.
         document.getElementById("labelBlock").style.display = "none";
@@ -611,9 +609,9 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             for (var feature in features) {
                 features[feature].set('name', kmlName + '_' + i);
                 categories.push(features[feature].get('category'));
-                console.log("category: " + categories[i-1]);
+                //console.log("category: " + categories[i-1]);
                 categComments.push(features[feature].get('comment'));
-                console.log("comment: " + categComments[i-1]);
+                //console.log("comment: " + categComments[i-1]);
                 i = i + 1;
             }
             var kmlFormat = new ol.format.KML();
