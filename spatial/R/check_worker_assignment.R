@@ -7,9 +7,9 @@ suppressMessages(library(rmapaccuracy))
 suppressWarnings(suppressMessages(library(sf)))
 
 ## Hard-codes variables, for testing (set each variable to NULL for production)
-alt.root <- "/Users/lestes/Dropbox/projects/activelearning/mapperAL"
-host <- "crowdmapper.org"
-db.tester.name <- "lestes"
+alt.root <- NULL
+host <- NULL
+db.tester.name <- NULL
 
 # Get HIT ID, assignment ID
 args <- commandArgs(TRUE)
@@ -20,9 +20,6 @@ workerid <- args[2]
 test_root <- args[3]
 
 # Find working location
-# dinfo <- c(db.name = "AfricaSandbox",
-#            project.root = "/Users/lestes/Dropbox/projects/activelearning/mapperAL")
-# dinfo <- getDBName()  # pull working environment
 coninfo <- mapper_connect(user = pgupw$user, password = pgupw$password,
                           db.tester.name = db.tester.name, 
                           alt.root = alt.root, host = host)
