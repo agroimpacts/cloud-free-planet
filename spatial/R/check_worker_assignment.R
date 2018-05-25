@@ -62,8 +62,8 @@ if(test_root == "N") {
   user_sql <- paste0("select name, geom_clean from user_maps where ",
                      "assignment_id=", "'", assignments$assignment_id, "'",
                      "order by name")
-  user_polys <- suppressWarnings(st_read_db(con, query = user_sql, 
-                                            geom_column = 'geom_clean'))
+  user_polys <- suppressWarnings(st_read(con, query = user_sql, 
+                                         geom_column = 'geom_clean'))
   
   # Create unique directory for worker if file doesn't exist
   worker_path <- paste(kml_path, workerid, sep = "")
