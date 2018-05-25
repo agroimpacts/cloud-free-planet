@@ -6,25 +6,30 @@
 suppressMessages(library(rmapaccuracy))
 suppressWarnings(suppressMessages(library(sf)))
 
+## Hard-codes variables, for testing (set each variable to NULL for production)
+alt.root <- NULL
+host <- NULL
+db.tester.name <- NULL
+
 # Get HIT ID, assignment ID
 args <- commandArgs(TRUE)
 if(length(args) < 3) stop("Need at least 3 arguments")
 # hitid <- '257'; workerid <- "24"; test_root <- "N"; testlocal <- "TRUE"
 hitid <- args[1] 
 workerid <- args[2]   
-test_root <- args[3] 
+test_root <- args[3]
 
 # Find working location
-# dinfo <- c(db.name = "AfricaSandbox",
-#            project.root = "/Users/lestes/Dropbox/projects/activelearning/mapperAL")
-dinfo <- getDBName()  # pull working environment
+coninfo <- mapper_connect(user = pgupw$user, password = pgupw$password,
+                          db.tester.name = db.tester.name, 
+                          alt.root = alt.root, host = host)
 
 initial_options <- commandArgs(trailingOnly = FALSE)
-kml_path <- paste0(dinfo["project.root"], "/maps/")
-kml_root <- strsplit(dinfo["project.root"], "/")[[1]][3]
+kml_path <- paste0(coninfo$dinfo["project.root"], "/maps/")
+kml_root <- strsplit(coninfo$dinfo["project.root"], "/")[[1]][3]
 
 if(test_root == "Y") {
-  print(paste("database =", dinfo["db.name"], "; kml.root =", kml_root, 
+  print(paste("database =", coninfo$dinfo["db.name"], "; kml.root =", kml_root, 
               "; worker kml directory =", kml_path, "; hit =", hitid))
   print(paste("Stopping here: Just making sure we are working and writing to", 
               "the right places"))
@@ -35,14 +40,11 @@ if(test_root == "N") {
   # Paths and connections
   # host <- ifelse(!getwd() %in% c("/home/sandbox/afmap/", "/home/africa/afmap/"), 
   #                "crowdmapper.org", "")
-  con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), #host = host, 
-                        dbname = dinfo["db.name"],   
-                        user = pgupw$user, password = pgupw$password)
-  
+
   # Read in hit and assignment ids  
-  hits <- tbl(con, "hit_data") %>% filter(hit_id == hitid) %>%
+  hits <- tbl(coninfo$con, "hit_data") %>% filter(hit_id == hitid) %>%
     select(name) %>% collect()
-  assignments <- tbl(con, "assignment_data") %>% 
+  assignments <- tbl(coninfo$con, "assignment_data") %>% 
     filter(hit_id == hitid & worker_id == workerid & status != "Abandoned") %>% 
     select(assignment_id) %>% collect()
   
@@ -53,18 +55,30 @@ if(test_root == "N") {
   # Collect QAQC fields (if there are any; if not then "N" value will be 
   # returned). This should work for both
   # training and test sites
-  qaqc_sql <- paste0("select gid, geom_clean",
-                     " from qaqcfields where name=", "'", hits$name, "'")
-  qaqc_polys <- suppressWarnings(st_read_db(con, query = qaqc_sql, 
-                                            geom_column = 'geom_clean'))
+  qaqc_sql <- paste0("select gid from qaqcfields where name=", "'", hits$name, 
+                     "'")
+  qaqc_polys <- DBI::dbGetQuery(coninfo$con, qaqc_sql)
+  qaqc_hasfields <- ifelse(nrow(qaqc_polys) > 0, "Y", "N") 
+  if(qaqc_hasfields == "Y") {
+    qaqc_sql <- paste0("select gid, geom_clean",
+                       " from qaqcfields where name=", "'", hits$name, "'")
+    qaqc_polys <- suppressWarnings(st_read(coninfo$con, query = qaqc_sql, 
+                                           geom_column = 'geom_clean'))
+  }
   
   # Read in user data
   user_sql <- paste0("select name, geom_clean from user_maps where ",
                      "assignment_id=", "'", assignments$assignment_id, "'",
-                     "order by name")
-  user_polys <- suppressWarnings(st_read(con, query = user_sql, 
-                                         geom_column = 'geom_clean'))
+                     " order by name")
   
+  # test if user fields exist
+  user_polys <- DBI::dbGetQuery(coninfo$con, gsub(", geom_clean", "", user_sql))
+  user_hasfields <- ifelse(nrow(user_polys) > 0, "Y", "N") 
+  if(user_hasfields == "Y") {  # Read in user fields if there are any
+    user_polys <- suppressWarnings(st_read(coninfo$con, query = user_sql, 
+                                           geom_column = 'geom_clean'))
+  } 
+
   # Create unique directory for worker if file doesn't exist
   worker_path <- paste(kml_path, workerid, sep = "")
   if(!file.exists(worker_path)) dir.create(path = worker_path)
@@ -76,13 +90,13 @@ if(test_root == "N") {
   if(nrow(user_polys) > 0) {  # Write it
     suppressWarnings(user_poly <- user_polys %>% 
                        transmute(kmlname = paste0(kmlid, "_w")))
-    suppressWarnings(write_sf(user_poly, delete_dsn = TRUE,
+    suppressWarnings(st_write(user_poly, delete_dsn = TRUE,
                               dsn = paste0(worker_path, "/", kmlid, "_w.kml")))
   }
   if(nrow(qaqc_polys) > 0) {  # First convert to geographic coords
     suppressWarnings(qaqc_poly <- qaqc_polys %>% 
                        transmute(kmlname = paste0(kmlid, "_r")))
-    suppressWarnings(write_sf(qaqc_poly, delete_dsn = TRUE,
+    suppressWarnings(st_write(qaqc_poly, delete_dsn = TRUE,
                               dsn = paste0(worker_path, "/", kmlid, "_r.kml")))
   }
   worker_url <- paste0("https://", kml_root, 
