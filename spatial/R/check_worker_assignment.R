@@ -55,8 +55,8 @@ if(test_root == "N") {
   # training and test sites
   qaqc_sql <- paste0("select gid, geom_clean",
                      " from qaqcfields where name=", "'", hits$name, "'")
-  qaqc_polys <- suppressWarnings(st_read_db(con, query = qaqc_sql, 
-                                            geom_column = 'geom_clean'))
+  qaqc_polys <- suppressWarnings(st_read(con, query = qaqc_sql, 
+                                         geom_column = 'geom_clean'))
   
   # Read in user data
   user_sql <- paste0("select name, geom_clean from user_maps where ",
