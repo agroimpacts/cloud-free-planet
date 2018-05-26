@@ -162,7 +162,9 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         source: new ol.source.Vector({features: fields}),
         style: new ol.style.Style({
             fill: new ol.style.Fill({
-                color: 'rgba(255, 255, 255, 0.2)'
+                //color: 'rgba(255, 255, 255, 0.2)'
+                // Use line below to make unselected shapes transparent.
+                color: 'rgba(255, 255, 255, 0.0)'
             }),
             stroke: new ol.style.Stroke({
                 color: '#ffcc33',
@@ -197,6 +199,8 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             source: new ol.source.Vector({
                 url: mapPath + '/' + workerId + '/' + kmlName + '_r.kml',
                 format: new ol.format.KML({extractStyles: false})
+                //url: mapPath + '/' + workerId + '/' + kmlName + '_r.json',
+                //format: new ol.format.GeoJSON()
             }),
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
@@ -215,6 +219,8 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             source: new ol.source.Vector({
                 url: mapPath + '/' + workerId + '/' + kmlName + '_w.kml',
                 format: new ol.format.KML({extractStyles: false})
+                //url: mapPath + '/' + workerId + '/' + kmlName + '_w.json',
+                //format: new ol.format.GeoJSON()
             }),
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
@@ -227,6 +233,18 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             })
         });
         wMapLayer.setMap(map);
+
+        //rMapLayer.getSource().on('change', function (event) {
+        //    var source = event.target;
+        //    if (source.getState() === 'ready') {
+        //        var rfeatures = source.getFeatures();
+        //        console.log(rfeatures);
+        //        for (var rfeature in rfeatures) {
+        //            console.log(rfeatures[rfeature].get('category'));
+        //            console.log(rfeatures[rfeature].get('categ_comment'));
+        //        }
+        //    }
+        //});
 
         overlayGroup.getLayers().push(wMapLayer);
         overlayGroup.getLayers().push(rMapLayer);
@@ -496,7 +514,11 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                 for (var i=0, f; f=features.item(i); i++) {
                     fieldsLayer.getSource().removeFeature(f);
                 }
+                // Clear all shape selections.
                 selectCtrl.getInteraction().getFeatures().clear();
+
+                // Hide the labeling block.
+                document.getElementById("labelBlock").style.display = "none";
             }
         }));
 
@@ -530,6 +552,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     }
 
     // Current feature.
+    var mainbarDeactivated = false;
     var curFeature;
 
     // Add event handler to execute each time a shape is drawn.
@@ -537,36 +560,77 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         // TODO: prevent user from reactivating controls. Make invisible?
         // Deactivate the control bar.
         mainbar.setActive(false);
+        mainbarDeactivated = true;
+        // Clear all shape selections.
+        selectCtrl.getInteraction().getFeatures().clear();
+        // Display the labeling block.
+        showLabelBlock(event.feature);
+    });
 
-        // Get the pixel coordinates of the center of the new feature.
-        curFeature = event.feature;
-        var extent = curFeature.getGeometry().getExtent();
+    // Add event handler to execute each time a shape is selected.
+    selectCtrl.getInteraction().getFeatures().on('add', function (event) {
+        // Display the labeling block, but only if a single feature is selected.
+        if (selectCtrl.getInteraction().getFeatures().getLength() == 1) {
+            showLabelBlock(event.element);
+        } else {
+            // Hide the labeling block, in case visible.
+            document.getElementById("labelBlock").style.display = "none";
+        }
+    });
+
+    // Add event handler to execute each time a shape is unselected.
+    selectCtrl.getInteraction().getFeatures().on('remove', function (event) {
+        // Hide the labeling block, in case visible.
+        document.getElementById("labelBlock").style.display = "none";
+    });
+
+    // Display the label block for the specified feature.
+    function showLabelBlock(feature) {
+        // Get the pixel coordinates of the center of the feature.
+        curFeature = feature;
+        var extent = feature.getGeometry().getExtent();
         var coords = ol.extent.getCenter(extent);
         var pixel = map.getPixelFromCoordinate(coords);
 
         // Position the labeling block at this location, and make it visible.
         var style = document.getElementById("labelBlock").style;
-        // NOTE: this next line should be in style.css since it's cosmetic.
-        style.fontSize = "small";
         style.left = Math.round(pixel[0]) + "px";
         style.top = (Math.round(pixel[1])) + "px";
+
+        // Set the category and categComment values.
+        category = feature.get('category');
+        // If attributes are present in the feature, use them.
+        if (category !== undefined) {
+            categComment = feature.get('categ_comment');
+            document.getElementById("categLabel").value = category;
+            document.getElementById("commentLabel").value = categComment;
+        // Else, initialize the input elements.
+        } else {
+            document.getElementById("categLabel").selectedIndex = 0;
+            document.getElementById("commentLabel").value = "";
+        }
+        // Display the labeling block.
         style.display = "block";
-    });
+    };
 
     // Add event handler to process post-drawing labeling.
     $(document).on("click", "button#labelDone", function() {
         var category = document.getElementById("categLabel").value;
         curFeature.set('category', category);
         var comment = document.getElementById("commentLabel").value;
-        curFeature.set('comment', comment);
+        curFeature.set('categ_comment', comment);
 
-        // Hide the labeling block and reset the imputs.
+        // Clear all shape selections.
+        selectCtrl.getInteraction().getFeatures().clear();
+
+        // Hide the labeling block.
         document.getElementById("labelBlock").style.display = "none";
-        document.getElementById("categLabel").selectedIndex = 0;
-        document.getElementById("commentLabel").value = "";
 
-        // Reactivate the control bar to the create-fields position.
-        mainbar.setActive(true);
+        // Reactivate the control bar to the create-fields position if needed.
+        if (mainbarDeactivated) {
+            mainbarDeactivated = false;
+            mainbar.setActive(true);
+        }
     });
 
     // Training case only.
@@ -602,6 +666,8 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         saveStrategyActive = false
 
         // Save the current polygons if there are any.
+        // NOTE: the KML writeFeatures() function does not support extended attributes.
+        // So we need to extract them from each feature and pass them separately as arrays.
         if (features != '') {
             categories = [];
             categComments = [];
@@ -610,8 +676,8 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                 features[feature].set('name', kmlName + '_' + i);
                 categories.push(features[feature].get('category'));
                 //console.log("category: " + categories[i-1]);
-                categComments.push(features[feature].get('comment'));
-                //console.log("comment: " + categComments[i-1]);
+                categComments.push(features[feature].get('categ_comment'));
+                //console.log("categ_comment: " + categComments[i-1]);
                 i = i + 1;
             }
             var kmlFormat = new ol.format.KML();
