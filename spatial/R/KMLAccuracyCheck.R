@@ -21,12 +21,12 @@ write.acc.db <- "T"
 draw.maps  <- "T"  
 test <- "N"  
 test.root <- "N"  
-alt.root <- NULL
+alt.root <- '/home/dmcr/afmap_private'
 host <- NULL
 pngout <- TRUE
 user <- "***REMOVED***"
 password <- "***REMOVED***"
-db.tester.name <- NULL
+db.tester.name <- 'dmcr'
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
