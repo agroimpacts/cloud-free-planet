@@ -3,7 +3,7 @@ import datetime
 from MappingCommon import MappingCommon
 
 def buildSelect(mapc):
-    select = '<select id="categLabel">\n'
+    select = '<select id="categLabel" title="Select a category for this field">\n'
     categMaxNum = int(mapc.getConfiguration("CategMaxNum"))
     categText = []
     categCode = []
@@ -162,12 +162,14 @@ def application(environ, start_response):
                         <input type='hidden' name='tryNum' value='%(tryNum)s' />
                         <input type='hidden' name='savedMaps' />
                         <input type='hidden' name='kmlData' />
+                        <input type='hidden' name='categories' />
+                        <input type='hidden' name='categComments' />
                     </form>
                     <div id="kml_display" style="width: 100%%; height: %(kmlMapHeight)spx;"></div>
-                    <table id=labelBlock style="display: none; position:absolute; top:80px; left:40px;">
-                        <tr><th>Category</th><td>%(select)s</td></tr>
-                        <tr><th>Comment</th><td><textarea id="commentLabel"></textarea></td></tr>
-                        <tr><th></th><td><button id="labelDone">Click when Done</button></td></tr>
+                    <table id=labelBlock style="display: none; position:absolute; top:0px; left:0px;">
+                        <tr><td>%(select)s</td></tr>
+                        <tr><td><textarea id="commentLabel" placeholder="Optional comment" title="Use this box to enter an optional comment"></textarea></td></tr>
+                        <tr><td><button id="labelDone" title="Click 'Done' to record your field category and optional comment">Done</button></td></tr>
                     </table>
                 </body>
             </html>

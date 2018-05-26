@@ -306,8 +306,9 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     if (!workerFeedback) {
         // Create control bar 
         var mainbar = new ol.control.Bar({
-        	toggleOne: true,	// one control active at the same time
-            group: false	    // group controls together
+            autoDeactivate: true,   // deactivate controls in bar when parent control off
+        	toggleOne: true,	    // one control active at the same time
+            group: false	        // group controls together
         });
         mainbar.setPosition("top-right");
         map.addControl(mainbar);
@@ -439,6 +440,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         var drawButton = new ol.control.Toggle({
         	html: '<i class=" icon-draw" ></i>',
             title: 'To create mapped fields, click on one of the tools to the left.',
+            autoActivate: true, // activate controls in bar when parent control on
             active: true,
             bar: drawBar
         });
@@ -527,22 +529,44 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         });
     }
 
+    // Current feature.
+    var curFeature;
+
     // Add event handler to execute each time a shape is drawn.
     fieldsLayer.getSource().on('addfeature', function(event) {
-        //console.log('addfeature event pixel: ' + clickpixel);
-        //console.log('left: ' + Math.round(clickpixel[0]) + ' top: ' + Math.round(clickpixel[1]));
-        var style = document.getElementById("labelBlock").style;
-        style.left = Math.round(clickpixel[0]) + "px";
-        style.top = (Math.round(clickpixel[1]) + 80) + "px";
-        style.fontSize = "small";
-        document.getElementById("labelBlock").style.display = "none";
-    })
+        // TODO: prevent user from reactivating controls. Make invisible?
+        // Deactivate the control bar.
+        mainbar.setActive(false);
 
-    // Save all click pixel coordinates for use by addfeature function above.
-    var clickpixel;
-    map.on('click', function(event) {
-        clickpixel = event.pixel;
-        //console.log('click event pixel: ' + clickpixel);
+        // Get the pixel coordinates of the center of the new feature.
+        curFeature = event.feature;
+        var extent = curFeature.getGeometry().getExtent();
+        var coords = ol.extent.getCenter(extent);
+        var pixel = map.getPixelFromCoordinate(coords);
+
+        // Position the labeling block at this location, and make it visible.
+        var style = document.getElementById("labelBlock").style;
+        // NOTE: this next line should be in style.css since it's cosmetic.
+        style.fontSize = "small";
+        style.left = Math.round(pixel[0]) + "px";
+        style.top = (Math.round(pixel[1])) + "px";
+        style.display = "block";
+    });
+
+    // Add event handler to process post-drawing labeling.
+    $(document).on("click", "button#labelDone", function() {
+        var category = document.getElementById("categLabel").value;
+        curFeature.set('category', category);
+        var comment = document.getElementById("commentLabel").value;
+        curFeature.set('comment', comment);
+
+        // Hide the labeling block and reset the imputs.
+        document.getElementById("labelBlock").style.display = "none";
+        document.getElementById("categLabel").selectedIndex = 0;
+        document.getElementById("commentLabel").value = "";
+
+        // Reactivate the control bar to the create-fields position.
+        mainbar.setActive(true);
     });
 
     // Training case only.
@@ -579,15 +603,23 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
 
         // Save the current polygons if there are any.
         if (features != '') {
+            categories = [];
+            categComments = [];
             var i = 1;
             for (var feature in features) {
                 features[feature].set('name', kmlName + '_' + i);
+                categories.push(features[feature].get('category'));
+                //console.log("category: " + categories[i-1]);
+                categComments.push(features[feature].get('comment'));
+                //console.log("comment: " + categComments[i-1]);
                 i = i + 1;
             }
             var kmlFormat = new ol.format.KML();
             var kmlData = kmlFormat.writeFeatures(features, {featureProjection: 'EPSG:4326', dataProjection: 'EPSG:4326'});
             // Save the kmlData in the HTML mappingform.
             document.mappingform.kmlData.value = kmlData;
+            document.mappingform.categories.value = categories;
+            document.mappingform.categComments.value = categComments;
         }
         // Mark that we saved our results.
         document.mappingform.savedMaps.value = true;
