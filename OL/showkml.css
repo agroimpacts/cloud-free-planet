@@ -29,3 +29,6 @@ html, body {
 .ol-mouse-position {
     color: white;
 }
+#labelBlock {
+    font-size:small;
+}
