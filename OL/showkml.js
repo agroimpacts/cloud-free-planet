@@ -93,6 +93,9 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                 collapsible: false
             })
         }).extend([mousePositionControl]),
+        interactions: ol.interaction.defaults({
+            doubleClickZoom :false
+        }),
         layers: [
             // Create overlay layer(s) group.
             overlayGroup,
@@ -162,9 +165,8 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         source: new ol.source.Vector({features: fields}),
         style: new ol.style.Style({
             fill: new ol.style.Fill({
-                //color: 'rgba(255, 255, 255, 0.2)'
-                // Use line below to make unselected shapes transparent.
-                color: 'rgba(255, 255, 255, 0.0)'
+                // Edit line below to change unselected shapes' transparency.
+                color: 'rgba(255, 255, 255, 0.2)'
             }),
             stroke: new ol.style.Stroke({
                 color: '#ffcc33',
