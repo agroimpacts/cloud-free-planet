@@ -554,15 +554,15 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     }
 
     // Current feature.
-    var mainbarDeactivated = false;
+    var mainbarVisible = true;
     var curFeature;
 
     // Add event handler to execute each time a shape is drawn.
     fieldsLayer.getSource().on('addfeature', function(event) {
-        // TODO: prevent user from reactivating controls. Make invisible?
-        // Deactivate the control bar.
+        // Render the control bar invisible and inactive.
+        mainbar.setVisible(false);
         mainbar.setActive(false);
-        mainbarDeactivated = true;
+        mainbarVisible = false;
         // Clear all shape selections.
         selectCtrl.getInteraction().getFeatures().clear();
         // Display the labeling block.
@@ -628,10 +628,11 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         // Hide the labeling block.
         document.getElementById("labelBlock").style.display = "none";
 
-        // Reactivate the control bar to the create-fields position if needed.
-        if (mainbarDeactivated) {
-            mainbarDeactivated = false;
+        // Render the control bar active and visible if needed.
+        if (!mainbarVisible) {
+            mainbarVisible = true;
             mainbar.setActive(true);
+            mainbar.setVisible(true);
         }
     });
 
