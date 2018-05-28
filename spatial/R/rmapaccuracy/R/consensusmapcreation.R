@@ -1,0 +1,207 @@
+#' Control the output of label maps, conflict maps, and heat maps 
+#' @param kmlid 
+#' @param min_mappedcount the minimum approved assignment count
+#' @param scorethres the threshold to select valid assignment
+#' @param conflictthres the threshold to select 'conflict' pixels
+#' @param user User name for database connection
+#' @param password Password for database connection
+#' @param db.tester.name User name for testing (default NULL)
+#' @param alt.root Alternative location for writing out maps (default NULL)
+#' @param host NULL or "crowdmapper.org", if testing from remote location
+#' @import RPostgreSQL
+#' @importFrom  DBI dbDriver
+#' @import dplyr
+#' @import sf
+#' @return  
+
+consensusmapcreation <- function(kmlid, min_mappedcount, scorethres, 
+                                 output.conflictmap, output.heatmap, 
+                                 conflictpixelthres,diam,user, password, 
+                                 db.tester.name, alt.root, 
+                                 host, qsite = FALSE){
+  
+  coninfo <- mapper_connect(user = user, password = password,
+                            db.tester.name = db.tester.name, 
+                            alt.root = alt.root, host = host)
+  # prjstr <- as.character(tbl(coninfo$con, "spatial_ref_sys") %>% 
+  #                          filter(srid == prjsrid) %>% 
+  #                          select(proj4text) %>% collect())
+  gcsstr <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+  
+  # query hitid
+  hit.sql <- paste0("select hit_id from hit_data where name = '", kmlid, "'")
+  hitid <- (DBI::dbGetQuery(coninfo$con, hit.sql))$hit_id
+  
+  # query mtype
+  # mtype.sql <- paste0("select kml_type from kml_data where name = '",kmlid, "'")
+  # mtype <- (DBI::dbGetQuery(coninfo$con, mtype.sql))$kml_type
+  
+  # query mappedcount
+  mappedcount.sql <- paste0("select mapped_count from kml_data where name = '",
+                            kmlid, "'")
+  mappedcount <- as.numeric((DBI::dbGetQuery(coninfo$con, mappedcount.sql))
+                            $mapped_count)
+ 
+  if (mappedcount < min_mappedcount){
+    stop("there is not enough approved assignment for creating consensus maps")
+  }
+
+  
+  # query assignmentid flagged as 'approved'
+  assignment.sql <- paste0("select assignment_id from assignment_data", 
+                           " where hit_id ='", hitid, "' and status = 'Approved'" 
+                          , " order by assignment_id")  
+  
+  assignmentid <- (DBI::dbGetQuery(coninfo$con, assignment.sql))$assignment_id
+  
+  # read grid polygon
+  xy_tabs <- data.table(tbl(coninfo$con, "master_grid") %>% 
+                          filter(name == kmlid) %>% 
+                          dplyr::select(x, y, name) %>% collect())
+  # read grid geometry, and keep gcs
+  grid.poly <- point_to_gridpoly(xy = xy_tabs, w = diam, NewCRSobj = gcsstr, 
+                                 OldCRSobj = gcsstr)
+  grid.poly <- st_geometry(grid.poly)  # retain geometry only
+  
+  # lklh_field: p(user=field|groundtruth=field)
+  # lklh_nofield: p(user=no field|groundtruth=no field)
+  # Read user fields, field and no field likelihood from database into a sf object
+  bayes.polys <- lapply(assignmentid, function(x){
+    # workerid
+    workerid.sql <- paste0("select worker_id from assignment_data", 
+                        " where assignment_id ='", x, "' order by assignment_id")
+    workerid <- (DBI::dbGetQuery(coninfo$con, workerid.sql))$worker_id
+      
+    # read all scored assignments including 'Approved' and 'Rejected'
+    # for calculating history field and no field likelihood of worker i
+    historyassignmentid.sql <- paste0("select assignment_id from assignment_data", 
+                                        " where worker_id  = '", workerid, "'",
+                                        " and (status = 'Approved' OR status = ",
+                                      "'Rejected') and score IS NOT NULL")
+    historyassignmentid <- ((DBI::dbGetQuery(coninfo$con, historyassignmentid.sql))
+                              $assignment_id)
+      
+    # read all valid likelihood and score from history assignments
+    userhistory_measurements <- lapply(c(1:length(historyassignmentid)), 
+                                       function(x){
+      ################### test lines##############################
+      # likelihood.sql <- paste0("select new_score from new_error_data", 
+      #                            " where assignment_id  = '", 
+      #                            historyassignmentid[x], "'") 
+      # lklh_field <- as.numeric((DBI::dbGetQuery(coninfo$con, likelihood.sql))
+      #                          $new_score) 
+      # lklh_nofield <- as.numeric((DBI::dbGetQuery(coninfo$con, likelihood.sql))
+      #                            $new_score) 
+      # score_history <- as.numeric((DBI::dbGetQuery(coninfo$con, likelihood.sql))
+      #                             $new_score) 
+      # c('lklh_field' = lklh_field, 'lklh_nofield' = lklh_nofield, 'score_history'
+      #                                       = score_history)
+      ################### test lines###############################
+                                         
+      ################### official lines###########################
+      # need add field_skill and nofield_skill columns into new_error_data tables
+      likelihood.sql <- paste0("select new_score, field_skill, nofield_skill",
+                               " from new_error_data  where assignment_id  = '", 
+                                historyassignmentid[x], "'") 
+      measurements <- DBI::dbGetQuery(coninfo$con, likelihood.sql)
+      
+      c('lklh_field' = as.numeric(measurements$field_skill), 
+        'lklh_nofield' = as.numeric(measurements$nofield_skill), 
+        'score_history' = as.numeric(measurements$new_score))
+      ################### official lines###########################
+    })
+      
+    # calculating mean likelihood and score from history 
+    lklh_field <- mean(data.frame(do.call(rbind, userhistory_measurements))
+                       $lklh_field)
+    lklh_nofield <- mean(data.frame(do.call(rbind, userhistory_measurements))
+                         $lklh_nofield)
+    score_history <- mean(data.frame(do.call(rbind, userhistory_measurements))
+                          $score_history)
+    # if the user score is larger than the required 
+    # score threshold, then output user.poly and likelihood
+    if (score_history > scorethres){
+      # test if user fields exist
+      user.sql <- paste0("select geom_clean from",
+                         " user_maps where assignment_id = ", "'", x,
+                         "'", " order by name")
+      user.polys <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+                                                     gsub(", geom_clean", 
+                                                          "", user.sql)))
+      user.hasfields <- ifelse(nrow(user.polys) > 0, "Y", "N")
+      # if user maps have field polygons
+      if(user.hasfields == "Y") { 
+        user.polys <- suppressWarnings(st_read(coninfo$con, query = user.sql, 
+                                               geom_column = 'geom_clean'))
+        
+        # union user polygons
+        user.poly <- st_union(user.polys)
+        
+        # if for qsite, we need to first intersection user maps by grid 
+        # to remain those within-grid parts for calculation
+        if (qsite == FALSE){
+          user.poly <- suppressWarnings(st_intersection(user.poly, grid.poly))
+        }
+        bayes.poly <- st_sf('lklh_field' = lklh_field, 'lklh_nofield' = 
+                              lklh_nofield, geometry = st_sfc(user.poly))
+        # set crs
+        st_crs(bayes.poly) <- gcsstr
+      }
+      else{
+        # if users do not map field, set geometry as empty multipolygon
+        bayes.poly <- st_sf('lklh_field' = lklh_field, 'lklh_nofield' = 
+                              lklh_nofield, 
+                            geometry = st_sfc(st_multipolygon()))
+        st_crs(bayes.poly) <- gcsstr
+      }
+      bayes.poly
+    }
+  })
+  
+  bayes.polys <- do.call(rbind, bayes.polys)
+  
+  if (nrow(bayes.polys)==0){
+    stop("There is not enough valid assignments (> minimum score)")
+  }
+  
+  # count the number of user maps that has field polygons
+  count_hasuserpolymap <- length(which(st_is_empty(bayes.polys[, "geometry"]) ==
+                                         FALSE))
+  
+  # if no any user map polygons for this grid or if for cvml training, 
+  # use the grid extent as the raster extent
+  if ((qsite == FALSE) || (count_hasuserpolymap == 0)){
+    rasterextent <- grid.poly
+  }
+  # for Q sites, use the maximum combined boundary of all polygons and master grid
+  # as the raster extent
+  else{
+    bb_grid <- st_bbox(grid.poly)
+    bb_polys <- st_bbox(st_union(bayes.polys))
+    new_bbbox <- st_bbox(c(xmin = min(bb_polys$xmin,bb_grid$xmin), 
+                           xmax = max(bb_polys$xmax,bb_grid$xmax), 
+                           ymax = max(bb_polys$ymax,bb_grid$ymax), 
+                           ymin = max(bb_polys$ymin,bb_grid$ymin)), crs = gcsstr)
+    rasterextent <- st_sf(geom = st_as_sfc(new_bbbox))
+  }
+  
+  
+  bayesoutput <- bayesianfusion(bayes.polys = bayes.polys, 
+                                rasterextent = rasterextent)
+  
+  conflictpixelpercentage <- ncell(bayesoutput$conflictmap
+                                   [bayesoutput$conflictmap > conflictpixelthres])/
+                             (nrow(bayesoutput$conflictmap)*
+                                 ncol(bayesoutput$conflictmap))
+  # need add conflictpixelpercentage column into kml_data tables
+  # insert conflict pixel percentage into kml_data table
+  # conflict.sql <- paste0("insert into kml_data (consensus_conflict)", 
+  #                   " values ('", conflictpixelpercentage, "')")
+  # dbSendQuery(coninfo$con, conflict.sql) # will be changed to official lines
+  
+  ###################### S3 bucket output ###############
+  # unfinished
+  #######################################################
+  
+  garbage <- dbDisconnect(coninfo$con)
+}
