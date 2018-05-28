@@ -14,85 +14,75 @@ new.out.acc.wt <- 0.2 ## for new score
 frag.acc.wt <- 0.1 ## for new score
 edge.acc.wt <- 0.1 ## for new score
 edge.buf <- 9 ## for new score, 3 planet pixels
-# err.switch <- 1  ### 5/2/2016 Changed to 1
 acc.switch <- 1  ### 5/2/2016 Changed to 1
-comments <- "F"
+comments <- "T"
 write.acc.db <- "T"  
 draw.maps  <- "T"  
-test <- "N"  
 test.root <- "N"  
-alt.root <- NULL
-host <- NULL
 pngout <- TRUE
-user <- "***REMOVED***"
-password <- "***REMOVED***"
-db.tester.name <- NULL
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
-# Test working environment
-if(test.root == "Y") {
-  prj.sql <- paste0("select proj4text from spatial_ref_sys where srid=", 
-                    prjsrid)
-  dinfo <- getDBName()  # pull working environment
-  drv <- dbDriver("PostgreSQL")
-  con <- dbConnect(drv, dbname = dinfo["db.name"], user = user, 
-                   password = password)
-  prjstr <- dbGetQuery(con, prj.sql)$proj4text
-  print(paste("database =", dinfo["db.name"], "directory = ", 
-              dinfo["project.root"]))
-  print(prjstr)
-  print(paste0(dinfo["project.root"], "/spatial/R/Error_records/"))  # fix this, because it won't work
-  print("Stopping here: Just checking we are working in the right places")
+# Input args 
+arg <- commandArgs(TRUE)
+mtype <- arg[1]  # training "tr" or normal qaqc check "qa"
+kmlid <- arg[2]  # ID of grid cell 
+assignmentid <- arg[3]  # Job identifier
+if(length(arg) < 4) stop("At least 4 arguments needed", call. = FALSE)
+tryid <- arg[4]
+if(length(arg) == 4) {
+  if(tryid != "None" & mtype == "qa") {
+    stop("QAs do not have try numbers", call. = FALSE)
+  }
+  db.tester.name <- NULL
+  alt.root <- NULL
+  host <- NULL
 } 
+if(length(arg) > 4) {
+  if(tryid == "None" & mtype == "qa") {
+    tryid <- NULL
+  } else if(arg[4] == "None" & mtype == "tr") {
+    stop("Training sites need to have try numbers", call. = FALSE)
+  }
+  if(is.na(arg[5])) {
+    db.tester.name <- NULL
+  } else {
+    db.tester.name <- arg[5]
+  }
+  if(is.na(arg[6])) {
+    alt.root <- NULL
+  } else {
+    alt.root <- arg[6]
+  } 
+  if(is.na(arg[7])) {
+    host <- NULL
+  } else {
+    host <- arg[7]
+  }
+}
+if(comments == "T") {
+  print(paste("Mapping Type:", mtype))
+  print(paste("KML ID:", kmlid))
+  print(paste("Assignment ID:", assignmentid))
+  print(paste("Try ID:", tryid))
+  print(paste("Testing user name:", db.tester.name))
+  print(paste("Alternative root path:", alt.root))
+  print(paste("Host name:", host))
+}
 
-if(test.root == "N") {
-  # Input args 
-  if(test == "N") {
-    arg <- commandArgs(TRUE)
-    if(!length(arg) %in% c(3, 4)) stop("3-4 arguments needed", call. = FALSE)
-    mtype <- arg[1]  # training "tr" or normal qaqc check "qa"
-    kmlid <- arg[2]  # ID of grid cell 
-    assignmentid <- arg[3]  # Job identifier
-    if(!is.na(arg[4]) & mtype == "tr") tryid <- arg[4] # Try # (training only)
-    if(!is.na(arg[4]) & mtype == "qa") {  # qa site have no tryid
-      stop("QA tests do not have multiple attempts")
-    }
-    if(is.na(arg[4]) & mtype == "tr") {  # tr sites need tryid
-      stop("Training sites need to have try (attempt) specified")
-    }
-    if(is.na(arg[4]) & mtype == "qa") {  # set tryid to null for qa sites
-      tryid <- NULL
-    }
-    if(comments == "T") print(mtype)
-    if(comments == "T") print(kmlid)
-    if(comments == "T") print(assignmentid)
-    if(comments == "T") print(tryid)
-  }
+if(test.root == "Y") {
+  coninfo <- mapper_connect(user = pgupw$user, password = pgupw$password,
+                            db.tester.name = db.tester.name, 
+                            alt.root = alt.root, host = host)
+  prjstr <- (tbl(coninfo$con, "spatial_ref_sys") %>% 
+               filter(srid == prjsrid) %>% collect())$proj4text
+  print(paste("database =", coninfo$dinfo["db.name"], "directory = ", 
+              coninfo$dinfo["project.root"]))
+  print(prjstr)
+  print("Stopping here: Just checking args and paths")
   
-  if(test == "Y") {
-    hit.sql <- "select hit_id, name from hit_data"
-    hits <- RPostgreSQL::dbGetQuery(con, hit.sql)
-    ass.sql <- paste0("select assignment_id, hit_id, worker_id,", 
-                      " score from assignment_data")
-    asses <- RPostgreSQL::dbGetQuery(con, ass.sql)
-    
-    if(exists("kmlid") & !exists("assignmentid")) {
-      print("Using HIT ID to find assignment ID")
-      hid <- hits[hits$name == kmlid, "hit_id"]
-      assignmentid <- asses[asses$hit_id == hid, "assignment_id"]
-      if(length(assignmentid) > 1) { 
-        print(">1 assignment completed for this kml, selecting the first 1")
-        assignmentid <- assignmentid[1]
-      }
-    }
-    if(exists("assignmentid") & !exists("kmlid")) {
-      print("Using assignment ID to find HIT ID")
-      hid <- asses[asses$assignment_id == assignmentid, "hit_id"]
-      kmlid <- hits[hits$hit_id == hid, "name"]
-    }
-  }
-  
+} else {
+  # Execute accuracy function
   kml_accuracy(mtype = mtype, kmlid = kmlid, assignmentid = assignmentid,
                diam = diam, tryid = tryid, prjsrid = prjsrid, 
                count.acc.wt = count.acc.wt, in.acc.wt = in.acc.wt, 
@@ -101,11 +91,13 @@ if(test.root == "N") {
                edge.acc.wt = edge.acc.wt, edge.buf = edge.buf,
                acc.switch = acc.switch, comments = comments, 
                write.acc.db = write.acc.db, draw.maps = draw.maps, 
-               pngout = pngout, test = test,  test.root = test.root, 
-               user = user, password = password, 
+               pngout = pngout, test = test, test.root = test.root, 
+               user = pgupw$user, password = pgupw$password, 
                db.tester.name = db.tester.name, 
                alt.root = alt.root, host = host)
 }
+
+
   
   
 
