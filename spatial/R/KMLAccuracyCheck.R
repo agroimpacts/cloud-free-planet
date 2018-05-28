@@ -15,7 +15,7 @@ frag.acc.wt <- 0.1 ## for new score
 edge.acc.wt <- 0.1 ## for new score
 edge.buf <- 9 ## for new score, 3 planet pixels
 acc.switch <- 1  ### 5/2/2016 Changed to 1
-comments <- "T"
+comments <- "F"
 write.acc.db <- "T"  
 draw.maps  <- "T"  
 test.root <- "N"  

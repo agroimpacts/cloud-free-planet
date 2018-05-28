@@ -63,10 +63,10 @@ accuracy_plots <- function(acc.out, grid.poly, qaqc.poly, user.poly, inres,
         }
       }
       for(i in 1:7) {
-        mtext(round(acc.out[i], 3), side = 3, line = -1, adj = 1 * (i - 1) / 
-                (length(acc.out) - 2), cex = cx)
-        mtext(mpi[i], side = 3, line = 0.5, adj = 1 * (i - 1) / 
-                (length(acc.out) - 2), cex = cx)
+        mtext(round(acc.out[i], 3), side = 3, line = -1, adj = 1 * (i - 1) / 5 
+                , cex = cx)
+        mtext(mpi[i], side = 3, line = 0.5, adj = 1 * (i - 1) / 5
+                , cex = cx)
       }
       mtext(paste0(kmlid, "_", assignmentid), side = 1, cex = cx)
       legend(x = "right", legend = c("TP", "FP", "FN", "TN"), pch = 15, 
