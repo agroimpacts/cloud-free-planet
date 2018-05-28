@@ -169,7 +169,7 @@ def application(environ, start_response):
                     <table id=labelBlock style="display: none; position:absolute; top:0px; left:0px;">
                         <tr><td>%(select)s</td></tr>
                         <tr><td><textarea id="commentLabel" placeholder="Optional comment" title="Use this box to enter an optional comment"></textarea></td></tr>
-                        <tr><td><button id="labelDone" title="Click 'Done' to record your field category and optional comment">Done</button></td></tr>
+                        <tr><td><button id="labelDone" title="Click 'Save Label' to record your field category and optional comment">Save Label</button></td></tr>
                     </table>
                 </body>
             </html>
