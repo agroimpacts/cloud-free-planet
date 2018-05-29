@@ -52,8 +52,8 @@ def assignment_history():
             hitId = mapc.querySingleValue("SELECT hit_id FROM assignment_data WHERE assignment_id = %s" % 
                     histForm.inquiryId.data)
             # Uncomment the next line and comment the following one for release.
-            #url = subprocess.Popen(["Rscript", "%s/spatial/R/check_worker_assignment.R" % mapc.projectRoot, str(hitId), str(workerId), "N"], 
-            url = subprocess.Popen(["Rscript", "%s/spatial/R/check_worker_assignment.R" % mapc.projectRoot, str(hitId), str(workerId), "N", "dmcr", "/home/dmcr/afmap_private"], 
+            url = subprocess.Popen(["Rscript", "%s/spatial/R/check_worker_assignment.R" % mapc.projectRoot, str(hitId), str(workerId), "N"], 
+            #url = subprocess.Popen(["Rscript", "%s/spatial/R/check_worker_assignment.R" % mapc.projectRoot, str(hitId), str(workerId), "N", "dmcr", "/home/dmcr/afmap_private"], 
                     stdout=subprocess.PIPE).communicate()[0]
             url = url.rstrip()
             inquiryResponse = "Thank you for your inquiry regarding:<br/>HIT ID: %s<br/>Your inquiry message was:<br/>%s<br/><br/>This has been sent to our administrators, who review all inquiries. Though we cannot individually respond to all inquiries, please click on the URL below, which shows your map in relation to ours. We hope this comparison will help address your question.<br/><br/>Map URL: <a href='%s' target='_blank'>Map Comparison</a>" % \
