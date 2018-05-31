@@ -323,6 +323,15 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             // Hide the labeling block, in case visible.
             document.getElementById("labelBlock").style.display = "none";
         });
+        fieldsLayer.on('propertychange', function(event) {
+            console.log(event.key);
+            if (event.key == 'visible' && !fieldsLayer.getVisible()) {
+                // Clear all shape selections.
+                selectButton.getInteraction().getFeatures().clear();
+                // Hide the labeling block, in case visible.
+                document.getElementById("labelBlock").style.display = "none";
+            }
+        });
     // Worker feedback case.
     } else {
         // Add event handler to execute each time a shape is selected.
@@ -349,6 +358,22 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         selectFeedback.getFeatures().on('remove', function (event) {
             // Hide the labeling block, in case visible.
             document.getElementById("labelBlock").style.display = "none";
+        });
+        rMapLayer.on('propertychange', function(event) {
+            if (event.key == 'visible' && !rMapLayer.getVisible()) {
+                // Clear all shape selections.
+                selectFeedback.getFeatures().clear();
+                // Hide the labeling block, in case visible.
+                document.getElementById("labelBlock").style.display = "none";
+            }
+        });
+        wMapLayer.on('propertychange', function(event) {
+            if (event.key == 'visible' && !wMapLayer.getVisible()) {
+                // Clear all shape selections.
+                selectFeedback.getFeatures().clear();
+                // Hide the labeling block, in case visible.
+                document.getElementById("labelBlock").style.display = "none";
+            }
         });
     }
     // Display the label block for the specified feature.
