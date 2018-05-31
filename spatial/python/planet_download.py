@@ -193,7 +193,7 @@ def set_filters_sr(aoi):
 
     return query
 
-def window_from_downloaded_file(fullname, xmin, xmax, ymin, ymax, dstname="", outtype='RST'):
+def window_from_downloaded_file(fullname, xmin, xmax, ymin, ymax, dstname="", outtype='GTiff'):
     """
     Takes a file (downloaded scene) and windows out the desired subarea, 
     which is simultaneously projected to the output (target) ref system & window dimensions.
@@ -232,7 +232,7 @@ def window_from_downloaded_file(fullname, xmin, xmax, ymin, ymax, dstname="", ou
                         src_crs=src.crs,
                         dst_transform=dst_transform,
                         dst_crs=dst_crs,
-                        resampling=Resampling.nearest)   #Which resampling type should we use? 
+                        resampling=Resampling.cubic)   #Which resampling type should we use? 
     except:
         return ""
 
