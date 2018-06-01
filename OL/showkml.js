@@ -323,8 +323,8 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             // Hide the labeling block, in case visible.
             document.getElementById("labelBlock").style.display = "none";
         });
+        // Add event handler to clear selection and hide labeling block when layer is made invisible.
         fieldsLayer.on('propertychange', function(event) {
-            console.log(event.key);
             if (event.key == 'visible' && !fieldsLayer.getVisible()) {
                 // Clear all shape selections.
                 selectButton.getInteraction().getFeatures().clear();
@@ -359,6 +359,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             // Hide the labeling block, in case visible.
             document.getElementById("labelBlock").style.display = "none";
         });
+        // Add event handler to clear selection and hide labeling block when layer is made invisible.
         rMapLayer.on('propertychange', function(event) {
             if (event.key == 'visible' && !rMapLayer.getVisible()) {
                 // Clear all shape selections.
@@ -367,6 +368,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                 document.getElementById("labelBlock").style.display = "none";
             }
         });
+        // Add event handler to clear selection and hide labeling block when layer is made invisible.
         wMapLayer.on('propertychange', function(event) {
             if (event.key == 'visible' && !wMapLayer.getVisible()) {
                 // Clear all shape selections.
@@ -385,10 +387,25 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         var coords = ol.extent.getCenter(extent);
         var pixel = map.getPixelFromCoordinate(coords);
 
-        // Position the labeling block at this location, and make it visible.
+        // Adjust as needed for offscreen locations.
+        var left = Math.round(pixel[0]);
+        var top = Math.round(pixel[1]);
+        var limits = map.getSize();
+        var leftLimit = 20;
+        var topLimit = 30;
+        var rightLimit = limits[0] - 180;
+        var bottomLimit = limits[1] - 50;
+        if (left < leftLimit) left = leftLimit;
+        if (left > rightLimit) left = rightLimit;
+        if (top < topLimit) top = topLimit;
+        if (top > bottomLimit) top = bottomLimit;
+
+        // Position the labeling block at the computed location.
         var style = document.getElementById("labelBlock").style;
-        style.left = Math.round(pixel[0]) + "px";
-        style.top = (Math.round(pixel[1])) + "px";
+        style.left = left + "px";
+        style.top = top + "px";
+        //console.log('left: ' + left + "px");
+        //console.log('top: ' + top + "px");
 
         // Set the category and categComment values.
         category = feature.get('category');
