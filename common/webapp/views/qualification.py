@@ -55,8 +55,10 @@ def qualification():
         assignmentId = mapForm.assignmentId.data
         tryNum = str(mapForm.tryNum.data)
         kmlData = mapForm.kmlData.data
+        categories = mapForm.categories.data.split(',')
+        categComments = mapForm.categComments.data.split(',')
+
         (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
-        assignmentStatus = None
 
         # If no kmlData, then no fields were mapped.
         if len(kmlData) == 0:
@@ -68,7 +70,7 @@ def qualification():
             k.write("qualification: Worker ID %s; training assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
 
             # Save all drawn maps.
-            resultsSaved = mapc.saveWorkerMaps(k, kmlData, workerId, assignmentId, tryNum)
+            resultsSaved = mapc.saveWorkerMaps(k, kmlData, categories, categComments, workerId, assignmentId, tryNum)
 
         # If we have at least one valid mapping.
         if resultsSaved:
