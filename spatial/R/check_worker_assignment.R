@@ -7,9 +7,9 @@ suppressMessages(library(rmapaccuracy))
 suppressWarnings(suppressMessages(library(sf)))
 
 ## Hard-codes variables, for testing (set each variable to NULL for production)
-alt.root <- NULL
+alt.root <- "/home/lestes/mapperAL"#NULL
 host <- NULL
-db.tester.name <- NULL
+db.tester.name <- "lestes"#NULL
 
 # Get HIT ID, assignment ID
 args <- commandArgs(TRUE)

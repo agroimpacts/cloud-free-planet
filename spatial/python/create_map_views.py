@@ -6,6 +6,10 @@ import numpy as np
 import re
 import sys, os
 import subprocess
+from xml.etree.ElementTree import Element, SubElement, Comment, tostring
+import glob   
+import requests
+
 #from matplotlib import plt
 
 names = ['GH0688802', 'GH0690415', 'GH0692014'] 
@@ -50,7 +54,6 @@ def image_from_s3_to_ec2(s3basepath, ec2basepath, name, substring,
                 "ec2fullpath": ec2fullpath}
     return(out_dict)
 
-
 def get_geo_info(image):
     """
     Collect geographic information from rasters
@@ -63,8 +66,8 @@ def get_geo_info(image):
     ysize = image.RasterYSize
     proj = osr.SpatialReference(wkt = image.GetProjection())
     epsg = proj.GetAttrValue('AUTHORITY', 1)  # epsg
-    srs = image.GetProjectionRef()
-    srs2 = proj.ExportToPrettyWkt()
+    crs = image.GetProjectionRef()
+    crs2 = proj.ExportToPrettyWkt()
     nbands = image.RasterCount
     NDvals = []
     for i in range(nbands): 
@@ -73,8 +76,8 @@ def get_geo_info(image):
     ext = [minx, minx + geoinfo[1] * image.RasterXSize, 
            maxy + geoinfo[5] * image.RasterYSize, maxy]
     out = {"xsize": xsize, "ysize": ysize, "epsg": epsg, #"proj": proj,  
-           "nbands": nbands, "ext": ext, "geoinfo": geoinfo, "srs": srs, 
-           "srs2": srs2, "NDvals": NDvals}       
+           "nbands": nbands, "ext": ext, "geoinfo": geoinfo, "crs": crs, 
+           "crs2": crs2, "NDvals": NDvals}       
     return out
 
 # Write out stretch image to GeoTiff
@@ -142,6 +145,115 @@ def write_geotiff(Name, Array, GeoT, Projection, DataType, driver = "GTiff",
     raster.FlushCache()
     return Name
 
+    
+def create_geoserver_datastore(geourl, userpw, workspace, image_name, 
+                               image_dir):
+    """
+    Create geoserver geotiff datastore, using requests library
+    :param geourl: url of geoserver 
+    :param userpw: geoserver user name and password as an array
+    :param workspace: relevant workspace
+    :param image_name: Extensionless name of image from which to make store 
+    :param image_dir: Directory of image from which to fetch image
+    """
+
+    url1 = "%s:8080/geoserver/rest/workspaces/%s" % (geourl, workspace)
+    url2 = url1 + "/coveragestores?configure=all"
+    
+    image_path = image_dir + image_name + ".tif"
+
+    # xml payload
+    top = Element("coverage")
+    nm = SubElement(top, "name")
+    nm.text = image_name
+    wkspace = SubElement(top, "workspace")
+    wkspace.text = workspace
+    enabled = SubElement(top, "enabled")
+    enabled.text = "true"
+    typ = SubElement(top, "type")
+    typ.text = "GeoTIFF"
+    urlstr = SubElement(top, "url")
+    urlstr.text = image_path
+    payload = tostring(top)
+
+    # store_str = "<coverageStore><name>%s</name>" % (image_name)
+    # workspace_str = "<workspace>%s</workspace>" % (workspace)
+    # opt_str = "<enabled>true</enabled><type>GeoTIFF</type>"
+    # image_path_str = "<url>%s</url></coverageStore>" % (image_path)
+    # payload = store_str + workspace_str + opt_str + image_path_str
+    headers = {'content-type': 'text/xml'}
+    # print url2
+    # print (user, pwd)
+    r = requests.post(url2, auth = userpw, data = payload,
+                      headers = headers)
+    return(r)
+
+def create_geoserver_layer(geourl, userpw, workspace, image_name, image_dir, 
+                           geoinfo): 
+    """
+    Create geoserver geotiff layer, using requests library
+    :param geourl: url of geoserver 
+    :param userpw: geoserver user name and password as an array
+    :param workspace: relevant workspace
+    :param image_name: Extensionless name of image from which to make store 
+    :param image_dir: Directory of image from which to fetch image
+    :param geoinfo: Output of get_geo_info()
+    """
+
+    # url
+    url1 = "%s:8080/geoserver/rest/workspaces/%s" % (geourl, workspace)
+    url2 = "%s/coveragestores/%s/coverages" % (url1, image_name)
+  
+    g = geoinfo  # rename geoinfo
+    
+    # payload
+    top = Element("coverage")
+    nm = SubElement(top, "name")
+    nm.text = image_name
+    title = SubElement(top, "title")
+    title.text = image_name
+    natcrs = SubElement(top, "nativeCRS")
+    natcrs.text = g["crs"]
+    srs = SubElement(top, "srs")
+    srs.text = "EPSG:" + g["epsg"]
+    ll = SubElement(top, "latLongBoundingBox")
+    llxmin = SubElement(ll, "minx")
+    llxmin.text = str(g["ext"][0])
+    llxmax = SubElement(ll, "maxx")
+    llxmax.text = str(g["ext"][1])
+    llymin = SubElement(ll, "miny")
+    llymin.text = str(g["ext"][2])
+    llymax = SubElement(ll, "maxy")
+    llymax.text = str(g["ext"][3])
+    payload = tostring(top)
+    
+    # create and post request
+    headers = {'content-type': 'text/xml'}
+    r = requests.post(url2, auth = userpw, data = payload,
+                      headers = headers)
+    
+    return(r)
+
+geourl = "http://sandbox.crowdmapper.org"
+userpw = ("admin", "bz0nCEmYoRGBBqmvmfq/zKMk")
+workspace = "planet"
+image_dir = "/home/lestes/geoserver/sources/planet/gh/images/"
+image_name = "GH0688802_20180319_105120_1054_3B_stretch"
+
+files = glob.glob(image_dir + "*stretch.tif")[0]
+
+import requests
+store = create_geoserver_datastore(geourl, userpw, workspace, image_name,
+                                   image_dir)
+# print(store)
+
+image_path = image_dir + image_name + ".tif"
+img = gdal.Open(image_path)
+geoinfo = get_geo_info(img)
+# print geoinfo
+layer = create_geoserver_layer(geourl, userpw, workspace, image_name, image_dir,
+                               geoinfo)
+
 #s3paths = ["activemapper/sources/%s/%s" % (source, cntry) for cntry in cntrys]
 for name in names:
     #s3path = s3basepath + name[0:2].lower() + "/images/ | grep " + name
@@ -151,7 +263,7 @@ for name in names:
     # merge_str2 = "--recursive --exclude '*' --include %s*" % name
     # ps = subprocess.Popen(merge_str1 + merge_str2, shell = True,
     #                       stdin=subprocess.PIPE,
-    #                       stdout = subprocess.PIPE, 
+    #                       stdout = subprocess.PIPE,
     #                       stderr = subprocess.PIPE)
     # out, err = ps.communicate()
     # #print merge_str1 + merge_str2
@@ -176,13 +288,13 @@ for name in names:
 
         # Stretch with skimage
         img_array_stretch = raster_stretch(paths_names["image_path"], p1, p2, 0)
-        
+
         # Write out stretched array
         output_name = paths_names["image_name_root"] + stretch_name
         output_path = os.path.join(paths_names["ec2fullpath"], output_name)
         write_geotiff(output_path, img_array_stretch, imgvals["geoinfo"],
                       imgvals["srs"], gdal.GDT_UInt16)
-        
-        if comments == True:    
-            print "Completed writing " + output_name
 
+        if comments == True:
+            print "Completed writing " + output_name
+ 
