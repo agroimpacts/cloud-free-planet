@@ -6,11 +6,6 @@
 suppressMessages(library(rmapaccuracy))
 suppressWarnings(suppressMessages(library(sf)))
 
-## Hard-codes variables, for testing (set each variable to NULL for production)
-alt.root <- "/home/lestes/mapperAL"#NULL
-host <- NULL
-db.tester.name <- "lestes"#NULL
-
 # Get HIT ID, assignment ID
 args <- commandArgs(TRUE)
 if(length(args) < 3) stop("Need at least 3 arguments")
@@ -18,6 +13,21 @@ if(length(args) < 3) stop("Need at least 3 arguments")
 hitid <- args[1] 
 workerid <- args[2]   
 test_root <- args[3]
+if(!is.na(args[4])) {
+  db.tester.name <- args[4]
+} else {
+  db.tester.name <- NULL
+}
+if(!is.na(args[5])) {
+  alt.root <- args[5]
+} else {
+  alt.root <- NULL
+} 
+if(!is.na(args[6])) {
+  host <- args[6]
+} else {
+  host <- NULL
+}
 
 # Find working location
 coninfo <- mapper_connect(user = pgupw$user, password = pgupw$password,
@@ -38,9 +48,6 @@ if(test_root == "Y") {
 if(test_root == "N") {
   
   # Paths and connections
-  # host <- ifelse(!getwd() %in% c("/home/sandbox/afmap/", "/home/africa/afmap/"), 
-  #                "crowdmapper.org", "")
-
   # Read in hit and assignment ids  
   hits <- tbl(coninfo$con, "hit_data") %>% filter(hit_id == hitid) %>%
     select(name) %>% collect()
@@ -55,26 +62,31 @@ if(test_root == "N") {
   # Collect QAQC fields (if there are any; if not then "N" value will be 
   # returned). This should work for both
   # training and test sites
-  qaqc_sql <- paste0("select gid from qaqcfields where name=", "'", hits$name, 
-                     "'")
+  qaqc_sql <- paste0("select gid from qaqcfields where name=", "'", 
+                     hits$name, "'")
   qaqc_polys <- DBI::dbGetQuery(coninfo$con, qaqc_sql)
   qaqc_hasfields <- ifelse(nrow(qaqc_polys) > 0, "Y", "N") 
   if(qaqc_hasfields == "Y") {
-    qaqc_sql <- paste0("select gid, geom_clean",
-                       " from qaqcfields where name=", "'", hits$name, "'")
+    qaqc_sql <- paste0("select gid, name, category, categ_comment, geom_clean",
+                       " from qaqcfields where name=", "'", hits$name, "'", 
+                       " order by gid")
     qaqc_polys <- suppressWarnings(st_read(coninfo$con, query = qaqc_sql, 
                                            geom_column = 'geom_clean'))
+    # reorganize: this won't be necessary if we revise qaqcfields table
+    qaqc_polys <- qaqc_polys %>% 
+      mutate(name = paste0(name, "_", 1:nrow(qaqc_polys))) %>% select(-gid)
   }
   
   # Read in user data
-  user_sql <- paste0("select name, geom_clean from user_maps where ",
-                     "assignment_id=", "'", assignments$assignment_id, "'",
-                     " order by name")
-  
-  # test if user fields exist
-  user_polys <- DBI::dbGetQuery(coninfo$con, gsub(", geom_clean", "", user_sql))
+  # first test if user fields exist
+  user_sql <- paste0("select name from user_maps where ", "
+                     assignment_id=", "'", assignments$assignment_id, "'")
+  user_polys <- DBI::dbGetQuery(coninfo$con, user_sql)
   user_hasfields <- ifelse(nrow(user_polys) > 0, "Y", "N") 
   if(user_hasfields == "Y") {  # Read in user fields if there are any
+    user_sql <- paste0("select name, category, categ_comment, geom_clean",  
+                       " from user_maps where assignment_id=", "'", 
+                       assignments$assignment_id, "'", " order by name")
     user_polys <- suppressWarnings(st_read(coninfo$con, query = user_sql, 
                                            geom_column = 'geom_clean'))
   } 
@@ -89,14 +101,15 @@ if(test_root == "N") {
   kmlid <- hits$name
   if(nrow(user_polys) > 0) {  # Write it
     suppressWarnings(user_poly <- user_polys %>% 
-                       transmute(kmlname = paste0(kmlid, "_w")))
-    suppressWarnings(st_write(user_poly, delete_dsn = TRUE,
+                       select(name, category, categ_comment))
+    suppressWarnings(st_write(user_poly, delete_dsn = TRUE, 
+                              driver = 'kml', quiet = TRUE, 
                               dsn = paste0(worker_path, "/", kmlid, "_w.kml")))
   }
   if(nrow(qaqc_polys) > 0) {  # First convert to geographic coords
     suppressWarnings(qaqc_poly <- qaqc_polys %>% 
-                       transmute(kmlname = paste0(kmlid, "_r")))
-    suppressWarnings(st_write(qaqc_poly, delete_dsn = TRUE,
+                       select(name, category, categ_comment))
+    suppressWarnings(st_write(qaqc_poly, delete_dsn = TRUE, quiet = TRUE, 
                               dsn = paste0(worker_path, "/", kmlid, "_r.kml")))
   }
   worker_url <- paste0("https://", kml_root, 
