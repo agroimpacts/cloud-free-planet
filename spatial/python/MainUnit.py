@@ -24,7 +24,7 @@ param_dict["end_date_short"] = '2018-03-15' #'2017-09-15' #'2017-07-30'
 param_dict["max_clouds"] = 0.25  #max proportion of pixels that are clouds
 param_dict["max_bad_pixels"] = 0.25 #max proportion of bad pixels (transmission errors, etc.)
 param_dict["asset_type"] = "analytic_sr" #"udm"  #"analytic"  #analytic_sr"
-param_dict["maximgs"] = 10 #15 #10 #20 
+param_dict["maximgs"] = 15 #10 #20 
 param_dict["lst_item_types"] = ['PSScene4Band']  #needs to be a list
 param_dict["buffer_size"] = 0.00025  # a 10-pixel buffer; resolution = 0.000025
 param_dict["suffix"] = "_SR_GS"  #analytic_sr for growing season
@@ -151,11 +151,19 @@ def copy_center_pt_csv_to_grid_cell_csv(csv_in_name, csv_out_name):
 
 
 #csvname = r'D:\Users\twoodard\documents\extents_qual_sites_complete_orig_set.csv'
-csvname = r'D:\Users\twoodard\documents\extents_qual_sites_leftover.csv'
-param_dict["outdir"] = r'd:\PlanetTest\Data\SA_GrowingSeason'
-param_dict["start_date_short"] =  '2017-01-01' 
+#csvname = r'D:\Users\twoodard\documents\extents_qual_sites_leftover.csv'
+csvname = r'D:\Users\twoodard\documents\wv2_boxes_order_fixed.csv'
+param_dict["outdir"] = r'd:\PlanetTest\Data\MatchWV2gridcells'
+param_dict["start_date_short"] =  '2018-01-01' 
 param_dict["end_date_short"] = '2018-03-01'
 param_dict["suffix"] = "_SR_GS" 
+download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+
+csvname = r'D:\Users\twoodard\documents\wv2_boxes_order_fixed.csv'
+param_dict["outdir"] = r'd:\PlanetTest\Data\MatchWV2gridcells'
+param_dict["start_date_short"] =  '2017-06-30' 
+param_dict["end_date_short"] = '2017-08-31'
+param_dict["suffix"] = "_SR_OS" 
 download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
 
 csvname = r'D:\Users\twoodard\documents\extents_qual_sites_complete_orig_set.csv'

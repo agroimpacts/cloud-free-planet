@@ -232,7 +232,7 @@ def window_from_downloaded_file(fullname, xmin, xmax, ymin, ymax, dstname="", ou
                         src_crs=src.crs,
                         dst_transform=dst_transform,
                         dst_crs=dst_crs,
-                        resampling=Resampling.cubic)   #Which resampling type should we use? 
+                        resampling=Resampling.cubic)   
     except:
         return ""
 
@@ -247,7 +247,7 @@ def calculate_percent_good_cells_in_tiff(fname):
         #1: fill the array
         dataset = gdal.Open(fname, gdal.GA_ReadOnly)
         band = dataset.GetRasterBand(1)
-        cells = band.ReadAsArray()   #what type of array will cells be?  Might not be a numpy array
+        cells = band.ReadAsArray()   
 
         #2: count good cells
         good_cells = 0
@@ -282,14 +282,16 @@ def calculate_percent_good_cells_in_tiff2(fname):
         udm_cols = cells.shape[1]
         udm_rows = cells.shape[0]
 
+        """
         margin_size_x = int(udm_cols * .2381)
         margin_size_y = int(udm_rows * .2381)
         top_margin = margin_size_y * udm_cols  #The amount of pixels in udm_buffer above where grid data starts
         bottom_margin_start = total_cells - top_margin
         grid_right_col = udm_cols - margin_size_x
-        
+        """
+
         for cell in cells.flat:   #.flat allows you to iterate over each element of the array as if it were one dimensional
-            count += 1
+            #count += 1
 
             #Remove transmission error values:
             if cell > 2:
@@ -500,8 +502,7 @@ def download_planet_data_new(client,session,outdir,start_date_short,end_date_sho
         percent_good = 0
         best_percent_good = 0
         
-        query = set_filters_sr(aoi_udm)  #4/23 - Need to only include scenes that have an analytic_sr asset 
-        #query = set_filters(aoi_udm) #5/9 see if adding the analytic_sr was what caused the problem
+        query = set_filters_sr(aoi_udm)  
             
         logging.info(" ")
         logging.info("Querying scenes where cloud_cover < " + str(params["max_clouds"])) 
@@ -516,7 +517,7 @@ def download_planet_data_new(client,session,outdir,start_date_short,end_date_sho
 
                 #5/18/18 - add prefix to udm file, so that it doesn't get overwritten by later udm window downloads                
                 if best_percent_good < 1.0:      #Don't need UDM file if 100% good cells
-                    add_prefix_to_fname_and_copy(prefix, best_scene_fname)     
+                    add_prefix_to_fname_and_copy(prefix, best_scene_fname)    
                 
 
         logging.info("final best percent = " + str(best_percent_good))
@@ -623,7 +624,6 @@ def download_scenes_from_aois_in_csv(csvname, passed_apikey, outdir,start_date_s
         worked = (worked and (output_fname != "Error encountered while communicating with Planet website or downloading files.")) 
 
         if worked:   ### Need to change this comparison
-
             outf = open(outname_file, 'a')
             percent_str = '{0:2f}'.format(global_best_percent * 100)
             print(name + "=" + output_fname + ",   % Good = " + percent_str + " %", file = outf)   # write list of grid cell names and their corresponding filenames to a text file
@@ -632,8 +632,11 @@ def download_scenes_from_aois_in_csv(csvname, passed_apikey, outdir,start_date_s
             skippedfilelog = outdir + '\\not_downloaded.txt'
             skippedf = open(skippedfilelog, 'a')
             msg = name # + global_best_percent
-            if global_best_scene_id != "":
-                msg = msg + "  Best scene found before skipping : " + global_best_scene_id + "  " + global_best_percent + "%"
+            try:
+                if global_best_scene_id != "":
+                    msg = msg + "  Best scene found before skipping : " + global_best_scene_id + "  " + global_best_percent + "%"
+            except:
+                logging.info("  ")
             print(msg,file=skippedf)
             skippedf.close()
     
@@ -828,7 +831,8 @@ def use_new_clip_and_ship_to_download_udms(query, client, session, aoi, outpath)
 
         #Compare the UDMs:
         try:
-            percent_good = calculate_percent_good_cells_in_tiff2(outfname)  #5/18/18 - changed call to new procedure - diff algorithm. ignores anomalous pixels
+            #percent_good = calculate_percent_good_cells_in_tiff2(outfname)  #5/18/18 - changed call to new procedure - diff algorithm. ignores anomalous pixels
+            percent_good = calculate_percent_good_cells_in_tiff(outfname)  #6/4/18 - going back to counting anomalous pixels as bad, in case they are clouds
         except:
             logging.info("Unable to calculate percent good for  " + targ["item_id"] + ". Skipping this UDM.")
             continue
@@ -841,6 +845,7 @@ def use_new_clip_and_ship_to_download_udms(query, client, session, aoi, outpath)
             break   #we're done. stop now.
         elif percent_good > best_percent_good:
             #save this as the best scene so far & continue to check for a better scene
+            os.remove(best_fname) #6/4/18
             best_fname = outfname
             best_id = targ["item_id"]
             best_percent_good = percent_good
