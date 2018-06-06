@@ -33,10 +33,10 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                 layers: []
             }),
             // Create multi-band image layer group.
-            //new ol.layer.Group({
-            //    title: 'Satellite Image Overlays',
-            //    layers: []
-            //}),
+            new ol.layer.Group({
+                title: 'Satellite Image Overlays',
+                layers: []
+            }),
             // Create base layer group.
             new ol.layer.Group({
                 title: 'Base Layer',
@@ -118,23 +118,28 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         });
         fieldsLayer.setMap(map);
         
+        //var geoserverUrl = 'https://sandbox.crowdmapper.org/geoserver/planet/wms';
+        var geoserverUrl = '/geoserver/planet/wms';
+        var image_name = 'GH0688802_20180319_105120_1054_3B_stretch';
         //
         //*** Create the WMS layer ***
         //
         //var wmsLayer = new ol.layer.Image({
+        //    title: "WMS Image",
         //    source: new ol.source.ImageWMS({
         //        url: geoserverUrl,
         //        params: {
-        //            layers: 'MappingAfrica:' + image_name,
-        //            styles: 'true_color'
+        //            layers: 'planet:' + image_name,
+        //            styles: 'planet_true'
         //        },
         //        serverType: 'geoserver'
-        //    });
+        //    }),
+        //    visible: true
         //});    
         //wmsLayer.setMap(map);
 
-        //map.getLayers().getArray()[0].getLayers().push(wmsLayer);
         map.getLayers().getArray()[0].getLayers().push(fieldsLayer);
+        //map.getLayers().getArray()[1].getLayers().push(wmsLayer);
 
         // Add drag interaction (for non-worker feedback cases).
         var dragFeature = null;
@@ -214,18 +219,6 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         });
         rMapLayer.setMap(map);
 
-        //rMapLayer.getSource().on('change', function (event) {
-        //    var source = event.target;
-        //    if (source.getState() === 'ready') {
-        //        var rfeatures = source.getFeatures();
-        //        console.log(rfeatures);
-        //        for (var rfeature in rfeatures) {
-        //            console.log(rfeatures[rfeature].get('category'));
-        //            console.log(rfeatures[rfeature].get('categ_comment'));
-        //        }
-        //    }
-        //});
-
         var wMapLayer = new ol.layer.Vector({
             title: "Worker Map",
             source: new ol.source.Vector({
@@ -298,9 +291,18 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     if (!workerFeedback) {
         // Add event handler to execute each time a shape is drawn.
         var mainbarVisible = true;
+        var activeControl = null;
         fieldsLayer.getSource().on('addfeature', function(event) {
             // Render the control bar invisible and inactive.
             mainbar.setVisible(false);
+            // Remember which drawing control is active so we can reactivate it later.
+            var ctrls = mainbar.getControls()[0].getSubBar().getControls();
+            for (var i = 0; i < ctrls.length; i++) {
+                activeControl = ctrls[i];
+                if (activeControl.getActive()) {
+                    break;
+                }
+            }
             mainbar.setActive(false);
             mainbarVisible = false;
             // Clear all shape selections.
@@ -444,6 +446,8 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         if (!mainbarVisible) {
             mainbarVisible = true;
             mainbar.setActive(true);
+            // Reactivate the control that was active prior to labeling.
+            activeControl.setActive(true);
             mainbar.setVisible(true);
         }
     });

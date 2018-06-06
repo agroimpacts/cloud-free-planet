@@ -81,6 +81,12 @@
       "css": "back",
       "code": 59398,
       "src": "entypo"
+    },
+    {
+      "uid": "c92ad3028acce9d51bae0ac82f5de8a2",
+      "css": "bullseye",
+      "code": 61760,
+      "src": "fontawesome"
     }
   ]
 }
