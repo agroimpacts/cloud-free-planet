@@ -70,6 +70,29 @@ function addControlBar(fieldsLayer, workerMap, checkSaveStrategy, checkReturnStr
         })
     }));
     drawBar.addControl( new ol.control.Toggle({
+        html: '<i class="icon-bullseye" ></i>',
+        title: 'Point creation: Click on map at desired location.',
+        interaction: new ol.interaction.Draw({
+            type: 'Point',
+            features: workerMap,
+            style: new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: 'rgba(255, 255, 255, 0.2)',
+                }),
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(0, 153, 255, 1.0)',
+                    width: 2
+                }),
+                image: new ol.style.Circle({
+                    radius: 7,
+                    fill: new ol.style.Fill({
+                        color: 'rgba(0, 153, 255, 0.5)'
+                    })
+                })
+            })
+        })
+    }));
+    drawBar.addControl( new ol.control.Toggle({
         html: '<i class="icon-rectangle-o" ></i>',
         title: 'Rectangle creation: Click at corner of field; slide mouse to expand and click when done.',
         interaction: new ol.interaction.Draw({

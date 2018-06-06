@@ -122,7 +122,7 @@ def application(environ, start_response):
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                     <link rel="stylesheet" href="https://openlayers.org/en/v3.18.2/css/ol.css" type="text/css">
                     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400">
-                    <link rel="stylesheet" href="/OL/fontello-b8cf557f/css/fontello.css" type="text/css" />
+                    <link rel="stylesheet" href="/OL/fontello-2cc19da7/css/fontello.css" type="text/css" />
                     <link rel="stylesheet" href="/OL/ol3-layerswitcher.css" type="text/css">
                     <link rel="stylesheet" href="/OL/controlbar.css" type="text/css">
                     <link rel="stylesheet" href="/OL/showkml.css" type="text/css">
