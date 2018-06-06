@@ -9,8 +9,7 @@ APP_NAME = "Agricultural Mapping Platform"
 APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
 
 # Flask settings
-# *** TODO: Should we re-enable the CSRF protection? ***
-CSRF_ENABLED = False
+CSRF_ENABLED = True
 
 # Flask-SQLAlchemy settings
 SQLALCHEMY_TRACK_MODIFICATIONS = False
