@@ -12,20 +12,27 @@ import requests
 
 #from matplotlib import plt
 
-names = ['GH0688802', 'GH0690415', 'GH0692014'] 
-# names = ['GH0688802']
-source = "planet"
-s3basepath = "s3://activemapper/sources/" + source + "/"
-ec2basepath = "/home/lestes/geoserver/sources/" + source + "/"
-awspath = "/home/lestes/.local/bin/aws"
-#awspath = "/home/lestes/.local/bin/aws"
-stretch = True
-# false_color = False
-comments = True
-substring = "AnalyticMS_SR_win.tif"
-stretch_name = "stretch.tif"
-p1 = 0
-p2 = 100
+def check_geoserver(ec2basepath, name, substring): 
+    """
+    Checks image by name to see if it is on already on the EC2 geoserver, to 
+    determine if it needs to pulled in from s3.  
+    :param ec2basepath: ec2 path up to first folder variable 
+    :param name: Root name of image (here grid id which is always first)
+    :param substring: Part of full image name to remove
+    """
+    
+    ec2fullpath = ec2basepath + name[0:2].lower() + "/images/"
+    image = glob.glob(ec2fullpath + name + "*" + substring)
+    if len(image) == 1:  # assumes only one image matches name
+        # print image
+        out = os.path.basename(os.path.normpath(image[0]))
+    elif len(image) > 1:
+        print "More than 1 file name matches--shouldn't be a duplicate"
+        return 
+    else: 
+        out = None
+
+    return out
 
 def image_from_s3_to_ec2(s3basepath, ec2basepath, name, substring, 
                          awspath = "aws"):
@@ -53,6 +60,7 @@ def image_from_s3_to_ec2(s3basepath, ec2basepath, name, substring,
                 "image_path": image_path, "image_name_root": image_name_root,
                 "ec2fullpath": ec2fullpath}
     return(out_dict)
+    
 
 def get_geo_info(image):
     """
@@ -79,25 +87,6 @@ def get_geo_info(image):
            "nbands": nbands, "ext": ext, "geoinfo": geoinfo, "crs": crs, 
            "crs2": crs2, "NDvals": NDvals}       
     return out
-
-# Write out stretch image to GeoTiff
-# def write_stretch_tif(array, imagevals, output_name, driver, 
-#                       falsecolor = False):
-#     driver = gdal.GetDriverByName(driver)
-#     stretch_tif_out = driver.Create(output_name, imagevals["xsize"],
-#                                     imagevals["xsize"], imagevals["nbands"],
-#                                     gdal.GDT_Byte)
-#     stretch_tif_out.SetGeoTransform(imagevals["geoinfo"])
-#     stretch_tif_out.SetProjection(imagevals["srs"])
-#     
-#     if(imagevals["nbands"] == 4 & falsecolor == True): 
-#         bandorder = [1, 2, 3, 0]
-#     else: 
-#         bandorder = range(imagevals["nbands"])
-#         
-#     for band in bandorder:
-#         stretch_tif_out.GetRasterBand(band + 1).WriteArray(
-#             array.astype(np.uint8))
 
 def raster_stretch(image_path, p1, p2, NDV):
      """
@@ -163,7 +152,7 @@ def create_geoserver_datastore(geourl, userpw, workspace, image_name,
     image_path = image_dir + image_name + ".tif"
 
     # xml payload
-    top = Element("coverage")
+    top = Element("coverageStore")
     nm = SubElement(top, "name")
     nm.text = image_name
     wkspace = SubElement(top, "workspace")
@@ -181,6 +170,8 @@ def create_geoserver_datastore(geourl, userpw, workspace, image_name,
     # opt_str = "<enabled>true</enabled><type>GeoTIFF</type>"
     # image_path_str = "<url>%s</url></coverageStore>" % (image_path)
     # payload = store_str + workspace_str + opt_str + image_path_str
+    # print payload
+
     headers = {'content-type': 'text/xml'}
     # print url2
     # print (user, pwd)
@@ -233,74 +224,3 @@ def create_geoserver_layer(geourl, userpw, workspace, image_name, image_dir,
                       headers = headers)
     
     return(r)
-
-def create_wms_string():
-    
-
-
-geourl = "http://sandbox.crowdmapper.org"
-userpw = ("admin", "bz0nCEmYoRGBBqmvmfq/zKMk")
-workspace = "planet"
-image_dir = "/home/lestes/geoserver/sources/planet/gh/images/"
-image_name = "GH0688802_20180319_105120_1054_3B_stretch"
-
-files = glob.glob(image_dir + "*stretch.tif")[0]
-
-import requests
-store = create_geoserver_datastore(geourl, userpw, workspace, image_name,
-                                   image_dir)
-# print(store)
-
-image_path = image_dir + image_name + ".tif"
-img = gdal.Open(image_path)
-geoinfo = get_geo_info(img)
-# print geoinfo
-layer = create_geoserver_layer(geourl, userpw, workspace, image_name, image_dir,
-                               geoinfo)
-
-# https://sandbox.crowdmapper.org/geoserver/planet/wms?service=WMS&version=1.1.0&request=GetMap&layers=planet:GH0688802_20180319_105120_1054_3B_stretch&styles=&bbox=-0.6612499999999999,5.899749999999999,-0.65575,5.9052500000000006&width=767&height=768&srs=EPSG:4326&format=image%2Fpng
-
-#s3paths = ["activemapper/sources/%s/%s" % (source, cntry) for cntry in cntrys]
-for name in names:
-    #s3path = s3basepath + name[0:2].lower() + "/images/ | grep " + name
-    # s3path = s3basepath + name[0:2].lower() + "/images/"
-    # ec2path = ec2basepath + name[0:2].lower() + "/images/"
-    # merge_str1 =  "%s s3 cp %s %s " % (awspath, s3path, ec2path)
-    # merge_str2 = "--recursive --exclude '*' --include %s*" % name
-    # ps = subprocess.Popen(merge_str1 + merge_str2, shell = True,
-    #                       stdin=subprocess.PIPE,
-    #                       stdout = subprocess.PIPE,
-    #                       stderr = subprocess.PIPE)
-    # out, err = ps.communicate()
-    # #print merge_str1 + merge_str2
-    # image_name = out.split("/")[-1].strip()  # get full image name
-    # image_base_name = re.sub("win.tif", "", image_name)
-    # image_path = os.path.join(ec2path, image_name)
-    paths_names = image_from_s3_to_ec2(s3basepath, ec2basepath, name, substring,
-                                       awspath)
-
-    if comments == True:
-        print "Completed transfer of " + paths_names["image_name"]
-
-    if(stretch == False):
-        if comments == True:
-            print "...no stretch applied"
-
-    ## histogram stretch the image and write it out to disk
-    if(stretch == True):
-        # Get image bbox and epsg
-        img = gdal.Open(paths_names["image_path"])
-        imgvals = get_geo_info(img)
-
-        # Stretch with skimage
-        img_array_stretch = raster_stretch(paths_names["image_path"], p1, p2, 0)
-
-        # Write out stretched array
-        output_name = paths_names["image_name_root"] + stretch_name
-        output_path = os.path.join(paths_names["ec2fullpath"], output_name)
-        write_geotiff(output_path, img_array_stretch, imgvals["geoinfo"],
-                      imgvals["srs"], gdal.GDT_UInt16)
-
-        if comments == True:
-            print "Completed writing " + output_name
- 
