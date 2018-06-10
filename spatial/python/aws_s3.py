@@ -14,7 +14,6 @@ import boto3.session
 import pandas as pd
 from io import BytesIO
 
-
 class AWS_S3():
     def __int__(self):
         self.s3_client = None
@@ -28,7 +27,9 @@ class AWS_S3():
         self.s3_resource = boto3.resource('s3', region_name=_region_name)
 
     #please use the above method, which is more secure
-    def create_client_with_access(self, _aws_access_key_id, _aws_secret_access_key, _region_name='us-east-1'):
+    def create_client_with_access(self, _aws_access_key_id, 
+                                  _aws_secret_access_key, 
+                                  _region_name='us-east-1'):
         #customize session
         self.aws_session = boto3.session.Session()
         self.s3_client = self.aws_session.client('s3', aws_access_key_id=_aws_access_key_id,
@@ -45,27 +46,6 @@ class AWS_S3():
     def list_objects(self, bucket, prefix, suffix=None):
         res = []
         if self.s3_resource is not None:
-            ###############################
-            #old version
-            #might not return all the files, limit to a a maximum number
-            #objs = self.s3_client.list_objects(Bucket=bucket, Prefix=prefix)
-            # if 'Contents'in objs:
-            #     for obj in objs['Contents']:
-            #         #if no suffix given, add all objects with the prefix
-            #         if suffix is None:
-            #             res.append(str(obj['Key']))
-            #         else:
-            #             #add all objects that ends with the given suffix
-            #             if type(suffix) is list:
-            #                 for _suffix in suffix:
-            #                     if obj['Key'].endswith(_suffix):
-            #                         res.append(str(obj['Key']))
-            #                         break;
-            #             else:
-            #                 #suffix is a single string
-            #                 if obj['Key'].endswith(suffix):
-            #                     res.append(str(obj['Key']))
-            ##############################
             my_bucket = self.s3_resource.Bucket(bucket)
             for obj in my_bucket.objects.filter(Prefix=prefix):
                 #if no suffix given, add all objects with the prefix
