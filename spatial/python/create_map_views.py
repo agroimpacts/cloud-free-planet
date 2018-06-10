@@ -234,6 +234,10 @@ def create_geoserver_layer(geourl, userpw, workspace, image_name, image_dir,
     
     return(r)
 
+def create_wms_string():
+    
+
+
 geourl = "http://sandbox.crowdmapper.org"
 userpw = ("admin", "bz0nCEmYoRGBBqmvmfq/zKMk")
 workspace = "planet"
@@ -253,6 +257,8 @@ geoinfo = get_geo_info(img)
 # print geoinfo
 layer = create_geoserver_layer(geourl, userpw, workspace, image_name, image_dir,
                                geoinfo)
+
+# https://sandbox.crowdmapper.org/geoserver/planet/wms?service=WMS&version=1.1.0&request=GetMap&layers=planet:GH0688802_20180319_105120_1054_3B_stretch&styles=&bbox=-0.6612499999999999,5.899749999999999,-0.65575,5.9052500000000006&width=767&height=768&srs=EPSG:4326&format=image%2Fpng
 
 #s3paths = ["activemapper/sources/%s/%s" % (source, cntry) for cntry in cntrys]
 for name in names:
