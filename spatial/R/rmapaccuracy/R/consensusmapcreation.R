@@ -1,8 +1,8 @@
-#' Control the output of label maps, conflict maps, and heat maps 
+#' Control the output of label maps, risk maps, and heat maps 
 #' @param kmlid 
 #' @param min_mappedcount the minimum approved assignment count
 #' @param scorethres the threshold to select valid assignment
-#' @param conflictthres the threshold to select 'conflict' pixels
+#' @param riskthres the threshold to select 'risk' pixels
 #' @param user User name for database connection
 #' @param password Password for database connection
 #' @param db.tester.name User name for testing (default NULL)
@@ -15,8 +15,7 @@
 #' @return  
 
 consensusmapcreation <- function(kmlid, min_mappedcount, scorethres, 
-                                 output.conflictmap, output.heatmap, 
-                                 conflictpixelthres,diam,user, password, 
+                                 riskpixelthres,diam,user, password, 
                                  db.tester.name, alt.root, 
                                  host, qsite = FALSE){
   
@@ -88,14 +87,14 @@ consensusmapcreation <- function(kmlid, min_mappedcount, scorethres,
       # likelihood.sql <- paste0("select new_score from new_error_data", 
       #                            " where assignment_id  = '", 
       #                            historyassignmentid[x], "'") 
-      # lklh_field <- as.numeric((DBI::dbGetQuery(coninfo$con, likelihood.sql))
+      # max_lklh_field <- as.numeric((DBI::dbGetQuery(coninfo$con, likelihood.sql))
       #                          $new_score) 
-      # lklh_nofield <- as.numeric((DBI::dbGetQuery(coninfo$con, likelihood.sql))
+      # max_lklh_nofield <- as.numeric((DBI::dbGetQuery(coninfo$con, likelihood.sql))
       #                            $new_score) 
       # score_history <- as.numeric((DBI::dbGetQuery(coninfo$con, likelihood.sql))
       #                             $new_score) 
-      # c('lklh_field' = lklh_field, 'lklh_nofield' = lklh_nofield, 'score_history'
-      #                                       = score_history)
+      # c('lklh_field' = max_lklh_field, 'lklh_nofield' = max_lklh_nofield, 
+      #                                'score_history' = score_history)
       ################### test lines###############################
                                          
       ################### official lines###########################
@@ -105,17 +104,17 @@ consensusmapcreation <- function(kmlid, min_mappedcount, scorethres,
                                 historyassignmentid[x], "'") 
       measurements <- DBI::dbGetQuery(coninfo$con, likelihood.sql)
       
-      c('lklh_field' = as.numeric(measurements$field_skill), 
-        'lklh_nofield' = as.numeric(measurements$nofield_skill), 
+      c('max_lklh_field' = as.numeric(measurements$field_skill), 
+        'max_lklh_nofield' = as.numeric(measurements$nofield_skill), 
         'score_history' = as.numeric(measurements$new_score))
       ################### official lines###########################
     })
       
-    # calculating mean likelihood and score from history 
-    lklh_field <- mean(data.frame(do.call(rbind, userhistory_measurements))
-                       $lklh_field)
-    lklh_nofield <- mean(data.frame(do.call(rbind, userhistory_measurements))
-                         $lklh_nofield)
+    # calculating mean max likelihood and score from history 
+    max_lklh_field <- mean(data.frame(do.call(rbind, userhistory_measurements))
+                       $max_lklh_field)
+    max_lklh_nofield <- mean(data.frame(do.call(rbind, userhistory_measurements))
+                         $max_lklh_nofield)
     score_history <- mean(data.frame(do.call(rbind, userhistory_measurements))
                           $score_history)
     # if the user score is larger than the required 
@@ -137,21 +136,25 @@ consensusmapcreation <- function(kmlid, min_mappedcount, scorethres,
         # union user polygons
         user.poly <- st_union(user.polys)
         
-        # if for qsite, we need to first intersection user maps by grid 
+        # if for N or F sites, we need to first intersection user maps by grid 
         # to remain those within-grid parts for calculation
         if (qsite == FALSE){
           user.poly <- suppressWarnings(st_intersection(user.poly, grid.poly))
         }
-        bayes.poly <- st_sf('lklh_field' = lklh_field, 'lklh_nofield' = 
-                              lklh_nofield, geometry = st_sfc(user.poly))
+        bayes.poly <- st_sf('posterior_field' = 1, 'posterior_nofield' =
+                              1,'max_field_lklh' = max_lklh_field , 
+                            'max_nofield_lklh' =max_lklh_nofield , 
+                            'prior'= score, geometry = st_sfc(user.poly))
+        
         # set crs
         st_crs(bayes.poly) <- gcsstr
       }
       else{
         # if users do not map field, set geometry as empty multipolygon
-        bayes.poly <- st_sf('lklh_field' = lklh_field, 'lklh_nofield' = 
-                              lklh_nofield, 
-                            geometry = st_sfc(st_multipolygon()))
+        bayes.poly <- st_sf('posterior_field' = 1, 'posterior_nofield' =
+                              1,'max_field_lklh' = max_lklh_field , 
+                            'max_nofield_lklh' =max_lklh_nofield , 
+                            'prior'= score, geometry = st_sfc(st_multipolygon()))
         st_crs(bayes.poly) <- gcsstr
       }
       bayes.poly
@@ -168,7 +171,7 @@ consensusmapcreation <- function(kmlid, min_mappedcount, scorethres,
   count_hasuserpolymap <- length(which(st_is_empty(bayes.polys[, "geometry"]) ==
                                          FALSE))
   
-  # if no any user map polygons for this grid or if for cvml training, 
+  # if no any user map polygons for this grid or if for qsite, 
   # use the grid extent as the raster extent
   if ((qsite == FALSE) || (count_hasuserpolymap == 0)){
     rasterextent <- grid.poly
@@ -181,23 +184,24 @@ consensusmapcreation <- function(kmlid, min_mappedcount, scorethres,
     new_bbbox <- st_bbox(c(xmin = min(bb_polys$xmin,bb_grid$xmin), 
                            xmax = max(bb_polys$xmax,bb_grid$xmax), 
                            ymax = max(bb_polys$ymax,bb_grid$ymax), 
-                           ymin = max(bb_polys$ymin,bb_grid$ymin)), crs = gcsstr)
+                           ymin = min(bb_polys$ymin,bb_grid$ymin)), crs = gcsstr)
     rasterextent <- st_sf(geom = st_as_sfc(new_bbbox))
   }
   
   
-  bayesoutput <- bayesianfusion(bayes.polys = bayes.polys, 
-                                rasterextent = rasterextent)
+  bayesoutput <- BayesModelAveraging(bayes.polys = bayes.polys,
+                                     rasterextent = rasterextent,
+                                     threshold = 0.5)
   
-  conflictpixelpercentage <- ncell(bayesoutput$conflictmap
-                                   [bayesoutput$conflictmap > conflictpixelthres])/
-                             (nrow(bayesoutput$conflictmap)*
-                                 ncol(bayesoutput$conflictmap))
-  # need add conflictpixelpercentage column into kml_data tables
-  # insert conflict pixel percentage into kml_data table
-  # conflict.sql <- paste0("insert into kml_data (consensus_conflict)", 
-  #                   " values ('", conflictpixelpercentage, "')")
-  # dbSendQuery(coninfo$con, conflict.sql) # will be changed to official lines
+  riskpixelpercentage <- ncell(bayesoutput$riskmap
+                                   [bayesoutput$riskmap > riskpixelthres])/
+                             (nrow(bayesoutput$riskmap)*
+                                 ncol(bayesoutput$riskmap))
+  # need add riskpixelpercentage column into kml_data tables
+  # insert risk pixel percentage into kml_data table
+  risk.sql <- paste0("insert into kml_data (consensus_conflict)", 
+                    " values ('", riskpixelpercentage, "')")
+  dbSendQuery(coninfo$con, risk.sql) # will be changed to official lines
   
   ###################### S3 bucket output ###############
   # unfinished
