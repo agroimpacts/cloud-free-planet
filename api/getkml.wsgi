@@ -2,22 +2,6 @@ from webob import Request, Response
 import datetime
 from MappingCommon import MappingCommon
 
-def buildSelect(mapc):
-    select = '<select id="categLabel" title="Select a category for this field">\n'
-    categMaxNum = int(mapc.getConfiguration("CategMaxNum"))
-    categText = []
-    categCode = []
-    for ndx in range(1, categMaxNum + 1):
-        categText = mapc.getConfiguration("CategText" + str(ndx))
-        if categText is None:
-            break
-        categCode = mapc.getConfiguration("CategCode" + str(ndx))
-        if categCode is None:
-            categCode = categText
-        select += "<option value='%s'>%s</option>\n" % (categCode, categText)
-    select += "</select>\n"
-    return select
-
 def application(environ, start_response):
     req = Request(environ)
     res = Response()
@@ -32,8 +16,9 @@ def application(environ, start_response):
     kmlGenScript = mapc.getConfiguration('KMLGenScript')
     kmlGenUrl = "%s/%s" % (apiUrl, kmlGenScript)
     mapUrl = mapc.getConfiguration('MapUrl')
+    geoserverUrl = mapc.getConfiguration('GeoserverUrl')
     instructions = mapc.getConfiguration('KMLInstructions')
-    select = buildSelect(mapc)
+    select = mapc.buildSelect()
 
     k = open(logFilePath + "/OL.log", "a")
     k.write("\ngetkml: datetime = %s\n" % now)
@@ -53,6 +38,7 @@ def application(environ, start_response):
             workerId = ''
             target = '_parent'
             commentsVisible = 'block'
+            wmsAttributes = mapc.getWMSAttributes(kmlName)
 
             # Training case.
             # This has a tryNum.
@@ -89,12 +75,14 @@ def application(environ, start_response):
                 workerId = req.params['workerId']
                 instructions = 'Please select one of the overlays and click on a mapped field to see its category and comment labels.'
                 commentsVisible = 'none'
+                wmsAttributes = ''
 
             # Standalone case.
             # This has no workerId.
             except:
                 workerId = ''
                 commentsVisible = 'block'
+                wmsAttributes = mapc.getWMSAttributes(kmlName)
 
         # If mapping or training case,
         if len(assignmentId) > 0:
@@ -139,7 +127,7 @@ def application(environ, start_response):
                     <script type="text/javascript" src="/OL/MAcontrolbar.js"></script>
                     <script type="text/javascript" src="/OL/showkml.js"></script>
                 </head>
-                <body onload="init('%(kmlPath)s', '%(kmlName)s', '%(assignmentId)s', '%(tryNum)s', '%(resultsAccepted)s', '%(mapPath)s', '%(workerId)s')">
+                <body onload='init("%(kmlPath)s", "%(kmlName)s", "%(assignmentId)s", "%(tryNum)s", "%(resultsAccepted)s", "%(mapPath)s", "%(workerId)s", "%(geoserverUrl)s", %(wmsAttributes)s)'>
                     <form style='width:100%%;' name='mappingform' action='%(submitTo)s' method='POST' target='%(target)s'>
                         <div class='instructions'>
                             %(instructions)s
@@ -193,7 +181,9 @@ def application(environ, start_response):
             'mapPath': mapUrl,
             'workerId': workerId,
             'select': select,
-            'csrfToken': csrfToken
+            'csrfToken': csrfToken,
+            'geoserverUrl': geoserverUrl,
+            'wmsAttributes': wmsAttributes
         }
         res.text = mainText
     # No KML specified.

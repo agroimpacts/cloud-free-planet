@@ -1,4 +1,4 @@
-function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId) {
+function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId, geoserverUrl, wmsAttributes) {
 
     var saveStrategyActive = false;
     var workerFeedback = false;
@@ -29,7 +29,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         layers: [
             // Create overlay layer(s) group.
             new ol.layer.Group({
-                title: 'Overlay(s)',
+                title: 'Field Overlay(s)',
                 layers: []
             }),
             // Create multi-band image layer group.
@@ -40,7 +40,6 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             // Create base layer group.
             new ol.layer.Group({
                 title: 'Base Layer',
-                //layers: [dg3Layer, dg2Layer, dg1Layer, planetLayer, mapboxLayer, bingLayer]
                 layers: [dg1Layer, mapboxLayer, bingLayer]
             })
         ],
@@ -117,29 +116,38 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             })
         });
         fieldsLayer.setMap(map);
-        
-        //var geoserverUrl = 'https://sandbox.crowdmapper.org/geoserver/planet/wms';
-        var geoserverUrl = '/geoserver/planet/wms';
-        var image_name = 'GH0688802_20180319_105120_1054_3B_stretch';
-        //
-        //*** Create the WMS layer ***
-        //
-        //var wmsLayer = new ol.layer.Image({
-        //    title: "WMS Image",
-        //    source: new ol.source.ImageWMS({
-        //        url: geoserverUrl,
-        //        params: {
-        //            layers: 'planet:' + image_name,
-        //            styles: 'planet_true'
-        //        },
-        //        serverType: 'geoserver'
-        //    }),
-        //    visible: true
-        //});    
-        //wmsLayer.setMap(map);
-
         map.getLayers().getArray()[0].getLayers().push(fieldsLayer);
-        //map.getLayers().getArray()[1].getLayers().push(wmsLayer);
+        
+        //
+        //*** Create the WMS layers  based on wms_data table ***
+        //
+        // Named constants (must match order in getWMSAttributes()).
+        var PROVIDER = 0;
+        var IMAGE_NAME = 1;
+        var STYLE = 2;
+        var VISIBLE = 3;
+        var DESCRIPTION = 4;
+
+        var wmsLayer = [];
+        for (var i = 0; i < wmsAttributes.length; i++) {
+            wmsAttribute = wmsAttributes[i];
+            wmsLayer[i] = new ol.layer.Image({
+                visible: wmsAttribute[VISIBLE],
+                title: wmsAttribute[DESCRIPTION],
+                source: new ol.source.ImageWMS({
+                    url: geoserverUrl,
+                    params: {
+                        VERSION: '1.1.1',
+                        LAYERS: wmsAttribute[PROVIDER] + ':' + wmsAttribute[IMAGE_NAME],
+                        STYLES: wmsAttribute[PROVIDER] + ':' + wmsAttribute[STYLE]
+                    }
+                })
+            });    
+            // Add new WMS layer to map.
+            wmsLayer[i].setMap(map);
+            // Add new WMS layer to Satellite Image Overlays in Layer Switcher.
+            map.getLayers().getArray()[1].getLayers().push(wmsLayer[i]);
+        }
 
         // Add drag interaction (for non-worker feedback cases).
         var dragFeature = null;
