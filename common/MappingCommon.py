@@ -2,6 +2,7 @@ import os
 import subprocess
 import pwd
 import cgi
+import json
 import random
 from datetime import datetime
 from dateutil import tz
@@ -273,6 +274,34 @@ class MappingCommon(object):
     # Create an Alert-type GitHub issue.
     def createAlertIssue(self, title=None, body=None):
         self.createIssue(title, body, MappingCommon.AlertIssue)
+
+    # Build HTML SELECT tag with field category options.
+    def buildSelect(self):
+        select = '<select id="categLabel" title="Select a category for this field">\n'
+        categMaxNum = int(self.getConfiguration("CategMaxNum"))
+        categText = []
+        categCode = []
+        for ndx in range(1, categMaxNum + 1):
+            categText = self.getConfiguration("CategText" + str(ndx))
+            if categText is None:
+                break
+            categCode = self.getConfiguration("CategCode" + str(ndx))
+            if categCode is None:
+                categCode = categText
+            select += "<option value='%s'>%s</option>\n" % (categCode, categText)
+        select += "</select>\n"
+        return select
+
+    # Get WMS attribute array for specified KML name.
+    # Note: these are sorted in reverse priority order because OL3 stacks
+    #       map layers in last-in on-top order.
+    def getWMSAttributes(self, kmlName):
+        self.cur.execute("""SELECT provider, image_name, style, visible, description
+                FROM wms_data
+                WHERE enabled AND name = '%s'
+                ORDER BY priority DESC""" % kmlName)
+        # Double json.dumps because of embedded quotes in 2D array.
+        return json.dumps(self.cur.fetchall())
 
     #
     # *** HIT-Related Functions ***
