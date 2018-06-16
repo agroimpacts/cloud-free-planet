@@ -107,10 +107,11 @@ bayesianfusion <- function(bayes.polys, rasterextent){
   } 
   
   # prior probability is the average proportion of field and no field in our grid
-  prior_field <- acc_field_area / (nrow(bayes.polys) * 
-                  as.numeric(st_area(st_transform(rasterextent, crs = prjstr))))
-  prior_nofield <- 1 - prior_field
-  
+  # prior_field <- acc_field_area / (nrow(bayes.polys) * 
+                  #as.numeric(st_area(st_transform(rasterextent, crs = prjstr))))
+  # prior_nofield <- 1 - prior_field
+  prior_field <- 0.5
+  prior_nofield <- 0.5
   # if no any field mapped by all users
   if (prior_field == 0){
     label_map <- setValues(lklh_field_rst, rep(0,
