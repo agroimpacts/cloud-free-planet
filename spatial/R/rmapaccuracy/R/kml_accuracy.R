@@ -50,7 +50,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
   
   prjstr <- as.character(tbl(coninfo$con, "spatial_ref_sys") %>% 
                            filter(srid == prjsrid) %>% 
-                           select(proj4text) %>% collect())
+                           dplyr::select(proj4text) %>% collect())
   
   gcsstr <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
     
@@ -103,7 +103,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     # needed for the other 3 cases
     xy_tabs <- data.table(tbl(coninfo$con, "master_grid") %>% 
                             filter(name == kmlid) %>% 
-                            select(x, y, name) %>% collect())
+                            dplyr::select(x, y, name) %>% collect())
     
     grid.poly <- point_to_gridpoly(xy = xy_tabs, w = diam, NewCRSobj = prjstr, 
                                    OldCRSobj = gcsstr)
