@@ -6,9 +6,6 @@
 output.heatmap <- FALSE # if output heat map
 user <- "***REMOVED***"
 password <- "***REMOVED***"
-db.tester.name <- "sye"
-alt.root <- NULL
-host <- NULL
 diam <- 0.005 / 2 ## new master grid diameter
 riskpixelthres <- 0.4 # determine risky pixels that are larger than thres
 
@@ -19,33 +16,35 @@ suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 # min_mappedcount <- 0 # testlines
 # scorethres <- 0     # testlines
 # output.riskmap <- FALSE # testlines
+
+if(length(arg) < 3) stop("At least 3 arguments needed", call. = FALSE)
 arg <- commandArgs(TRUE)
 kmlid <- arg[1]  # ID of grid cell 
 min_mappedcount <- arg[2] # minimum mapped map count
-scorethres <- arg[3] # score threshold for selecting 'valid' assignment
-output.riskmap <- arg[4] # if output risk map
-if(length(arg) < 4) stop("At least 4 arguments needed", call. = FALSE)
-if(length(arg) == 4) {
-  output.heatmap <- FALSE
+db.tester.name <- 'sye'
+# score threshold for selecting 'valid' assignments for merging consensus
+scorethres <- arg[3] 
+if(length(arg) == 3) {
+  output.riskmap <- FALSE
   db.tester.name <- NULL
   alt.root <- NULL
   host <- NULL
 } 
-if(length(arg) > 4) {
-  if(is.na(arg[5])){
-    output.heatmap <- FALSE
+if(length(arg) > 3) {
+  if(is.na(arg[4])){
+    output.riskmap <- FALSE
   } else{
-    output.heatmap <- arg[5]
+    output.riskmap <- arg[4]
   }
-  if(is.na(arg[6])){
+  if(is.na(arg[5])){
     db.tester.name <- NULL
   } else {
-    db.tester.name <- arg[6]
+    db.tester.name <- arg[5]
   }
-  if(is.na(arg[7])) {
+  if(is.na(arg[6])) {
     alt.root <- NULL
   } else {
-    alt.root <- arg[7]
+    alt.root <- arg[6]
   } 
   if(is.na(arg[8])) {
     host <- NULL
@@ -55,7 +54,8 @@ if(length(arg) > 4) {
 }
 
 consensusmapcreation(kmlid = kmlid, min_mappedcount = min_mappedcount, 
-                     scorethres = scorethres, output.riskmap = output.riskmap
+                     scorethres = scorethres, output.riskmap = output.riskmap,
                      riskpixelthres  = riskpixelthres, diam = diam, 
-                     user = user, password = password, db.tester.name = 
-                       db.tester.name, alt.root = alt.root, host = host)
+                     user = user, password = password, 
+                     db.tester.name = db.tester.name, 
+                     alt.root = alt.root, host = host)

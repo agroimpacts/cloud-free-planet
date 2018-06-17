@@ -21,6 +21,18 @@ draw.maps  <- "T"
 test.root <- "N"  
 pngout <- TRUE
 
+
+#### Test codes ####
+# mtype <- 'tr'
+# assignmentid <- '229'
+# kmlid <- 'ZA0669180'
+# tryid <- '1'
+# pgupw$user <- "***REMOVED***"
+# pgupw$password <- "***REMOVED***"
+# db.tester.name <- 'sye'
+# alt.root <- NULL
+# host <- NULL
+
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
 # Input args 
