@@ -10,7 +10,7 @@ db.tester.name <- "sye"
 alt.root <- NULL
 host <- NULL
 diam <- 0.005 / 2 ## new master grid diameter
-conflictpixelthres <- 0.3 # determine conflict pixels that are larger than thres
+riskpixelthres <- 0.4 # determine risky pixels that are larger than thres
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
@@ -18,12 +18,12 @@ suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 # kmlid <- "ZM1375404" # testlines
 # min_mappedcount <- 0 # testlines
 # scorethres <- 0     # testlines
-# output.conflictmap <- FALSE # testlines
+# output.riskmap <- FALSE # testlines
 arg <- commandArgs(TRUE)
 kmlid <- arg[1]  # ID of grid cell 
 min_mappedcount <- arg[2] # minimum mapped map count
 scorethres <- arg[3] # score threshold for selecting 'valid' assignment
-output.conflictmap <- arg[4] # if output conflict map
+output.riskmap <- arg[4] # if output risk map
 if(length(arg) < 4) stop("At least 4 arguments needed", call. = FALSE)
 if(length(arg) == 4) {
   output.heatmap <- FALSE
@@ -35,7 +35,7 @@ if(length(arg) > 4) {
   if(is.na(arg[5])){
     output.heatmap <- FALSE
   } else{
-    output.heatmap <- arg[6]
+    output.heatmap <- arg[5]
   }
   if(is.na(arg[6])){
     db.tester.name <- NULL
@@ -55,8 +55,7 @@ if(length(arg) > 4) {
 }
 
 consensusmapcreation(kmlid = kmlid, min_mappedcount = min_mappedcount, 
-                     scorethres = scorethres, output.conflictmap = 
-                       output.conflictmap, output.heatmap = output.heatmap, 
-                     conflictpixelthres  = conflictpixelthres, diam = diam, 
+                     scorethres = scorethres, output.riskmap = output.riskmap
+                     riskpixelthres  = riskpixelthres, diam = diam, 
                      user = user, password = password, db.tester.name = 
                        db.tester.name, alt.root = alt.root, host = host)
