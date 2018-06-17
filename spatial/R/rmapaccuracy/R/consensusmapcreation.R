@@ -15,8 +15,8 @@
 #' @return  
 
 consensusmapcreation <- function(kmlid, min_mappedcount, scorethres, 
-                                 riskpixelthres,diam,user, password, 
-                                 db.tester.name, alt.root, 
+                                 output.riskmap, riskpixelthres, diam, 
+                                 user, password, db.tester.name, alt.root, 
                                  host, qsite = FALSE){
   
   coninfo <- mapper_connect(user = user, password = password,
@@ -103,7 +103,8 @@ consensusmapcreation <- function(kmlid, min_mappedcount, scorethres,
                                " from new_error_data  where assignment_id  = '", 
                                 historyassignmentid[x], "'") 
       measurements <- DBI::dbGetQuery(coninfo$con, likelihood.sql)
-      
+      # field_skill and nofield_skill are alias of max_field_lklh 
+      # and max_nofield_lklh 
       c('max_lklh_field' = as.numeric(measurements$field_skill), 
         'max_lklh_nofield' = as.numeric(measurements$nofield_skill), 
         'score_history' = as.numeric(measurements$new_score))
@@ -188,7 +189,8 @@ consensusmapcreation <- function(kmlid, min_mappedcount, scorethres,
     rasterextent <- st_sf(geom = st_as_sfc(new_bbbox))
   }
   
-  
+  # Threshold here for determine field pixels in heat maps (not threshold for risk
+  # pixels )
   bayesoutput <- BayesModelAveraging(bayes.polys = bayes.polys,
                                      rasterextent = rasterextent,
                                      threshold = 0.5)
