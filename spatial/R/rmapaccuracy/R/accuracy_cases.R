@@ -65,6 +65,13 @@ case2_accuracy <- function(grid.poly, user.polys, in.acc.wt,
     out.acc <- 0  # If user maps outside of box when no fields exist
   }
   
+  # likelihood(user_i = field|groundtruth = field), 
+  # user maps field but none of groundtruth
+  lklh_field <- 0  
+  # likelihood(user_i = no field|groundtruth = no field)
+  lklh_nofield <- unname(st_area(inres$tn)) / 
+    (unname(st_area(inres$tn)) + unname(st_area(inres$fp)))
+  
   # Combine accuracy metrics
   old.score <- count.acc * count.acc.wt + in.acc * 
     in.acc.wt + out.acc * out.acc.wt 
@@ -77,13 +84,14 @@ case2_accuracy <- function(grid.poly, user.polys, in.acc.wt,
                "count_acc" = count.acc, 
                "frag_acc" = frag.acc, "edge_acc" = edge.acc,
                "in_acc" = in.acc, 
-               "out_acc" = out.acc, 
-               "user_count" = user.fldcount)
+               "out_acc" = out.acc, "user_count" = user.fldcount, 
+               "field_skill" = lklh_field, "nofield_skill" = lklh_nofield)
   # output maps
   env <- environment()  # get environment
   maps <- list("gpol" = grid.poly, "qpol" = NULL, "upol" = user.poly, 
                "inres" = inres, "upolout" = checkexists("user.poly.out", env), 
-               "qpolout" = NULL, "tpo" = NULL, "fpo" = checkexists("user.poly.out", env), "fno" = NULL)
+               "qpolout" = NULL, "tpo" = NULL, 
+               "fpo" = checkexists("user.poly.out", env), "fno" = NULL)
   return(list("acc.out" = acc.out, "maps" = maps))
 }
 
@@ -133,13 +141,23 @@ case3_accuracy <- function(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt,
   new.score <- in.acc * new.in.acc.wt + out.acc * new.out.acc.wt +
     frag.acc * frag.acc.wt + edge.acc * edge.acc.wt
   user.fldcount <- 0
-
+  
+  
+  # p(user_i = field|groundtruth = field)
+  lklh_field <- 0 # user did not map field but has ground truth
+  # p(user_i = no field|groundtruth = no field)
+  lklh_nofield <- 1 # because user map all area as no field
+  
   # output accuracy metrics
+  # field_skill and nofield_skill are alias of max_field_lklh 
+  # (p(user_i = field|groundtruth = field))
+  # and max_nofield_lklh (p(user_i = no field|groundtruth = no field))
   acc.out <- c("new_score" = new.score, "old_score" = old.score,
                "count_acc" = count.acc, "frag_acc" = frag.acc, 
                "edge_acc" = edge.acc,
-               "in_acc" = in.acc, "out_acc" = out.acc, 
-               "user_count" = user.fldcount)
+               "in_acc" = in.acc, 
+               "out_acc" = out.acc, "user_count" = user.fldcount, 
+               "field_skill" = lklh_field, "nofield_skill" = lklh_nofield)
   # output maps
   env <- environment()  # get environment
   maps <- list("gpol" = grid.poly, "qpol" = qaqc.poly, "upol" = NULL, 
@@ -250,13 +268,20 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
     frag.acc * frag.acc.wt + edge.acc * edge.acc.wt
   user.fldcount <- user.nfields
   
+  #likelihood(user_i = field|groundtruth = field)
+  lklh_field <- unname(st_area(inres$tp)) / 
+    (unname(st_area(inres$tp)) + unname(st_area(inres$fn))) 
+  #likelihood(user_i = no field|groundtruth = no field)
+  lklh_nofield <- unname(st_area(inres$tn)) / 
+    (unname(st_area(inres$tn)) + unname(st_area(inres$fp)))
+  
   # output accuracy metrics
   acc.out <- c("new_score" = new.score, "old_score" = old.score,
                "count_acc" = count.acc, 
                "frag_acc" = frag.acc, "edge_acc" = edge.acc,
                "in_acc" = in.acc, 
-               "out_acc" = out.acc, 
-               "user_count" = user.fldcount)
+               "out_acc" = out.acc, "user_count" = user.fldcount, 
+               "field_skill" = lklh_field, "nofield_skill" = lklh_nofield)
   
   # output maps
   env <- environment()  # get environment

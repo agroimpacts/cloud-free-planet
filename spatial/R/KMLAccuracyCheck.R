@@ -15,11 +15,23 @@ frag.acc.wt <- 0.1 ## for new score
 edge.acc.wt <- 0.1 ## for new score
 edge.buf <- 9 ## for new score, 3 planet pixels
 acc.switch <- 1  ### 5/2/2016 Changed to 1
-comments <- "T"
+comments <- "F"
 write.acc.db <- "T"  
 draw.maps  <- "T"  
 test.root <- "N"  
 pngout <- TRUE
+
+
+#### Test codes ####
+# mtype <- 'tr'
+# assignmentid <- '229'
+# kmlid <- 'ZA0669180'
+# tryid <- '1'
+# pgupw$user <- "***REMOVED***"
+# pgupw$password <- "***REMOVED***"
+# db.tester.name <- 'sye'
+# alt.root <- NULL
+# host <- NULL
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
