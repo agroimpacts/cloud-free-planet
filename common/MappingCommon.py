@@ -2,6 +2,7 @@ import os
 import subprocess
 import pwd
 import cgi
+import json
 import random
 from datetime import datetime
 from dateutil import tz
@@ -274,6 +275,34 @@ class MappingCommon(object):
     def createAlertIssue(self, title=None, body=None):
         self.createIssue(title, body, MappingCommon.AlertIssue)
 
+    # Build HTML SELECT tag with field category options.
+    def buildSelect(self):
+        select = '<select id="categLabel" title="Select a category for this field">\n'
+        categMaxNum = int(self.getConfiguration("CategMaxNum"))
+        categText = []
+        categCode = []
+        for ndx in range(1, categMaxNum + 1):
+            categText = self.getConfiguration("CategText" + str(ndx))
+            if categText is None:
+                break
+            categCode = self.getConfiguration("CategCode" + str(ndx))
+            if categCode is None:
+                categCode = categText
+            select += "<option value='%s'>%s</option>\n" % (categCode, categText)
+        select += "</select>\n"
+        return select
+
+    # Get WMS attribute array for specified KML name.
+    # Note: these are sorted in reverse priority order because OL3 stacks
+    #       map layers in last-in on-top order.
+    def getWMSAttributes(self, kmlName):
+        self.cur.execute("""SELECT provider, image_name, style, visible, description
+                FROM wms_data
+                WHERE enabled AND name = '%s'
+                ORDER BY priority DESC""" % kmlName)
+        # Double json.dumps because of embedded quotes in 2D array.
+        return json.dumps(self.cur.fetchall())
+
     #
     # *** HIT-Related Functions ***
     #
@@ -422,11 +451,15 @@ class MappingCommon(object):
     # Return floating point score (0.0-1.0), or None if could not be scored.
     def kmlAccuracyCheck(self, kmlType, kmlName, assignmentId, tryNum=None):
         if kmlType == MappingCommon.KmlTraining:
+            # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum)],
+            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum), "dmcr", "/home/dmcr/afmap_private"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         elif kmlType == MappingCommon.KmlQAQC:
             # Note: "None" must be passed as a string here.
+            # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None"],
+            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None", "dmcr", "/home/dmcr/afmap_private"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         else:
             assert False
