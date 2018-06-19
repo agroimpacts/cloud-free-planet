@@ -67,10 +67,15 @@ case2_accuracy <- function(grid.poly, user.polys, in.acc.wt,
   
   # likelihood(user_i = field|groundtruth = field), 
   # user maps field but none of groundtruth
+  tflisti <- c("tp" = inres$tp, "tn" = inres$tn, 
+               "fp" = inres$fp, "fn" = inres$fn)
+  areasi <- sapply(tflisti, function(x) {  # calculate tp and fp area
+    ifelse(!is.null(x) & is.object(x) & length(x) > 0, st_area(x), 0)
+  })
   lklh_field <- 0  
   # likelihood(user_i = no field|groundtruth = no field)
-  lklh_nofield <- unname(st_area(inres$tn)) / 
-    (unname(st_area(inres$tn)) + unname(st_area(inres$fp)))
+  lklh_nofield <- unname(areasi['tn']) / 
+                   (unname(areasi['tn']) + unname(areasi['fp']))
   
   # Combine accuracy metrics
   old.score <- count.acc * count.acc.wt + in.acc * 
@@ -268,12 +273,19 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
     frag.acc * frag.acc.wt + edge.acc * edge.acc.wt
   user.fldcount <- user.nfields
   
-  #likelihood(user_i = field|groundtruth = field)
-  lklh_field <- unname(st_area(inres$tp)) / 
-    (unname(st_area(inres$tp)) + unname(st_area(inres$fn))) 
-  #likelihood(user_i = no field|groundtruth = no field)
-  lklh_nofield <- unname(st_area(inres$tn)) / 
-    (unname(st_area(inres$tn)) + unname(st_area(inres$fp)))
+  
+  tflisti <- c("tp" = inres$tp, "tn" = inres$tn, 
+               "fp" = inres$fp, "fn" = inres$fn)
+  areasi <- sapply(tflisti, function(x) {  # calculate tp and fp area
+    ifelse(!is.null(x) & is.object(x) & length(x) > 0, st_area(x), 0)
+  })
+  
+  # likelihood(user_i = field|groundtruth = field)
+  lklh_field <- unname(areasi['tp']) / 
+    (unname(areasi['tp']) + unname(areasi['fn']))  
+  # likelihood(user_i = no field|groundtruth = no field)
+  lklh_nofield <- unname(areasi['tn']) / 
+    (unname(areasi['tn']) + unname(areasi['fp']))
   
   # output accuracy metrics
   acc.out <- c("new_score" = new.score, "old_score" = old.score,
