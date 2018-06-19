@@ -24,58 +24,110 @@ param_dict["end_date_short"] = '2018-03-15' #'2017-09-15' #'2017-07-30'
 param_dict["max_clouds"] = 0.25  #max proportion of pixels that are clouds
 param_dict["max_bad_pixels"] = 0.25 #max proportion of bad pixels (transmission errors, etc.)
 param_dict["asset_type"] = "analytic_sr" #"udm"  #"analytic"  #analytic_sr"
-param_dict["maximgs"] = 15 #10 #20 
+param_dict["maximgs"] = 10 #15 #10 #20 
 param_dict["lst_item_types"] = ['PSScene4Band']  #needs to be a list
 param_dict["buffer_size"] = 0.00025  # a 10-pixel buffer; resolution = 0.000025
 param_dict["suffix"] = "_SR_GS"  #analytic_sr for growing season
 #param_dict["suffix"] = "_SR_OS"  #analytic_sr for off-season
 
-
-#output_fname = download_planet_data(**param_dict)  
 client = None
 session = None
-#output_fname = download_planet_data_new(client, session, **param_dict)  #5/3 added client & session as params
-
 Tammys_APIkey = "***REMOVED***"
 ryans_api_key = ryans_apikey = "***REMOVED***" #To access areas outside of California
 
 add_logging()
 
+
+def list_of_downloaded_files(mypath,txtfname,suffix='.TIF'):
+    from os import walk
+
+    try:
+        f = []
+        for (dirpath, dirnames, filenames) in walk(mypath):
+            f.extend(filenames)
+        f.sort() 
+        final_list = []
+        for fname in f:
+            if fname[:9] not in final_list:
+                final_list.append(fname[:9])
+   
+        outf = open(txtfname, 'w')
+        for fname in final_list:
+            print(fname,file=outf)
+        outf.close()  #Close it & use append mode each time a filename is added to it. Then if it crashes, the file will be complete up to that point.
+        
+    except:
+        return "Error creating or writing to scenes_downloaded.txt"
+def remove_downloaded_scenes(scenes_downloaded,original_file,outname):
+
+    import csv
+    try:
+        f = open(scenes_downloaded)
+        downloaded_already = f.read().split('\n')
+
+        f2 = open(original_file)
+        original_scenes = list(csv.reader(f2,delimiter=','))[1:]  #Read the CSV rows into grid_cells list; Skip the top row.  
+
+    except:
+        return "Error reading CSV file"
+
+    try:
+        outname_file = outname #r'D:\Users\twoodard\documents\scenes_to_retry.txt'
+        outf = open(outname_file, 'w')
+        print('name,xmin,xmax,ymin,ymax',file=outf)
+        index = 0
+        for row in original_scenes:              #Each row refers to 1 grid cell
+            name = row[0]
+            if not (name in downloaded_already):
+                row_info = row[0] + ',' + row[1] + ',' + row[2] + ',' + row[3] + ',' + row[4]
+                print(row_info, file=outf)
+
+            #try:
+            #    name2 = downloaded_lst[index][0] 
+            #except:
+            #    name2 = ""
+
+            #if name == name2 :
+            #    index += 1
+            #else:
+            #    row_info = row[0] + ',' + row[1] + ',' + row[2] + ',' + row[3] + ',' + row[4]
+            #    print(row_info, file=outf)
+
+        outf.close()  #Close it & use append mode each time a filename is added to it. Then if it crashes, the file will be complete up to that point.
+    except:
+        return "Error"
+    return outname_file
+
 def download_scene_for_ron_by_id():
-    outdir = r'd:\PlanetTest\Data'
+    outdir = r'd:\Pass\Ron\Clouds'
     asset_type = "analytic_sr"
     #asset_type = "analytic"
     asset_type = "udm"
     item_type = ['PSScene4Band']  
-    scene_id = "20170620_232623_0c79"   #Worked for analytic_sr, analytic & udm
-    #scene_id = "20180314_095229_1042"  #Worked for analytic_sr, analytic & udm
-        #scene_id = "20170401_071839_0e16_3B"  #"Could not find the requested item" - for analytic_sr, analytic & udm
-        #scene_id = "20170905_092835_0f46_3B"   #"Could not find the requested item"
-    #scene_id = "20180314_095225_1042"   #Worked for analytic_sr, analytic & udm
-    #scene_id = "20180303_095157_1014"  "worked"
-    #scene_id = "20180311_095230_103d" "worked.  since it was already activated from an earlier run, it took just a few seconds to download.
-    #scene_id = "20180228_095154_1025" "worked"
-    #scene_id = "20180303_105144_1050" "worked"
-    #scene_id = "20180310_095138_102e" "worked"
-    #scene_id = "20180306_095153_0f52" "worked"
-    #scene_id = "20180228_095050_102f" "worked"
-    #The above downloads usually took 4-5 minutes each
-
-    scene_id = "20180215_085907_0f1a"
-    scene_id = "20180128_073049_1006"
-    scene_id = "20180216_073804_1032"
-    scene_id = "20180521_072352_1013"
-    
+    #UDM downloads usually took 4-5 minutes each
+  
     apikey = ryans_api_key
     prefix=""
     suffix="_SR"
+    scene_id = "20180228_095050_102f"
     download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix)
+    scene_id = "20180228_095154_1025"
+    download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix)
+    scene_id = "20180303_095157_1014"
+    download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix)
+    scene_id = "20180303_105144_1050"
+    download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix)
+    scene_id = "20180306_095153_0f52"
+    download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix)
+    scene_id = "20180310_095138_102e"
+    download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix)
+
+#download_scene_for_ron_by_id()
 
 def download_and_window_scene_for_ron_by_id():
     outdir = r'd:\PlanetTest\Data'
     asset_type = "analytic_sr"
-    item_type = ['PSScene4Band']  
-    #scene_id = "20170620_232623_0c79"
+    item_type = ['PSScene4Band']
     scene_id = "20180521_072352_1013"
     apikey = ryans_api_key
     xmin = -0.575
@@ -110,9 +162,6 @@ def download_and_window_manually():
     ymax = -26.97
     output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
     
-    
-#download_scene_for_ron_by_id()
-
 #csvname = r'D:\Users\twoodard\documents\ron_bigger.csv'
 #download_scenes_from_aois_in_csv(csvname,ryans_api_key, **param_dict)
 
@@ -143,15 +192,60 @@ def copy_center_pt_csv_to_grid_cell_csv(csv_in_name, csv_out_name):
     f_out.close() 
     f_in.close()
 
+
+ppath = "D:\\PlanetTest\\data\\MatchWV2gridcells\\OS\\"
+txtfname = ppath + 'already_downloaded.txt'
+list_of_downloaded_files(ppath,txtfname)
+original_csv = r'D:\Users\twoodard\documents\wv2_boxes_order_fixed.csv'
+output_csv = ppath + 'scenes_to_be_downloaded.csv'
+new_csv = remove_downloaded_scenes(txtfname,original_csv, output_csv)
+
+csvname = r'D:\Users\twoodard\documents\wv2_boxes_order_fixed.csv'
+param_dict["outdir"] = r'd:\PlanetTest\Data\MatchWV2gridcells\OS'
+param_dict["start_date_short"] =  '2017-06-30' 
+param_dict["end_date_short"] = '2017-08-31'
+param_dict["suffix"] = "_SR_OS" 
+download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+
+ppath = "D:\\PlanetTest\\data\\MatchWV2gridcells\\GS\\"
+txtfname = ppath + 'already_downloaded.txt'
+list_of_downloaded_files(ppath,txtfname)
+original_csv = r'D:\Users\twoodard\documents\wv2_boxes_order_fixed.csv'
+output_csv = ppath + 'scenes_to_be_downloaded.csv'
+new_csv = remove_downloaded_scenes(txtfname,original_csv, output_csv)
+
+csvname = new_csv
+param_dict["outdir"] = r'd:\PlanetTest\Data\MatchWV2gridcells\GS'
+param_dict["start_date_short"] =  '2018-01-01' 
+param_dict["end_date_short"] = '2018-03-01'
+param_dict["suffix"] = "_SR_GS" 
+download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+
+csvname = r'D:\Users\twoodard\documents\ghana_boxes_order_fixed.csv'
+param_dict["outdir"] = r'd:\PlanetTest\Data\GhanaNew'
+param_dict["start_date_short"] =  '2017-06-30' 
+param_dict["end_date_short"] = '2017-08-31'
+param_dict["suffix"] = "_SR_OS" 
+download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+param_dict["start_date_short"] =  '2018-01-01' 
+param_dict["end_date_short"] = '2018-03-01'
+param_dict["suffix"] = "_SR_GS" 
+download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+#Note - I just found out that the growing season dates may not be the same for Ghana as they are for SA.
+
+#originalname = r'D:\Users\twoodard\documents\wv2_boxes_order_fixed.csv'
+#skip_these = r'D:\Users\twoodard\documents\GS_downloaded.txt'
+#csvname = remove_downloaded_scenes(skip_these, originalname)
+#if csvname == 'Error':
+#     exit
+
 #csv_centerpts = r'D:\Users\twoodard\pictures\ghanasites.csv'
 #csvname = r'D:\Users\twoodard\documents\lyndon_sites.csv'
 #copy_center_pt_csv_to_grid_cell_csv(csv_centerpts,csvname)
 
 #download_and_window_manually()
 
-
-#csvname = r'D:\Users\twoodard\documents\extents_qual_sites_complete_orig_set.csv'
-#csvname = r'D:\Users\twoodard\documents\extents_qual_sites_leftover.csv'
+#csvname = r'D:\Users\twoodard\documents\wv2_boxes_order_fixed.csv'
 csvname = r'D:\Users\twoodard\documents\wv2_boxes_order_fixed.csv'
 param_dict["outdir"] = r'd:\PlanetTest\Data\MatchWV2gridcells'
 param_dict["start_date_short"] =  '2018-01-01' 
@@ -159,6 +253,9 @@ param_dict["end_date_short"] = '2018-03-01'
 param_dict["suffix"] = "_SR_GS" 
 download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
 
+
+#csvname = r'D:\Users\twoodard\documents\extents_qual_sites_complete_orig_set.csv'
+#csvname = r'D:\Users\twoodard\documents\extents_qual_sites_leftover.csv'
 csvname = r'D:\Users\twoodard\documents\wv2_boxes_order_fixed.csv'
 param_dict["outdir"] = r'd:\PlanetTest\Data\MatchWV2gridcells'
 param_dict["start_date_short"] =  '2017-06-30' 
@@ -200,57 +297,4 @@ download_scenes_from_aois_in_csv(csvname,Tammys_APIkey, **param_dict)
 
 
 
-##############################################################################################################
-##                               Not needed anymore                                                         ##
-##############################################################################################################
-"""
 
-    #GH0624590:
-    scene_id = "20180416_095125_1021"
-    xmin = 0.164  
-    xmax = 0.169
-    ymin = 6.285
-    ymax = 6.29  
-    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
-        
-    #GH0625426:
-    scene_id = "20180416_095125_1021"
-    xmin = 0.164
-    xmax = 0.169
-    ymin = 6.28
-    ymax = 6.285
-    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
-    
-    prefix = "GH0656874"
-    scene_id = "20180411_100353_0f18"
-    xmin = -3.066
-    xmax = -3.061
-    ymin = 6.09
-    ymax = 6.095
-    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
-    
-    prefix = "GH0659442"
-    scene_id = "20180411_100353_0f18"
-    xmin = -2.991
-    xmax = -2.986
-    ymin = 6.075
-    ymax = 6.08
-    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
-    
-    prefix = "GH0657724"
-    scene_id = "20180411_100353_0f18"
-    xmin = -3.081
-    xmax = -3.076
-    ymin = 6.085
-    ymax = 6.09
-    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
-    
-    prefix = "GH0643235"
-    scene_id = "20180421_100445_0f4e"
-    xmin = -3.016
-    xmax = -3.011
-    ymin = 6.17
-    ymax = 6.175
-    output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
-    
-    """
