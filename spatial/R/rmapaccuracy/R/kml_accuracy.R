@@ -96,7 +96,8 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     if(comments == "T") print("Case 1: No QAQC or User fields")
     acc.out <- c("new_score" = 1, "old_score" = 1, "count_acc" = 1, 
                  "frag_acc" = 1, "edge_acc" = 1, "in_acc" = 1, 
-                 "out_acc" = 1, "user_count" = 0)
+                 "out_acc" = 1, "user_count" = 0, 
+                 "field_skill" = 1, "nofield_skill" = 1)
     acc.out <- list("acc.out" = acc.out)
   } else {
     # Pick up grid cell from qaqc table, for background location, as it will be 
