@@ -1,4 +1,4 @@
-# ConsensusMapGeneration.R
+# consensus_map_generator.R
 # Main script for calling consensus map generation (Bayes fusion) functions
 # Author: Su Ye
 
@@ -53,9 +53,9 @@ if(length(arg) > 3) {
   }
 }
 
-consensusmapcreation(kmlid = kmlid, min_mappedcount = min_mappedcount, 
-                     scorethres = scorethres, output.riskmap = output.riskmap,
-                     riskpixelthres  = riskpixelthres, diam = diam, 
-                     user = user, password = password, 
-                     db.tester.name = db.tester.name, 
-                     alt.root = alt.root, host = host)
+consensus_map_creation(kmlid = kmlid, min_mappedcount = min_mappedcount, 
+                       scorethres = scorethres, output.riskmap = output.riskmap,
+                       riskpixelthres  = riskpixelthres, diam = diam, 
+                       user = user, password = password, 
+                       db.tester.name = db.tester.name, 
+                       alt.root = alt.root, host = host)
