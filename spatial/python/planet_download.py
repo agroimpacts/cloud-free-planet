@@ -580,6 +580,9 @@ def download_scenes_from_aois_in_csv(csvname, passed_apikey, outdir,start_date_s
     try:
         f = open(csvname)
         grid_cells = list(csv.reader(f,delimiter=','))[1:]  #Read the CSV rows into grid_cells list; Skip the top row.  
+
+        #Neew to add something to check that the columns are in the right order!!!
+
     except:
         return "Error reading CSV file"
 
@@ -742,11 +745,14 @@ def download_clip(clip_download_url, outpath, scene_id):
             zipped_item.close()  #The following line couldn't execute because it was still being accessed by something
             os.remove(outfname)  #deletes the zip file
         except:
-            pass
+            logging.info("Clip downloaded ok, but unable to delete zip file.")
+            return outfname
 
         for fname in names:
             if fname.lower().endswith('.tif'):  #, re.IGNORECASE):
                 outfname = outpath + fname
+
+
     except:
         logging.info("Error downloading clip")
         return ""
@@ -777,7 +783,7 @@ def use_new_clip_and_ship_to_download_udms(query, client, session, aoi, outpath)
     """
     Identify & download pre-clipped UDMs for our AOI.
     """
-    
+    best_fname = "None"
     try:
         #Step1: Identify_intersecting_scenes -> using AOI, date, filter requirements
                 #udm_items: list will have item_id, item_type, and asset_type for each scene to clip & download     
@@ -800,7 +806,6 @@ def use_new_clip_and_ship_to_download_udms(query, client, session, aoi, outpath)
     
     except:
         logging.info('Error encountered in "use_new_clip_and_ship_to_download_udms"')
-        best_fname = "None"
         best_item = {}
         return best_fname, best_item, best_percent_good
 
@@ -845,7 +850,8 @@ def use_new_clip_and_ship_to_download_udms(query, client, session, aoi, outpath)
             break   #we're done. stop now.
         elif percent_good > best_percent_good:
             #save this as the best scene so far & continue to check for a better scene
-            os.remove(best_fname) #6/4/18
+            if best_fname != "None":  #6/11/18
+                os.remove(best_fname) #6/4/18
             best_fname = outfname
             best_id = targ["item_id"]
             best_percent_good = percent_good
@@ -867,3 +873,5 @@ def use_new_clip_and_ship_to_download_udms(query, client, session, aoi, outpath)
         best_item = {}
         return best_fname, best_item, best_percent_good
     #I should put a condition in where it's >0 but < 90, and it records that as a questionable grid cell - flagged to be checked later
+
+    
