@@ -1,5 +1,4 @@
-#' Core codes for Bayesian Model Averaging
-#' P(theta|D) = ∑ weight * mapper posterior probability
+#' Core codes for Bayesian Model Averaging P(theta|D) = ∑ weight * mapper posterior probability
 #' @param bayes.poly a sf object has five columns: 
 #' (1)posterior_field and (2)posterior_nofield are mapper posterior probability
 #' , which means mappers' opinion for the possibility of field (we set 0 or 1);  
@@ -10,14 +9,15 @@
 #' @param rasterextent the extent for the output
 #' @param threshold the threshold for P(theta|D) to determine the label of pixels
 #' as field or no field
-
-# gcsstr <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
-# prjstr <- paste0("+proj=aea +lat_1=20 +lat_2=-23 +lat_0=0 +lon_0=",
-#                  "25 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs") 
-
+#' @return A list of three rasters--heat map, risk map, and consensus map
+#' @export 
 # Bayes model avergaing
 bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
   
+  # gcsstr <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+  # prjstr <- paste0("+proj=aea +lat_1=20 +lat_2=-23 +lat_0=0 +lon_0=",
+  #                  "25 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs") 
+
   gcsstr <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
   posterior_field_rst <- raster(extent(as(rasterextent, 'Spatial')), 
                                 resolution = 0.005 / 200, crs = gcsstr)

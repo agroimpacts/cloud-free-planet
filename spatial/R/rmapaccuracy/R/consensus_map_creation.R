@@ -12,7 +12,9 @@
 #' @importFrom  DBI dbDriver
 #' @import dplyr
 #' @import sf
-#' @return  
+#' @return Sticks conflict/risk percentage pixels into database (kml_data) and
+#' (pending) writes rasters to S3 bucket
+#' @export
 consensus_map_creation <- function(kmlid, min_mappedcount, scorethres, 
                                    output.riskmap, riskpixelthres, diam, 
                                    user, password, db.tester.name, alt.root, 
