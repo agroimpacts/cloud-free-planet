@@ -28,7 +28,8 @@ consensus_map_creation(kmlid, min_mappedcount, scorethres, output.riskmap,
 \item{riskthres}{the threshold to select 'risk' pixels}
 }
 \value{
-
+Sticks conflict/risk percentage pixels into database (kml_data) and
+(pending) writes rasters to S3 bucket
 }
 \description{
 Control the output of label maps, risk maps, and heat maps
