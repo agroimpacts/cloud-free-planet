@@ -2,22 +2,6 @@ from webob import Request, Response
 import datetime
 from MappingCommon import MappingCommon
 
-def buildSelect(mapc):
-    select = '<select id="categLabel" title="Select a category for this field">\n'
-    categMaxNum = int(mapc.getConfiguration("CategMaxNum"))
-    categText = []
-    categCode = []
-    for ndx in range(1, categMaxNum + 1):
-        categText = mapc.getConfiguration("CategText" + str(ndx))
-        if categText is None:
-            break
-        categCode = mapc.getConfiguration("CategCode" + str(ndx))
-        if categCode is None:
-            categCode = categText
-        select += "<option value='%s'>%s</option>\n" % (categCode, categText)
-    select += "</select>\n"
-    return select
-
 def application(environ, start_response):
     req = Request(environ)
     res = Response()
@@ -30,9 +14,11 @@ def application(environ, start_response):
     kmlMapHeight = int(mapc.getConfiguration('KMLMapHeight'))
     apiUrl = mapc.getConfiguration('APIUrl')
     kmlGenScript = mapc.getConfiguration('KMLGenScript')
-    mapUrl = mapc.getConfiguration('MapUrl')
-    instructions = mapc.getConfiguration('KMLInstructions')
     kmlGenUrl = "%s/%s" % (apiUrl, kmlGenScript)
+    mapUrl = mapc.getConfiguration('MapUrl')
+    geoserverUrl = mapc.getConfiguration('GeoserverUrl')
+    instructions = mapc.getConfiguration('KMLInstructions')
+    select = mapc.buildSelect()
 
     k = open(logFilePath + "/OL.log", "a")
     k.write("\ngetkml: datetime = %s\n" % now)
@@ -51,7 +37,8 @@ def application(environ, start_response):
             csrfToken = req.params['csrfToken']
             workerId = ''
             target = '_parent'
-            select = buildSelect(mapc)
+            commentsVisible = 'block'
+            wmsAttributes = mapc.getWMSAttributes(kmlName)
 
             # Training case.
             # This has a tryNum.
@@ -86,13 +73,16 @@ def application(environ, start_response):
             # This has a workerId.
             try:
                 workerId = req.params['workerId']
-                select = ''
+                instructions = 'Please select one of the overlays and click on a mapped field to see its category and comment labels.'
+                commentsVisible = 'none'
+                wmsAttributes = ''
 
             # Standalone case.
             # This has no workerId.
             except:
                 workerId = ''
-                select = buildSelect(mapc)
+                commentsVisible = 'block'
+                wmsAttributes = mapc.getWMSAttributes(kmlName)
 
         # If mapping or training case,
         if len(assignmentId) > 0:
@@ -120,13 +110,11 @@ def application(environ, start_response):
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                     <link rel="stylesheet" href="https://openlayers.org/en/v3.18.2/css/ol.css" type="text/css">
                     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400">
-                    <!-- <link rel="stylesheet" href="/OL/fontello-799a171d/css/fontello.css" type="text/css" /> -->
-                    <link rel="stylesheet" href="/OL/fontello-b8cf557f/css/fontello.css" type="text/css" />
+                    <link rel="stylesheet" href="/OL/fontello-2cc19da7/css/fontello.css" type="text/css" />
                     <link rel="stylesheet" href="/OL/ol3-layerswitcher.css" type="text/css">
                     <link rel="stylesheet" href="/OL/controlbar.css" type="text/css">
                     <link rel="stylesheet" href="/OL/showkml.css" type="text/css">
                     <script src="https://openlayers.org/en/v3.18.2/build/ol.js" type="text/javascript"></script>
-                    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>-->
                     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
                         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
                         crossorigin="anonymous">
@@ -135,14 +123,17 @@ def application(environ, start_response):
                     <script type="text/javascript" src="/OL/controlbar.js"></script>
                     <script type="text/javascript" src="/OL/buttoncontrol.js"></script>
                     <script type="text/javascript" src="/OL/togglecontrol.js"></script>
+                    <script type="text/javascript" src="/OL/baselayers.js"></script>
+                    <script type="text/javascript" src="/OL/MAcontrolbar.js"></script>
                     <script type="text/javascript" src="/OL/showkml.js"></script>
                 </head>
-                <body onload="init('%(kmlPath)s', '%(kmlName)s', '%(assignmentId)s', '%(tryNum)s', '%(resultsAccepted)s', '%(mapPath)s', '%(workerId)s')">
+                <body onload='init("%(kmlPath)s", "%(kmlName)s", "%(assignmentId)s", "%(tryNum)s", "%(resultsAccepted)s", "%(mapPath)s", "%(workerId)s", "%(geoserverUrl)s", %(wmsAttributes)s)'>
                     <form style='width:100%%;' name='mappingform' action='%(submitTo)s' method='POST' target='%(target)s'>
                         <div class='instructions'>
                             %(instructions)s
                         </div>
-                        <table class='comments'><tr>
+                        <table class='comments' style='display:%(commentsVisible)s'><tr>
+                        <!-- <table class='comments'><tr> -->
                         <th>
                             For comments, problems, or questions:
                         </th>
@@ -184,12 +175,15 @@ def application(environ, start_response):
             'target': target,
             'instructions': instructions,
             'commentsDisabled': commentsDisabled,
+            'commentsVisible': commentsVisible,
             'mapHint': mapHint,
             'kmlMapHeight': kmlMapHeight,
             'mapPath': mapUrl,
             'workerId': workerId,
             'select': select,
-            'csrfToken': csrfToken
+            'csrfToken': csrfToken,
+            'geoserverUrl': geoserverUrl,
+            'wmsAttributes': wmsAttributes
         }
         res.text = mainText
     # No KML specified.

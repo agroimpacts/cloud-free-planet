@@ -6,12 +6,15 @@
  * @param {Object} opt_options Control options, extends olx.control.ControlOptions adding:
  *                              **`tipLabel`** `String` - the button tooltip.
  */
+var showPanel;
+
 ol.control.LayerSwitcher = function(opt_options) {
 
     var options = opt_options || {};
 
-    var tipLabel = options.tipLabel ?
-      options.tipLabel : 'Legend';
+    var tipLabel = options.tipLabel ?  options.tipLabel : 'Legend';
+
+    showPanel = options.showPanel ? options.showPanel : false;
 
     this.mapListeners = [];
 
@@ -22,7 +25,11 @@ ol.control.LayerSwitcher = function(opt_options) {
     this.shownClassName = this.hiddenClassName + ' shown';
 
     var element = document.createElement('div');
-    element.className = this.hiddenClassName;
+    if (showPanel) {
+        element.className = this.shownClassName;
+    } else {
+        element.className = this.hiddenClassName;
+    }
 
     var button = document.createElement('button');
     button.setAttribute('title', tipLabel);
@@ -45,12 +52,14 @@ ol.control.LayerSwitcher = function(opt_options) {
         e.preventDefault();
     };
 
-    this_.panel.onmouseout = function(e) {
-        e = e || window.event;
-        if (!this_.panel.contains(e.toElement || e.relatedTarget)) {
-            this_.hidePanel();
-        }
-    };
+    if (!showPanel) {
+        this_.panel.onmouseout = function(e) {
+            e = e || window.event;
+            if (!this_.panel.contains(e.toElement || e.relatedTarget)) {
+                this_.hidePanel();
+            }
+        };
+    }
 
     ol.control.Control.call(this, {
         element: element,
@@ -111,9 +120,11 @@ ol.control.LayerSwitcher.prototype.setMap = function(map) {
     ol.control.Control.prototype.setMap.call(this, map);
     if (map) {
         var this_ = this;
-        this.mapListeners.push(map.on('pointerdown', function() {
-            this_.hidePanel();
-        }));
+        if (!showPanel) {
+            this.mapListeners.push(map.on('pointerdown', function() {
+                this_.hidePanel();
+            }));
+        }
         this.renderPanel();
     }
 };
