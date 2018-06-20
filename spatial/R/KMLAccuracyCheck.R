@@ -23,10 +23,10 @@ pngout <- TRUE
 
 
 #### Test codes ####
-# mtype <- 'tr'
-# assignmentid <- '229'
-# kmlid <- 'ZA0669180'
-# tryid <- '1'
+# mtype <- 'qa'
+# assignmentid <- '504'
+# kmlid <- 'ZA1887074'
+# # tryid <- '1'
 # pgupw$user <- "***REMOVED***"
 # pgupw$password <- "***REMOVED***"
 # db.tester.name <- 'sye'

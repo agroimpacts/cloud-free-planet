@@ -206,7 +206,7 @@ consensus_map_creation <- function(kmlid, min_mappedcount, scorethres,
   # insert risk pixel percentage into kml_data table
   risk.sql <- paste0("insert into kml_data (consensus_conflict)", 
                      " values ('", riskpixelpercentage, "')")
-  dbSendQuery(coninfo$con, risk.sql) # will be changed to official lines
+  dbSendQuery(coninfo$con, risk.sql) 
   
   ###################### S3 bucket output ###############
   # unfinished

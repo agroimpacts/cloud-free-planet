@@ -16,12 +16,14 @@ suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 # min_mappedcount <- 0 # testlines
 # scorethres <- 0     # testlines
 # output.riskmap <- FALSE # testlines
+# db.tester.name <- 'sye'
+# alt.root <- NULL
+# host <- NULL
 
 if(length(arg) < 3) stop("At least 3 arguments needed", call. = FALSE)
 arg <- commandArgs(TRUE)
 kmlid <- arg[1]  # ID of grid cell 
 min_mappedcount <- arg[2] # minimum mapped map count
-db.tester.name <- 'sye'
 # score threshold for selecting 'valid' assignments for merging consensus
 scorethres <- arg[3] 
 if(length(arg) == 3) {
