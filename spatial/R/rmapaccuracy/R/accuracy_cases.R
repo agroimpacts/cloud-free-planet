@@ -61,15 +61,23 @@ case2_accuracy <- function(grid.poly, user.polys, in.acc.wt,
                                        0.00001), -0.00001)
   if(length(user.poly.out) == 0) {
     out.acc <- 1  # If user finds no fields outside of box, gets credit
-  } else {  
-    out.acc <- 0  # If user maps outside of box when no fields exist
+    out.acc.old <- 1
+  } else {# If user maps outside of box when no fields exist
+    # out_region is the maximum bounding box of user, grid and qaqc polygons
+    out_region <- st_difference(st_sf(geom = st_as_sfc(st_bbox(c(user.poly, 
+                                                                 grid.poly)))), 
+                                      grid.poly)
+    outres <- map_accuracy(maps = user.poly.out, truth = NULL, 
+                           region = out_region)
+    out.acc <- unname(outres[[1]][acc.switch])
+    out.acc.old <- 0
   }
   
   # likelihood(user_i = field|groundtruth = field), 
   # user maps field but none of groundtruth
   tflisti <- list("tp" = inres$tp, "tn" = inres$tn, 
                   "fp" = inres$fp, "fn" = inres$fn)
-  areasi <- sapply(tflisti, function(x) {  # calculate tp and fp area
+  areasi <- sapply(tflisti, function(x) {  # calculate tn and fp area
     ifelse(!is.null(x) & is.object(x) & length(x) > 0, st_area(x), 0)
   })
   lklh_field <- 0  
@@ -79,7 +87,7 @@ case2_accuracy <- function(grid.poly, user.polys, in.acc.wt,
   
   # Combine accuracy metrics
   old.score <- count.acc * count.acc.wt + in.acc * 
-    in.acc.wt + out.acc * out.acc.wt 
+    in.acc.wt + out.acc.old * out.acc.wt 
   new.score <- in.acc * new.in.acc.wt + 
     out.acc * new.out.acc.wt + frag.acc * frag.acc.wt + edge.acc * edge.acc.wt
   user.fldcount <- user.nfields
@@ -138,11 +146,24 @@ case3_accuracy <- function(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt,
   count.acc <- 0  # if QAQC has fields but user maps none
   frag.acc <- 0 
   edge.acc <- 0 # miss qaqc fields, give zero for frag and edge acc
+  
   # Secondary metric - Sensitivity of results outside of kml grid
-  out.acc <- 0  # 0 if there is neither true positive nor false negative
+  if(length(qaqc.poly.out) == 0) {
+    out.acc <- 1  # If no qaqc fields outside of box, gets credit
+    out.acc.old <- 1
+  } else {# If there exits qaqc fields outside of box when user map no fields
+    out_region <- st_difference(st_sf(geom = st_as_sfc(st_bbox(c(qaqc.poly, 
+                                                                 grid.poly)))), 
+                                grid.poly)
+    outres <- map_accuracy(maps = NULL, truth = qaqc.poly.out, 
+                           region = out_region)
+    out.acc <- unname(outres[[1]][acc.switch])
+    out.acc.old <- 0
+  }
+  
   in.acc <- unname(inres[[1]][acc.switch])
   old.score <- count.acc * count.acc.wt + in.acc * 
-    in.acc.wt + out.acc * out.acc.wt
+    in.acc.wt + out.acc.old * out.acc.wt
   new.score <- in.acc * new.in.acc.wt + out.acc * new.out.acc.wt +
     frag.acc * frag.acc.wt + edge.acc * edge.acc.wt
   user.fldcount <- 0
@@ -246,8 +267,10 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
   if(length(user.poly.out) == 0 & length(qaqc.poly.out) == 0) {
     if(comments == "T") print("No QAQC or User fields outside of grid")
     out.acc <- 1  # perfect if neither u nor q map outside
+    out.acc.old <- 1
   } else if(length(user.poly.out) > 0 & length(qaqc.poly.out) > 0) {
     if(comments == "T") print("Both QAQC and User fields outside of grid")
+    ##### still keep old out accuracy for comparison
     tpo <- st_intersection(qaqc.poly.out, user.poly.out)  # tp outside
     fpo <- st_difference(user.poly.out, qaqc.poly.out)  # fp outside
     fno <- st_difference(qaqc.poly.out, user.poly.out)  # fn outside
@@ -256,17 +279,38 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
       xo <- get(x)
       ifelse(!is.null(xo) & is.object(xo) & length(xo) > 0, st_area(xo), 0)
     })
-    # out acc: new = 2TP / (2TP + FP + FN); old = TP / (TP + FN) 
-    out.acc <- (2 * unname(areaso[1])) / (sum(areaso) + unname(areaso[1]))  
     out.acc.old <- unname(areaso[1]) / (unname(areaso[1]) + unname(areaso[3]))  
+    ######## new calculation
+    out_region <- st_difference(st_sf(geom = st_as_sfc(st_bbox(c(user.poly, 
+                                                                 grid.poly,
+                                                                 qaqc.poly)))), 
+                                grid.poly)
+    outres <- map_accuracy(maps = user.poly.out, truth = qaqc.poly.out, 
+                             region = out_region)
+    out.acc <- unname(outres[[1]][acc.switch])
     
+  } else if (length(user.poly.out) == 0 & length(qaqc.poly.out) > 0){
+    if(comments == "T") {
+      print(" QAQC fields outside of grid, but no user fields")
+    }
+    out_region <- st_difference(st_as_sf(st_bbox(c(qaqc.poly, grid.poly))), 
+                          grid.poly)
+    outres <- map_accuracy(maps = NULL, truth = qaqc.poly.out, 
+                           region = out_region)
+    out.acc <- unname(outres[[1]][acc.switch])
+    out.acc.old <- 0
   } else {
     if(comments == "T") {
-      print("Either QAQC or User fields outside of grid, but not both")
+      print(" no QAQC fields outside of grid, but has user fields")
     }
-    out.acc <- 0
+    out_region <- st_difference(st_as_sf(st_bbox(c(user.poly, grid.poly))), 
+                          grid.poly)
+    outres <- map_accuracy(maps = user.poly.out, truth = NULL, 
+                           region = out_region)
+    out.acc <- unname(outres[[1]][acc.switch])
     out.acc.old <- 0
   }
+  
   old.score <- count.acc * count.acc.wt + in.acc * in.acc.wt + 
     out.acc.old * out.acc.wt 
   new.score <- in.acc * new.in.acc.wt + out.acc * new.out.acc.wt + 
