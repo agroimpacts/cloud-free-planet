@@ -17,6 +17,7 @@ edge.buf <- 9 ## for new score, 3 planet pixels
 acc.switch <- 1  ### 5/2/2016 Changed to 1
 comments <- "F"
 write.acc.db <- "T"  
+# write.acc.db <- "N" 
 draw.maps  <- "T"  
 test.root <- "N"  
 pngout <- TRUE
@@ -24,8 +25,8 @@ pngout <- TRUE
 
 #### Test codes ####
 # mtype <- 'qa'
-# assignmentid <- '504'
-# kmlid <- 'ZA1887074'
+# assignmentid <- '511'
+# kmlid <- 'ZA0401608'
 # # tryid <- '1'
 # pgupw$user <- "***REMOVED***"
 # pgupw$password <- "***REMOVED***"
