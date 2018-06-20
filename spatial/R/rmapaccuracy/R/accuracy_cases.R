@@ -67,8 +67,8 @@ case2_accuracy <- function(grid.poly, user.polys, in.acc.wt,
   
   # likelihood(user_i = field|groundtruth = field), 
   # user maps field but none of groundtruth
-  tflisti <- c("tp" = inres$tp, "tn" = inres$tn, 
-               "fp" = inres$fp, "fn" = inres$fn)
+  tflisti <- list("tp" = inres$tp, "tn" = inres$tn, 
+                  "fp" = inres$fp, "fn" = inres$fn)
   areasi <- sapply(tflisti, function(x) {  # calculate tp and fp area
     ifelse(!is.null(x) & is.object(x) & length(x) > 0, st_area(x), 0)
   })
@@ -274,7 +274,7 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
   user.fldcount <- user.nfields
   
   
-  tflisti <- c("tp" = inres$tp, "tn" = inres$tn, 
+  tflisti <- list("tp" = inres$tp, "tn" = inres$tn, 
                "fp" = inres$fp, "fn" = inres$fn)
   areasi <- sapply(tflisti, function(x) {  # calculate tp and fp area
     ifelse(!is.null(x) & is.object(x) & length(x) > 0, st_area(x), 0)
