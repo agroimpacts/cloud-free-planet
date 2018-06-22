@@ -102,31 +102,48 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             source: new ol.source.Vector({
                 features: workerMap
             }),
-            style: [
-                new ol.style.Style({
-                    fill: new ol.style.Fill({
-                        // Edit line below to change unselected shapes' transparency.
-                        color: 'rgba(255, 255, 255, 0.2)'
-                    }),
-                    stroke: new ol.style.Stroke({
-                        color: '#ffcc33',
-                        width: 2
-                    })
-                }),
-                new ol.style.Style({
-                    image: new ol.style.Circle({
-                        radius: 3,
-                        fill: new ol.style.Fill({
-                            color: '#ffcc33'
+            style: function (feature) {
+                // If not a Point then style normally.
+                if (feature.getGeometry().getType() !== 'Point') {
+                    return [
+                        new ol.style.Style({
+                            fill: new ol.style.Fill({
+                                // Edit line below to change unselected shapes' transparency.
+                                color: 'rgba(255, 255, 255, 0.2)'
+                            }),
+                            stroke: new ol.style.Stroke({
+                                color: '#ffcc33',
+                                width: 2
+                            })
+                        }),
+                        new ol.style.Style({
+                            image: new ol.style.Circle({
+                                radius: 3,
+                                fill: new ol.style.Fill({
+                                    color: '#ffcc33'
+                                })
+                            }),
+                            geometry: function(feature) {
+                                // return the coordinates of the first ring of the polygon
+                                var coordinates = feature.getGeometry().getCoordinates()[0];
+                                return new ol.geom.MultiPoint(coordinates);
+                            }
                         })
-                    }),
-                    geometry: function(feature) {
-                        // return the coordinates of the first ring of the polygon
-                        var coordinates = feature.getGeometry().getCoordinates()[0];
-                        return new ol.geom.MultiPoint(coordinates);
-                    }
-                })
-            ]
+                    ];
+                // Else, just draw a circle.
+                } else {
+                    return [
+                        new ol.style.Style({
+                            image: new ol.style.Circle({
+                                radius: 5,
+                                fill: new ol.style.Fill({
+                                    color: '#ffcc33'
+                                })
+                            })
+                        })
+                    ];
+                }
+            }
         });
         fieldsLayer.setMap(map);
         map.getLayers().getArray()[0].getLayers().push(fieldsLayer);
