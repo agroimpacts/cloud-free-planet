@@ -54,6 +54,10 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         minZoom: 4,
         maxZoom: 19
     }));
+    // Disable right-click context menu to allow right-click map panning.
+    map.getViewport().addEventListener('contextmenu', function (evt) {
+        evt.preventDefault();
+    });
     
     // *** Create grid cell ***
     // White bounding box KML layer: URL defined in configuration table.
@@ -98,22 +102,31 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             source: new ol.source.Vector({
                 features: workerMap
             }),
-            style: new ol.style.Style({
-                fill: new ol.style.Fill({
-                    // Edit line below to change unselected shapes' transparency.
-                    color: 'rgba(255, 255, 255, 0.2)'
-                }),
-                stroke: new ol.style.Stroke({
-                    color: '#ffcc33',
-                    width: 2
-                }),
-                image: new ol.style.Circle({
-                    radius: 7,
+            style: [
+                new ol.style.Style({
                     fill: new ol.style.Fill({
-                        color: '#ffcc33'
+                        // Edit line below to change unselected shapes' transparency.
+                        color: 'rgba(255, 255, 255, 0.2)'
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: '#ffcc33',
+                        width: 2
                     })
+                }),
+                new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 3,
+                        fill: new ol.style.Fill({
+                            color: '#ffcc33'
+                        })
+                    }),
+                    geometry: function(feature) {
+                        // return the coordinates of the first ring of the polygon
+                        var coordinates = feature.getGeometry().getCoordinates()[0];
+                        return new ol.geom.MultiPoint(coordinates);
+                    }
                 })
-            })
+            ]
         });
         fieldsLayer.setMap(map);
         map.getLayers().getArray()[0].getLayers().push(fieldsLayer);
@@ -149,11 +162,9 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             map.getLayers().getArray()[1].getLayers().push(wmsLayer[i]);
         }
 
-        // Add drag interaction (for non-worker feedback cases).
+        // Add feature drag interaction (for non-worker feedback cases).
         var dragFeature = null;
         var dragCoordinate = null;
-        var dragCursor = 'pointer';
-        var dragPrevCursor = null;
 
         var dragInteraction = new ol.interaction.Pointer({
             handleDownEvent : function(event){
@@ -176,25 +187,6 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                 geometry.translate(deltaX, deltaY);
                 dragCoordinate[0] = event.coordinate[0];
                 dragCoordinate[1] = event.coordinate[1];
-            },
-            handleMoveEvent : function(event){
-                if (dragCursor) {
-                    var map = event.map;
-                    var feature = map.forEachFeatureAtPixel(event.pixel,
-                        function(feature, layer) {
-                          return feature;
-                        });
-                    var element = event.map.getTargetElement();
-                    if (feature) {
-                        if (element.style.cursor != dragCursor) {
-                            dragPrevCursor = element.style.cursor;
-                            element.style.cursor = dragCursor;
-                        }
-                    } else if (dragPrevCursor !== undefined) {
-                        element.style.cursor = dragPrevCursor;
-                        dragPrevCursor = undefined;
-                    }
-                }
             },
             handleUpEvent : function(event){
                 dragCoordinate = null;
