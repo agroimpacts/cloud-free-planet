@@ -165,6 +165,18 @@ function addControlBar(fieldsLayer, workerMap, checkSaveStrategy, checkReturnStr
     });
     mainbar.addControl(drawButton);
 
+    // Remove last drawn vertex when Esc key pressed.
+    document.addEventListener('keydown', function(event) {
+        if (event.which == 27) {
+            // Ensure that the polygon drawing control is currently active.
+            var ctrl = drawBar.getControls()[0];
+            if (ctrl.getActive()) {
+                // If so, remove its last drawn vertex.
+                ctrl.getInteraction().removeLastPoint();
+            }
+        }
+    });
+
     // Need the following  to be last to ensure Modify tool processes clicks before Draw tool.
     // Add edit tool.
     var editButton = new ol.control.Toggle({
