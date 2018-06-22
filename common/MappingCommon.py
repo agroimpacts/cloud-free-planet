@@ -300,7 +300,7 @@ class MappingCommon(object):
                 FROM wms_data
                 WHERE enabled AND name = '%s'
                 ORDER BY priority DESC""" % kmlName)
-        # Double json.dumps because of embedded quotes in 2D array.
+        # Using json.dumps because of embedded quotes in 2D array.
         return json.dumps(self.cur.fetchall())
 
     #
