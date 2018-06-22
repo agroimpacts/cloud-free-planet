@@ -188,8 +188,9 @@ case3_accuracy <- function(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt,
   env <- environment()  # get environment
   maps <- list("gpol" = grid.poly, "qpol" = qaqc.poly, "upol" = NULL, 
                "inres" = inres, "upolout" = NULL, 
-               "qpolout" = checkexists("qaqc.poly.out", env), "tpo" = NULL, "fpo" = NULL,
-               "fno" = checkexists("qaqc.poly.out", env))  # fno = qpolout
+               "qpolout" = checkexists("qaqc.poly.out", env), 
+               "tpo" = NULL, "fpo" = NULL, 
+               "fno" = checkexists("qaqc.poly.out", env)) # fno = qpolout
   return(list("acc.out" = acc.out, "maps" = maps))
 }
 
@@ -286,7 +287,7 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
                                                                  qaqc.poly)))), 
                                 grid.poly)
     outres <- map_accuracy(maps = user.poly.out, truth = qaqc.poly.out, 
-                             region = out_region)
+                           region = out_region)
     out.acc <- unname(outres[[1]][acc.switch])
     
   } else if (length(user.poly.out) == 0 & length(qaqc.poly.out) > 0){
@@ -294,7 +295,7 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
       print(" QAQC fields outside of grid, but no user fields")
     }
     out_region <- st_difference(st_as_sf(st_bbox(c(qaqc.poly, grid.poly))), 
-                          grid.poly)
+                                grid.poly)
     outres <- map_accuracy(maps = NULL, truth = qaqc.poly.out, 
                            region = out_region)
     out.acc <- unname(outres[[1]][acc.switch])
@@ -304,7 +305,7 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
       print(" no QAQC fields outside of grid, but has user fields")
     }
     out_region <- st_difference(st_as_sf(st_bbox(c(user.poly, grid.poly))), 
-                          grid.poly)
+                                grid.poly)
     outres <- map_accuracy(maps = user.poly.out, truth = NULL, 
                            region = out_region)
     out.acc <- unname(outres[[1]][acc.switch])
@@ -319,7 +320,7 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
   
   
   tflisti <- list("tp" = inres$tp, "tn" = inres$tn, 
-               "fp" = inres$fp, "fn" = inres$fn)
+                  "fp" = inres$fp, "fn" = inres$fn)
   areasi <- sapply(tflisti, function(x) {  # calculate tp and fp area
     ifelse(!is.null(x) & is.object(x) & length(x) > 0, st_area(x), 0)
   })
