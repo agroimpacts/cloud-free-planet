@@ -87,11 +87,9 @@ class MappingCommon(object):
                 if self.euser == 'sandbox':
                     self.mapper = False
                     self.projectRoot = '/home/sandbox/afmap'
-                elif self.euser == 'dmcr':
-                    self.mapper = False
-                    self.projectRoot = '/home/dmcr/afmap_private'
                 else:
-                   raise Exception("Mapping server must run under sandbox or mapper user") 
+                    self.mapper = False
+                    self.projectRoot = '/home/%s/afmap_private' % self.euser
             else:
                 self.mapper = False
                 self.projectRoot = projectRoot
