@@ -1,0 +1,385 @@
+---
+title: "Identify Growing and Non-Growing Seasons"
+output: html_document
+---
+
+## Overview
+
+Using growing season start/end datasets developed by Noemi Vergopolan (Princeton University) following the methods of Dunning et al (2016). 
+
+## Data 
+```{r, eval = FALSE, message=FALSE}
+library(RcppCNPy)
+library(raster)
+library(sf)
+
+fpath <- "/Users/lestes/Dropbox/data/climate/rainfall/"
+gcsstr <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+s_start <- npyLoad(file.path(fpath, "africa_rainfall_ds_de/ds.npy"), 
+                   type = "integer")
+s_end <- npyLoad(file.path(fpath, "africa_rainfall_ds_de/de.npy"), 
+                 type = "integer")
+map <- npyLoad(file.path(fpath, "chirps-v2.0.mean_annual_Africa_p05.npy"))
+
+# set up dummy raster to catch the values
+r <- raster(extent(c(-19, 55, -35, 38)))
+res(r) <- 0.05
+
+
+# season start
+s_startr <- r
+unmat <- unlist(lapply(1:nrow(s_start), function(x) s_start[x, ]))
+s_startr[] <- unmat
+# s_startr <- mask(s_startr, mask = africa)
+
+# season end
+s_endr <- r
+unmat <- unlist(lapply(1:nrow(s_end), function(x) s_end[x, ]))
+s_endr[] <- unmat
+# s_endr[s_endr == 0] <- NA
+
+mapr <- r
+unmat <- unlist(lapply(1:nrow(map), function(x) map[x, ]))
+mapr[] <- unmat
+
+# set up mask for the two datasets
+# read in Africa shape
+f <- file.path("/Users/lestes/Dropbox/projects/activelearning/mapperAL/",
+               "spatial/data/external/africa_noisl_gcs.sqlite")
+africa <- st_read(f)
+st_crs(africa) <- gcsstr
+# st_write(africa, dsn = file.path("/Users/lestes/Dropbox/data/political/",
+#                                  "africa_noisl_gcs.shp"))
+africar <- fasterize::fasterize(africa, s_startr)
+
+# apply masks
+s_startr <- mask(s_startr, africar)
+s_endr <- mask(s_endr, africar)
+mapr <- mask(mapr, africar)
+```
+
+```{r, message=FALSE, echo = FALSE}
+fig <- "spatial/notebooks/figures/rf_seasons.png"
+png(fig, height = 3, width = 7, units = "in", res = 300)
+par(mfrow = c(1, 3), mar = c(2, 2, 2, 2), oma = c(0, 0, 0, 2))
+plot(s_startr, axes = FALSE, box = FALSE, main = "Season Start (jday)")
+plot(s_endr, axes = FALSE, box = FALSE, main = "Season End (jday)")
+plot(mapr, axes = FALSE, box = FALSE, main = "MAP (mm)")
+dev.off()
+```
+
+![](figures/rf_seasons.png)
+
+
+## Calculate full period of on and off-season
+```{r}
+library(dtraster)
+gseason <- stack(s_startr, s_endr, round(mapr))
+gseason_dt <- as.data.table(gseason)
+gseason_dt <- na.omit(gseason_dt)  # drop NAs
+setnames(gseason_dt, c("layer.1", "layer.2", "layer.3"), 
+         c("start", "end", "map"))
+
+# set NA growing season areas to all year
+gseason_dt[start == 1 & end == 0, end := 365]
+gseason_dt[end == 0, end := 365]  # set remaining end dates == 0 to 365
+
+# calculate inner 2/4 of growing season 
+gseason_dt[, c("gss", "gse") := {
+  end2 = ifelse(end < start, end + 365, end)  # adjust for year straddle
+  qt = round((end2 - start) * 0.25)  # identify quartile range
+  a = start + qt
+  gss = ifelse(a > 365, a - 365, a)
+  b = end - qt  # new season period: inter-quartile range
+  gse = ifelse(b < 0, 365 + b, b)
+  list(gss, gse)
+}]
+
+# calculate inner third of off-growing season
+gseason_dt[, c("oss", "ose") := {
+  os = ifelse(start > end, end, start)
+  oe = ifelse(start < end, start + 365, start)
+  qt = round((oe - os) * 0.33)  # identify quartile range
+  a = os + qt
+  oss = ifelse(a > 366, a - 365, a)
+  b = oe - qt
+  ose = ifelse(b < 0, 365 + b, b)
+  ose = ifelse(b > 365, b - 365, b)
+  list(oss, ose)  # new season period: inter-quartile range
+}]
+
+plot(gseason[[2]] - gseason[[1]])
+
+# rasterize
+gseasonb <- dt_to_raster(gseason_dt, gcsstr)
+
+# check growing season / off-growing season length
+s_adj <- (gseasonb$gss > gseasonb$gse) * 365
+gs_dys <- (gseasonb$gse + s_adj) - gseasonb$gss
+s_adj <- (gseasonb$oss > gseasonb$ose) * 365
+os_dys <- (gseasonb$ose + s_adj) - gseasonb$oss
+
+par(mfrow = c(2, 3), mar = c(2, 2, 1, 1))
+plot(gseasonb$gss, axes = FALSE, box = FALSE, main = "Growing Start")
+plot(gseasonb$gse, axes = FALSE, box = FALSE, main = "Growing End")
+plot(gs_dys, axes = FALSE, box = FALSE, main = "Season Length")
+plot(gseasonb$oss, axes = FALSE, box = FALSE, main = "Dry Start")
+plot(gseasonb$ose, axes = FALSE, box = FALSE, main = "Dry End")
+plot(os_dys, axes = FALSE, box = FALSE, main = "Season Length")
+
+```
+
+## WorldClim Approach
+
+Based on long-term monthly means. Rank months according to how much rainfall they receive, and what percent of total rainfall that is. 
+```{r, eval = FALSE}
+rf <- getData(name = "worldclim", var = "prec", res = 2.5, 
+              path = "spatial/data/external")
+rfaf <- crop(rf, africar)
+
+# monthly rainfall as a percent of total rainfall
+rftot <- calc(rfaf, sum)
+pctf <- function(x) x / sum(x)
+mo_pct <- calc(rfaf, pctf)
+# qtile <- function(x) quantile(x, c(0, 0.33333, 0.6666, 1), na.rm = TRUE)
+# mo_qtiles <- calc(rfaf, qtile)
+
+# rank months by rainfall
+rankna <- function(x) {
+  if(all(!is.na(x))) {
+    xsort <- rank(x, ties.method = "random")
+    # xsort <- 1:length(xsort)
+  } else {
+    xsort <- x
+  }
+  xsort
+}
+rfrank <- calc(rfaf, rankna)
+
+# pixel = 1000
+# x <- rfrank[1000]
+# y <- mo_pct[1000]
+# par(mfrow = c(1, 2))
+# plot(rftot)
+# plot(mapr)
+
+
+```
+
+Calculate the total percentages of rainfall in the lowest and highest rainfall parts of the season
+
+```{r, eval = FALSE}
+# proportion of total annual rainfall in the X lowest ranked months, from 2-5
+# lowest ranked
+library(doMC)
+registerDoMC(5)
+lowest <- foreach(i = 2:5, .combine = stack) %dopar% {
+  os_mos <- rfrank <= i
+  pct <- calc(os_mos * mo_pct, sum)
+  pct
+}
+
+# proportion of total annual rainfall in the X highest ranked months, from 9-11
+# lowest ranked
+highest <- foreach(i = 8:11, .combine = stack) %dopar% {
+  os_mos <- rfrank >= i
+  pct <- calc(os_mos * mo_pct, sum)
+  pct
+}
+
+```
+
+Convert rank back to month, for each of the 5 lowest ranked months, beginning with lowest and ending with 5th ranked month
+```{r, eval = FALSE}
+registerDoMC(5)
+lowest_mos <- foreach(i = 1:5) %dopar% {  #  i <- 1
+  # l <- lowest[[i]] <= 0.2  # plot(lowest[[1]] <= 0.2)
+  f1 <- function(x) {
+    if(all(!is.na(x))) {
+      o <- which(x == i)#[1]#[1:(i + 1)]# which minimum rainfall month from 1 to x
+    } else {
+      o <- NA#rep(NA, i + 1)  # prevent NA failures from calc
+    }
+    return(as.numeric(o))
+  }
+  sel <- calc(rfrank, fun = f1)  # select from ranked month stack
+  # selm <- mask(sel, l, maskvalue = 0)  # mask out where selected months > 20% rf
+}
+lowest_moss <- stack(lowest_mos)
+
+# sort months into their order
+sortna <- function(x) {
+  if(all(!is.na(x))) {
+    xsort <- sort(x)
+  } else {
+    xsort <- x
+  }
+  xsort
+}
+lowest_sort <- calc(lowest_moss, sortna)
+
+# identify discontinuity in months of dry season
+# find the difference between each month number and its neighbor, and 
+# N differences > 1 (indicating discontiguity)
+# 1 discontiguity means simply that the dry season straddles years. 
+# 2 or more indicates multi-modality
+dfunc <- function(x) {
+  length(which(abs(diff(as.vector(x))) > 2))
+}
+dry_contig <- calc(lowest_sort, dfunc)
+
+# # check out the sorted patterns in a few locations
+# par(mar = rep(0, 4))
+# plot(dry_contig)
+# # click()
+# # tri-modal area around Albertine Rift
+# cid <- cellFromXY(lowest_sort, c(35.94673, 1.916531))
+# lowest_sort[cid]
+# # click()
+# # bi-modal area in Congo
+# cid <- cellFromXY(lowest_moss, xy = c(29.10138, 0.7264428))
+# lowest_sort[cid]
+# # click()
+# # tri-modal in the Western Cape 
+# cid <- cellFromXY(lowest_moss, xy = c(21.55435, -33.61611))
+# lowest_sort[cid]
+# # click()
+# # uni-modal N of Equator in Central Africa
+# cid <- cellFromXY(lowest_moss, xy = c(20.68912, 5.824645))
+# lowest_sort[cid]
+# # click()
+# # Eastern Madagascar
+# cid <- cellFromXY(lowest_moss, xy = c(48.72242, -18.91232))
+# lowest_sort[cid]
+# # click()
+# # Multi-modal mess in Sahara
+# cid <- cellFromXY(lowest_moss, xy = c(8.575965, 23.81517))
+# lowest_sort[cid]
+# 
+# # click()
+# # Funny 1 discontiguity patch in Mozambique
+# cid <- cellFromXY(lowest_moss, xy = c(40.5893, -15.27962))
+# lowest_sort[cid]
+# 
+
+```
+
+Now select the date range. For areas where there is: 
+
+- 0 discontiguity:
+    - take the min and max of the sorted range as the start and end months 
+- 1 discontiguity:
+    - take the max month as 1st and the min month as last
+- 2+ discontiguities:
+    - take the longest uninterrupted stretch after first adding 12 to any months less than 3
+
+Going to do this with several rasters
+
+```{r, eval = FALSE}
+# No discontiguity--Southern Hemisphere dry
+dry0 <- calc(lowest_sort, range) * (dry_contig == 0)
+# plot(dry0, zlim = c(1, 12))
+
+# 1 discontiguity
+revrng <- function(x) rev(range(x))
+dry1 <- calc(lowest_sort, revrng) * (dry_contig == 1)
+# plot(dry1, zlim = c(1, 12))
+
+# 2 discontiguities
+jfplus12 <- lowest_sort + (lowest_sort < 3) * 12  # add 12 to J and F
+bimodal_sort <- calc(jfplus12, sortna)
+bimodal_sortm <-  bimodal_sort * (dry_contig > 1)
+# plot((dry_contig > 1))
+
+plot(bimodal_sortm, zlim = c(0, 12))
+cid <- cellFromXY(bimodal_sortm, xy = c(29.10138, 0.7264428))
+Which(bimodal_sortm[[1]] > 0)
+bimodal_sortm[cid]
+
+# Functions to select longest consecutive dry months and then its range
+dfunc2 <- function(x) {  # x <- bimodal_sortm[cid][1, ]
+  # solution from here: bit.ly/2tsrjb3
+  temp <- cumsum(c(1, diff(x) - 1))
+  temp2 <- rle(temp)
+  range(x[which(temp == with(temp2, values[which.max(lengths)]))])
+}
+longest_dry <- function(x) {
+  if(all(!is.na(x))) {
+    stend <- dfunc2(as.vector(x))
+  } else {
+    stend <- rep(NA, 2)
+  }
+  stend
+}
+dry_contig2 <- calc(bimodal_sortm, longest_dry)
+dry_contig2m <- mask(dry_contig2, bimodal_sortm[[1]], maskvalue = 0)
+
+# convert months > 13 back to proper month numbers
+dry2 <- dry_contig2 + ((dry_contig2 > 12) * -12)
+plot(dry2)
+plot(dry2[[2]] - dry2[[1]])
+
+# click()
+
+# combine
+dry_wins <- dry0 + dry1 + dry2
+png(par(mar = c(0, 0, 0, 0))
+plot(dry_wins, main = c("Start", "End"), box = FALSE, axes = FALSE)
+
+```
+
+
+```{r, eval = FALSE, echo = FALSE}
+chks <- rbind.data.frame(c(35.571, 2.7109), c(47.8572, 8.938389), 
+                         c(-2.325875, 6.516588), #c(35.94673, 1.916531),
+                         c(24.80993, -8.830189),
+                         c(29.10138, 0.7264428), c(21.55435, -33.61611),
+                         c(20.68912, 5.824645), c(48.72242, -18.91232),
+                         c(8.575965, 23.81517), c(40.5893, -15.27962), 
+                         c(-3.191101, 5.459906), c(18.26523, -30.17925), 
+                         c(8.792647, 32.14623))
+colnames(chks) <- c("x", "y")
+desc <- c("Trimodal Albertine", "Congolese bimodal", 
+          "Inner Coastal Gulf Guinea", 
+          "Unimodal S. Equator", "Unimodal Central Africa", 
+          "Tri-modal WCape", "Unimodal North Central Africa", 
+          "Eastern Madagascar", "Saharan mess", "Moz Coast", 
+          "Coastal Gulf Guinea", "WCape", "N Africa")
+chks$n <- 1:nrow(chks)
+chks$desc <- desc
+coordinates(chks) <- ~x + y
+plot(dry_wins[[1]])
+points(chks, pch = "")
+text(chks, labels = chks$n, halo = TRUE)
+
+chk_cells <- cellFromXY(dry_wins, chks)
+chkres <- data.frame(chks$desc, t(sapply(1:length(chk_cells), function(x) {
+  c(dry_wins[chk_cells[x]])
+})))
+colnames(chkres) <- c("location", "start", "end")
+chkres
+chkres <- data.frame(chks$desc, t(sapply(1:length(chk_cells), function(x) {
+  c(bimodal_sortm[chk_cells[x]])
+})))
+colnames(chkres) <- c("location", "start", "end")
+chkres
+```
+
+
+<!-- ```{python} -->
+<!-- import numpy as np -->
+<!-- file_path = "/Users/lestes/Dropbox/data/climate/rainfall/africa_rainfall_ds_de/" -->
+<!-- filename = file_path + "ds.npy" -->
+<!-- print(filename) -->
+<!-- #season_start = np.load(file_path + "ds.npy") -->
+<!-- ``` -->
+
+
+
+
+
+
+
+## References
+Dunning, C. M., E. C. L. Black, and R. P. Allan (2016), The onset and cessation of seasonal rainfall over Africa, J. Geophys. Res. Atmos., 121, 11,405–11,424, doi:10.1002/2016JD025428.
+
