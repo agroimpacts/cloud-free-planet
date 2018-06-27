@@ -6,15 +6,17 @@
  * @param {Object} opt_options Control options, extends olx.control.ControlOptions adding:
  *                              **`tipLabel`** `String` - the button tooltip.
  */
-var showPanel;
+var showPanel, reverse;
 
 ol.control.LayerSwitcher = function(opt_options) {
 
     var options = opt_options || {};
 
-    var tipLabel = options.tipLabel ?  options.tipLabel : 'Legend';
+    var tipLabel = typeof options.tipLabel !== 'undefined' ?  options.tipLabel : 'Legend';
 
-    showPanel = options.showPanel ? options.showPanel : false;
+    showPanel = typeof options.showPanel !== 'undefined' ? options.showPanel : false;
+
+    reverse = typeof options.reverse !== 'undefined' ? options.reverse : true;
 
     this.mapListeners = [];
 
@@ -224,7 +226,11 @@ ol.control.LayerSwitcher.prototype.renderLayer_ = function(lyr, idx) {
  * @param {Element} elm DOM element that children will be appended to.
  */
 ol.control.LayerSwitcher.prototype.renderLayers_ = function(lyr, elm) {
-    var lyrs = lyr.getLayers().getArray().slice().reverse();
+    if (reverse) {
+        var lyrs = lyr.getLayers().getArray().slice().reverse();
+    } else {
+        var lyrs = lyr.getLayers().getArray().slice();
+    }
     for (var i = 0, l; i < lyrs.length; i++) {
         l = lyrs[i];
         if (l.get('title')) {
