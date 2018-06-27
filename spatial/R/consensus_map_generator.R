@@ -12,13 +12,13 @@ riskpixelthres <- 0.4 # determine risky pixels that are larger than threshold
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
 # Input args 
-kmlid <- "GH0588012" # testlines
-min.mappedcount <- 0 # testlines
-scorethres <- 0     # testlines
-output.riskmap <- FALSE # testlines
-db.tester.name <- 'sye'
-alt.root <- NULL
-host <- NULL
+# kmlid <- "GH0588012" # testlines
+# min.mappedcount <- 0 # testlines
+# scorethres <- 0     # testlines
+# output.riskmap <- FALSE # testlines
+# db.tester.name <- 'sye' # testlines
+# alt.root <- NULL # testlines
+# host <- NULL # testlines
 
 if(length(arg) < 3) stop("At least 3 arguments needed", call. = FALSE)
 arg <- commandArgs(TRUE)
