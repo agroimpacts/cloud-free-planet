@@ -291,13 +291,11 @@ class MappingCommon(object):
         return select
 
     # Get WMS attribute array for specified KML name.
-    # Note: these are sorted in reverse priority order because OL3 stacks
-    #       map layers in last-in on-top order.
     def getWMSAttributes(self, kmlName):
-        self.cur.execute("""SELECT provider, image_name, style, visible, description
+        self.cur.execute("""SELECT provider, image_name, style, zindex, visible, description
                 FROM wms_data
                 WHERE enabled AND name = '%s'
-                ORDER BY priority DESC""" % kmlName)
+                ORDER BY zindex""" % kmlName)
         # Using json.dumps because of embedded quotes in 2D array.
         return json.dumps(self.cur.fetchall())
 
