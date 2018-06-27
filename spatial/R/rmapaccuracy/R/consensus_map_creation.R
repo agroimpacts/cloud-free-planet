@@ -195,7 +195,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, scorethres,
   
   ###################### S3 bucket output ###############
   bucketname <- "activemapper"
-  s3.dst <- "sources/wv2/za/masks/"
+  s3.dst <- paste0("sources/wv2/", tolower(substring(kmlid, 1, 2)), "/masks/")
   s3.filename <- paste0(kmlid, "_label")
   s3_upload(coninfo$dinfo["project.root"], bucketname, 
             bayesoutput$labelmap, s3.dst, s3.filename)
