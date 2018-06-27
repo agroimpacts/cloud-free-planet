@@ -87,11 +87,9 @@ class MappingCommon(object):
                 if self.euser == 'sandbox':
                     self.mapper = False
                     self.projectRoot = '/home/sandbox/afmap'
-                elif self.euser == 'dmcr':
-                    self.mapper = False
-                    self.projectRoot = '/home/dmcr/afmap_private'
                 else:
-                   raise Exception("Mapping server must run under sandbox or mapper user") 
+                    self.mapper = False
+                    self.projectRoot = '/home/%s/afmap_private' % self.euser
             else:
                 self.mapper = False
                 self.projectRoot = projectRoot
@@ -293,13 +291,11 @@ class MappingCommon(object):
         return select
 
     # Get WMS attribute array for specified KML name.
-    # Note: these are sorted in reverse priority order because OL3 stacks
-    #       map layers in last-in on-top order.
     def getWMSAttributes(self, kmlName):
-        self.cur.execute("""SELECT provider, image_name, style, visible, description
+        self.cur.execute("""SELECT provider, image_name, style, zindex, visible, description
                 FROM wms_data
                 WHERE enabled AND name = '%s'
-                ORDER BY priority DESC""" % kmlName)
+                ORDER BY zindex""" % kmlName)
         # Using json.dumps because of embedded quotes in 2D array.
         return json.dumps(self.cur.fetchall())
 
@@ -453,12 +449,14 @@ class MappingCommon(object):
         if kmlType == MappingCommon.KmlTraining:
             # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum)],
+            # Replace the 2 instances of "dmcr" in the next line with your user name.
             #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum), "dmcr", "/home/dmcr/afmap_private"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         elif kmlType == MappingCommon.KmlQAQC:
             # Note: "None" must be passed as a string here.
             # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None"],
+            # Replace the 2 instances of "dmcr" in the next line with your user name.
             #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None", "dmcr", "/home/dmcr/afmap_private"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         else:
