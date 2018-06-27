@@ -16,7 +16,7 @@ def application(environ, start_response):
     kmlGenScript = mapc.getConfiguration('KMLGenScript')
     kmlGenUrl = "%s/%s" % (apiUrl, kmlGenScript)
     mapUrl = mapc.getConfiguration('MapUrl')
-    geoserverUrl = mapc.getConfiguration('GeoserverUrl')
+    wmsUrl = mapc.getConfiguration('WMSUrl')
     instructions = mapc.getConfiguration('KMLInstructions')
     select = mapc.buildSelect()
 
@@ -108,13 +108,13 @@ def application(environ, start_response):
                 <head>
                     <title>500m Square Area in Africa</title>
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                    <link rel="stylesheet" href="https://openlayers.org/en/v3.18.2/css/ol.css" type="text/css">
+                    <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
                     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400">
                     <link rel="stylesheet" href="/OL/fontello-2cc19da7/css/fontello.css" type="text/css" />
                     <link rel="stylesheet" href="/OL/ol3-layerswitcher.css" type="text/css">
                     <link rel="stylesheet" href="/OL/controlbar.css" type="text/css">
                     <link rel="stylesheet" href="/OL/showkml.css" type="text/css">
-                    <script src="https://openlayers.org/en/v3.18.2/build/ol.js" type="text/javascript"></script>
+                    <script src="https://openlayers.org/en/v4.6.5/build/ol.js" type="text/javascript"></script>
                     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
                         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
                         crossorigin="anonymous">
@@ -127,7 +127,7 @@ def application(environ, start_response):
                     <script type="text/javascript" src="/OL/MAcontrolbar.js"></script>
                     <script type="text/javascript" src="/OL/showkml.js"></script>
                 </head>
-                <body onload='init("%(kmlPath)s", "%(kmlName)s", "%(assignmentId)s", "%(tryNum)s", "%(resultsAccepted)s", "%(mapPath)s", "%(workerId)s", "%(geoserverUrl)s", %(wmsAttributes)s)'>
+                <body onload='init("%(kmlPath)s", "%(kmlName)s", "%(assignmentId)s", "%(tryNum)s", "%(resultsAccepted)s", "%(mapPath)s", "%(workerId)s", "%(wmsUrl)s", %(wmsAttributes)s)'>
                     <form style='width:100%%;' name='mappingform' action='%(submitTo)s' method='POST' target='%(target)s'>
                         <div class='instructions'>
                             %(instructions)s
@@ -182,7 +182,7 @@ def application(environ, start_response):
             'workerId': workerId,
             'select': select,
             'csrfToken': csrfToken,
-            'geoserverUrl': geoserverUrl,
+            'wmsUrl': wmsUrl,
             'wmsAttributes': wmsAttributes
         }
         res.text = mainText

@@ -5,6 +5,7 @@
 // Define Bing base layer.
 var bingLayer = new ol.layer.Tile({
     title: 'Bing Aerial',
+    zIndex: 2,
     type: 'base',
     visible: true,
     source: new ol.source.BingMaps({
@@ -16,6 +17,7 @@ var bingLayer = new ol.layer.Tile({
 // Define Mapbox base layer.
 var mapboxLayer = new ol.layer.Tile({
     title: 'Mapbox',
+    zIndex: 1,
     type: 'base',
     visible: false,
     source: new ol.source.XYZ({
@@ -29,9 +31,10 @@ var mapboxLayer = new ol.layer.Tile({
 // (replace the 'access_token' and 'Map ID' values with your own)
 var dg1Layer = new ol.layer.Tile({
     title: 'DG Recent',
+    zIndex: 0,
     type: 'base',
     visible: false,
     source: new ol.source.XYZ({
-        url: 'http://api.tiles.mapbox.com/v4/digitalglobe.nal0g75k/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
+        url: 'https://api.tiles.mapbox.com/v4/digitalglobe.nal0g75k/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZGlnaXRhbGdsb2JlIiwiYSI6ImNqZDRsaWhoNTF3MGEycXFkbWp2dTQ2bGgifQ.atgDhFJtnYI4dTm4a08-PQ', 
     })
 });
