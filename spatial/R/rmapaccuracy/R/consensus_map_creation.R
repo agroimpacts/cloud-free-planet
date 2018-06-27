@@ -83,35 +83,21 @@ consensus_map_creation <- function(kmlid, min.mappedcount, scorethres,
                                "'Rejected') and score IS NOT NULL")
     historyassignmentid <- ((DBI::dbGetQuery(coninfo$con, 
                                              histassignid.sql))$assignment_id)
-      
+    
     # read all valid likelihood and score from history assignments
     userhistories <- lapply(c(1:length(historyassignmentid)), function(x) {
-      ################### test lines##############################
-      # likelihood.sql <- paste0("select new_score from new_error_data", 
-      #                            " where assignment_id  = '", 
-      #                            historyassignmentid[x], "'") 
-      # max_lklh_field <- as.numeric((DBI::dbGetQuery(coninfo$con, likelihood.sql))
-      #                          $new_score) 
-      # max_lklh_nofield <- as.numeric((DBI::dbGetQuery(coninfo$con, likelihood.sql))
-      #                            $new_score) 
-      # score_history <- as.numeric((DBI::dbGetQuery(coninfo$con, likelihood.sql))
-      #                             $new_score) 
-      # c('lklh_field' = max_lklh_field, 'lklh_nofield' = max_lklh_nofield, 
-      #                                'score_history' = score_history)
-      ################### test lines###############################
-                                         
-      ################### official lines###########################
+   
       # need add field_skill and nofield_skill columns to new_error_data tables
       likelihood.sql <- paste0("select new_score, field_skill, nofield_skill",
                                " from new_error_data  where assignment_id  = '", 
                                historyassignmentid[x], "'") 
       measurements <- DBI::dbGetQuery(coninfo$con, likelihood.sql)
+      
       # field_skill and nofield_skill are alias of max.field.lklh 
       # and max.nofield.lklh 
       c('ml.field' = as.numeric(measurements$field_skill), 
         'ml.nofield' = as.numeric(measurements$nofield_skill), 
         'score.hist' = as.numeric(measurements$new_score))
-      ################### official lines###########################
     })
       
     # calculating mean max likelihood and score from history
@@ -145,7 +131,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, scorethres,
         bayes.poly <- st_sf('posterior.field' = 1, 'posterior.nofield' = 1,
                             'max.field.lklh' = ml.field , 
                             'max.nofield.lklh' = ml.nofield , 
-                            'prior'= score, geometry = st_sfc(user.poly))
+                            'prior'= score.hist, geometry = st_sfc(user.poly))
         
         # set crs
         st_crs(bayes.poly) <- gcsstr
@@ -155,7 +141,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, scorethres,
         bayes.poly <- st_sf('posterior.field' = 1, 'posterior.nofield' = 1,
                             'max.field.lklh' = ml.field, 
                             'max.nofield.lklh' = ml.nofield, 
-                            'prior'= score, 
+                            'prior'= score.hist, 
                             geometry = st_sfc(st_multipolygon()))
         st_crs(bayes.poly) <- gcsstr
       }
@@ -203,12 +189,23 @@ consensus_map_creation <- function(kmlid, min.mappedcount, scorethres,
                                 ncol(bayesoutput$riskmap))
   # need add riskpixelpercentage column into kml_data tables
   # insert risk pixel percentage into kml_data table
-  risk.sql <- paste0("insert into kml_data (consensus_conflict)", 
-                     " values ('", riskpixelpercentage, "')")
-  dbSendQuery(coninfo$con, risk.sql) 
+  # risk.sql <- paste0("insert into kml_data (consensus_conflict)", 
+  #                  " values ('", riskpixelpercentage, "')")
+  # dbSendQuery(coninfo$con, risk.sql) 
   
   ###################### S3 bucket output ###############
-  # unfinished
+  bucketname <- "activemapper"
+  s3.dst <- "sources/wv2/za/masks/"
+  s3.filename <- paste0(kmlid, "_label")
+  s3_upload(coninfo$dinfo["project.root"], bucketname, 
+            bayesoutput$labelmap, s3.dst, s3.filename)
+  
+  if(output.riskmap == TRUE) { 
+    s3.filename <- paste(kmlid + "_risk")
+    s3_upload(coninfo$dinfo["project.root"], bucketname, 
+                                         bayesoutput$riskmap, s3.dst, s3.filename)
+  }
+   
   #######################################################
   
   garbage <- dbDisconnect(coninfo$con)
