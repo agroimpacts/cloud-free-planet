@@ -189,9 +189,10 @@ consensus_map_creation <- function(kmlid, min.mappedcount, scorethres,
                                 ncol(bayesoutput$riskmap))
   # need add riskpixelpercentage column into kml_data tables
   # insert risk pixel percentage into kml_data table
-  # risk.sql <- paste0("insert into kml_data (consensus_conflict)", 
-  #                  " values ('", riskpixelpercentage, "')")
-  # dbSendQuery(coninfo$con, risk.sql) 
+  # UPDATE Student SET NAME = 'PRATIK', ADDRESS = 'SIKKIM' WHERE ROLL_NO = 1;
+  risk.sql <- paste0("update kml_data set consensus_conflict = '", 
+                    riskpixelpercentage, "' where name = '", kmlid, "'")
+  dbSendQuery(coninfo$con, risk.sql) 
   
   ###################### S3 bucket output ###############
   bucketname <- "activemapper"
