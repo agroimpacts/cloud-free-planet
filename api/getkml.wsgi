@@ -153,8 +153,6 @@ def application(environ, start_response):
                         <input type='hidden' name='tryNum' value='%(tryNum)s' />
                         <input type='hidden' name='savedMaps' />
                         <input type='hidden' name='kmlData' />
-                        <input type='hidden' name='categories' />
-                        <input type='hidden' name='categComments' />
                     </form>
                     <div id="kml_display" style="width: 100%%; height: %(kmlMapHeight)spx;"></div>
                     <table id=labelBlock style="display: none; position:absolute; top:0px; left:0px;">
