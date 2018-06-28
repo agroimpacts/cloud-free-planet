@@ -185,8 +185,6 @@ class MappingForm(FlaskForm):
     # Input fields
     savedMaps = BooleanField()      # True if worker saved results; False if KML was skipped.
     kmlData = StringField()         # KML object representing worker-mapped polygons
-    categories = StringField()
-    categComments = StringField()
     comment = StringField()         # Worker comment (assignment only)
 
     # Input/Output fields
