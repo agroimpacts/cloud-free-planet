@@ -102,17 +102,11 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
 
     // *** If not a worker feedback case, add mapped fields and WMS layers ***
     if (!workerFeedback) {
-        // Add special id for all drawn features for dragging purposes.
-        var workerMap = new ol.Collection();
-        workerMap.on('add', function(event){
-            var feature = event.element;
-            feature.set('id', 'worker-map');
-        }); 
         var fieldsLayer = new ol.layer.Vector({
             title: "Mapped Fields",
             zIndex: 101,
             source: new ol.source.Vector({
-                features: workerMap
+                features: new ol.Collection()
             }),
             style: function (feature) {
                 // If not a Point then style normally.
@@ -483,23 +477,15 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         // NOTE: the KML writeFeatures() function does not support extended attributes.
         // So we need to extract them from each feature and pass them separately as arrays.
         if (features != '') {
-            categories = [];
-            categComments = [];
             var i = 1;
             for (var feature in features) {
                 features[feature].set('name', kmlName + '_' + i);
-                categories.push(features[feature].get('category'));
-                //console.log("category: " + categories[i-1]);
-                categComments.push(features[feature].get('categ_comment'));
-                //console.log("categ_comment: " + categComments[i-1]);
                 i = i + 1;
             }
             var kmlFormat = new ol.format.KML();
             var kmlData = kmlFormat.writeFeatures(features, {featureProjection: 'EPSG:4326', dataProjection: 'EPSG:4326'});
             // Save the kmlData in the HTML mappingform.
             document.mappingform.kmlData.value = kmlData;
-            document.mappingform.categories.value = categories;
-            document.mappingform.categComments.value = categComments;
         }
         // Mark that we saved our results.
         document.mappingform.savedMaps.value = true;
