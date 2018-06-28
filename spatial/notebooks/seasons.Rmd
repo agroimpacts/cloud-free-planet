@@ -109,43 +109,95 @@ Find the difference between each month number and its neighbor, and N difference
 
 ```{r, eval = FALSE}
 dfunc <- function(x) {
-  length(which(abs(diff(as.vector(x))) > 2))
+  length(which(abs(diff(as.vector(x))) > 1))
 }
 dry_contig <- calc(lowest_sort, dfunc)
 
-# # check out the sorted patterns in a few locations
-# par(mar = rep(0, 4))
-# plot(dry_contig)
-# # click()
-# # tri-modal area around Albertine Rift
-# cid <- cellFromXY(lowest_sort, c(35.94673, 1.916531))
-# lowest_sort[cid]
-# # click()
-# # bi-modal area in Congo
-# cid <- cellFromXY(lowest_moss, xy = c(29.10138, 0.7264428))
-# lowest_sort[cid]
-# # click()
-# # tri-modal in the Western Cape 
-# cid <- cellFromXY(lowest_moss, xy = c(21.55435, -33.61611))
-# lowest_sort[cid]
-# # click()
-# # uni-modal N of Equator in Central Africa
-# cid <- cellFromXY(lowest_moss, xy = c(20.68912, 5.824645))
-# lowest_sort[cid]
-# # click()
-# # Eastern Madagascar
-# cid <- cellFromXY(lowest_moss, xy = c(48.72242, -18.91232))
-# lowest_sort[cid]
-# # click()
-# # Multi-modal mess in Sahara
-# cid <- cellFromXY(lowest_moss, xy = c(8.575965, 23.81517))
-# lowest_sort[cid]
-# 
-# # click()
-# # Funny 1 discontiguity patch in Mozambique
-# cid <- cellFromXY(lowest_moss, xy = c(40.5893, -15.27962))
-# lowest_sort[cid]
-# 
+dfunc2 <- function(x) {  # x <- bimodal_sortm[cid][1, ]
+  # solution from here: bit.ly/2tsrjb3
+  temp <- cumsum(c(1, diff(x) - 1))
+  temp2 <- rle(temp)
+  range(x[which(temp == with(temp2, values[which.max(lengths)]))])
+}
+
+lowest_sortdt <- na.omit(as.data.table(lowest_sort))
+
+# set up blocks for parallelizing
+n <- nrow(lowest_sortdt)
+size <- round(n / 7)
+rowstart <- (0:(7 - 1)) * size + 1
+nrows <- rep(size, length(rowstart))
+dif <- 7 * size - n
+nrows[length(nrows)] <- nrows[length(nrows)] - dif
+for(i in 1:length(rowstart)) {
+  ii <- c(rowstart[i], rowstart[i] - 1 + nrows[i])
+  lowest_sortdt[ii[1]:ii[2], block := i]
+}
+
+# s <- sample(1:nrow(lowest_sortdt), size = 20, replace = FALSE)
+# dry_wins <- do.call(rbind, lapply(s, function(x) {  # x <- 386434
+dry_wins <- do.call(rbind, lapply(1:nrow(lowest_sortdt), function(x) {  
+  dat <- unlist(lowest_sortdt[x, ])
+  v <- dat[3:length(dat)]
+  # v <- c(1, 3, 11, 12)
+  # # v <- c(1, 10:12)
+  # # v <- c(1:6)
+  # # v <- c(1:3, 12)
+  # # v <- c(1:2, 5:6)
+  # # v <- c(1, 9, 11:12)
+  # # v <- c(1, 3, 9, 12)
+  # v <- c(12, 1, 5, 9)
+  vd <- dfunc(v)
+  if(vd == 0) {  # dry months all contiguous and in Southern Hemisphere 
+    o <- range(v)
+  } 
+  if(vd != 0) { 
+    if(any(any(v <= 3) & any(v >= 10))) {  # dry straddling the new year
+       v2 <- v
+       v2[v2 <= 3] <- v2[v2 <= 3] + 12  # add 12 to 1:3 months
+       v2 <- sort(v2)  
+       o <- dfunc2(v2)  # select longest sequence
+       o[o > 12] <- o[o > 12] - 12
+    } else {  # discontinuous dry months, but not straddling new year
+       o <- dfunc2(v)  # select longest sequence
+    }
+  }
+  o
+}))
+dry_winsdt <- data.table(dry_wins)
+dry_winsdtf <- cbind(lowest_sortdt[, .(x, y)], dry_winsdt)
+setnames(dry_winsdtf, c("V1", "V2"), c("d1", "d2"))
+
+registerDoMC(7)
+dry_wins2 <- foreach(i = 1:7, .combine = "rbind") %dopar% {  # i <- 1
+  DT <- lowest_sortdt[block == i]
+  DT[, block := NULL]
+  dry_win_block <- do.call(rbind, lapply(1:nrow(DT), function(x) {
+    dat <- unlist(DT[x, ])
+    v <- dat[3:length(dat)]
+    vd <- dfunc(v)
+    if(vd == 0) {  # dry months all contiguous and in Southern Hemisphere 
+      o <- range(v)
+    } 
+    if(vd != 0) { 
+      if(any(any(v <= 3) & any(v >= 10))) {  # dry straddling the new year
+        v2 <- v
+        v2[v2 <= 3] <- v2[v2 <= 3] + 12  # add 12 to 1:3 months
+        v2 <- sort(v2)  
+        o <- dfunc2(v2)  # select longest sequence
+        o[o > 12] <- o[o > 12] - 12  # reset 13:15 to 1:3
+      } else {  # discontinuous dry months, but not straddling new year
+        o <- dfunc2(v)  # select longest sequence
+      }
+    }
+    o
+  }))
+}
+  
+dry_winsdt2 <- data.table(dry_wins2)
+dry_winsdtf2 <- cbind(lowest_sortdt[, .(x, y)], dry_winsdt2)
+setnames(dry_winsdtf2, c("V1", "V2"), c("d1", "d2"))
+# all(dry_winsdtf2 == dry_winsdtf)
 
 ```
 
