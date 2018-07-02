@@ -1,7 +1,6 @@
 #' Control the output of label maps, risk maps, and heat maps 
 #' @param kmlid 
 #' @param min.mappedcount the minimum approved assignment count
-#' @param scorethres the threshold to select valid assignment
 #' @param riskthres the threshold to select 'risk' pixels
 #' @param user User name for database connection
 #' @param password Password for database connection
@@ -15,7 +14,7 @@
 #' @return Sticks conflict/risk percentage pixels into database (kml_data) and
 #' (pending) writes rasters to S3 bucket
 #' @export
-consensus_map_creation <- function(kmlid, min.mappedcount, scorethres, 
+consensus_map_creation <- function(kmlid, min.mappedcount,
                                    output.riskmap, riskpixelthres, diam, 
                                    user, password, db.tester.name, alt.root, 
                                    host, qsite = FALSE) {
@@ -43,7 +42,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, scorethres,
                                              mappedcount.sql))$mapped_count)
  
   if (mappedcount < min.mappedcount) {
-    stop("there is not enough approved assignment for creating consensus maps")
+    FALSE
   }
 
   
@@ -104,55 +103,55 @@ consensus_map_creation <- function(kmlid, min.mappedcount, scorethres,
     ml.field <- mean(data.frame(do.call(rbind, userhistories))$ml.field)
     ml.nofield <- mean(data.frame(do.call(rbind, userhistories))$ml.nofield)
     score.hist <- mean(data.frame(do.call(rbind, userhistories))$score.hist)
-    # if the user score is larger than the required 
-    # score threshold, then output user.poly and likelihood
-    if(score.hist > scorethres) {
-      # test if user fields exist
-      user.sql <- paste0("select geom_clean from",
-                         " user_maps where assignment_id = ", "'", x,
-                         "'", " order by name")
-      user.polys <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+
+    # test if user fields exist
+    user.sql <- paste0("select geom_clean from",
+                        " user_maps where assignment_id = ", "'", x,
+                        "'", " order by name")
+    user.polys <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
                                                      gsub(", geom_clean", 
                                                           "", user.sql)))
-      user.hasfields <- ifelse(nrow(user.polys) > 0, "Y", "N")
-      # if user maps have field polygons
-      if(user.hasfields == "Y") {
-        user.polys <- suppressWarnings(st_read(coninfo$con, query = user.sql, 
+    user.hasfields <- ifelse(nrow(user.polys) > 0, "Y", "N")
+    
+    # if user maps have field polygons
+    if(user.hasfields == "Y") {
+      user.polys <- suppressWarnings(st_read(coninfo$con, query = user.sql, 
                                                geom_column = 'geom_clean'))
         
-        # union user polygons
-        user.poly <- st_union(user.polys)
+      # union user polygons
+      user.poly <- st_union(user.polys)
         
-        # if for N or F sites, we need to first intersection user maps by grid 
-        # to remain those within-grid parts for calculation
-        if(qsite == FALSE) {
-          user.poly <- suppressWarnings(st_intersection(user.poly, grid.poly))
-        }
-        bayes.poly <- st_sf('posterior.field' = 1, 'posterior.nofield' = 1,
+      # if for N or F sites, we need to first intersection user maps by grid 
+      # to remain those within-grid parts for calculation
+      if(qsite == FALSE) {
+        user.poly <- suppressWarnings(st_intersection(user.poly, grid.poly))
+      }
+      bayes.poly <- st_sf('posterior.field' = 1, 'posterior.nofield' = 1,
                             'max.field.lklh' = ml.field , 
                             'max.nofield.lklh' = ml.nofield , 
                             'prior'= score.hist, geometry = st_sfc(user.poly))
         
-        # set crs
-        st_crs(bayes.poly) <- gcsstr
-      }
-      else {
-        # if users do not map field, set geometry as empty multipolygon
-        bayes.poly <- st_sf('posterior.field' = 1, 'posterior.nofield' = 1,
-                            'max.field.lklh' = ml.field, 
-                            'max.nofield.lklh' = ml.nofield, 
-                            'prior'= score.hist, 
-                            geometry = st_sfc(st_multipolygon()))
-        st_crs(bayes.poly) <- gcsstr
-      }
-      bayes.poly
+      # set crs
+      st_crs(bayes.poly) <- gcsstr
     }
+    else {
+      # if users do not map field, set geometry as empty multipolygon
+      bayes.poly <- st_sf('posterior.field' = 1, 'posterior.nofield' = 1,
+                          'max.field.lklh' = ml.field, 
+                          'max.nofield.lklh' = ml.nofield, 
+                          'prior'= score.hist, 
+                          geometry = st_sfc(st_multipolygon()))
+      st_crs(bayes.poly) <- gcsstr
+    }  
+    
+    bayes.poly
+   
   })
   
   bayes.polys <- do.call(rbind, bayes.polys)
   
   if (nrow(bayes.polys) == 0) {
-    stop("There is not enough valid assignments (> minimum score)")
+    FALSE
   }
   
   # count the number of user maps that has field polygons
@@ -210,4 +209,6 @@ consensus_map_creation <- function(kmlid, min.mappedcount, scorethres,
   #######################################################
   
   garbage <- dbDisconnect(coninfo$con)
+  
+  TRUE
 }
