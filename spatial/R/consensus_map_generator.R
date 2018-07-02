@@ -1,5 +1,5 @@
 # consensus_map_generator.R
-# Main script for calling consensus map generation (Bayes fusion) functions
+# Main script for calling consensus map generation (Bayes Averaging) functions
 # Author: Su Ye
 
 # Static arguments
@@ -8,7 +8,6 @@ user <- "***REMOVED***"
 password <- "***REMOVED***"
 diam <- 0.005 / 2 # new master grid diameter
 riskpixelthres <- 0.4 # determine risky pixels that are larger than threshold
-
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
 # Input args 

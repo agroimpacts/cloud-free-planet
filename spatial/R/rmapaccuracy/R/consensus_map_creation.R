@@ -42,7 +42,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount,
                                              mappedcount.sql))$mapped_count)
  
   if (mappedcount < min.mappedcount) {
-    FALSE
+    stop("there is not enough approved assignment for creating consensus maps")
   }
 
   
@@ -151,7 +151,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount,
   bayes.polys <- do.call(rbind, bayes.polys)
   
   if (nrow(bayes.polys) == 0) {
-    FALSE
+    stop("There is no any valid assignment for creating consensus maps")
   }
   
   # count the number of user maps that has field polygons
@@ -210,5 +210,5 @@ consensus_map_creation <- function(kmlid, min.mappedcount,
   
   garbage <- dbDisconnect(coninfo$con)
   
-  TRUE
+  riskpixelpercentage 
 }
