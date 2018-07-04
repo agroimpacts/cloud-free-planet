@@ -15,8 +15,8 @@ s3_upload <- function(proj.root, bucketname, local.object, s3.dst, s3.filename){
     
     # Set up AWS keys and region here.
     # The better way is set the aws credentials in "~/.aws/credentials" file
-    Sys.setenv("AWS_ACCESS_KEY_ID" = "your_assess_key_id",
-               "AWS_SECRET_ACCESS_KEY" = "your_secret_assess_key_id",
+    Sys.setenv("AWS_ACCESS_KEY_ID" = "AKIAIGOJBD5GZDQ7UY5A",
+               "AWS_SECRET_ACCESS_KEY" = "RWWjvr/zbV2zC5/fOLMQJ+Ud9EfpP8gvHYjtpNiB",
                "AWS_DEFAULT_REGION" = "us-east-1")
     
     # create a local temp file
