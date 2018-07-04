@@ -466,6 +466,31 @@ class MappingCommon(object):
             return score, scoreString
         except:
             return None, scoreString
+            
+    # generate ConsensusMap for 'f' kml
+    # Return true or false
+    def generateConsensusMap(self, k, kmlName, minMapCount, riskWarningThres):
+        riskPixelPercentage = subprocess.Popen(["Rscript", 
+                                                "%s/spatial/R/consensus_map_generator.R" % 
+                                                self.projectRoot, 
+                                                kmlName, 
+                                                str(minMapCount)],
+                                               stdout=subprocess.PIPE, 
+                                               stderr=subprocess.STDOUT).communicate()[0]
+        if riskPixelPercentage is None:
+            k.write(
+                "generateConsensusMap: consensus creation fails for %s\n" % kmlName)
+            return False
+        elif riskPixelPercentage > riskWarningThres:
+            k.write("generateConsensusMap: alerting: %s consensus has over %s "
+                    "percentage of risky pixels  (risk percentage = %s)\n" %
+                    (kmlName, riskWarningThres * 100, riskPixelPercentage))
+            return True
+        else:
+            k.write(
+                "generateConsensusMap: consensus creation succeed for %s\n" % 
+                kmlName)
+            return True
 
     # Save all the worker's drawm maps.
     # Note: if tryNum is zero, then this is not a training case.
