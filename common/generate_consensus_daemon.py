@@ -28,7 +28,7 @@ k.close()
 
 # Execute loop based on FKMLCheckingInterval
 while True:
-  
+
     # Query checking interval
     checking_interval = int(mapc.getConfiguration('FKMLCheckingInterval'))
     print(checking_interval)
@@ -62,7 +62,7 @@ while True:
         if current_iteration != iteration:
             current_iteration = iteration
             k = open(logFilePath + "/generateConsensus.log", "a+")
-            k.write("\ngenerateConsensus: %s iteration starting up at %s\n" %
+            k.write("\ngenerateConsensus: iteration_%s starting up at %s\n" %
                     (current_iteration, datetime.now()))
             k.close()
 
@@ -70,8 +70,8 @@ while True:
         num_processed = 0
         for i in range(0, num_unprocessed - 1):
             mapc.cur.execute("""select name, mapped_count, consensus_conflict 
-            from kml_data where kml_type = 'F' and name = '%s'""" %
-                             fkml_row[i][0])
+            from kml_data where kml_type = '%s' and name = '%s'""" %
+                             (mapc.KmlFQAQC, fkml_row[i][0]))
             kmldata_row = mapc.cur.fetchall()
 
             # if kml has enough mapped count, do merging
@@ -99,25 +99,47 @@ while True:
                                           (kmldata_row[i][0], e.pgcode, e.pgerror))
                     exit(1)
 
-        # when all fkml are processed, write processing info into log, and 
+        # when all fkml are processed, write processing info into log, and
         # wake up cvml
         if num_processed == num_unprocessed:
             k = open(logFilePath + "/generateConsensus.log", "a+")
 
             # checking if iterations for all incoming kml are the identical
-            k.write("\ngenerateConsensus: the iteration %s has %s successful and "
-                    "%s failed consensus creation\n" %
+            k.write("\ngenerateConsensus: the iteration_%s has %s successful "
+                    "and %s failed consensus creation\n" %
                     (current_iteration, num_success, num_fail))
-            k.write("\ngenerateConsensus: the iteration %s finishing up at %s\n"
-                    % (current_iteration, datetime.now()))
+            k.write("\ngenerateConsensus: the iteration_%s finishing up at "
+                    "%s\n" %
+                    (current_iteration, datetime.now()))
             k.close()
 
             # reset count to be zero
             num_success = 0
             num_fail = 0
-            
+
             # wake up cvml
-            os.system('python execute_commands.py')
+            if os.system('python execute_commands.py'):
+                k.write("\ngenerateConsensus: the iteration_%s cvml starts "
+                        "off...\n"
+                        % current_iteration)
+            else:
+                mapc.createAlertIssue("\ngenerateConsensus: the iteration_%s "
+                                      "starting off cvml fails\n" %
+                                      current_iteration)
+                break
+
+            # call KMLgenerate_F.py to generate F sites for the next
+            # iteration
+            if os.system('python KMLgenerate_F.py'):
+                k.write("\ngenerateConsensus: the iteration_%s KMLgenerate_F "
+                        "starts off...\n"
+                        % current_iteration)
+            else:
+                mapc.createAlertIssue("\ngenerateConsensus: the iteration_%s "
+                                      "KMLgenerate_F fails\n" %
+                                      current_iteration)
+                break
+
 
     # Release serialization lock.
     mapc.releaseSerializationLock()
