@@ -294,7 +294,7 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
     if(comments == "T") {
       print(" QAQC fields outside of grid, but no user fields")
     }
-    out_region <- st_difference(st_as_sf(st_bbox(c(qaqc.poly, grid.poly))), 
+    out_region <- st_difference(st_as_sfc(st_bbox(c(qaqc.poly, grid.poly))), 
                                 grid.poly)
     outres <- map_accuracy(maps = NULL, truth = qaqc.poly.out, 
                            region = out_region)
@@ -304,7 +304,7 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
     if(comments == "T") {
       print(" no QAQC fields outside of grid, but has user fields")
     }
-    out_region <- st_difference(st_as_sf(st_bbox(c(user.poly, grid.poly))), 
+    out_region <- st_difference(st_as_sfc(st_bbox(c(user.poly, grid.poly))), 
                                 grid.poly)
     outres <- map_accuracy(maps = user.poly.out, truth = NULL, 
                            region = out_region)
