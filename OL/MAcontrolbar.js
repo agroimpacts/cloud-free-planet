@@ -1,13 +1,16 @@
 // 
 // *** Create control bar ***
 //
-function addControlBar(fieldsLayer, workerMap, checkSaveStrategy, checkReturnStrategy, kmlName) {
+function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy, kmlName) {
+
+    // Create new control bar and add it to the map.
     var mainbar = new ol.control.Bar({
         autoDeactivate: true,   // deactivate controls in bar when parent control off
         toggleOne: true,	    // one control active at the same time
         group: false	        // group controls together
     });
     mainbar.setPosition("top-right");
+    map.addControl(mainbar);
 
     // Add editing tools to the editing sub control bar
     var drawBar = new ol.control.Bar({
@@ -21,7 +24,7 @@ function addControlBar(fieldsLayer, workerMap, checkSaveStrategy, checkReturnStr
         autoActivate: true,
         interaction: new ol.interaction.Draw({
             type: 'Polygon',
-            features: workerMap,
+            features: fieldsLayer.getSource().getFeaturesCollection(),
             //pixelTolerance: 0,
             //condition: function(event){
             //    return !ol.events.condition.shiftKeyOnly(event);
@@ -48,7 +51,7 @@ function addControlBar(fieldsLayer, workerMap, checkSaveStrategy, checkReturnStr
         title: 'Circle creation: Click at center of field; slide mouse to expand and click when done.',
         interaction: new ol.interaction.Draw({
             type: 'Circle',
-            features: workerMap,
+            features: fieldsLayer.getSource().getFeaturesCollection(),
             //pixelTolerance: 0,
             // Create circle from polygon, otherwise not recognized by KML
             geometryFunction: ol.interaction.Draw.createRegularPolygon(),
@@ -74,7 +77,7 @@ function addControlBar(fieldsLayer, workerMap, checkSaveStrategy, checkReturnStr
         title: 'Point creation: Click on map at desired location.',
         interaction: new ol.interaction.Draw({
             type: 'Point',
-            features: workerMap,
+            features: fieldsLayer.getSource().getFeaturesCollection(),
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
                     color: 'rgba(255, 255, 255, 0.2)',
@@ -97,8 +100,7 @@ function addControlBar(fieldsLayer, workerMap, checkSaveStrategy, checkReturnStr
         title: 'Rectangle creation: Click at corner of field; slide mouse to expand and click when done.',
         interaction: new ol.interaction.Draw({
             type: 'LineString',
-            features: workerMap,
-            //pixelTolerance: 0,
+            features: fieldsLayer.getSource().getFeaturesCollection(),
             // Use diagonal to form rectangle
             geometryFunction: function(coordinates, geometry) {
                 if (!geometry) {
@@ -134,8 +136,7 @@ function addControlBar(fieldsLayer, workerMap, checkSaveStrategy, checkReturnStr
         title: 'Square creation: Click at center of field; slide mouse to expand and click when done.',
         interaction: new ol.interaction.Draw({
             type: 'Circle',
-            features: workerMap,
-            //pixelTolerance: 0,
+            features: fieldsLayer.getSource().getFeaturesCollection(),
             geometryFunction: ol.interaction.Draw.createRegularPolygon(4),
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
@@ -154,7 +155,6 @@ function addControlBar(fieldsLayer, workerMap, checkSaveStrategy, checkReturnStr
             })
         })
     }));
-
     // Add drawing sub control bar to the drawButton control
     var drawButton = new ol.control.Toggle({
         html: '<i class=" icon-draw" ></i>',
@@ -165,16 +165,42 @@ function addControlBar(fieldsLayer, workerMap, checkSaveStrategy, checkReturnStr
     });
     mainbar.addControl(drawButton);
 
-    // Need the following  to be last to ensure Modify tool processes clicks before Draw tool.
+    // Remove last drawn vertex when Esc key pressed.
+    document.addEventListener('keydown', function(event) {
+        if (event.which == 27) {
+            // Ensure that the polygon drawing control is currently active.
+            var ctrl = drawBar.getControls()[0];
+            if (ctrl.getActive()) {
+                // If so, remove its last drawn vertex.
+                ctrl.getInteraction().removeLastPoint();
+            }
+        }
+    });
+
+    // Add the new drag interaction. It will be active in edit mode.
+    // Interaction must be added before the Modify interaction below so 
+    // that they will allow both editing and dragging.
+    var dragInteraction = new ol.interaction.Translate({
+        layers: function (layer) {
+            // If it's the fieldsLayer and we are in edit mode, allow dragging.
+            if (layer.getZIndex() == 101 && editButton.getActive()) {
+                return true;
+            }
+            // Otherwise, no dragging allowed.
+            return false;
+        }
+    });
+    map.addInteraction(dragInteraction);
+ 
     // Add edit tool.
+    // NOTE: It needs to follow the Draw tools and drag interaction to ensure Modify tool processes clicks first.
     var editButton = new ol.control.Toggle({
         html: '<i class=" icon-edit" ></i>',
         title: 'To edit any mapped field, drag center of field to move it; drag any border line to stretch it; shift-click on any field corner to delete vertex.',
         interaction: new ol.interaction.Modify({
-            features: workerMap,
-            //pixelTolerance: 4,
+            features: fieldsLayer.getSource().getFeaturesCollection(),
             // The SHIFT key must be pressed to delete vertices, so that new
-            // vertices  can be drawn at the same position as existing vertices.
+            // vertices can be drawn at the same position as existing vertices.
             deleteCondition: function(event) {
                 return ol.events.condition.shiftKeyOnly(event) &&
                 ol.events.condition.singleClick(event);
@@ -215,10 +241,9 @@ function addControlBar(fieldsLayer, workerMap, checkSaveStrategy, checkReturnStr
             document.getElementById("labelBlock").style.display = "none";
         }
     }));
-
     var selectButton = new ol.control.Toggle({
         html: '<i class="icon-select-o"></i>',
-        title: "Select tool: Click a mapped field to select for deletion. Shift-click to select multiple fields.",
+        title: "Select tool: Click a mapped field to select it for category editing or deletion. Shift-click to select multiple fields.",
         interaction: new ol.interaction.Select({
             condition: ol.events.condition.click,
             layers: [fieldsLayer]
@@ -226,6 +251,15 @@ function addControlBar(fieldsLayer, workerMap, checkSaveStrategy, checkReturnStr
         bar: delBar
     });
     mainbar.addControl(selectButton);
+
+    // The snap interaction is added after the Draw and Modify interactions
+    // in order for its map browser event handlers to be fired first. 
+    // Its handlers are responsible of doing the snapping.
+    var snapInteraction = new ol.interaction.Snap({
+        source: fieldsLayer.getSource(),
+        pixelTolerance: 10
+    });
+    map.addInteraction(snapInteraction);
 
     // Add a return button with on active event
     var returnButton = new ol.control.Toggle(
