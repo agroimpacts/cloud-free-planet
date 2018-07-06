@@ -1,4 +1,4 @@
-function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId, geoserverUrl, wmsAttributes) {
+function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId, wmsUrl, wmsAttributes) {
 
     var saveStrategyActive = false;
     var workerFeedback = false;
@@ -26,6 +26,13 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         interactions: ol.interaction.defaults({
             doubleClickZoom :false
         }),
+        // NOTE: the zIndex convention (higher number = higher layer) is as follows:
+        // 0-9: Base layers (only one at a time is visible)
+        // 10-99: WMS layers (zIndex specified in DB)
+        // 100: KML layer (not visible in layer switcher)
+        // 101: Fields layer (mapped by worker)
+        // 102: Reference map layer (worker feedback case)
+        // 103: Worker map layer (worker feedback case)
         layers: [
             // Create overlay layer(s) group.
             new ol.layer.Group({
@@ -40,7 +47,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             // Create base layer group.
             new ol.layer.Group({
                 title: 'Base Layer',
-                layers: [dg1Layer, mapboxLayer, bingLayer]
+                layers: [bingLayer, mapboxLayer, dg1Layer]
             })
         ],
         // Use the specified DOM element
@@ -61,8 +68,10 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     
     // *** Create grid cell ***
     // White bounding box KML layer: URL defined in configuration table.
+    // No title: so not in layer switcher.
     var kmlUrl = eval(`\`${kmlPath}\``);
     var kmlLayer = new ol.layer.Vector({
+        zIndex: 100,
         source: new ol.source.Vector({
             url: kmlUrl,
             format: new ol.format.KML({extractStyles: false})
@@ -81,7 +90,9 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     var kmlSource = kmlLayer.getSource();
     var key = kmlSource.on('change', function(e){
         if (kmlSource.getState() === 'ready') {
-            kmlSource.unByKey(key);
+            // OL4 change
+            //kmlSource.unByKey(key);
+            ol.Observable.unByKey(key);
             var extent = kmlSource.getExtent();
             // Center map around KML
             map.getView().fit(extent, map.getSize());
@@ -91,44 +102,56 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
 
     // *** If not a worker feedback case, add mapped fields and WMS layers ***
     if (!workerFeedback) {
-        // Add special id for all drawn features for dragging purposes.
-        var workerMap = new ol.Collection();
-        workerMap.on('add', function(event){
-            var feature = event.element;
-            feature.set('id', 'worker-map');
-        }); 
         var fieldsLayer = new ol.layer.Vector({
             title: "Mapped Fields",
+            zIndex: 101,
             source: new ol.source.Vector({
-                features: workerMap
+                features: new ol.Collection()
             }),
-            style: [
-                new ol.style.Style({
-                    fill: new ol.style.Fill({
-                        // Edit line below to change unselected shapes' transparency.
-                        color: 'rgba(255, 255, 255, 0.2)'
-                    }),
-                    stroke: new ol.style.Stroke({
-                        color: '#ffcc33',
-                        width: 2
-                    })
-                }),
-                new ol.style.Style({
-                    image: new ol.style.Circle({
-                        radius: 3,
-                        fill: new ol.style.Fill({
-                            color: '#ffcc33'
+            style: function (feature) {
+                // If not a Point then style normally.
+                if (feature.getGeometry().getType() !== 'Point') {
+                    return [
+                        new ol.style.Style({
+                            fill: new ol.style.Fill({
+                                // Edit line below to change unselected shapes' transparency.
+                                color: 'rgba(255, 255, 255, 0.2)'
+                            }),
+                            stroke: new ol.style.Stroke({
+                                color: '#ffcc33',
+                                width: 2
+                            })
+                        }),
+                        new ol.style.Style({
+                            image: new ol.style.Circle({
+                                radius: 3,
+                                fill: new ol.style.Fill({
+                                    color: '#ffcc33'
+                                })
+                            }),
+                            geometry: function(feature) {
+                                // return the coordinates of the first ring of the polygon
+                                var coordinates = feature.getGeometry().getCoordinates()[0];
+                                return new ol.geom.MultiPoint(coordinates);
+                            }
                         })
-                    }),
-                    geometry: function(feature) {
-                        // return the coordinates of the first ring of the polygon
-                        var coordinates = feature.getGeometry().getCoordinates()[0];
-                        return new ol.geom.MultiPoint(coordinates);
-                    }
-                })
-            ]
+                    ];
+                // Else, just draw a circle.
+                } else {
+                    return [
+                        new ol.style.Style({
+                            image: new ol.style.Circle({
+                                radius: 5,
+                                fill: new ol.style.Fill({
+                                    color: '#ffcc33'
+                                })
+                            })
+                        })
+                    ];
+                }
+            }
         });
-        fieldsLayer.setMap(map);
+        // Add fieldsLayer as a managed layer (i.e., don't use setMap()).
         map.getLayers().getArray()[0].getLayers().push(fieldsLayer);
         
         //
@@ -138,17 +161,20 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         var PROVIDER = 0;
         var IMAGE_NAME = 1;
         var STYLE = 2;
-        var VISIBLE = 3;
-        var DESCRIPTION = 4;
+        var ZINDEX = 3;
+        var VISIBLE = 4;
+        var DESCRIPTION = 5;
 
+        // Array is assumed to be in ascending zIndex order, so process in reverse.
         var wmsLayer = [];
-        for (var i = 0; i < wmsAttributes.length; i++) {
+        for (var i = wmsAttributes.length - 1; i >= 0; i--) {
             wmsAttribute = wmsAttributes[i];
             wmsLayer[i] = new ol.layer.Image({
+                zIndex: wmsAttribute[ZINDEX],
                 visible: wmsAttribute[VISIBLE],
                 title: wmsAttribute[DESCRIPTION],
                 source: new ol.source.ImageWMS({
-                    url: geoserverUrl,
+                    url: wmsUrl,
                     params: {
                         VERSION: '1.1.1',
                         LAYERS: wmsAttribute[PROVIDER] + ':' + wmsAttribute[IMAGE_NAME],
@@ -156,50 +182,36 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                     }
                 })
             });    
-            // Add new WMS layer to map.
-            wmsLayer[i].setMap(map);
             // Add new WMS layer to Satellite Image Overlays in Layer Switcher.
             map.getLayers().getArray()[1].getLayers().push(wmsLayer[i]);
         }
 
-        // Add feature drag interaction (for non-worker feedback cases).
-        var dragFeature = null;
-        var dragCoordinate = null;
-
-        var dragInteraction = new ol.interaction.Pointer({
-            handleDownEvent : function(event){
-                var feature = map.forEachFeatureAtPixel(event.pixel,    
-                    function(feature, layer) {
-                        return feature;
-                    }
-                );
-                if(feature && feature.get('id') === 'worker-map') {
-                    dragCoordinate = event.coordinate;
-                    dragFeature = feature;
-                    return true;
-                }
-                return false;
-            },
-            handleDragEvent : function(event){
-                var deltaX = event.coordinate[0] - dragCoordinate[0];
-                var deltaY = event.coordinate[1] - dragCoordinate[1];
-                var geometry = dragFeature.getGeometry();
-                geometry.translate(deltaX, deltaY);
-                dragCoordinate[0] = event.coordinate[0];
-                dragCoordinate[1] = event.coordinate[1];
-            },
-            handleUpEvent : function(event){
-                dragCoordinate = null;
-                dragFeature = null;
-                return false;
-            }
-        });
-        map.addInteraction(dragInteraction);
-     
     // Else, create reference map and worker map layers
     } else {
+        var wMapLayer = new ol.layer.Vector({
+            title: "Worker Map",
+            zIndex: 103,
+            source: new ol.source.Vector({
+                url: mapPath + '/' + workerId + '/' + kmlName + '_w.kml',
+                format: new ol.format.KML({extractStyles: false})
+                //url: mapPath + '/' + workerId + '/' + kmlName + '_w.json',
+                //format: new ol.format.GeoJSON()
+            }),
+            style: new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: 'rgba(0, 0, 255, 0.2)'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: '#0000ff',
+                    width: 2
+                })
+            })
+        });
+        map.getLayers().getArray()[0].getLayers().push(wMapLayer);
+
         var rMapLayer = new ol.layer.Vector({
             title: "Reference Map",
+            zIndex: 102,
             source: new ol.source.Vector({
                 url: mapPath + '/' + workerId + '/' + kmlName + '_r.kml',
                 format: new ol.format.KML({extractStyles: false})
@@ -217,29 +229,6 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                 }),
             })
         });
-        rMapLayer.setMap(map);
-
-        var wMapLayer = new ol.layer.Vector({
-            title: "Worker Map",
-            source: new ol.source.Vector({
-                url: mapPath + '/' + workerId + '/' + kmlName + '_w.kml',
-                format: new ol.format.KML({extractStyles: false})
-                //url: mapPath + '/' + workerId + '/' + kmlName + '_w.json',
-                //format: new ol.format.GeoJSON()
-            }),
-            style: new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: 'rgba(0, 0, 255, 0.2)'
-                }),
-                stroke: new ol.style.Stroke({
-                    color: '#0000ff',
-                    width: 2
-                })
-            })
-        });
-        wMapLayer.setMap(map);
-
-        map.getLayers().getArray()[0].getLayers().push(wMapLayer);
         map.getLayers().getArray()[0].getLayers().push(rMapLayer);
     }
 
@@ -260,6 +249,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         showPanel = true;
     }
     var layerSwitcher = new ol.control.LayerSwitcher({
+        reverse: false,
         showPanel: showPanel,
         tipLabel: 'Layer Switcher'
     });
@@ -267,17 +257,16 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
 
     // Main control bar with sub-menus
     if (!workerFeedback) {
-        var retVals = addControlBar(fieldsLayer, workerMap, checkSaveStrategy, checkReturnStrategy, kmlName);
+        var retVals = addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy, kmlName);
         var mainbar = retVals[0];
         var selectButton = retVals[1];
-        map.addControl(mainbar);
 
     // Worker feedback field selection.
     } else{
         selectFeedback = new ol.interaction.Select({
             condition: ol.events.condition.click,
             layers: [wMapLayer, rMapLayer]
-        })
+        });
         map.addInteraction(selectFeedback);
 
         // Adjust labeling block so fields are read-only and save button is invisible.
@@ -325,7 +314,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             // Hide the labeling block, in case visible.
             document.getElementById("labelBlock").style.display = "none";
         });
-        // Add event handler to clear selection and hide labeling block when layer is made invisible.
+        // Add event handler to clear selection and hide labeling block when layerswitcher makes layer invisible.
         fieldsLayer.on('propertychange', function(event) {
             if (event.key == 'visible' && !fieldsLayer.getVisible()) {
                 // Clear all shape selections.
@@ -361,7 +350,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             // Hide the labeling block, in case visible.
             document.getElementById("labelBlock").style.display = "none";
         });
-        // Add event handler to clear selection and hide labeling block when layer is made invisible.
+        // Add event handler to clear selection and hide labeling block when layerswitcher makes layer invisible.
         rMapLayer.on('propertychange', function(event) {
             if (event.key == 'visible' && !rMapLayer.getVisible()) {
                 // Clear all shape selections.
@@ -370,7 +359,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                 document.getElementById("labelBlock").style.display = "none";
             }
         });
-        // Add event handler to clear selection and hide labeling block when layer is made invisible.
+        // Add event handler to clear selection and hide labeling block when layerswitcher makes layer invisible.
         wMapLayer.on('propertychange', function(event) {
             if (event.key == 'visible' && !wMapLayer.getVisible()) {
                 // Clear all shape selections.
@@ -488,23 +477,15 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         // NOTE: the KML writeFeatures() function does not support extended attributes.
         // So we need to extract them from each feature and pass them separately as arrays.
         if (features != '') {
-            categories = [];
-            categComments = [];
             var i = 1;
             for (var feature in features) {
                 features[feature].set('name', kmlName + '_' + i);
-                categories.push(features[feature].get('category'));
-                //console.log("category: " + categories[i-1]);
-                categComments.push(features[feature].get('categ_comment'));
-                //console.log("categ_comment: " + categComments[i-1]);
                 i = i + 1;
             }
             var kmlFormat = new ol.format.KML();
             var kmlData = kmlFormat.writeFeatures(features, {featureProjection: 'EPSG:4326', dataProjection: 'EPSG:4326'});
             // Save the kmlData in the HTML mappingform.
             document.mappingform.kmlData.value = kmlData;
-            document.mappingform.categories.value = categories;
-            document.mappingform.categComments.value = categComments;
         }
         // Mark that we saved our results.
         document.mappingform.savedMaps.value = true;

@@ -87,11 +87,9 @@ class MappingCommon(object):
                 if self.euser == 'sandbox':
                     self.mapper = False
                     self.projectRoot = '/home/sandbox/afmap'
-                elif self.euser == 'dmcr':
-                    self.mapper = False
-                    self.projectRoot = '/home/dmcr/afmap_private'
                 else:
-                   raise Exception("Mapping server must run under sandbox or mapper user") 
+                    self.mapper = False
+                    self.projectRoot = '/home/%s/afmap_private' % self.euser
             else:
                 self.mapper = False
                 self.projectRoot = projectRoot
@@ -293,13 +291,11 @@ class MappingCommon(object):
         return select
 
     # Get WMS attribute array for specified KML name.
-    # Note: these are sorted in reverse priority order because OL3 stacks
-    #       map layers in last-in on-top order.
     def getWMSAttributes(self, kmlName):
-        self.cur.execute("""SELECT provider, image_name, style, visible, description
+        self.cur.execute("""SELECT provider, image_name, style, zindex, visible, description
                 FROM wms_data
                 WHERE enabled AND name = '%s'
-                ORDER BY priority DESC""" % kmlName)
+                ORDER BY zindex""" % kmlName)
         # Using json.dumps because of embedded quotes in 2D array.
         return json.dumps(self.cur.fetchall())
 
@@ -453,12 +449,14 @@ class MappingCommon(object):
         if kmlType == MappingCommon.KmlTraining:
             # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum)],
+            # Replace the 2 instances of "dmcr" in the next line with your user name.
             #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum), "dmcr", "/home/dmcr/afmap_private"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         elif kmlType == MappingCommon.KmlQAQC:
             # Note: "None" must be passed as a string here.
             # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None"],
+            # Replace the 2 instances of "dmcr" in the next line with your user name.
             #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None", "dmcr", "/home/dmcr/afmap_private"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         else:
@@ -471,7 +469,7 @@ class MappingCommon(object):
 
     # Save all the worker's drawm maps.
     # Note: if tryNum is zero, then this is not a training case.
-    def saveWorkerMaps(self, k, kmlData, categories, categComments, workerId, assignmentId, tryNum=0):
+    def saveWorkerMaps(self, k, kmlData, workerId, assignmentId, tryNum=0):
         # Loop over every Polygon, and store its name and data in PostGIS DB.
         numGeom = 0
         numFail = 0
@@ -482,18 +480,37 @@ class MappingCommon(object):
             numGeom += 1
             # Get mapping name, type, and XML description.
             children = placemark.childNodes
-            geomName = children[0].firstChild.data
+            for child in children:
+                # Process the extended data: category and category comments.
+                if child.tagName == 'ExtendedData':
+                    extData = child.childNodes
+                    for node in extData:
+                        name = node.getAttribute("name")
+                        if name == 'category':
+                            if node.getElementsByTagName("value")[0].firstChild is not None:
+                                category = node.getElementsByTagName("value")[0].firstChild.data 
+                            else:
+                                category = ''
+                        elif name == 'categ_comment':
+                            if node.getElementsByTagName("value")[0].firstChild is not None:
+                                categComment = node.getElementsByTagName("value")[0].firstChild.data 
+                            else:
+                                categComment = ''
+                            if len(categComment) > 2048:
+                                categComment = categComment[:2048]
+                # Process the geometry name.
+                elif child.tagName == 'name':
+                    geomName = child.firstChild.data
+                # We assume that any other child remaining is geometry.
+                else:
+                    geomType = child.tagName
+                    geometry = child.toxml()
+
             k.write("saveWorkerMaps: Shape name = %s\n" % geomName)
-            geomType = children[1].tagName
             k.write("saveWorkerMaps: Shape type = %s\n" % geomType)
-            category = categories[numGeom - 1]
             k.write("saveWorkerMaps: Shape category = %s\n" % category)
-            categComment = categComments[numGeom - 1]
-            if len(categComment) > 2048:
-                categComment = categComment[:2048]
             if len(categComment) > 0:
                 k.write("saveWorkerMaps: Shape category comment = %s\n" % categComment)
-            geometry = children[1].toxml()
             k.write("saveWorkerMaps: Shape KML = %s\n" % geometry)
 
             # Attempt to convert from KML to ***REMOVED*** geom format.

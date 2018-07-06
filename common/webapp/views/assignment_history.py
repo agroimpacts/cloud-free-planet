@@ -53,6 +53,7 @@ def assignment_history():
                     histForm.inquiryId.data)
             # Uncomment the next line and comment the following one for release.
             url = subprocess.Popen(["Rscript", "%s/spatial/R/check_worker_assignment.R" % mapc.projectRoot, str(hitId), str(workerId), "N"], 
+            # Replace the 2 instances of "dmcr" in the next line with your user name.
             #url = subprocess.Popen(["Rscript", "%s/spatial/R/check_worker_assignment.R" % mapc.projectRoot, str(hitId), str(workerId), "N", "dmcr", "/home/dmcr/afmap_private"], 
                     stdout=subprocess.PIPE).communicate()[0]
             url = url.rstrip()
