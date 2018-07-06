@@ -87,7 +87,17 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     # In old versions invoked cleaning algorithm here (since removed)
     user.polys <- suppressWarnings(st_read(coninfo$con, query = user.sql, 
                                            geom_column = 'geom_clean'))
-    user.polys <- st_transform(user.polys, crs = prjstr)
+    
+    # select only polygons
+    user.polys <- user.polys %>% filter(st_is(. , "POLYGON"))
+    
+    if(nrow(user.polys) > 0){
+      user.polys <- st_transform(user.polys, crs = prjstr)
+    }
+    else{
+      user.hasfields <- "N" # change user.hasfield to N because no rows
+    }
+    
   } 
   
   # Accuracy checks begin
