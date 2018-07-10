@@ -119,6 +119,7 @@ def application(environ, start_response):
                         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
                         crossorigin="anonymous">
                     </script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsts/1.6.0/jsts.min.js"></script>
                     <script type="text/javascript" src="/OL/ol3-layerswitcher.js"></script>
                     <script type="text/javascript" src="/OL/controlbar.js"></script>
                     <script type="text/javascript" src="/OL/buttoncontrol.js"></script>

@@ -3,6 +3,10 @@
 //
 function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy, kmlName) {
 
+    // JSTS is used to prevent feature overlaps.
+    var jstsParser = new jsts.io.OL3Parser();
+    var geomFactory = new jsts.geom.GeometryFactory();
+
     // Create new control bar and add it to the map.
     var mainbar = new ol.control.Bar({
         autoDeactivate: true,   // deactivate controls in bar when parent control off
@@ -18,6 +22,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         autoDeactivate: true,   // deactivate controls in bar when parent control off
         group: false		    // group controls together
     });
+    var drawGeom;
     drawBar.addControl( new ol.control.Toggle({
         html: '<i class="icon-polygon-o" ></i>',
         title: 'Polygon creation: Click at each corner of field; double-click when done.',
@@ -25,10 +30,82 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         interaction: new ol.interaction.Draw({
             type: 'Polygon',
             features: fieldsLayer.getSource().getFeaturesCollection(),
-            //pixelTolerance: 0,
-            //condition: function(event){
-            //    return !ol.events.condition.shiftKeyOnly(event);
-            //},
+            // Store the geometry being currently drawn for use by the finishCondition.
+            geometryFunction: function(coords, geom) {
+                drawGeom = geom;
+                if (!drawGeom) {
+                    drawGeom = new ol.geom.Polygon(null);
+                }
+                newCoords = coords[0].slice();
+                // Close the polygon each time we come through here.
+                newCoords.push(newCoords[0].slice());
+                drawGeom.setCoordinates([newCoords]);
+                return drawGeom;
+            },
+            // Check for feature overlap on each click.
+            condition: function(event) {
+                var feature = map.forEachFeatureAtPixel(
+                    event.pixel, 
+                    function (feature, layer) {
+                        // Stop detection since we found overlap.
+                        return feature;
+                    },
+                    {
+                        // Only check the fieldsLayer for overlaps.
+                        layerFilter: function(layer) {
+                            if (layer.getZIndex() == 101) {
+                                return true;
+                            }
+                            return false;
+                        }
+                    }
+                );
+                // We found an overlap, so check to see if it's inside the feature's boundary.
+                // If it's only on the border, we return true to allow adding the vertex.
+                if (feature) {
+                    // Create JSTS geometries for the click coordinates and the feature it overlaps with.
+                    var jsts_point = geomFactory.createPoint(
+                        new jsts.geom.Coordinate(event.coordinate[0], event.coordinate[1])
+                    );
+                    var jsts_feature = jstsParser.read(feature.getGeometry());
+                    // Create a negative 1-pixel buffer to allow for border sharing.
+                    var resolution = map.getView().getResolution();
+                    jsts_feature = jsts_feature.buffer(-resolution);
+                    // See if the point overlaps with the buffered feature.
+                    // Return the negation (false if it overlaps); true otherwise.
+                    // Returning false will prevent adding the point.
+                    var overlap = jsts_feature.contains(jsts_point);
+                    return !overlap;
+                }
+                // No overlap: add the vertex.
+                return true;
+            },
+            // Check that currently drawn geometry doesn't overlap any previously drawn feature.
+            finishCondition: function(event) {
+                console.log("draw coords: " + drawGeom.getCoordinates());
+                var jsts_drawGeom = jstsParser.read(drawGeom);
+                // Create a negative 1-pixel buffer to allow for border sharing.
+                var resolution = map.getView().getResolution();
+                jsts_drawGeom = jsts_drawGeom.buffer(-resolution);
+                var features = fieldsLayer.getSource().getFeatures();
+                for (var i in features) {
+                    var feature = features[i].getGeometry();
+                    console.log("feature coords: " + features[i].getGeometry().getCoordinates());
+                    var jsts_feature = jstsParser.read(features[i].getGeometry());
+                    var intersects = jsts_drawGeom.intersects(jsts_feature);
+                    console.log("this feature intersects: " + intersects);
+                    // If current feature intersects with another feature,
+                    // prevent worker from completing the polygon.
+                    if (intersects) {
+                        // Remove last point.
+                        var ctrl = drawBar.getControls()[0];
+                        ctrl.getInteraction().removeLastPoint();
+                        return false;
+                    }
+                }
+                // If we got here, there are no intersections.
+                return true;
+            },
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
                     color: 'rgba(255, 255, 255, 0.2)',
