@@ -1,3 +1,5 @@
+![Back to README](../README.md)
+
 [REVISE]
 
 1) To get webob v1.2+ to be in Python's path, add a webob.pth file to the /usr/lib/<python>/site-packages directory with the name of the webob egg directory in it.
