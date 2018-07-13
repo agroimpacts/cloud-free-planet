@@ -19,7 +19,6 @@
 
 - __kml_data_static__: Contains the names of cells that serve as Q (quality control) and I (initial qualification) HITs. These are in a separate table because they are unchanging, and are called on to populate the empty __kml_data__ table when moving from development to production.
 
-
 - __configuration__: Parameters called on by a variety of `mapper`'s processes.
 
 - __
