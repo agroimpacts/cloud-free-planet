@@ -1,4 +1,4 @@
-function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId, wmsUrl, wmsAttributes) {
+function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId, wmsUrl, wmsAttributes, snapTolerance) {
 
     var saveStrategyActive = false;
     var workerFeedback = false;
@@ -257,7 +257,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
 
     // Main control bar with sub-menus
     if (!workerFeedback) {
-        var retVals = addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy, kmlName);
+        var retVals = addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy, kmlName, snapTolerance);
         var mainbar = retVals[0];
         var selectButton = retVals[1];
 
