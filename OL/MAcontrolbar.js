@@ -1,7 +1,93 @@
 // 
 // *** Create control bar ***
 //
-function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy, kmlName) {
+function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy, kmlName, snapTolerance) {
+
+    // JSTS is used to prevent feature overlaps.
+    var jstsParser = new jsts.io.OL3Parser();
+    var geomFactory = new jsts.geom.GeometryFactory();
+
+    // Function to return feature at click event.
+    function getClickFeature(event, clickTolerance) {
+        var features = map.getFeaturesAtPixel(
+            event.pixel, 
+            {
+                // Only check the fieldsLayer for overlaps.
+                layerFilter: function(layer) {
+                    if (layer.getZIndex() == 101) {
+                        return true;
+                    }
+                    return false;
+                },
+                hitTolerance: clickTolerance
+            }
+        );
+        // Save the current feature's starting coordinates.
+        if (features && features.length > 0) {
+            return features[0];
+        } else {
+            //console.log("getClickFeature: No feature at pixel.");
+            return undefined;
+        }
+    };
+
+    // Function to check if specified geometry overlaps with other existing features.
+    function hasOverlap(geom) {
+        var jsts_geom = jstsParser.read(geom);
+        // Create a negative 1-pixel buffer to allow for border sharing.
+        var resolution = map.getView().getResolution();
+        jsts_geomBuf = jsts_geom.buffer(-resolution);
+        var features = fieldsLayer.getSource().getFeatures();
+        for (var i in features) {
+            var feature = features[i];
+            var jsts_featureGeom = jstsParser.read(feature.getGeometry());
+            // Don't compare to feature being modified.
+            if (jsts_geom.equals(jsts_featureGeom)) {
+                continue;
+            }
+            if (jsts_geomBuf.intersects(jsts_featureGeom)) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    // Draw tool 'condition' point overlap testing function.
+    function pointOverlapCheck(event) {
+        var feature = getClickFeature(event, 0);
+
+        // If we found an overlap, check to see if it's inside the feature's boundary.
+        // If it's only on the border, we return true to allow adding the vertex.
+        if (feature) {
+            // Create JSTS geometries for the click coordinates and the feature it overlaps with.
+            var jsts_point = geomFactory.createPoint(
+                new jsts.geom.Coordinate(event.coordinate[0], event.coordinate[1])
+            );
+            var jsts_feature = jstsParser.read(feature.getGeometry());
+            // Create a negative 1-pixel buffer to allow for border sharing.
+            var resolution = map.getView().getResolution();
+            jsts_feature = jsts_feature.buffer(-resolution);
+            // See if the point overlaps with the buffered feature.
+            // Return the negation (false if it overlaps); true otherwise.
+            // Returning false will prevent adding the point.
+            var overlap = jsts_feature.contains(jsts_point);
+            return !overlap;
+        }
+        // No overlap: add the vertex.
+        return true;
+    };
+
+    // Draw tool 'finalCondition' overlap testing function.
+    function overlapCheck(event) {
+        if (hasOverlap(drawGeom)) {
+            // Remove last point.
+            var ctrl = drawBar.getControls()[0];
+            ctrl.getInteraction().removeLastPoint();
+            return false;
+        }
+        // If we got here, there are no intersections.
+        return true;
+    };
 
     // Create new control bar and add it to the map.
     var mainbar = new ol.control.Bar({
@@ -18,6 +104,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         autoDeactivate: true,   // deactivate controls in bar when parent control off
         group: false		    // group controls together
     });
+    var drawGeom = undefined;
     drawBar.addControl( new ol.control.Toggle({
         html: '<i class="icon-polygon-o" ></i>',
         title: 'Polygon creation: Click at each corner of field; double-click when done.',
@@ -25,10 +112,28 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         interaction: new ol.interaction.Draw({
             type: 'Polygon',
             features: fieldsLayer.getSource().getFeaturesCollection(),
-            //pixelTolerance: 0,
-            //condition: function(event){
-            //    return !ol.events.condition.shiftKeyOnly(event);
-            //},
+            // Store the geometry being currently drawn for use by the finishCondition.
+            geometryFunction: function(coords, geom) {
+                drawGeom = geom;
+                if (!drawGeom) {
+                    drawGeom = new ol.geom.Polygon(null);
+                }
+                newCoords = coords[0].slice();
+                // Close the polygon each time we come through here.
+                if (newCoords.length > 0) {
+                    newCoords.push(newCoords[0].slice());
+                }
+                drawGeom.setCoordinates([newCoords]);
+                return drawGeom;
+            },
+            // Check for feature overlap on each click.
+            condition: function(event) {
+                return pointOverlapCheck(event);
+            },
+            // Check that currently drawn geometry doesn't overlap any previously drawn feature.
+            finishCondition: function(event) {
+                return overlapCheck(event);
+            },
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
                     color: 'rgba(255, 255, 255, 0.2)',
@@ -52,9 +157,19 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         interaction: new ol.interaction.Draw({
             type: 'Circle',
             features: fieldsLayer.getSource().getFeaturesCollection(),
-            //pixelTolerance: 0,
-            // Create circle from polygon, otherwise not recognized by KML
-            geometryFunction: ol.interaction.Draw.createRegularPolygon(),
+            geometryFunction: function(coords, geom) {
+                func = ol.interaction.Draw.createRegularPolygon();
+                drawGeom = func(coords, geom);
+                return drawGeom;
+            },
+            // Check for feature overlap on each click.
+            condition: function(event) {
+                return pointOverlapCheck(event);
+            },
+            // Check that currently drawn geometry doesn't overlap any previously drawn feature.
+            finishCondition: function(event) {
+                return overlapCheck(event);
+            },
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
                     color: 'rgba(255, 255, 255, 0.2)',
@@ -78,6 +193,10 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         interaction: new ol.interaction.Draw({
             type: 'Point',
             features: fieldsLayer.getSource().getFeaturesCollection(),
+            // Check for feature overlap on each click.
+            condition: function(event) {
+                return pointOverlapCheck(event);
+            },
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
                     color: 'rgba(255, 255, 255, 0.2)',
@@ -99,19 +218,20 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         html: '<i class="icon-rectangle-o" ></i>',
         title: 'Rectangle creation: Click at corner of field; slide mouse to expand and click when done.',
         interaction: new ol.interaction.Draw({
-            type: 'LineString',
+            type: 'Circle',
             features: fieldsLayer.getSource().getFeaturesCollection(),
-            // Use diagonal to form rectangle
-            geometryFunction: function(coordinates, geometry) {
-                if (!geometry) {
-                    geometry = new ol.geom.Polygon(null);
-                }
-                var start = coordinates[0];
-                var end = coordinates[1];
-                geometry.setCoordinates([
-                    [start, [start[0], end[1]], end, [end[0], start[1]], start]
-                ]);
-                return geometry;
+            geometryFunction: function(coords, geom) {
+                func = ol.interaction.Draw.createBox();
+                drawGeom = func(coords, geom);
+                return drawGeom;
+            },
+            // Check for feature overlap on each click.
+            condition: function(event) {
+                return pointOverlapCheck(event);
+            },
+            // Check that currently drawn geometry doesn't overlap any previously drawn feature.
+            finishCondition: function(event) {
+                return overlapCheck(event);
             },
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
@@ -127,8 +247,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                         color: 'rgba(0, 153, 255, 0.5)'
                     })
                 })
-            }),
-            maxPoints: 2,
+            })
         })
     }));
     drawBar.addControl( new ol.control.Toggle({
@@ -137,7 +256,19 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         interaction: new ol.interaction.Draw({
             type: 'Circle',
             features: fieldsLayer.getSource().getFeaturesCollection(),
-            geometryFunction: ol.interaction.Draw.createRegularPolygon(4),
+            geometryFunction: function(coords, geom) {
+                func = ol.interaction.Draw.createRegularPolygon(4);
+                drawGeom = func(coords, geom);
+                return drawGeom;
+            },
+            // Check for feature overlap on each click.
+            condition: function(event) {
+                return pointOverlapCheck(event);
+            },
+            // Check that currently drawn geometry doesn't overlap any previously drawn feature.
+            finishCondition: function(event) {
+                return overlapCheck(event);
+            },
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
                     color: 'rgba(255, 255, 255, 0.2)',
@@ -199,6 +330,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         title: 'To edit any mapped field, drag center of field to move it; drag any border line to stretch it; shift-click on any field corner to delete vertex.',
         interaction: new ol.interaction.Modify({
             features: fieldsLayer.getSource().getFeaturesCollection(),
+            pixelTolerance: snapTolerance,
             // The SHIFT key must be pressed to delete vertices, so that new
             // vertices can be drawn at the same position as existing vertices.
             deleteCondition: function(event) {
@@ -220,6 +352,34 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         })
     });
     mainbar.addControl(editButton);
+
+    var modifyFeature;
+    var modifyCoords;
+    // Prevent overlap during modifications.
+    // Save the feature being modified and its starting coordinates at the start.
+    editButton.getInteraction().on('modifystart', function(event) {
+        // Make snapTolerance one more than the modify tool's snap tolerance to avoid 
+        // boundary issues where Modify responds to click, but not getFeaturesAtPixel().
+        modifyFeature = getClickFeature(event.mapBrowserEvent, snapTolerance + 1);
+        // Save the current feature's starting coordinates.
+        if (modifyFeature) {
+            modifyCoords = modifyFeature.getGeometry().getCoordinates();
+        }
+    });
+    // At the end, compare the feature being modified (with a 1-pixel negative buffer)
+    // to all other features. If any intersect, restore the coordinates of the
+    // feature being modified to its saved starting coordinates.
+    editButton.getInteraction().on('modifyend', function(event) {
+        if (modifyFeature) {
+            // If current feature intersects with another feature,
+            // restore current feature to pre-modification coordinates.
+            if (hasOverlap(modifyFeature.getGeometry())) {
+                if (modifyCoords.length > 0) {
+                    modifyFeature.getGeometry().setCoordinates(modifyCoords);
+                }
+            }
+        }
+    });
 
     // Add selection tool (a toggle control with a select interaction)
     var delBar = new ol.control.Bar();
@@ -257,7 +417,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
     // Its handlers are responsible of doing the snapping.
     var snapInteraction = new ol.interaction.Snap({
         source: fieldsLayer.getSource(),
-        pixelTolerance: 10
+        pixelTolerance: snapTolerance
     });
     map.addInteraction(snapInteraction);
 
