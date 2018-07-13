@@ -1,9 +1,13 @@
 # mapper
 
-The crowdsourcing platform for the active learning framework.  
+The crowdsourcing platform for the active learning framework, as adapted from the original version designed to operate with Amazon's Mechanical Turk. 
 
-## Components
+## Overview
 
-[Design overview](mapper-design.md)
+- [A look](docs/project-tasks.md) at what needs to be done in the project and how `mapper` fits into it. 
 
-[Old build notes](docs/build.md)
+- A description of [mapper's components](mapper-design.md), as originally designed (needs to be updated to reflect changes).
+
+- A description of `mapper`'s [database]().
+
+- [Old build notes](docs/build.md)
