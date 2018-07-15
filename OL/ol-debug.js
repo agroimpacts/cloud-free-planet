@@ -1,6 +1,6 @@
 // OpenLayers. See https://openlayers.org/
 // License: https://raw.githubusercontent.com/openlayers/openlayers/master/LICENSE.md
-// Version: v4.6.5-1-gc0c7eeb
+// Version: v4.6.5-2-g85a54ff
 ;(function (root, factory) {
   if (typeof exports === "object") {
     module.exports = factory();
@@ -62726,6 +62726,10 @@ ol.interaction.Modify.handleDownEvent_ = function(evt) {
       }
     }
     if (insertVertices.length) {
+      this.features_ = new ol.Collection();
+      for (var i = 0; i < insertVertices.length; i++) {
+        this.features_.push(insertVertices[i][0].feature);
+      }
       this.willModifyFeatures_(evt);
     }
     for (var j = insertVertices.length - 1; j >= 0; --j) {
@@ -62743,6 +62747,7 @@ ol.interaction.Modify.handleDownEvent_ = function(evt) {
  */
 ol.interaction.Modify.handleDragEvent_ = function(evt) {
   this.ignoreNextSingleClick_ = false;
+  this.features_ = new ol.Collection([this.dragSegments_[0][0].feature]);
   this.willModifyFeatures_(evt);
 
   var vertex = evt.coordinate;
@@ -63087,6 +63092,7 @@ ol.interaction.Modify.prototype.insertVertex_ = function(segmentData, vertex) {
 ol.interaction.Modify.prototype.removePoint = function() {
   if (this.lastPointerEvent_ && this.lastPointerEvent_.type != ol.MapBrowserEventType.POINTERDRAG) {
     var evt = this.lastPointerEvent_;
+    this.features_ = new ol.Collection([this.dragSegments_[0][0].feature]);
     this.willModifyFeatures_(evt);
     this.removeVertex_();
     this.dispatchEvent(new ol.interaction.Modify.Event(
@@ -96051,7 +96057,7 @@ goog.exportProperty(
     ol.control.ZoomToExtent.prototype,
     'un',
     ol.control.ZoomToExtent.prototype.un);
-ol.VERSION = 'v4.6.5-1-gc0c7eeb';
+ol.VERSION = 'v4.6.5-2-g85a54ff';
 OPENLAYERS.ol = ol;
 
   return OPENLAYERS.ol;
