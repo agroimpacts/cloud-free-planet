@@ -331,6 +331,36 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
     });
     map.addInteraction(dragInteraction);
  
+    // Prevent overlap while dragging.
+    // Save the feature being dragged's initial coordinates at the start.
+    var translateCoords;
+    dragInteraction.on('translatestart', function(event) {
+        // Save the current feature's starting coordinates.
+        if (event.features.getArray().length == 1) {
+            var modifyFeature = event.features.getArray()[0];
+            translateCoords = modifyFeature.getGeometry().getCoordinates().slice();
+            //translateCoords = [...modifyFeature.getGeometry().getCoordinates()];
+            //translateCoords = new Array(modifyFeature.getGeometry().getCoordinates());
+            console.log("modifystart");
+            console.log(translateCoords);
+        }
+    });
+    // At the end, compare the feature being dragged (with a 1-pixel negative buffer)
+    // to all other features. If any intersect, restore the coordinates of the
+    // feature being dragged to its saved starting coordinates.
+    dragInteraction.on('translateend', function(event) {
+        if (event.features.getArray().length == 1) {
+            var modifyFeature = event.features.getArray()[0];
+            console.log("modifyend");
+            console.log(modifyFeature.getGeometry().getCoordinates());
+            // If current feature intersects with another feature,
+            // restore current feature to pre-modification coordinates.
+            if (hasOverlap(modifyFeature.getGeometry())) {
+                modifyFeature.getGeometry().setCoordinates(translateCoords);
+            }
+        }
+    });
+
     // Add edit tool.
     // NOTE: It needs to follow the Draw tools and drag interaction to ensure Modify tool processes clicks first.
     var editButton = new ol.control.Toggle({
@@ -364,7 +394,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
     mainbar.addControl(editButton);
 
     // Prevent overlap during modifications.
-    // Save the feature being modified and its starting coordinates at the start.
+    // Save the feature being modified's initial coordinates at the start.
     // NOTE: Requires a specially patched version of OpenLayers v4.6.5.
     var modifyCoords;
     editButton.getInteraction().on('modifystart', function(event) {
