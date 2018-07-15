@@ -2,7 +2,6 @@
 // *** Create control bar ***
 //
 function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy, kmlName, snapTolerance) {
-
     // JSTS is used to prevent feature overlaps.
     var jstsParser = new jsts.io.OL3Parser();
     var geomFactory = new jsts.geom.GeometryFactory();
@@ -22,11 +21,15 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                 hitTolerance: clickTolerance
             }
         );
-        // Save the current feature's starting coordinates.
-        if (features && features.length > 0) {
+        // Return the feature's starting coordinates if there's only one.
+        if (features && features.length == 1) {
             return features[0];
         } else {
-            //console.log("getClickFeature: No feature at pixel.");
+            if (!features) {
+                console.log("getClickFeature: No feature at pixel.");
+            } else {
+                console.log("getClickFeature: " + features.length + " feature(s) at pixel.");
+            }
             return undefined;
         }
     };
@@ -46,9 +49,11 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                 continue;
             }
             if (jsts_geomBuf.intersects(jsts_featureGeom)) {
+                console.log("hasOverlap: feature intersects.");
                 return true;
             }
         }
+        console.log("hasOverlap: feature does not intersect.");
         return false;
     };
 
@@ -167,6 +172,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                 return pointOverlapCheck(event);
             },
             // Check that currently drawn geometry doesn't overlap any previously drawn feature.
+            // NOTE: Requires a specially patched version of OpenLayers v4.6.5.
             finishCondition: function(event) {
                 return overlapCheck(event);
             },
@@ -230,6 +236,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                 return pointOverlapCheck(event);
             },
             // Check that currently drawn geometry doesn't overlap any previously drawn feature.
+            // NOTE: Requires a specially patched version of OpenLayers v4.6.5.
             finishCondition: function(event) {
                 return overlapCheck(event);
             },
@@ -266,6 +273,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                 return pointOverlapCheck(event);
             },
             // Check that currently drawn geometry doesn't overlap any previously drawn feature.
+            // NOTE: Requires a specially patched version of OpenLayers v4.6.5.
             finishCondition: function(event) {
                 return overlapCheck(event);
             },
@@ -308,7 +316,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         }
     });
 
-    // Add the new drag interaction. It will be active in edit mode.
+    // Add the new drag interaction. It will be active in edit mode only.
     // Interaction must be added before the Modify interaction below so 
     // that they will allow both editing and dragging.
     var dragInteraction = new ol.interaction.Translate({
@@ -330,7 +338,9 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         title: 'To edit any mapped field, drag center of field to move it; drag any border line to stretch it; shift-click on any field corner to delete vertex.',
         interaction: new ol.interaction.Modify({
             features: fieldsLayer.getSource().getFeaturesCollection(),
-            pixelTolerance: snapTolerance,
+            // Snap interaction is doing the heavy lifting here. So we only need a pixelTolerance
+            // of 1 because 0 causes the edge detection of the modify interaction not to work.
+            pixelTolerance: 1,
             // The SHIFT key must be pressed to delete vertices, so that new
             // vertices can be drawn at the same position as existing vertices.
             deleteCondition: function(event) {
@@ -353,30 +363,34 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
     });
     mainbar.addControl(editButton);
 
-    var modifyFeature;
-    var modifyCoords;
     // Prevent overlap during modifications.
     // Save the feature being modified and its starting coordinates at the start.
+    // NOTE: Requires a specially patched version of OpenLayers v4.6.5.
+    var modifyCoords;
     editButton.getInteraction().on('modifystart', function(event) {
-        // Make snapTolerance one more than the modify tool's snap tolerance to avoid 
-        // boundary issues where Modify responds to click, but not getFeaturesAtPixel().
-        modifyFeature = getClickFeature(event.mapBrowserEvent, snapTolerance + 1);
         // Save the current feature's starting coordinates.
-        if (modifyFeature) {
-            modifyCoords = modifyFeature.getGeometry().getCoordinates();
+        if (event.features.getArray().length == 1) {
+            var modifyFeature = event.features.getArray()[0];
+            modifyCoords = modifyFeature.getGeometry().getCoordinates().slice();
+            //modifyCoords = [...modifyFeature.getGeometry().getCoordinates()];
+            //modifyCoords = new Array(modifyFeature.getGeometry().getCoordinates());
+            console.log("modifystart");
+            console.log(modifyCoords);
         }
     });
     // At the end, compare the feature being modified (with a 1-pixel negative buffer)
     // to all other features. If any intersect, restore the coordinates of the
     // feature being modified to its saved starting coordinates.
+    // NOTE: Requires a specially patched version of OpenLayers v4.6.5.
     editButton.getInteraction().on('modifyend', function(event) {
-        if (modifyFeature) {
+        if (event.features.getArray().length == 1) {
+            var modifyFeature = event.features.getArray()[0];
+            console.log("modifyend");
+            console.log(modifyFeature.getGeometry().getCoordinates());
             // If current feature intersects with another feature,
             // restore current feature to pre-modification coordinates.
             if (hasOverlap(modifyFeature.getGeometry())) {
-                if (modifyCoords.length > 0) {
-                    modifyFeature.getGeometry().setCoordinates(modifyCoords);
-                }
+                modifyFeature.getGeometry().setCoordinates(modifyCoords);
             }
         }
     });
