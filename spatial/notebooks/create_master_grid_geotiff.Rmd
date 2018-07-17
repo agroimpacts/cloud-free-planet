@@ -1,0 +1,186 @@
+---
+title: "Convert Master Grid CSV back to Geotiff"
+author: "Lyndon Estes"
+date: "7/16/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+Converting the CSV file of the master grid back to a geotiff is fairly memory intensive, and doesn't seem to have a ready solution with gdal (I tried gdal_grid but it didn't work).  
+
+It also couldn't be done on a local machine with <32 GB RAM, so the solution was to spin up an AWS instance with R and run it on that.
+
+## AWS set up
+
+Following advice [here]()
+
+```
+sudo apt-get update
+sudo apt-get upgrade
+
+# get the right version of R
+# from here: https://askubuntu.com/questions/909689/upgrading-r-version-3-3-in-ubuntu-16-04
+# because current Ubuntu version to old for rgdal
+sudo add-apt-repository ppa:marutter/rrutter
+sudo apt update
+sudo apt full-upgrade
+
+# gdal
+# from https://gis.stackexchange.com/questions/193814/installing-gdal2-1/193828#193828
+sudo add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable
+sudo apt update 
+sudo apt install gdal-bin python-gdal python3-gdal
+
+# also needed this to get rgdal to install
+sudo apt-get install libgdal1-dev libproj-dev gdal-bin proj-bin
+
+# then R packages
+sudo R -e "install.packages('rgdal', repos='http://cran.r-project.org')"
+sudo R -e "install.packages('devtools', repos='http://cran.rstudio.com/')"
+sudo R -e "devtools::install_github('ldemaz/dtraster')"
+
+# then create directories with scripts and ship csv to instance
+mkdir data
+mkdir R
+```
+
+scp commands to send data to instance
+```
+cd ~/Dropbox/projects/activelearning/mapperAL/spatial/data/processed
+scp -i ~/Desktop/lde2.pem africa_master_grid_newf.csv ubuntu@18.232.105.154:data/
+
+```
+
+
+
+## R code on instance
+
+```{r, eval = FALSE}
+library(dtraster)
+setwd("/home/ubuntu/data")
+mgrid <- fread("africa_master_grid_newf.csv")
+# pth <- "spatial/data/processed/africa_master_grid_newf.csv"
+# mgrid <- fread(pth)
+
+# adjust database
+mgrid[, fwts := NULL]
+mgrid[, cntry := substr(name, 1, 2)]
+mgrid[, cntry := as.integer(as.factor(cntry)))]
+mgrid[, cntry_id := substr(name, 3, 9)]
+mgrid[, cntry_id := as.integer(cntry_id)]
+
+str(mgrid[1:10, ])
+# # initial writeout of ID, for test
+gcsstr <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+# a <- dt_to_raster(mgrid[, .(x, y, ID)], CRSobj = gcsstr, 
+#                   filename = "mgrid_id.tif")
+# rm(a)
+# gc()
+
+# # write out country code and country ID
+# b <- dt_to_raster(mgrid[, .(x, y, cntry, cntry_id)], CRSobj = gcsstr, 
+#                   filename = "mgrid_cid.tif")
+# rm(b)
+# gc()
+
+# write out seasons
+#nms <- "cntry_id"#c("cntry")#, "cntry_id", 
+nms <- c("dry_start", "dry_end", "wet_start", "wet_end")
+for(i in nms) {
+  print(paste("rasterizing", i))
+  b <- dt_to_raster(mgrid[, c("x", "y", i), with = FALSE], CRSobj = gcsstr,
+                    filename = paste0("mgrid_", i, ".tif"))
+  rm(b)
+  gc()
+}
+
+```
+
+## Bring back results
+```
+scp -i ~/Desktop/lde2.pem ubuntu@18.232.105.154:data/mgrid* .
+```
+
+## Combine into multiband
+```{r, eval = FALSE}
+library(gdalUtils)
+p_int <- "spatial/data/interim"
+p_proc <- "spatial/data/processed"
+
+nms <- c("id", "cntry", "cntry_id", "dry_start", "dry_end", "wet_start",
+         "wet_end")
+nmsv <- unname(unlist(sapply(nms, function(x) {
+  dir(p_int, pattern = paste0("mgrid_", x, ".tif"), full.names = TRUE)
+})))
+otypes <- c("UInt32", "Byte", "UInt32", "Byte", "Byte", "Byte", "Byte")
+
+# change data types
+for(i in 1:length(nmsv)) {
+  onm <- paste0(p_int, "/", paste0("mgrid_", nms[i] , "_t.tif"))
+  print(onm)
+  gdal_translate(src_dataset = nmsv[i], dst_dataset = onm, overwrite = TRUE, 
+                 ot = otypes[i], a_nodata = 0)
+}
+
+nmsv <- unname(unlist(sapply(nms, function(x) {
+  dir(p_int, pattern = paste0("mgrid_", x, "_t.tif"), full.names = TRUE)
+})))
+vnm <- paste0(p_int, "/", paste0("mgrid_all.vrt"))
+gdalbuildvrt(gdalfile = nmsv, separate = TRUE, overwrite = TRUE,
+               output.vrt = vnm)
+tnm <- paste0(p_proc, "/africa_master_grid_allf.tif")
+gdal_translate(src_dataset = vnm, dst_dataset = tnm, overwrite = TRUE, 
+               ot = "UInt32")
+
+```
+
+
+## Fix
+
+Right, so the approach with dt_to_raster doesn't work. Gridding isn't correct, etc. But 
+
+```{r, eval = FALSE}
+library(sf)
+mgrid_new <- brick(tnm)
+# mgrid_old <- brick("spatial/data/processed/archive/africa_master_brick_all.tif")
+e <- st_bbox(mgrid_new)
+# st_bbox(mgrid_new) == st_bbox(mgrid_old)
+# paste(diff(e[c(1, 3)]) / 0.005)
+# paste(diff(e[c(2, 4)]) / 0.005)
+
+# mgrid[, diff(range(x)) / 0.005]
+# mgrid[, diff(range(y)) / 0.005]
+
+s <- mgrid[sample(1:.N, 100), ]
+
+cid <- cellFromXY(mgrid_new[[1]], s[, .(x, y)])
+# eext <- extract(mgrid_new, s[, .(x, y)])
+eext <- mgrid_new[cid]
+cbind(s$ID, eext[, 1])
+s$ID - eext[, 1]
+class(s$ID)
+
+# test against old grid
+s2 <- mgrid[sample(1:.N, 100), ]
+cid2 <- cellFromXY(mgrid_old[[1]], s2[, .(x, y)])
+eext2 <- mgrid_old[cid2]
+cbind(s2$ID, eext2[, 1])
+all(s2$ID == eext2[, 1])
+
+
+cid <- cellFromXY(mgrid_old[[1]], mgrid[, .(x, y)])
+
+object.size(mgrid)
+r <- mgrid_old[[1]]
+r[cid] <- mgrid[, ID]
+writeRaster(r, filename = paste0("spatial/data/interim/mgrid_", "id", "f.tif"), 
+            datatype = "INT4U")
+r - mgrid_old[[1]]
+
+```
+
