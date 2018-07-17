@@ -343,4 +343,18 @@ all(mgrid_coastal$ID == bvals[, 1])  # yes
 
 Okay, so looks like everything lines up. 
 
+Clean-up files
+```{r, eval = FALSE}
+file.copy("spatial/data/interim/africa_master_brick.tif", 
+          "spatial/data/interim/archive/africa_master_brick.tif")
+file.remove("spatial/data/interim/africa_master_brick.tif")
+file.copy("spatial/data/processed/africa_master_grid_allf.tif", 
+          "spatial/data/processed/archive/africa_master_grid_allf.tif")
+file.remove("spatial/data/processed/africa_master_grid_allf.tif*")
+file.remove("spatial/data/processed/mgrid_id.tif")
+file.copy("spatial/data/processed/africa_master_grid_new.csv", 
+          "spatial/data/processed/archive/africa_master_grid_new.csv")
+file.remove("spatial/data/processed/africa_master_grid_new.csv") 
+```
+
 
