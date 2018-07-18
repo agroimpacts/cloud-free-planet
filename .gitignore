@@ -10,3 +10,7 @@ mturk/*.pyc
 kmls.zip
 .Rhistory
 .DS_Store
+.vscode
+spatial/python/planet/catalog/*.tif*
+spatial/python/planet/*csv
+__pycache__
