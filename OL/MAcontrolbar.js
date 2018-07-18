@@ -5,6 +5,107 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
     // JSTS is used to prevent feature overlaps.
     var jstsParser = new jsts.io.OL3Parser();
     var geomFactory = new jsts.geom.GeometryFactory();
+    var LI = new jsts.algorithm.RobustLineIntersector();
+
+    // Check last drawn segment against all other shapes on the canvas for any interection.
+    function hasLastSegmentIntersection(geom) {
+        if (!(geom && geom.getCoordinates()[0].length >= 3)) {
+            return false;
+        }
+        // If drawing first segment, handle as special case
+        // since JSTS considers this an invalid geometry.
+        if (geom.getCoordinates()[0].length == 3) {
+            var coords = geom.getCoordinates()[0];
+            uniqCoords = [];
+            uniqCoords.push(new jsts.geom.Coordinate(coords[0][0], coords[0][1]));
+            uniqCoords.push(new jsts.geom.Coordinate(coords[1][0], coords[1][1]));
+            i = 0;
+        // Convert polygon being drawn to JSTS geometry and coordinates.
+        } else if (geom.getCoordinates()[0].length >= 4) {
+            var jsts_geom = jstsParser.read(geom);
+            var jsts_coords = jsts_geom.getCoordinates();
+            console.log(jsts_coords);
+            // Remove any adjacent duplicate coordinates (caused by closing shape).
+            // Also leave off final duplicate coordinate.
+            uniqCoords = [];
+            for (i = 0; i < jsts_coords.length - 1; i++) {
+                if (!(jsts_coords[i].x == jsts_coords[i + 1].x &&
+                        jsts_coords[i].y == jsts_coords[i + 1].y)) {
+                    uniqCoords.push(jsts_coords[i]);
+                }
+            }
+            // Specify the index of the last segment's starting coorninate.
+            i = uniqCoords.length - 2;
+        }
+        // Compare last polygon segment drawn to the segments of all shapes on the canvas.
+        var features = fieldsLayer.getSource().getFeatures();
+        for (var f in features) {
+            var feature = features[f];
+            var jsts_featureGeom = jstsParser.read(feature.getGeometry());
+            // Create a negative 1-pixel buffer to allow for border sharing.
+            var resolution = map.getView().getResolution();
+            var jsts_bufGeom = jsts_featureGeom.buffer(-resolution);
+            var jsts_bufCoords = jsts_bufGeom.getCoordinates();
+            for (j = 0; j < jsts_bufCoords.length - 1; j++) {
+                intersects = LI.hasIntersection(LI.computeIntersection(
+                    uniqCoords[i],
+                    uniqCoords[i + 1],
+                    jsts_bufCoords[j],
+                    jsts_bufCoords[j +1]
+                ));
+                console.log("hasLastSegmentIntersection: " + i + "-" + j + ": " + intersects);
+                if (intersects) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Check for self-intersection.
+    function hasSelfIntersection(geom, closed) {
+        // Only applies to quadrilaterals or greater.
+        if (geom && geom.getCoordinates()[0].length >= 5) {
+            // Convert to JSTS geometry and coordinates.
+            var jsts_geom = jstsParser.read(geom);
+            var jsts_coords = jsts_geom.getCoordinates();
+            console.log(jsts_coords);
+            // Remove any adjacent duplicate coordinates (caused by closing shape).
+            uniqCoords = [];
+            for (i = 0; i < jsts_coords.length - 1; i++) {
+                if (!(jsts_coords[i].x == jsts_coords[i + 1].x &&
+                        jsts_coords[i].y == jsts_coords[i + 1].y)) {
+                    uniqCoords.push(jsts_coords[i]);
+                }
+            }
+            // Don't include the last (same as first) coordinate if shape not yet closed.
+            if (closed) {
+                uniqCoords.push(jsts_coords[jsts_coords.length - 1]);
+            }
+            console.log(uniqCoords);
+            // Check all non-adjacent segments for intersection.
+            //  If any intersect, then report back self-intersection.
+            for (i = 0; i < uniqCoords.length - 3; i++) {
+                for (j = i + 2; j < uniqCoords.length - 1; j++) {
+                    // If closed shape, don't compare first and last segments
+                    // since they are effectively adjacent.
+                    if (!(closed && (i == 0 && j == (uniqCoords.length - 2)))) {
+                        selfIntersects = LI.hasIntersection(LI.computeIntersection(
+                            uniqCoords[i],
+                            uniqCoords[i + 1],
+                            uniqCoords[j],
+                            uniqCoords[j +1]
+                        ));
+                        console.log("hasSelfIntersection: " + i + "-" + j + ": " + selfIntersects);
+                        if (selfIntersects) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+    }
 
     // Function to return feature at click event.
     function getClickFeature(event, clickTolerance) {
@@ -34,29 +135,6 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         }
     };
 
-    // Function to check if specified geometry overlaps with other existing features.
-    function hasOverlap(geom) {
-        var jsts_geom = jstsParser.read(geom);
-        // Create a negative 1-pixel buffer to allow for border sharing.
-        var resolution = map.getView().getResolution();
-        jsts_geomBuf = jsts_geom.buffer(-resolution);
-        var features = fieldsLayer.getSource().getFeatures();
-        for (var i in features) {
-            var feature = features[i];
-            var jsts_featureGeom = jstsParser.read(feature.getGeometry());
-            // Don't compare to feature being modified.
-            if (jsts_geom.equals(jsts_featureGeom)) {
-                continue;
-            }
-            if (jsts_geomBuf.intersects(jsts_featureGeom)) {
-                console.log("hasOverlap: feature intersects.");
-                return true;
-            }
-        }
-        console.log("hasOverlap: feature does not intersect.");
-        return false;
-    };
-
     // Draw tool 'condition' point overlap testing function.
     function pointOverlapCheck(event) {
         var feature = getClickFeature(event, 0);
@@ -82,16 +160,27 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         return true;
     };
 
-    // Draw tool 'finalCondition' overlap testing function.
-    function overlapCheck(event) {
-        if (hasOverlap(drawGeom)) {
-            // Remove last point.
-            var ctrl = drawBar.getControls()[0];
-            ctrl.getInteraction().removeLastPoint();
-            return false;
+    // Function to check if specified geometry overlaps with other existing features.
+    function hasOverlap(geom) {
+        var jsts_geom = jstsParser.read(geom);
+        // Create a negative 1-pixel buffer to allow for border sharing.
+        var resolution = map.getView().getResolution();
+        jsts_geomBuf = jsts_geom.buffer(-resolution);
+        var features = fieldsLayer.getSource().getFeatures();
+        for (var i in features) {
+            var feature = features[i];
+            var jsts_featureGeom = jstsParser.read(feature.getGeometry());
+            // Don't compare to feature being modified.
+            if (jsts_geom.equals(jsts_featureGeom)) {
+                continue;
+            }
+            if (jsts_geomBuf.intersects(jsts_featureGeom)) {
+                console.log("hasOverlap: feature intersects.");
+                return true;
+            }
         }
-        // If we got here, there are no intersections.
-        return true;
+        console.log("hasOverlap: feature does not intersect.");
+        return false;
     };
 
     // Create new control bar and add it to the map.
@@ -123,21 +212,39 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                 if (!drawGeom) {
                     drawGeom = new ol.geom.Polygon(null);
                 }
-                newCoords = coords[0].slice();
                 // Close the polygon each time we come through here.
-                if (newCoords.length > 0) {
-                    newCoords.push(newCoords[0].slice());
+                drawCoords = coords[0].slice();
+                if (drawCoords.length > 0) {
+                    drawCoords.push(drawCoords[0].slice());
                 }
-                drawGeom.setCoordinates([newCoords]);
+                drawGeom.setCoordinates([drawCoords]);
                 return drawGeom;
             },
             // Check for feature overlap on each click.
             condition: function(event) {
+                if (hasSelfIntersection(drawGeom, false)) {
+                    return false;
+                }
+                if (hasLastSegmentIntersection(drawGeom)) {
+                    return false;
+                }
                 return pointOverlapCheck(event);
             },
             // Check that currently drawn geometry doesn't overlap any previously drawn feature.
             finishCondition: function(event) {
-                return overlapCheck(event);
+                if (hasSelfIntersection(drawGeom, true)) {
+                    // Remove last point.
+                    var ctrl = drawBar.getControls()[0];
+                    ctrl.getInteraction().removeLastPoint();
+                    return false;
+                }
+                if (hasOverlap(drawGeom)) {
+                    // Remove last point.
+                    var ctrl = drawBar.getControls()[0];
+                    ctrl.getInteraction().removeLastPoint();
+                    return false;
+                }
+                return true;
             },
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
@@ -174,7 +281,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             // Check that currently drawn geometry doesn't overlap any previously drawn feature.
             // NOTE: Requires a specially patched version of OpenLayers v4.6.5.
             finishCondition: function(event) {
-                return overlapCheck(event);
+                return !hasOverlap(drawGeom);
             },
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
@@ -238,7 +345,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             // Check that currently drawn geometry doesn't overlap any previously drawn feature.
             // NOTE: Requires a specially patched version of OpenLayers v4.6.5.
             finishCondition: function(event) {
-                return overlapCheck(event);
+                return !hasOverlap(drawGeom);
             },
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
@@ -275,7 +382,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             // Check that currently drawn geometry doesn't overlap any previously drawn feature.
             // NOTE: Requires a specially patched version of OpenLayers v4.6.5.
             finishCondition: function(event) {
-                return overlapCheck(event);
+                return !hasOverlap(drawGeom);
             },
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
@@ -417,6 +524,11 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             var modifyFeature = event.features.getArray()[0];
             console.log("modifyend");
             console.log(modifyFeature.getGeometry().getCoordinates());
+            // If current feature self-intersects,
+            // restore current feature to pre-modification coordinates.
+            if (hasSelfIntersection(modifyFeature.getGeometry(), true)) {
+                modifyFeature.getGeometry().setCoordinates(modifyCoords);
+            }
             // If current feature intersects with another feature,
             // restore current feature to pre-modification coordinates.
             if (hasOverlap(modifyFeature.getGeometry())) {
