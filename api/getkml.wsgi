@@ -76,7 +76,7 @@ def application(environ, start_response):
                 workerId = req.params['workerId']
                 instructions = 'Please select one of the overlays and click on a mapped field to see its category and comment labels.'
                 commentsVisible = 'none'
-                wmsAttributes = ''
+                wmsAttributes = '[]'
 
             # Standalone case.
             # This has no workerId.
