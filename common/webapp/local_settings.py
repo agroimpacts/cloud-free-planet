@@ -31,8 +31,9 @@ MAIL_USE_SSL = True
 MAIL_USE_TLS = False
 MAIL_USERNAME = '***REMOVED***'
 MAIL_PASSWORD = '***REMOVED***'
-MAIL_DEFAULT_SENDER = '"Dennis McRitchie" <***REMOVED***@cox.net>'
+MAIL_DEFAULT_SENDER = '"AgroImpacts Administrator" <lestes@clarku.edu>'
 
 ADMINS = [
     '"AgroImpacts Administrator" <dmcr@princeton.edu>',
+    '"AgroImpacts Administrator" <lestes@clarku.edu>',
     ]
