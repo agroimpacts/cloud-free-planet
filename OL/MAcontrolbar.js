@@ -201,7 +201,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
     var drawGeom = undefined;
     drawBar.addControl( new ol.control.Toggle({
         html: '<i class="icon-polygon-o" ></i>',
-        title: 'Polygon creation: Click at each corner of field; double-click when done.',
+        title: 'Polygon creation: Click at each corner of field; press ESC key to remove most recent corner. Double-click to complete field.',
         autoActivate: true,
         interaction: new ol.interaction.Draw({
             type: 'Polygon',
