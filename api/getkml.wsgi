@@ -28,6 +28,7 @@ def application(environ, start_response):
     if len(kmlName) > 0:
         (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
         mapHint = mapc.querySingleValue("select hint from kml_data where name = '%s'" % kmlName)
+        wmsAttributes = mapc.getWMSAttributes(kmlName)
 
         # Training and field mapping cases.
         # These have an assignmentId.
@@ -39,7 +40,6 @@ def application(environ, start_response):
             workerId = ''
             target = '_parent'
             commentsVisible = 'block'
-            wmsAttributes = mapc.getWMSAttributes(kmlName)
 
             # Training case.
             # This has a tryNum.
@@ -76,14 +76,12 @@ def application(environ, start_response):
                 workerId = req.params['workerId']
                 instructions = 'Please select one of the overlays and click on a mapped field to see its category and comment labels.'
                 commentsVisible = 'none'
-                wmsAttributes = '[]'
 
             # Standalone case.
             # This has no workerId.
             except:
                 workerId = ''
                 commentsVisible = 'block'
-                wmsAttributes = mapc.getWMSAttributes(kmlName)
 
         # If mapping or training case,
         if len(assignmentId) > 0:
@@ -132,6 +130,7 @@ def application(environ, start_response):
                     <script type="text/javascript" src="/OL/showkml.js"></script>
                 </head>
                 <!-- Note: Don't add double quotes around wmsAttributes argument. -->
+                <!-- If we ever need to pass an empty list use: wmsAttributes = '[]' -->
                 <body onload='init("%(kmlPath)s", "%(kmlName)s", "%(assignmentId)s", "%(tryNum)s", "%(resultsAccepted)s", "%(mapPath)s", "%(workerId)s", "%(wmsUrl)s", %(wmsAttributes)s, "%(snapTolerance)s")'>
                     <form style='width:100%%;' name='mappingform' action='%(submitTo)s' method='POST' target='%(target)s'>
                         <div class='instructions'>
