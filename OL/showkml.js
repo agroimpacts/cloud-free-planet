@@ -66,6 +66,38 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         evt.preventDefault();
     });
     
+    //
+    //*** Create the WMS layers  based on wms_data table ***
+    //
+    // Named constants (must match order in getWMSAttributes()).
+    var PROVIDER = 0;
+    var IMAGE_NAME = 1;
+    var STYLE = 2;
+    var ZINDEX = 3;
+    var VISIBLE = 4;
+    var DESCRIPTION = 5;
+
+    // Array is assumed to be in ascending zIndex order, so process in reverse.
+    var wmsLayer = [];
+    for (var i = wmsAttributes.length - 1; i >= 0; i--) {
+        wmsAttribute = wmsAttributes[i];
+        wmsLayer[i] = new ol.layer.Image({
+            zIndex: wmsAttribute[ZINDEX],
+            visible: wmsAttribute[VISIBLE],
+            title: wmsAttribute[DESCRIPTION],
+            source: new ol.source.ImageWMS({
+                url: wmsUrl,
+                params: {
+                    VERSION: '1.1.1',
+                    LAYERS: wmsAttribute[PROVIDER] + ':' + wmsAttribute[IMAGE_NAME],
+                    STYLES: wmsAttribute[PROVIDER] + ':' + wmsAttribute[STYLE]
+                }
+            })
+        });    
+        // Add new WMS layer to Satellite Image Overlays in Layer Switcher.
+        map.getLayers().getArray()[1].getLayers().push(wmsLayer[i]);
+    }
+
     // *** Create grid cell ***
     // White bounding box KML layer: URL defined in configuration table.
     // No title: so not in layer switcher.
@@ -154,38 +186,6 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         // Add fieldsLayer as a managed layer (i.e., don't use setMap()).
         map.getLayers().getArray()[0].getLayers().push(fieldsLayer);
         
-        //
-        //*** Create the WMS layers  based on wms_data table ***
-        //
-        // Named constants (must match order in getWMSAttributes()).
-        var PROVIDER = 0;
-        var IMAGE_NAME = 1;
-        var STYLE = 2;
-        var ZINDEX = 3;
-        var VISIBLE = 4;
-        var DESCRIPTION = 5;
-
-        // Array is assumed to be in ascending zIndex order, so process in reverse.
-        var wmsLayer = [];
-        for (var i = wmsAttributes.length - 1; i >= 0; i--) {
-            wmsAttribute = wmsAttributes[i];
-            wmsLayer[i] = new ol.layer.Image({
-                zIndex: wmsAttribute[ZINDEX],
-                visible: wmsAttribute[VISIBLE],
-                title: wmsAttribute[DESCRIPTION],
-                source: new ol.source.ImageWMS({
-                    url: wmsUrl,
-                    params: {
-                        VERSION: '1.1.1',
-                        LAYERS: wmsAttribute[PROVIDER] + ':' + wmsAttribute[IMAGE_NAME],
-                        STYLES: wmsAttribute[PROVIDER] + ':' + wmsAttribute[STYLE]
-                    }
-                })
-            });    
-            // Add new WMS layer to Satellite Image Overlays in Layer Switcher.
-            map.getLayers().getArray()[1].getLayers().push(wmsLayer[i]);
-        }
-
     // Else, create reference map and worker map layers
     } else {
         var wMapLayer = new ol.layer.Vector({
