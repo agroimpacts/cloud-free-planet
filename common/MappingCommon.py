@@ -321,13 +321,15 @@ class MappingCommon(object):
     # Return one KML that can be used for creating a HIT.
     def getAvailableKml(self, kmlType, maxAssignments=1, gid=0):
         self.cur.execute("""
-            select name, mapped_count, fwts, k.gid
+            select name, mapped_count, fwts, k.gid, mappers_needed
             from kml_data k
             inner join master_grid using (name)
             where not exists (select true from hit_data h
                 where h.name = k.name and delete_time is null)
             and  kml_type = '%s'
-            and mapped_count < %s
+            # Use mappers_needed column if not NULL.
+            and ((mappers_needed is not null and mapped_count < mappers_needed)
+                or  (mappers_needed is null and mapped_count < %s))
             and k.gid > %s
             order by k.gid
             limit 1""" % (kmlType, maxAssignments, gid))
@@ -337,6 +339,11 @@ class MappingCommon(object):
             mappedCount = row[1]
             fwts = row[2]
             gid = row[3]
+            mappersNeeded = row[4]
+            # If 1st time processing this non-QAQC KML, then save the current max_assignments value.
+            if mappersNeeded is None and kmlType != MappingCommon.KmlQAQC:
+                self.cur.execute("update kml_data set mappers_needed = %s where name = %s", (maxAssignments, kmlName))
+                self.dbcon.commit()
         else:
             kmlName = None
             mappedCount = None
