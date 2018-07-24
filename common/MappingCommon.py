@@ -320,6 +320,7 @@ class MappingCommon(object):
 
     # Return one KML that can be used for creating a HIT.
     def getAvailableKml(self, kmlType, maxAssignments=1, gid=0):
+        # In SQL below, use mappers_needed column if not NULL.
         self.cur.execute("""
             select name, mapped_count, fwts, k.gid, mappers_needed
             from kml_data k
@@ -327,7 +328,6 @@ class MappingCommon(object):
             where not exists (select true from hit_data h
                 where h.name = k.name and delete_time is null)
             and  kml_type = '%s'
-            # Use mappers_needed column if not NULL.
             and ((mappers_needed is not null and mapped_count < mappers_needed)
                 or  (mappers_needed is null and mapped_count < %s))
             and k.gid > %s
