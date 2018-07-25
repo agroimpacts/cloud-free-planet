@@ -18,6 +18,7 @@ def application(environ, start_response):
     mapUrl = mapc.getConfiguration('MapUrl')
     wmsUrl = mapc.getConfiguration('WMSUrl')
     instructions = mapc.getConfiguration('KMLInstructions')
+    snapTolerance = mapc.getConfiguration('SnapTolerance')
     select = mapc.buildSelect()
 
     k = open(logFilePath + "/OL.log", "a")
@@ -27,6 +28,7 @@ def application(environ, start_response):
     if len(kmlName) > 0:
         (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
         mapHint = mapc.querySingleValue("select hint from kml_data where name = '%s'" % kmlName)
+        wmsAttributes = mapc.getWMSAttributes(kmlName)
 
         # Training and field mapping cases.
         # These have an assignmentId.
@@ -38,7 +40,6 @@ def application(environ, start_response):
             workerId = ''
             target = '_parent'
             commentsVisible = 'block'
-            wmsAttributes = mapc.getWMSAttributes(kmlName)
 
             # Training case.
             # This has a tryNum.
@@ -75,14 +76,12 @@ def application(environ, start_response):
                 workerId = req.params['workerId']
                 instructions = 'Please select one of the overlays and click on a mapped field to see its category and comment labels.'
                 commentsVisible = 'none'
-                wmsAttributes = ''
 
             # Standalone case.
             # This has no workerId.
             except:
                 workerId = ''
                 commentsVisible = 'block'
-                wmsAttributes = mapc.getWMSAttributes(kmlName)
 
         # If mapping or training case,
         if len(assignmentId) > 0:
@@ -108,17 +107,20 @@ def application(environ, start_response):
                 <head>
                     <title>500m Square Area in Africa</title>
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                    <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
                     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400">
+                    <!-- <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css"> -->
+                    <link rel="stylesheet" href="/OL/ol.css" type="text/css">
                     <link rel="stylesheet" href="/OL/fontello-2cc19da7/css/fontello.css" type="text/css" />
                     <link rel="stylesheet" href="/OL/ol3-layerswitcher.css" type="text/css">
                     <link rel="stylesheet" href="/OL/controlbar.css" type="text/css">
                     <link rel="stylesheet" href="/OL/showkml.css" type="text/css">
-                    <script src="https://openlayers.org/en/v4.6.5/build/ol.js" type="text/javascript"></script>
+                    <!-- <script src="https://openlayers.org/en/v4.6.5/build/ol.js" type="text/javascript"></script> -->
+                    <script src="/OL/ol.js" type="text/javascript"></script>
                     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
                         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
                         crossorigin="anonymous">
                     </script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsts/1.6.0/jsts.min.js"></script>
                     <script type="text/javascript" src="/OL/ol3-layerswitcher.js"></script>
                     <script type="text/javascript" src="/OL/controlbar.js"></script>
                     <script type="text/javascript" src="/OL/buttoncontrol.js"></script>
@@ -127,7 +129,9 @@ def application(environ, start_response):
                     <script type="text/javascript" src="/OL/MAcontrolbar.js"></script>
                     <script type="text/javascript" src="/OL/showkml.js"></script>
                 </head>
-                <body onload='init("%(kmlPath)s", "%(kmlName)s", "%(assignmentId)s", "%(tryNum)s", "%(resultsAccepted)s", "%(mapPath)s", "%(workerId)s", "%(wmsUrl)s", %(wmsAttributes)s)'>
+                <!-- Note: Don't add double quotes around wmsAttributes argument. -->
+                <!-- If we ever need to pass an empty list use: wmsAttributes = '[]' -->
+                <body onload='init("%(kmlPath)s", "%(kmlName)s", "%(assignmentId)s", "%(tryNum)s", "%(resultsAccepted)s", "%(mapPath)s", "%(workerId)s", "%(wmsUrl)s", %(wmsAttributes)s, "%(snapTolerance)s")'>
                     <form style='width:100%%;' name='mappingform' action='%(submitTo)s' method='POST' target='%(target)s'>
                         <div class='instructions'>
                             %(instructions)s
@@ -181,7 +185,8 @@ def application(environ, start_response):
             'select': select,
             'csrfToken': csrfToken,
             'wmsUrl': wmsUrl,
-            'wmsAttributes': wmsAttributes
+            'wmsAttributes': wmsAttributes,
+            'snapTolerance': snapTolerance
         }
         res.text = mainText
     # No KML specified.

@@ -4,8 +4,10 @@ import pwd
 import cgi
 import json
 import random
+import pickle
 from datetime import datetime
 from dateutil import tz
+from distutils import util
 from xml.dom.minidom import parseString
 import psycopg2
 from psycopg2.extensions import adapt
@@ -303,16 +305,134 @@ class MappingCommon(object):
     # *** HIT-Related Functions ***
     #
 
+    # Return the KML count for a given type that can be used for creating a HIT.
+    def getNumAvailableKml(self, kmlType, maxAssignments=1, gid=0):
+        count = self.querySingleValue("""
+            select count(k.gid)::int
+            from kml_data k
+            inner join master_grid using (name)
+            where not exists (select true from hit_data h
+                where h.name = k.name and delete_time is null)
+            and  kml_type = '%s'
+            and mapped_count < %s
+            and k.gid > %s""" % (kmlType, maxAssignments, gid))
+        return count
+
+    # Return one KML that can be used for creating a HIT.
+    def getAvailableKml(self, kmlType, maxAssignments=1, gid=0):
+        # In SQL below, use mappers_needed column if not NULL.
+        self.cur.execute("""
+            select name, mapped_count, fwts, k.gid, mappers_needed
+            from kml_data k
+            inner join master_grid using (name)
+            where not exists (select true from hit_data h
+                where h.name = k.name and delete_time is null)
+            and  kml_type = '%s'
+            and ((mappers_needed is not null and mapped_count < mappers_needed)
+                or  (mappers_needed is null and mapped_count < %s))
+            and k.gid > %s
+            order by k.gid
+            limit 1""" % (kmlType, maxAssignments, gid))
+        row = self.cur.fetchone()
+        if row:
+            kmlName = row[0]
+            mappedCount = row[1]
+            fwts = row[2]
+            gid = row[3]
+            mappersNeeded = row[4]
+            # If 1st time processing this non-QAQC KML, then save the current max_assignments value.
+            if mappersNeeded is None and kmlType != MappingCommon.KmlQAQC:
+                self.cur.execute("update kml_data set mappers_needed = %s where name = %s", (maxAssignments, kmlName))
+                self.dbcon.commit()
+        else:
+            kmlName = None
+            mappedCount = None
+            fwts = None
+            gid = None
+        return kmlName, mappedCount, fwts, gid
+
+    # Return a HIT type based on specified probablilties.
+    def getRandomHitType(self, workerId, hitStandAlone, fPresent=None):
+        hitAvailTarget = int(self.getConfiguration('Hit_AvailTarget'))
+        hitQaqcPercentage = int(self.getConfiguration('Hit_QaqcPercentage'))
+        if hitStandAlone:
+            hitFqaqcPercentage = int(self.getConfiguration('Hit_FqaqcPercentage'))
+
+        # Get worker's random number generator state from DB, if present; else seed the generator.
+        pstate = self.querySingleValue("select random_state from worker_data where worker_id = %s" % workerId)
+        if pstate is None:
+            random.seed(workerId)
+        else:
+            state = pickle.loads(pstate)
+            random.setstate(state)
+        # Get another pseudo-random number from generator.
+        randInt = random.randint(0,99)
+        # Store the new random state for this worker for next time.
+        state = random.getstate()
+        pstate = pickle.dumps(state)
+        self.cur.execute("update worker_data set random_state = %s where worker_id = %s", (pstate, 24))
+        self.dbcon.commit()
+            
+        # calculate HIT type from random number.
+        if randInt < hitQaqcPercentage:
+            hitType = MappingCommon.KmlQAQC
+        else:
+            if hitStandAlone:
+                if randInt < hitQaqcPercentage + hitFqaqcPercentage:
+                    hitType = MappingCommon.KmlFQAQC
+                else:
+                    hitType = MappingCommon.KmlNormal
+            else:
+                if fPresent:
+                    hitType = MappingCommon.KmlFQAQC
+                else:
+                    hitType = MappingCommon.KmlNormal
+        return hitType
+
     # Return a random HIT that can be assigned to this worker.
+    # NOTE: Assumes that getSerializationLock() has been called by the calling function.
+    # NOTE: Achieves specified probabilities within 500 iterations.
     def getRandomAssignableHit(self, workerId):
+        hitStandAlone = self.getConfiguration('Hit_StandAlone')
+        # Boolean config parameters a re returned as string and need to be converted.
+        hitStandAlone = bool(util.strtobool(hitStandAlone))
+
         # Get all assignable HITs for this worker.
         hits = self.getAssignableHitInfo(workerId)
         if len(hits) == 0:
             return (None, None)
-        # Get a random hitId.
-        hitId = random.choice(hits.keys())
-        # Return hitId and its kmlNname
-        return hitId, hits[hitId]['kmlName']
+
+        # Select HITs of this type from those assignable to this worker.
+        while True:
+            # Are we in standlone mode?
+            if hitStandAlone:
+                # If so, get a standalone HIT type.
+                hitType = self.getRandomHitType(workerId, hitStandAlone)
+            else:
+                # Else, check if any F HITs present and get a HIT type.
+                fCount = len(dict((k, v) for k, v in hits.iteritems() if v['kmlType'] == MappingCommon.KmlFQAQC))
+                #print fCount
+                hitType = self.getRandomHitType(workerId, hitStandAlone, fCount > 0)
+            #print "hitType: " + hitType
+
+            tHits = dict((k, v) for k, v in hits.iteritems() if v['kmlType'] == hitType)
+            if len(tHits) > 0:
+                break
+        #print tHits
+            
+        # If Q HIT, sort by age (oldest first).
+        if hitType == MappingCommon.KmlQAQC:
+            qSorted = sorted(tHits.iteritems())
+            hit = qSorted[0]
+        # Else, sort by assignments remaining (fewest first).
+        else:
+            oSorted = sorted(tHits.iteritems(), key=lambda(k,v): (v['assignmentsRemaining'],k))
+            hit = oSorted[0]
+        #print ''
+        #print hit
+
+        # Return hitId of 1st item and its kmlNname
+        return hit[0], hit[1]['kmlName']
 
     # Return all HITs that are Assignable, and, if a workerId is specified, 
     # that has never been assigned to this worker.
@@ -371,11 +491,12 @@ class MappingCommon(object):
             # already-assigned-but-not-completed assignments, and pending (completed
             # but not yet scored) assignments is equal to a HIT's max_assignments count.
             status = 'Unassignable'
-            assignmentsRemaining = hit[3] - \
+            maxAssignments = hit[3]
+            assignmentsRemaining = maxAssignments - \
                     (assignmentsAssigned + assignmentsPending + assignmentsCompleted)
             if assignmentsRemaining > 0:
                 status = 'Assignable'
-            hits[hit[0]] = {'kmlName': hit[1], 'kmlType': hit[2], 'maxAssignments': hit[3], 
+            hits[hit[0]] = {'kmlName': hit[1], 'kmlType': hit[2], 'maxAssignments': maxAssignments, 
                     'reward': hit[4], 'assignmentsAssigned': assignmentsAssigned, 
                     'assignmentsPending': assignmentsPending, 'assignmentsCompleted': assignmentsCompleted,
                     'assignmentsRemaining': assignmentsRemaining, 'status': status, 
