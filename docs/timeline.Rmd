@@ -1,0 +1,26 @@
+---
+title: "Project Timelines"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, comment="##")
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+For Summer 2018. Timeline visible as an html document that you can view locallyin in your browser, provided you have cloned the repository. 
+
+Hover over items to see people assigned. Scroll up or down over areas in timeline on which you wish to zoom in or out.
+
+Tasks are grouped by rough categories in the left hand column. 
+
+```{r, echo = FALSE, fig.width=9}
+library(readxl)
+library(timevis)
+timelines <- read_excel("timelines.xlsx")
+
+grps <- unique(timelines$group)
+timevis(data = timelines, 
+        groups = data.frame(id = grps, content = grps))
+```
+
