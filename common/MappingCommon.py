@@ -370,7 +370,7 @@ class MappingCommon(object):
         # Store the new random state for this worker for next time.
         state = random.getstate()
         pstate = pickle.dumps(state)
-        self.cur.execute("update worker_data set random_state = %s where worker_id = %s", (pstate, 24))
+        self.cur.execute("update worker_data set random_state = %s where worker_id = %s", (pstate, workerId))
         self.dbcon.commit()
             
         # calculate HIT type from random number.
