@@ -1,32 +1,46 @@
-#################################################
-#This code is design to solve the memory problem in filter.py when processing a large image file
-#by read, analyze, and write a block of pixel at a time.
-#Another sustaintial change of this code is that each function is a stand-alone function, and 
-#works individually, i.e., each funciton starts from open image(s), read pixel values, does analysis and 
-# creates output file(s).
-#################################################
+#This code is create for Ron and other people who work with .rst format planet images.
+#1. The code works with either large images (no upper limit, e.g., whole scene) or small cell images without run into the memory problem,
+#   by processing the image in 640x640 pixel block in each time.
+#
+#2. Each function read the input .rst image on the disk and write the output image to the disk.
+#   The code assumes a planet scene/AOI has four .rst images: Blue(b1), Green(b2), Red(b3), and Near Infrared(b4).
+#
+#3. This code provides "horizontal" functions, meaning the functions can be used for more purpose
+#   than the cloud and shadow extraction algorithm. E.g., 
+#       maxmin_img():    given many spectral bands, output one composite max or min image 
+#       reclass():       reclass the image given a threshold
+#       filter_window(): does spatial filter given an image; this function process multi lines rather than block, due to the edge effect of filter.
+#       masks():         mask image given an image and a mask
+#  These "horizontal" functions provide flexibility for future change of the algorithm.
+#For a "vertical" version (compact, for cloud and shadow extraction purpose only), see filter_callable.py.  Note that filter_callable.py
+#does not have any image output, but only numerical output for statistics.
+
+
+#The cloud-shadow extraction algorithm family codes:
+# filter_rst.py: works with .rst format; outputs are images; horizontal functions (flexible if the algorithm is going to changw), process image by block. 
+# filter_tif.py: works with .tif format; outputs are images; horizontal functions, process image by block.
+# filter_callable.py : works with numpy array; outputs are cloud-shadow fraction statistics; vertical function (work for this algorithm only) 
+
+
 
 
 import gdal
 import numpy as np
 from scipy import ndimage
-import sys
-print(sys.version)
-
+import os
 
 
 def maxmin_img(m,out_name,*args):
     """
     This function creates a maximum or minimum image, which each pixel takes the 
-    max or minimum value at that position from the input bands.
+    max or minimum value at that location from the input bands.
     The purpose of this funciton is to help extract shadows and clouds, assuming 
-    that the shadow's maximum reflectance is low, whereas the cloud's minimum 
+    that the shadow's maximum reflectance is still low, whereas the cloud's minimum 
     reflectance is still high.
     
     m           - specify either "max" or "min"
     out_name    - The out put image name. e.g., D:\output.rst
-    file_format - This version of code works only for .rst format
-    *args       - given any numbers of images in a given format, RST or GTiff.
+    *args       - input .rst format images' full path.
     """
     try:
         #1. Get the GeoTransform and Projection from the first band of the input bands
@@ -45,11 +59,11 @@ def maxmin_img(m,out_name,*args):
             bands.append(gdal.Open(arg)) 
 
         
-        #3. Create a output file. The gdal driver will actually create a rst file and a rdc file. 
-        # The rdc file holds metadata.  We copied the metadata from input band, since they are mostly same 
+        #3. Create an empty output file. The gdal driver will actually create a rst file and a rdc file. 
+        #The rst is the image, and the rdc file holds metadata.  We copied the metadata from input band, since they are almost the same,
         # except the max/value and displayed max/min value.
         rst_driver = gdal.GetDriverByName('rst')
-        out_ds = rst_driver.Create(out_name, cols, rows,1,3)
+        out_ds = rst_driver.Create(out_name, cols, rows,1,3) #here 1 stands for create 1 band, 3 stands for integer data type. 
         out_band = out_ds.GetRasterBand(1)
 
         #4. use nested for loop to read 640x640 block each time for all input bands, and append these
@@ -68,12 +82,12 @@ def maxmin_img(m,out_name,*args):
                     row_read = rows - row_start
 
 
-                bands_blocks = []
+                bands_blocks = []     #bands in current block
                 for band in bands:
                     current_block= band.ReadAsArray(col_start, row_start, col_read, row_read)
                     bands_blocks.append(current_block)
                 
-                block_stack = np.dstack(bands_blocks)
+                block_stack = np.dstack(bands_blocks)  #stack the bands along axis2(layers of a pixel)
                 if m == "max":
                     m_arry = np.amax(block_stack,2).astype(np.int16)
                 elif m =="min":
@@ -84,7 +98,6 @@ def maxmin_img(m,out_name,*args):
         out_ds.SetGeoTransform(in_ds_GeoTransform)
         out_ds.SetProjection(in_ds_Projection)
 
-        del out_ds
     except:
         return "Failed to generate max/min image."
         #with open(out_name.replace(out_name[-3:],"rdc"),"w") as out_rdc:
@@ -147,7 +160,6 @@ def reclass(cd,in_name,out_name, thre_val):
         out_ds.SetGeoTransform(in_ds_GeoTransform)
         out_ds.SetProjection(in_ds_Projection)  
 
-        del out_ds
     except:
         return "Failed to reclass image."
 
@@ -156,7 +168,7 @@ def filter_window(in_name, out_name, filter_size,cd):
     in_name     - input image name with path
     out_name    - output image name with path
     filter_size - e.g., 7 stands for a 7x7 filter
-    cd          - "max" or min
+    cd          - "max" or "min"
     """
     try:
         #1. Open the input image and get the GeoTransform, Projection, 
@@ -230,34 +242,45 @@ def filter_window(in_name, out_name, filter_size,cd):
         out_ds.SetGeoTransform(in_ds_GeoTransform)
         out_ds.SetProjection(in_ds_Projection)
     except:
-        print(current_row,current_row+3, current_row-3)
         return "Failed to apply spatial filter to the input image."
 
 def masks(in_image, mask_img, out_name):
     try:
-        #1. open the input image and read as array
+        #1. open the input image
         in_ds = gdal.Open(in_image)
         in_band = in_ds.GetRasterBand(1)
-        in_array = in_ds.ReadAsArray()
 
         #2. Get metadata from input image
         in_ds_GeoTransform = in_ds.GetGeoTransform()
         in_ds_Projection = in_ds.GetProjection()
         cols = in_band.XSize
         rows = in_band.YSize
-        #get mask and read as array
-        mask_array = gdal.Open(mask_img).ReadAsArray()
 
-        #apply the mask array on the input array
-        #array_mask = np.ma.make_mask(mask_array)
-        img_masked = np.where(mask_array == 1, in_array, 0)
-
-        #output the array to rst
+        #3.Create an empty rst file
         rst_driver = gdal.GetDriverByName('rst')
         out_ds = rst_driver.Create(out_name, cols, rows,1,3) # here 1 means 1 band in the image,3 means integer datatype
         out_band = out_ds.GetRasterBand(1)
+        
+        #get mask and read as array by block
+        block_size = 640
+        for col_start in range(0, cols, block_size): 
+            if col_start + block_size < cols:
+                col_read = block_size
+            else:
+                col_read = cols - col_start
+            for row_start in range(0, rows, block_size):
+                if row_start + block_size < rows:
+                    row_read = block_size
+                else:
+                    row_read = rows - row_start
+                in_array = in_band.ReadAsArray(col_start, row_start, col_read, row_read)
+                mask_ds = gdal.Open(mask_img)
+                mask_array = mask_ds.ReadAsArray(col_start, row_start, col_read, row_read)
+                #apply the mask array on the input array
+                #array_mask = np.ma.make_mask(mask_array)
+                img_masked = np.where(mask_array == 1, in_array, 0)
 
-        out_band.WriteArray(img_masked, 0, 0)
+                out_band.WriteArray(img_masked, col_start, row_start)
         
         out_ds.SetGeoTransform(in_ds_GeoTransform)
         out_ds.SetProjection(in_ds_Projection)     
@@ -274,18 +297,33 @@ def cloud_shadow(cloud_name, shadow_name, out_name):
         cols = cloud_band.XSize
         rows = cloud_band.YSize
 
-        cloud_array = cloud_ds.ReadAsArray()
-        shadow_array = shadow_ds.ReadAsArray()
-
-        cloud_and_shadow = cloud_array*2 + shadow_array
         #write output image and metadata
         in_ds_GeoTransform = cloud_ds.GetGeoTransform()
         in_ds_Projection = cloud_ds.GetProjection()
 
         rst_driver = gdal.GetDriverByName('rst')
         out_ds = rst_driver.Create(out_name, cols, rows,1,3) # here 1 means 1 band in the image,3 means integer datatype
-        out_band = out_ds.GetRasterBand(1)
-        out_band.WriteArray(cloud_and_shadow, 0, 0)
+
+        block_size = 640
+        for col_start in range(0, cols, block_size): 
+            if col_start + block_size < cols:
+                col_read = block_size
+            else:
+                col_read = cols - col_start
+            for row_start in range(0, rows, block_size):
+                if row_start + block_size < rows:
+                    row_read = block_size
+                else:
+                    row_read = rows - row_start
+
+                cloud_array = cloud_ds.ReadAsArray(col_start, row_start, col_read, row_read)
+                shadow_array = shadow_ds.ReadAsArray(col_start, row_start, col_read, row_read)
+
+                cloud_and_shadow = cloud_array*2 + shadow_array
+
+                
+                out_band = out_ds.GetRasterBand(1)
+                out_band.WriteArray(cloud_and_shadow, col_start, row_start)
 
 
         out_ds.SetGeoTransform(in_ds_GeoTransform)
@@ -296,76 +334,57 @@ def cloud_shadow(cloud_name, shadow_name, out_name):
     except:
         return "Failed to make cloud_shadow image."
 
-
-#create a loop for files:
-file_list = [
-"20180228_095050_102f_3B_AnalyticMS_SR_",
-"20180228_095154_1025_3B_AnalyticMS_SR_",
-"20180303_095157_1014_3B_AnalyticMS_SR_",
-"20180303_105144_1050_3B_AnalyticMS_SR_",
-"20180306_095153_0f52_3B_AnalyticMS_SR_",
-"20180310_095138_102e_3B_AnalyticMS_SR_",
-"20180314_095225_1042_3B_AnalyticMS_",
-"20180314_095225_1042_3B_AnalyticMS_SR_",
-"20180314_095225_1042_3B_AnalyticMS_SR_win_",
-"20180314_095229_1042_3B_AnalyticMS_",
-"20180314_095229_1042_3B_AnalyticMS_SR_"
-
-]
+#Examples: 
 
 
 
-for thresh_val in range(3150, 3800, 50):
-    i = 1
-    for fn in file_list:
+#1.Set the input band path and names; out put path
 
-        print("processing {}th image, {}".format(i, fn))
-        #1.Set the input band path and names; out put path
-        in_path = r"D:\Extracting_Clouds\cloud_shadow_test_rst\\"
-        in_name = fn
+in_path = r"D:\Extracting_Clouds\cloud_shadow_test_rst\\"  #input image path
 
-        out_path = r"D:\Extracting_Clouds\cloud_shadow_test_{}\img{}\\".format(str(thresh_val),str(i))
-
-        b1 = in_path + in_name + "b1.rst"
-        b2 = in_path + in_name + "b2.rst"
-        b3 = in_path + in_name + "b3.rst"
-        b4 = in_path + in_name + "b4.rst"
-
-        i+=1
+#define a file prefix.
+in_name = "20180228_095050_102f_3B_AnalyticMS_SR_"
+#The band images can be a group of files using the same prefix, e.g.,
+#"20180228_095050_102f_3B_AnalyticMS_SR_b1.rst"
+#"20180228_095050_102f_3B_AnalyticMS_SR_b2.rst"
+#"20180228_095050_102f_3B_AnalyticMS_SR_b3.rst"
+#"20180228_095050_102f_3B_AnalyticMS_SR_b4.rst"
 
 
 
-        #2.Get the max and min image
-        maxmin_img("max", out_path + "max_img.rst",b1,b2,b3,b4)
-        maxmin_img("min", out_path + "min_img.rst",b1,b2,b3,b4)
+os.makedirs(r"D:\Extracting_Clouds\0726\img\\") #make an output folder
+out_path = r"D:\Extracting_Clouds\0726\img\\"
 
-        filter_window(out_path + "max_img.rst", out_path + "max7x7.rst",7,"max")
-        filter_window(out_path + "min_img.rst", out_path +"min7x7.rst",7,"min")
-
-        #Shadow and Water
-        reclass("<", out_path + "max7x7.rst", out_path + "Shadow_and_Water.rst", 2000)
-
-        #Cloud 
-        reclass(">", out_path + "min7x7.rst", out_path + "Cloud.rst", thresh_val)
-
-        #Land
-        reclass(">", b4, out_path + "Land.rst", 1000)
-
-        #Shadow
-        masks(out_path + "Shadow_and_Water.rst", out_path + "Land.rst", out_path + "Shadow.rst")
-
-        #put shadow and cloud together
-
-        cloud_shadow(out_path + "Cloud.rst", out_path + "Shadow.rst", out_path + "Cloud_Shadow.rst")
+b1 = in_path + in_name + "b1.rst"
+b2 = in_path + in_name + "b2.rst"
+b3 = in_path + in_name + "b3.rst"
+b4 = in_path + in_name + "b4.rst"
 
 
 
 
-#use text file accessing method to read and write metadata.
-#            with open(args[0].replace(args[0][-3:],"RDC")) as rdc: #readin col and rows, for determin the block size
-#                meta_data = rdc.readlines()
-#                cols = int(meta_data[4].split(": ")[1].rstrip("\n"))
-#                rows = int(meta_data[5].split(": ")[1].rstrip("\n"))
+#2. Calculate the max and min image, and output to disk
+maxmin_img("max", out_path + "max_img.rst",b1,b2,b3,b4)
+maxmin_img("min", out_path + "min_img.rst",b1,b2,b3,b4)
+
+filter_window(out_path + "max_img.rst", out_path + "max7x7.rst",7,"max")
+filter_window(out_path + "min_img.rst", out_path +"min7x7.rst",7,"min")
+
+#3. Calculate Shadow and Water, then to disk
+reclass("<", out_path + "max7x7.rst", out_path + "Shadow_and_Water.rst", 2000) #specify threshold for shadow and water
+
+#4. Cloud, and to disk
+reclass(">", out_path + "min7x7.rst", out_path + "Cloud.rst", 2000) #specify threshold for cloud
+
+#5. Land, and to disk
+reclass(">", b4, out_path + "Land.rst", 1000) #specify threshold for land
+
+#6. Shadow, and to disk
+masks(out_path + "Shadow_and_Water.rst", out_path + "Land.rst", out_path + "Shadow.rst")
+
+#7. put shadow and cloud into one image, and to disk
+
+cloud_shadow(out_path + "Cloud.rst", out_path + "Shadow.rst", out_path + "Cloud_Shadow.rst")
 
 
 
