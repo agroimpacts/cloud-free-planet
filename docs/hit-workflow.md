@@ -20,3 +20,30 @@ Workers are served F/N/Q sites at a frequency determined by the parameters "Hit_
     <br><br>
 
     Thus F sites are prioritized, and N sites are only offered to a worker once the worker has completed all F sites in the system.  
+    
+## Flow of HITs
+
+This describes the flow of HITs when `mapper` and `cvml` are connected in the active learning framework. I type HITs are not explicitly mentioned because they have no effect on what `cvml` does.  
+
+1. The pool of sites (cells in __master_grid__) that are to be classified by `cvml` is defined (through an offline process). These sites are registered in the __master_grid__ table by setting their "avail" field to "F". Their names must be cross-referenced with the __scene_data__table to ensure that the selected names also have corresponding imagery for i) cvml to process and ii) workers to label.
+
+2. `initial_f_sites.py` selects an initial random draw from master_grid from the list of sites where avail = "F". (__Note__: Code has to be revised to do this). 
+
+3. These sites are mapped by workers, converted to [consensus labels](labels-and-accuracy.md) by `generate_consensus_daemon.py`, and then sent to an s3 bucket where they become the initial training set for `cvml`. That is, these are sites that have both images and labels associated with them. 
+
+4. After its first train/test/evaluate uncertainty cycle, `cvml` selects, from its list of "test" images (images that not in the training set) the n most uncertain predictions, and sends the names of these sites to `mapper`, inserting them directly into the __incoming_names__ table. 
+
+5. The new sites in __incoming_names__ are picked up by `register_f_hits`, and inserted into the __kml_data__ table. 
+
+6. __create_hit_daemon__ prioritizes these for new worker assignments.  
+
+7. When they are completed by workers, they are converted to consensus labels by `generate_consensus_daemon.py` and then sent back to s3, where they are added into the pool of training labels.  
+
+    - N sites will start being served to workers by `mapper` as soon as a worker has no more F sites available to map. F HITs will persist in the system until they are mapped by the number of workers listed in th "Hit_MaxAssignmentsF" __configuration__ parameter. 
+
+8. Another iteration of `cvml` begins. teps 4-7 repeat until a pre-determined accuracy cutoff is reached (under development). 
+
+
+
+
+
