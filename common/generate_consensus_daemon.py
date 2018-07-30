@@ -31,9 +31,6 @@ n_fail = None
 # Execute loop based on FKMLCheckingInterval
 while True:
 
-    # Query checking interval
-    checking_interval = int(mapc.getConfiguration('FKMLCheckingInterval'))
-
     # Obtain serialization lock to allow the daemon to access Sandbox and
     # database records without interfering with daemon.
     mapc.getSerializationLock()
@@ -63,7 +60,7 @@ while True:
                     first[index_iteration] == rest[index_iteration] for rest in
                     it) == False):
                     mapc.createAlertIssue("generateConsensus: runs or "
-                                          "iterations of incoming F kml "
+                                          "iterations of incoming F kmls "
                                           "for iteration_%s "
                                           "are not identical"
                                           % iteration_counter + 1)
@@ -135,8 +132,8 @@ while True:
                                            e.pgcode, e.pgerror))
                     exit(1)
 
-        # when all fkml are processed, write processing info into log, and
-        # wake up cvml
+        # when all fkml are processed, write processing info into log, 
+        # wake up cvml, and call register_f_sites
         if n_processed == n_notprocessed:
             k.write("\ngenerateConsensus: the iteration_%s has %s successful "
                     "and %s failed consensus creation\n" %
@@ -147,25 +144,25 @@ while True:
 
 
             # wake up cvml
-            if os.system('python execute_commands.py'):
+            if os.system('python run_cvml.py'):
                 k.write("\ngenerateConsensus: the iteration_%s cvml starts "
                         "off...\n"
                         % iteration_counter)
             else:
                 mapc.createAlertIssue("\ngenerateConsensus: the iteration_%s "
-                                      "starting off cvml fails\n" %
+                                      "fails in waking up cvml\n" %
                                       iteration_counter)
                 break
 
-            # call KMLgenerate_F.py to generate F sites for the next
+            # call register_f_sites to generate F sites for the next
             # iteration
-            if os.system('python KMLgenerate_F.py'):
-                k.write("\ngenerateConsensus: the iteration_%s KMLgenerate_F "
+            if os.system('python register_f_sites.py'):
+                k.write("\ngenerateConsensus: the iteration_%s register_f_sites "
                         "starts off...\n"
                         % iteration_counter)
             else:
                 mapc.createAlertIssue("\ngenerateConsensus: the iteration_%s "
-                                      "KMLgenerate_F fails\n" %
+                                      "register_f_sites fails\n" %
                                       iteration_counter)
                 break
 
@@ -174,4 +171,4 @@ while True:
     mapc.releaseSerializationLock()
 
     # Sleep for specified checking interval
-    time.sleep(checking_interval)
+    time.sleep(int(mapc.getConfiguration('FKMLCheckingInterval')))
