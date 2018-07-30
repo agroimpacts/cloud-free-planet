@@ -14,10 +14,6 @@ import os
 
 mapc = MappingCommon()
 
-# using 10% as risk threshold for warning, if risky pixel percentage is larger
-# than 10% for a kml, the system will yield a warning (but won't stop)
-risk_warning_thres = 0.1
-
 logFilePath = mapc.projectRoot + "/log"
 k = open(logFilePath + "/generateConsensus.log", "a+")
 
@@ -26,106 +22,139 @@ now = str(datetime.today())
 k.write("\ngenerateConsensus: Daemon starting up at %s\n" % now)
 k.close()
 
+# record the ongoing iteration time in the daemon
+iteration_counter = -1
+
+n_success = None
+n_fail = None
+
 # Execute loop based on FKMLCheckingInterval
 while True:
 
     # Query checking interval
     checking_interval = int(mapc.getConfiguration('FKMLCheckingInterval'))
-    print(checking_interval)
-
-    # minimum mapping count to create consensus maps
-    min_map_count = int(mapc.getConfiguration('MinimumMappedCount'))
 
     # Obtain serialization lock to allow the daemon to access Sandbox and
     # database records without interfering with daemon.
     mapc.getSerializationLock()
 
     # read Fsites that are not processed from incoming_name table
-    mapc.cur.execute("select name, iteration from incoming_names where "
-                     "processed = false")
+    mapc.cur.execute("SELECT name, run, iteration, iteration_time "
+                     "FROM incoming_names "
+                     "INNER JOIN iteration_metrics USING (run, iteration) "
+                     "WHERE processed = false")
     fkml_row = mapc.cur.fetchall()
-    num_unprocessed = len(fkml_row)
+    n_notprocessed = len(fkml_row)
+    index_name = 0
+    index_run = 1
+    index_iteration = 2
+    index_iteration_time = 3
 
-    # current_iteration_time is used to record the ongoing iteration time
-    current_iteration = -1
+    # check if any new incoming kmls that is not processed
+    if n_notprocessed != 0:
+        k = open(logFilePath + "/generateConsensus.log", "a+")
 
-    # total number of succeed and fail and total valid for the current iteration
-    num_success = 0
-    num_fail = 0
+        it = iter(fkml_row)
+        first = next(it)
 
-    # if there is any new incoming kmls, daemon starts generating consensus
-    if num_unprocessed != 0:
+        # check if run and iterations of incoming kml are identical
+        if n_notprocessed != 1:
+            if (all(first[index_run] == rest[index_run] and
+                    first[index_iteration] == rest[index_iteration] for rest in
+                    it) == False):
+                    mapc.createAlertIssue("generateConsensus: runs or "
+                                          "iterations of incoming F kml "
+                                          "for iteration_%s "
+                                          "are not identical"
+                                          % iteration_counter + 1)
+                    exit(1)
 
-        # use the max of iteration as the ongoing interation time
-        iteration_list = list(row[1] for row in fkml_row)
-        iteration = max(iteration_list)
-        if current_iteration != iteration:
-            current_iteration = iteration
-            k = open(logFilePath + "/generateConsensus.log", "a+")
+        # check if it is a new iteration
+        # if it is a new iteration, initialize counter variables
+        if first[index_iteration] - iteration_counter == 1:
+            n_success = 0
+            n_fail = 0
+            iteration_counter = iteration_counter + 1
             k.write("\ngenerateConsensus: iteration_%s starting up at %s\n" %
-                    (current_iteration, datetime.now()))
-            k.close()
+                    (iteration_counter, first[index_iteration_time]))
 
-        # num_procssed is used to record kml that has been processed
-        num_processed = 0
-        for i in range(0, num_unprocessed - 1):
-            mapc.cur.execute("""select name, mapped_count, consensus_conflict 
+        # check if the iteration from cvml is correct
+        if first[index_iteration] != iteration_counter and first[
+            index_iteration] - iteration_counter != 1:
+           mapc.createAlertIssue("generateConsensus: cvml has processed %s "
+                                 "iterations, but generate_consensus_daemon "
+                                 "only received %s iterations"
+                                 % (first[index_iteration], iteration_counter
+                                    + 1))
+
+        # record kmls that are actually processed among kml to be processed
+        # for this processing time
+        n_processed = 0
+
+        for i in range(0, n_notprocessed - 1):
+
+            mapc.cur.execute("""select name, mapped_count, mappers_needed 
             from kml_data where kml_type = '%s' and name = '%s'""" %
-                             (mapc.KmlFQAQC, fkml_row[i][0]))
+                             (mapc.KmlFQAQC, fkml_row[i][index_name]))
             kmldata_row = mapc.cur.fetchall()
+            index_mappedcount = 1
+            index_mappersneeded = 2
 
-            # if kml has enough mapped count, do merging
-            if kmldata_row[0][1] >= min_map_count:
-                num_processed = num_processed + 1
-                k = open(logFilePath + "/generateConsensus.log", "a+")
+            # check if kml has been succussfully retrieved from kml_data
+            if len(kmldata_row) == 0:
+                 mapc.createAlertIssue("generateConsensus: fail to retrieve "
+                                       "kml %s in the kml_data table"
+                                           % fkml_row[i][index_name])
 
-                # starting call consensus creation procedure
-                if mapc.generateConsensusMap(k=k, kmlName=kmldata_row[i][0],
-                                             minMapCount=min_map_count,
-                                             riskWarningThres=risk_warning_thres):
-                    num_success = num_success + 1
+            # check if not processed kmls has enough mappers
+            if kmldata_row[0][index_mappersneeded] is not None and kmldata_row[
+                0][index_mappedcount] == kmldata_row[0][index_mappersneeded]:
+
+                # call a kml consensus generation
+                if mapc.generateConsensusMap(k=k,
+                                             kmlName=kmldata_row[0][index_name],
+                                             minMapCount=
+                                             kmldata_row[0][index_mappedcount]):
+                    n_success = n_success + 1
                 else:
-                    num_fail = num_fail + 1
-                k.close()
+                    n_fail = n_fail + 1
+
+                n_processed = n_processed + 1
 
                 # no matter success or failed, update processed in incoming_names
                 # to be TRUE
                 try:
                     mapc.cur.execute("""update incoming_names set 
                     processed='TRUE' where name = '%s'""" % kmldata_row[i][0])
+                    mapc.dbcon.commit()
+
                 except psycopg2.InternalError as e:
                     mapc.createAlertIssue("generateConsensus: kml %s internal "
                                           "database error %s\n%s" %
-                                          (kmldata_row[i][0], e.pgcode, e.pgerror))
+                                          (kmldata_row[0][index_name],
+                                           e.pgcode, e.pgerror))
                     exit(1)
 
         # when all fkml are processed, write processing info into log, and
         # wake up cvml
-        if num_processed == num_unprocessed:
-            k = open(logFilePath + "/generateConsensus.log", "a+")
-
-            # checking if iterations for all incoming kml are the identical
+        if n_processed == n_notprocessed:
             k.write("\ngenerateConsensus: the iteration_%s has %s successful "
                     "and %s failed consensus creation\n" %
-                    (current_iteration, num_success, num_fail))
+                    (iteration_counter, n_success, n_fail))
             k.write("\ngenerateConsensus: the iteration_%s finishing up at "
                     "%s\n" %
-                    (current_iteration, datetime.now()))
-            k.close()
+                    (iteration_counter, datetime.now()))
 
-            # reset count to be zero
-            num_success = 0
-            num_fail = 0
 
             # wake up cvml
             if os.system('python execute_commands.py'):
                 k.write("\ngenerateConsensus: the iteration_%s cvml starts "
                         "off...\n"
-                        % current_iteration)
+                        % iteration_counter)
             else:
                 mapc.createAlertIssue("\ngenerateConsensus: the iteration_%s "
                                       "starting off cvml fails\n" %
-                                      current_iteration)
+                                      iteration_counter)
                 break
 
             # call KMLgenerate_F.py to generate F sites for the next
@@ -133,11 +162,11 @@ while True:
             if os.system('python KMLgenerate_F.py'):
                 k.write("\ngenerateConsensus: the iteration_%s KMLgenerate_F "
                         "starts off...\n"
-                        % current_iteration)
+                        % iteration_counter)
             else:
                 mapc.createAlertIssue("\ngenerateConsensus: the iteration_%s "
                                       "KMLgenerate_F fails\n" %
-                                      current_iteration)
+                                      iteration_counter)
                 break
 
 
