@@ -100,14 +100,25 @@ consensus_map_creation <- function(kmlid, min.mappedcount,
     ml.nofield <- mean(data.frame(do.call(rbind, userhistories))$ml.nofield)
     score.hist <- mean(data.frame(do.call(rbind, userhistories))$score.hist)
 
-    # test if user fields exist
-    user.sql <- paste0("select geom_clean from",
-                        " user_maps where assignment_id = ", "'", x,
-                        "'", " order by name")
+    # read  user polygons that are not unsure
+    user.sql <- paste0("SELECT geom_clean FROM",
+                        " user_maps where assignment_id = ", "'", x, "' AND NOT",
+                       " category='unsure for field' order by name")
     user.polys <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
                                                      gsub(", geom_clean", 
                                                           "", user.sql)))
+    
+    # read user polygons that are unsure
+    user.sql.unsure <- paste0("SELECT geom_clean FROM",
+                       " user_maps where assignment_id = ", "'", x, "' AND ",
+                       " category='unsure for field' order by name")
+    
+    user.polys.unsure <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+                                                   gsub(", geom_clean", 
+                                                        "", user.sql.unsure)))
+    
     user.hasfields <- ifelse(nrow(user.polys) > 0, "Y", "N")
+    user.unsure.hasfields <- ifelse(nrow(user.polys.unsure) > 0, "Y", "N")
     
     # if user maps have field polygons
     if(user.hasfields == "Y") {
@@ -122,23 +133,46 @@ consensus_map_creation <- function(kmlid, min.mappedcount,
       if(qsite == FALSE) {
         user.poly <- suppressWarnings(st_intersection(user.poly, grid.poly))
       }
-      bayes.poly <- st_sf('posterior.field' = 1, 'posterior.nofield' = 1,
-                            'max.field.lklh' = ml.field , 
-                            'max.nofield.lklh' = ml.nofield , 
-                            'prior'= score.hist, geometry = st_sfc(user.poly))
-        
-      # set crs
-      st_crs(bayes.poly) <- gcsstr
+      
+      geometry.user = user.poly
     }
     else {
-      # if users do not map field, set geometry as empty multipolygon
-      bayes.poly <- st_sf('posterior.field' = 1, 'posterior.nofield' = 1,
-                          'max.field.lklh' = ml.field, 
-                          'max.nofield.lklh' = ml.nofield, 
-                          'prior'= score.hist, 
-                          geometry = st_sfc(st_multipolygon()))
-      st_crs(bayes.poly) <- gcsstr
+      # if users do not map field, set geometry as empty polygon
+      geometry.user = st_polygon()
     }  
+    
+    if(user..unsure.hasfields == "N"){
+      user.polys.unsure <- suppressWarnings(st_read(coninfo$con, 
+                                                    query = user.sql.unsure, 
+                                                    geom_column = 'geom_clean'))
+      
+      # union user unsure polygons
+      user.poly.unsure <- st_union(user.polys.unsure)
+      
+      # if for N or F sites, we need to first intersection user maps by grid 
+      # to remain those within-grid parts for calculation
+      if(qsite == FALSE) {
+        user.poly.unsure <- suppressWarnings(st_intersection(user.poly.unsure, 
+                                                             grid.poly))
+      }
+      
+      geometry.user.unsure = user.poly.unsure
+    }
+    else {
+      # if users do not map field, set geometry as empty polygon
+      geometry.user.unsure = st_polygon()
+    } 
+    
+    # we give 0.5 as posterior probability to unsure, meaning that the user
+    # thinks it has only 50% to be a field
+    bayes.poly <- st_sf('posterior.field' = c(1, 0.5), 
+                        'max.field.lklh' = c(ml.field, ml.field) , 
+                        'max.nofield.lklh' = c(ml.nofield, ml.nofield) , 
+                        'prior'= c(score.hist, score.hist), 
+                        geometry = st_sfc(geometry.user, geometry.user.unsure))
+    
+    # set crs
+    st_crs(bayes.poly) <- gcsstr
     
     bayes.poly
    
