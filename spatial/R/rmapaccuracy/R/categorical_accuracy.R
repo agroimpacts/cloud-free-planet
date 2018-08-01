@@ -1,4 +1,12 @@
 #' Calculate categorical accuracy
+#' @param qaqc.polys qaqc polygons 
+#' @param user.polys user polygons (excluding polygons that users are unsure 
+#' about field or no field)
+#' @details categorical accuracy: the area that has been labeled
+#' the correct category divided by the sum of qaqc.polys and user.polys  
+#' @return categorical accuracy
+#' @import dplyr
+#' 
 categorical_accuracy <- function(qaqc.polys, user.polys){
   categories <- list('TreeCrop', 'AnnualCrop', 'Fallow', 'AgroForestry')
   
