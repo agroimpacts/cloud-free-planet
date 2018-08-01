@@ -591,9 +591,13 @@ class MappingCommon(object):
     # generate ConsensusMap
     # Return true or false
     def generateConsensusMap(self, k, kmlName, minMapCount):
+        # hard code 'source' temporally, need a dynamic way to check the type of
+        # imagery that are working on, and will go back to this line in future 
+        source = "wv2" 
         riskPixelPercentage = subprocess.Popen(["Rscript",
                                                 "%s/spatial/R/consensus_map_generator.R" %
                                                 self.projectRoot,
+                                                source,
                                                 kmlName,
                                                 str(minMapCount)],
                                                stdout=subprocess.PIPE,
