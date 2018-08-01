@@ -27,10 +27,6 @@ checkexists <- function(x, env) {
 #' @param frag.acc.wt Weighting for fragmentation accuracy
 #' @param edge.acc.wt Weighting for edge accuracy
 #' @details Accuracy assessment for case when worker maps fields but none exist
-#' @import RPostgreSQL
-#' @importFrom  DBI dbDriver
-#' @import dplyr
-#' @import sf
 #' @keywords internal
 case2_accuracy <- function(grid.poly, user.polys, in.acc.wt, 
                            out.acc.wt, count.acc.wt, new.in.acc.wt, 
@@ -122,10 +118,6 @@ case2_accuracy <- function(grid.poly, user.polys, in.acc.wt,
 #' @details Accuracy assessment for case when worker doesn't map fields but 
 #' they do exist. Note that the TSS version of accuracy is still retainined 
 #' here, but is no longer used because if return NULL values in certain cases. 
-#' @import RPostgreSQL
-#' @importFrom  DBI dbDriver
-#' @import dplyr
-#' @import sf
 #' @keywords internal
 case3_accuracy <- function(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt, 
                            count.acc.wt, new.in.acc.wt, new.out.acc.wt, 
@@ -211,10 +203,6 @@ case3_accuracy <- function(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt,
 #' @details Accuracy assessment for case when worker maps fields where they  
 #' they do exist. Note that the TSS version of accuracy is still retainined 
 #' here, but is no longer used because if return NULL values in certain cases. 
-#' @import RPostgreSQL
-#' @importFrom  DBI dbDriver
-#' @import dplyr
-#' @import sf
 #' @keywords internal
 case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt, 
                            in.acc.wt, out.acc.wt, new.in.acc.wt, 
