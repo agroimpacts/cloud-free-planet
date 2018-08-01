@@ -1,9 +1,11 @@
 #' Bayesian Model Averaging P(theta|D) = ∑ weight * mapper posterior probability
-#' @description Core codes for Bayesian Model Averaging P(theta|D) = ∑ weight * mapper posterior probability
+#' @description Core codes for Bayesian Model Averaging 
+#' P(theta|D) = ∑ weight * mapper posterior probability
 #' @param bayes.poly a sf object has five columns: 
-#' (1)posterior.field and (2)posterior.nofield are mapper posterior probability
-#' , which means mappers' opinion for the possibility of field (we set 0 or 1);  
-#' (3)max.field.lklh, (4) max.nofield.lklh: the producer's accuracy, which means
+#' (1)posterior.field a are mapper posterior probability, meaning that
+#' mappers' opinion for the possibility of field (we set 1 for sure category, 
+#' and 0.5 for unsure);  
+#' (3)max.field.lklh, (4) max.nofield.lklh, namely the producer's accuracy, which means
 #' that given its label as field or no field, the maximum likelihood to be the 
 #' mapper i; (5) score
 #' Weight = max.nofield.lklh (or max.field.lklh) * score
@@ -26,7 +28,7 @@ bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
     if (st_is_empty(bayes.polys[t, "geometry"])) {
       # p(actual=field|user t=no field)=
       # 1 - p(actual= no field|user t= no field)
-      posterior.field.val <- rep((1 - bayes.polys[t,]$posterior.nofield),
+      posterior.field.val <- rep(0,
                                  ncol(posterior.field.rst) * 
                                    nrow(posterior.field.rst))
       posterior.field.rst <- setValues(posterior.field.rst, posterior.field.val)
@@ -38,8 +40,7 @@ bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
       # 1 - p(actual= no field|user t= no field)
       posterior.field.rst <- fasterize(bayes.polys[t, ], posterior.field.rst, 
                                        field = "posterior.field", 
-                                       background = 
-                                         1 - bayes.polys[t, ]$posterior.nofield)
+                                       background = 0)
       }
     user.max.lklh <- fasterize(bayes.polys[t, ], posterior.field.rst, 
                                field =  "max.field.lklh", 
