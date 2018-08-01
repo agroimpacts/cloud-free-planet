@@ -24,18 +24,22 @@ dummy_raster <- function(xmin = -17.541, xmax = 51.419, ymin = -34.845,
 #' @importFrom raster rowFromY colFromX
 #' @keywords export
 #' @examples 
-#' library(rmapaccuracy)
-#' r <- dummy_rast()
-#' rowcol_from_xy(r, x = 8.9065, y = 37.5375)
-# coninfo <- mapper_connect(user = pgupw$user, password = pgupw$password,
-#                           db.tester.name = "lestes", 
-#                           host = "crowdmapper.org")
-# xy_tabs <- coninfo$con %>% tbl("master_grid") %>%
-#   filter((gid >= 1) & (gid <= 20)) %>%
-#   select(id, name, x, y) %>%
-#   head(20) %>% collect()
-# xy_tabs <- data.table(xy_tabs)  # convert to data.table (not needed???)
+#' r <- rmapaccuracy:::dummy_raster()
+#' rmapaccuracy:::rowcol_from_xy(r, x = 8.9065, y = 37.5375)
+#' library(dplyr)
+#' library(raster)
+#' # A set of checks (not run)
+#' # coninfo <- mapper_connect(user = pgupw$user, password = pgupw$password,
+#' #                           db.tester.name = "lestes",
+#' #                           host = "crowdmapper.org")
+#' # s <- paste("select id, name, x, y from master_grid where gid >=1 and",
+#' #            "gid <= 20")
+#' # xyt <- DBI::dbGetQuery(coninfo$con, s)
+#' # rcmat <- cbind(xyt, rmapaccuracy:::rowcol_from_xy(r, x = xyt$x, y = xyt$y))
+#' # mgrid <- raster("data/processed/master_grid.tif")  # master_grid tif (local)
+#' # all(rcmat$col == (colFromX(mgrid, rcmat$x) - 1))
+#' # all(rcmat$row == (rowFromY(mgrid, rcmat$y) - 1))
 rowcol_from_xy <- function(x, y, r, offset = -1) {
-  rcmat <- cbind(x = colFromX(r, x) + offset, y = rowFromY(r, y) + offset)
+  rcmat <- cbind(col = colFromX(r, x) + offset, row = rowFromY(r, y) + offset)
   return(rcmat)
 }
