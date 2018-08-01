@@ -7,10 +7,6 @@
 #' @param db.tester.name User name for testing (default NULL)
 #' @param alt.root Alternative location for writing out maps (default NULL)
 #' @param host NULL or "crowdmapper.org", if testing from remote location
-#' @import RPostgreSQL
-#' @importFrom  DBI dbDriver
-#' @import dplyr
-#' @import sf
 #' @return Sticks conflict/risk percentage pixels into database (kml_data) and
 #' (pending) writes rasters to S3 bucket
 #' @export
@@ -195,20 +191,20 @@ consensus_map_creation <- function(kmlid, min.mappedcount,
   
   ###################### S3 bucket output ###############
   bucketname <- "activemapper"
-  s3.dst <- paste0("sources/wv2/", tolower(substring(kmlid, 1, 2)), "/masks/")
+  s3.dst <- paste0("sources/wv2/", tolower(substring(kmlid, 1, 2)), "/masks/")  
   s3.filename <- paste0(kmlid, "_label")
   s3_upload(coninfo$dinfo["project.root"], bucketname, 
             bayesoutput$labelmap, s3.dst, s3.filename)
   
   if(output.riskmap == TRUE) { 
     s3.filename <- paste(kmlid + "_risk")
-    s3_upload(coninfo$dinfo["project.root"], bucketname, 
-                                         bayesoutput$riskmap, s3.dst, s3.filename)
+    s3_upload(coninfo$dinfo["project.root"], bucketname, bayesoutput$riskmap, 
+              s3.dst, s3.filename)
   }
    
   #######################################################
   
-  garbage <- dbDisconnect(coninfo$con)
+  garbage <- DBI::dbDisconnect(coninfo$con)
   
-  riskpixelpercentage 
+  return(riskpixelpercentage)
 }
