@@ -5,7 +5,6 @@
 #' @details This function targets on how the geometry of qaqc polygons are 
 #' mapped by user polygons, which should be complementary to the in-grid and 
 #' outgrid thematic accuracy. 
-#' @import sf
 #' @keywords internal
 geometric_accuracy <- function(qaqc.polys, user.polys, buf) {
   match.num <- 0 # the number of matched polygons
