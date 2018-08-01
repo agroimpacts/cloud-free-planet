@@ -1,13 +1,13 @@
 Package: rmapaccuracy
 Type: Package
 Title: Accuracy assessment of user created map polygons
-Version: 1.3.2
-Date: 2018-06-22
+Version: 1.3.4
+Date: 2018-08-01
 Author: Lyndon Estes, Dennis McRitchie, and Su Ye
 Maintainer: Lyndon Estes <lestes@clarku.edu>
 Description: This package provides mapper's accuracy assessment functions
-Depends: R (>= 2.15), data.table, dplyr
-Imports: RPostgreSQL, DBI, sf, raster, fasterize
+Depends: R (>= 2.15)
+Imports: data.table, RPostgreSQL, aws.s3, raster, DBI, dplyr, sf
 License: GPL
 RoxygenNote: 6.0.1
 LazyData: true
