@@ -34,8 +34,8 @@
 #' @export
 kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                          count.acc.wt, in.acc.wt, out.acc.wt, new.in.acc.wt, 
-                         new.out.acc.wt, frag.acc.wt, edge.acc.wt, edge.buf, 
-                         acc.switch, comments, write.acc.db, draw.maps, 
+                         new.out.acc.wt, frag.acc.wt, edge.acc.wt, cate.acc.wt, 
+                         edge.buf, acc.switch, comments, write.acc.db, draw.maps, 
                          pngout = TRUE, test,  test.root, user, password, 
                          db.tester.name = NULL, alt.root = NULL, host = NULL) {
   
@@ -56,12 +56,13 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     
   # Collect QAQC fields (if there are any; if not then "N" value will be 
   # returned). This should work for both training and test sites
-  qaqc.sql <- paste0("select gid from qaqcfields where name=", "'", kmlid, "'")
+  qaqc.sql <- paste0("select gid from qaqcfields where name=", 
+                     "'", kmlid, "'")
   qaqc.polys <- DBI::dbGetQuery(coninfo$con, qaqc.sql)
   qaqc.hasfields <- ifelse(nrow(qaqc.polys) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
-    qaqc.sql <- paste0("select gid, geom_clean",
-                       " from qaqcfields where name=", "'", kmlid, "'")
+    qaqc.sql <- paste0("SELECT gid, category, geom_clean ",
+                       "FROM qaqcfields WHERE name=", "'", kmlid, "'")
     qaqc.polys <- suppressWarnings(st_read(coninfo$con, query = qaqc.sql, 
                                            geom_column = 'geom_clean'))
     qaqc.polys <- st_transform(qaqc.polys, crs=prjstr)
@@ -70,14 +71,14 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
 
   # Read in user data
   if(mtype == "tr") {  # Training case
-    user.sql <- paste0("select name, try, geom_clean",
-                       " from qual_user_maps where assignment_id=",  "'", 
-                       assignmentid, "'", " and try='",  tryid, 
-                       "' order by name")
+    user.sql <- paste0("SELECT name, try, category, geom_clean ",
+                       "FROM qual_user_maps where assignment_id=",  "' ", 
+                       assignmentid, "'", " AND try='",  tryid, "' ",
+                       "AND NOT category='unsure for field' order by name")
   } else if(mtype == "qa") {  # Test case
-    user.sql <- paste0("select name, geom_clean from",
+    user.sql <- paste0("select name, category, geom_clean from",
                        " user_maps where assignment_id=", "'", assignmentid,
-                       "'", " order by name")
+                       "' AND NOT category='unsure for field' order by name")
   }
   
   # test if user fields exist
@@ -126,7 +127,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     if(comments == "T") print("Case 2: No QAQC fields, but User fields") 
     acc.out <- case2_accuracy(grid.poly, user.polys, in.acc.wt, out.acc.wt, 
                               count.acc.wt, new.in.acc.wt, new.out.acc.wt, 
-                              frag.acc.wt, edge.acc.wt)
+                              frag.acc.wt, edge.acc.wt, cate.acc.wt)
   }
 
   #  Case 3. QAQC has fields, User has no fields
@@ -134,7 +135,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     if(comments == "T") print("Case 3: QAQC fields but no User fields")
     acc.out <- case3_accuracy(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt, 
                               count.acc.wt, new.in.acc.wt, new.out.acc.wt, 
-                              frag.acc.wt, edge.acc.wt, acc.switch)
+                              frag.acc.wt, edge.acc.wt, cate.acc.wt, acc.switch)
   }
   
   # Case 4. QAQC has fields, User has fields
@@ -143,7 +144,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     acc.out <- case4_accuracy(grid.poly, user.polys, qaqc.polys, count.acc.wt,
                               in.acc.wt, out.acc.wt, new.in.acc.wt, 
                               new.out.acc.wt, frag.acc.wt, edge.acc.wt, 
-                              edge.buf, comments, acc.switch)
+                              cate.acc.wt, edge.buf, comments, acc.switch)
   }
   
   # need add field_skill and nofield_skill columns into new_error_data tables  

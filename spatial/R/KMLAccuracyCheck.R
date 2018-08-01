@@ -9,8 +9,9 @@ prjsrid <- 102022
 count.acc.wt <- 0.1
 in.acc.wt <- 0.7  
 out.acc.wt <- 0.2  
-new.in.acc.wt <- 0.6 ## for new score
+new.in.acc.wt <- 0.4 ## for new score
 new.out.acc.wt <- 0.2 ## for new score
+cate.acc.wt <- 0.2 ## for new score, categorical accuracy
 frag.acc.wt <- 0.1 ## for new score
 edge.acc.wt <- 0.1 ## for new score
 edge.buf <- 9 ## for new score, 3 planet pixels
@@ -99,8 +100,8 @@ if(test.root == "Y") {
                count.acc.wt = count.acc.wt, in.acc.wt = in.acc.wt, 
                out.acc.wt = out.acc.wt, new.in.acc.wt = new.in.acc.wt,
                new.out.acc.wt = new.out.acc.wt, frag.acc.wt = frag.acc.wt,
-               edge.acc.wt = edge.acc.wt, edge.buf = edge.buf,
-               acc.switch = acc.switch, comments = comments, 
+               edge.acc.wt = edge.acc.wt, cate.acc.wt = cate.acc.wt,
+               edge.buf = edge.buf, acc.switch = acc.switch, comments = comments, 
                write.acc.db = write.acc.db, draw.maps = draw.maps, 
                pngout = pngout, test = test, test.root = test.root, 
                user = pgupw$user, password = pgupw$password, 
