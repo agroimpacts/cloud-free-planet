@@ -149,14 +149,15 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
   if(write.acc.db == "T") {
     if(mtype == "qa") {
       acc.sql <- paste0("insert into new_error_data (assignment_id, new_score,",
-                        "old_score, count_acc, fragmentation_acc, edge_acc,",
+                        "old_score, count_acc, fragmentation_acc, edge_acc, ", 
+                        "category_acc,",
                         "ingrid_acc, outgrid_acc, num_userpolygons, field_skill,",
                         " nofield_skill) values ('", assignmentid, "', ", 
                         paste(acc.out$acc.out, collapse = ", "), ")")
     } else if(mtype == "tr") {
       acc.sql <- paste0("insert into new_qual_error_data (assignment_id,", 
                         "new_score, old_score, count_acc, fragmentation_acc,",
-                        "edge_acc, ingrid_acc, outgrid_acc,", 
+                        "edge_acc, category_acc, ingrid_acc, outgrid_acc,", 
                         "num_userpolygons, field_skill, nofield_skill, try)",
                         " values ('", assignmentid, "', ", 
                         paste(acc.out$acc.out, collapse = ", "), ", ", tryid, ")")
