@@ -1,4 +1,5 @@
-#' Core codes for Bayesian Model Averaging P(theta|D) = ∑ weight * mapper posterior probability
+#' Bayesian Model Averaging P(theta|D) = ∑ weight * mapper posterior probability
+#' @description Core codes for Bayesian Model Averaging P(theta|D) = ∑ weight * mapper posterior probability
 #' @param bayes.poly a sf object has five columns: 
 #' (1)posterior.field and (2)posterior.nofield are mapper posterior probability
 #' , which means mappers' opinion for the possibility of field (we set 0 or 1);  
@@ -10,13 +11,14 @@
 #' @param threshold the threshold for P(theta|D) to determine the label of pixels
 #' as field or no field
 #' @return A list of three rasters--heat map, risk map, and consensus map
+#' @importFrom fasterize fasterize
+#' @importFrom raster raster overlay setValues extent reclassify
 #' @export 
-# Bayes model avergaing
 bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
 
   gcsstr <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
   posterior.field.rst <- raster(extent(as(rasterextent, 'Spatial')), 
-                                resolution = 0.005 / 200, crs = gcsstr)
+                                resolution = 0.005 / 200, crs = gcsstr)  ### HC
   
   # read and process user polygons using a recursive way in order to save memory
   for (t in 1:nrow(bayes.polys)) {
@@ -25,7 +27,8 @@ bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
       # p(actual=field|user t=no field)=
       # 1 - p(actual= no field|user t= no field)
       posterior.field.val <- rep((1 - bayes.polys[t,]$posterior.nofield),
-                      ncol(posterior.field.rst) * nrow(posterior.field.rst))
+                                 ncol(posterior.field.rst) * 
+                                   nrow(posterior.field.rst))
       posterior.field.rst <- setValues(posterior.field.rst, posterior.field.val)
       
     }
@@ -62,7 +65,7 @@ bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
   # risks maps is to assign non-field (1-label.map) as heat.map values, and 
   # asssign field as 1-heat.map
   risk.map <- overlay(heat.map, label.map, 
-                      fun=function(r1, r2) {r1 *(1 - r2) + (1 - r1) * r2})
+                      fun = function(r1, r2) {r1 *(1 - r2) + (1 - r1) * r2})
   
   return(list("labelmap" = label.map, "heatmap" = heat.map, 
               "riskmap" = risk.map))
