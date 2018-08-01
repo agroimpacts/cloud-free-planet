@@ -10,7 +10,7 @@
 #' @return Sticks conflict/risk percentage pixels into database (kml_data) and
 #' (pending) writes rasters to S3 bucket
 #' @export
-consensus_map_creation <- function(kmlid, min.mappedcount,
+consensus_map_creation <- function(kmlid, min.mappedcount, source,
                                    output.riskmap, riskpixelthres, diam, 
                                    user, password, db.tester.name, alt.root, 
                                    host, qsite = FALSE) {
@@ -108,7 +108,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount,
                                                      gsub(", geom_clean", 
                                                           "", user.sql)))
     
-    # read user polygons that are unsure
+    # read user polygons for the unsure category
     user.sql.unsure <- paste0("SELECT geom_clean FROM",
                        " user_maps where assignment_id = ", "'", x, "' AND ",
                        " category='unsure for field' order by name")
@@ -224,9 +224,16 @@ consensus_map_creation <- function(kmlid, min.mappedcount,
   dbSendQuery(coninfo$con, risk.sql) 
   
   ###################### S3 bucket output ###############
+  xy_tabs <- tbl(coninfo$con, "master_grid") %>% 
+                          filter(name == kmlid) %>% 
+                          dplyr::select(x, y) %>% collect()
+  
+  rowcol <- rowcol_from_xy(xy_tabs$x, xy_tabs$y, r, offset = -1)
+  
   bucketname <- "activemapper"
-  s3.dst <- paste0("sources/wv2/", tolower(substring(kmlid, 1, 2)), "/masks/")  
-  s3.filename <- paste0(kmlid, "_label")
+  
+  s3.dst <- paste0("sources/", source, "/", tolower(substring(kmlid, 1, 2)), "/masks/")  
+  s3.filename <- paste0(kmlid, '_', rowcol['row'], '_', rowcol['col'], "_label")
   s3_upload(coninfo$dinfo["project.root"], bucketname, 
             bayesoutput$labelmap, s3.dst, s3.filename)
   

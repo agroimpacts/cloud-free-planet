@@ -39,7 +39,8 @@ dummy_raster <- function(xmin = -17.541, xmax = 51.419, ymin = -34.845,
 #' # mgrid <- raster("data/processed/master_grid.tif")  # master_grid tif (local)
 #' # all(rcmat$col == (colFromX(mgrid, rcmat$x) - 1))
 #' # all(rcmat$row == (rowFromY(mgrid, rcmat$y) - 1))
-rowcol_from_xy <- function(x, y, r, offset = -1) {
-  rcmat <- cbind(col = colFromX(r, x) + offset, row = rowFromY(r, y) + offset)
-  return(rcmat)
+rowcol_from_xy <- function(x, y, offset = -1) {
+  r <- dummy_raster()
+  rc <- c('row' = rowFromY(r, y) + offset, 'col' = colFromX(r, x) + offset)
+  return(rc)
 }

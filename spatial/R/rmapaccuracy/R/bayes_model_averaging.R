@@ -44,8 +44,8 @@ bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
       }
     user.max.lklh <- fasterize(bayes.polys[t, ], posterior.field.rst, 
                                field =  "max.field.lklh", 
-                               background = bayes.polys[t,]$max.nofield.lklh)
-    weight <- user.max.lklh * bayes.polys[t,]$prior
+                               background = bayes.polys[t,]$max.nofield.lklh[1])
+    weight <- user.max.lklh * bayes.polys[t,]$prior[1]
     if (t == 1) {
       weight.acc <- weight 
       posterior.acc <- overlay(posterior.field.rst, weight, 
