@@ -22,11 +22,11 @@ now = str(datetime.today())
 k.write("\ngenerateConsensus: Daemon starting up at %s\n" % now)
 k.close()
 
-# record the ongoing iteration time in the daemon
-iteration_counter = -1
+# record the ongoing iteration time in the daemon, and initial iteration is 0
+iteration_counter = 0
 
-n_success = None
-n_fail = None
+n_success = 0
+n_fail = 0
 
 # Execute loop based on FKMLCheckingInterval
 while True:
@@ -35,11 +35,21 @@ while True:
     # database records without interfering with daemon.
     mapc.getSerializationLock()
 
-    # read Fsites that are not processed from incoming_name table
-    mapc.cur.execute("SELECT name, run, iteration, iteration_time "
+    # for initial iteration, query both holdout and training sites that 
+    # are not processed from incoming_name table
+    if iteration_counter == 0:
+        mapc.cur.execute("SELECT name, run, iteration, iteration_time "
+                         "FROM incoming_names "
+                         "INNER JOIN iteration_metrics USING (run, iteration) "
+                         "WHERE processed = false")
+                         
+    # if not initial iteration, query only holdout
+    else: 
+        mapc.cur.execute("SELECT name, run, iteration, iteration_time "
                      "FROM incoming_names "
                      "INNER JOIN iteration_metrics USING (run, iteration) "
-                     "WHERE processed = false")
+                     "WHERE processed = false and holdout = false") 
+                     
     fkml_row = mapc.cur.fetchall()
     n_notprocessed = len(fkml_row)
     index_name = 0
@@ -75,7 +85,7 @@ while True:
             k.write("\ngenerateConsensus: iteration_%s starting up at %s\n" %
                     (iteration_counter, first[index_iteration_time]))
 
-        # check if the iteration from cvml is correct
+        # check if the iteration of all kmls from cvml is correct
         if first[index_iteration] != iteration_counter and first[
             index_iteration] - iteration_counter != 1:
            mapc.createAlertIssue("generateConsensus: cvml has processed %s "

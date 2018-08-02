@@ -22,7 +22,7 @@ suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 if(length(arg) < 3) stop("At least 3 arguments needed", call. = FALSE)
 arg <- commandArgs(TRUE)
 kmlid <- arg[1]  # ID of grid cell
-source <- arg[2] # image source, 'wv2' or 'planet'
+s3.dst <- arg[2] # Consensus map output directory in S3 bucket
 min.mappedcount <- arg[3] # minimum mapped map count
 if(length(arg) == 3) {
   output.riskmap <- FALSE
@@ -53,7 +53,7 @@ if(length(arg) > 3) {
   }
 }
 
-consensus_map_creation(kmlid = kmlid, source = source, 
+consensus_map_creation(kmlid = kmlid, s3.dst = s3.dst, 
                        min.mappedcount = min.mappedcount, 
                        output.riskmap = output.riskmap,
                        riskpixelthres  = riskpixelthres, diam = diam, 
