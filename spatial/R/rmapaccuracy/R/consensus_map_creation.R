@@ -1,6 +1,7 @@
 #' Control the output of label maps, risk maps, and heat maps 
 #' @param kmlid 
 #' @param min.mappedcount the minimum approved assignment count
+#' @param s3.dst S3 output directory for consensus maps
 #' @param riskthres the threshold to select 'risk' pixels
 #' @param user User name for database connection
 #' @param password Password for database connection
@@ -10,7 +11,7 @@
 #' @return Sticks conflict/risk percentage pixels into database (kml_data) and
 #' (pending) writes rasters to S3 bucket
 #' @export
-consensus_map_creation <- function(kmlid, min.mappedcount, source,
+consensus_map_creation <- function(kmlid, min.mappedcount, s3.dst,
                                    output.riskmap, riskpixelthres, diam, 
                                    user, password, db.tester.name, alt.root, 
                                    host, qsite = FALSE) {
@@ -232,8 +233,8 @@ consensus_map_creation <- function(kmlid, min.mappedcount, source,
   
   bucketname <- "activemapper"
   
-  s3.dst <- paste0("sources/", source, "/", tolower(substring(kmlid, 1, 2)), "/masks/")  
-  s3.filename <- paste0(kmlid, '_', rowcol['row'], '_', rowcol['col'], "_label")
+  # s3.dst <- paste0("sources/train/")  
+  s3.filename <- paste0(kmlid, '_', rowcol['row'], '_', rowcol['col'])
   s3_upload(coninfo$dinfo["project.root"], bucketname, 
             bayesoutput$labelmap, s3.dst, s3.filename)
   
