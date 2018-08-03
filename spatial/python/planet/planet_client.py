@@ -21,7 +21,7 @@ class PClientV1():
         self.maximgs = 1
         self.catalog_path = "catalog/"
         self.s3_catalog_bucket = "azavea-africa-test"
-        self.s3_catalog_prefix = "planet-scenes"
+        self.s3_catalog_prefix = "planet-scenes-2"
         self.item_type = "PSScene4Band"
         self.asset_type = "analytic_sr"
         self.client = api.ClientV1(api_key = api_key)
@@ -133,6 +133,7 @@ class PClientV1():
     # TODO: lots of copy pasting happens there, abstract over it?
     # returns a full S3 URI here
     def download_s3(self, scene_id):
+        print("Downloading {}...".format(scene_id))
         # activation & download
         session = requests.Session()
         session.auth = (self.api_key, '')
