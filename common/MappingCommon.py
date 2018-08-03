@@ -590,17 +590,15 @@ class MappingCommon(object):
         
     # generate ConsensusMap
     # Return true or false
-    def generateConsensusMap(self, k, kmlName, minMapCount):
+    def generateConsensusMap(self, k, kmlName, minMapCount, kmlusage):
         
-        # hard coded S3 bucket here, but will read it from database 
-        # configuration table in future
-        S3Dst = 'sources/train/'
+     
         riskPixelPercentage = subprocess.Popen(["Rscript",
                                                 "%s/spatial/R/consensus_map_generator.R" %
                                                 self.projectRoot,
                                                 self.cur.fetchall(),
                                                 kmlName,
-                                                S3Dst,
+                                                kmlusage,
                                                 str(minMapCount)],
                                                stdout=subprocess.PIPE,
                                                stderr=subprocess.STDOUT).communicate()[0]

@@ -36,7 +36,7 @@ while True:
     mapc.getSerializationLock()
 
     # for initial iteration, query both holdout and training sites that 
-    # are not processed from incoming_name table
+    # are not processed from incoming_names table
     if iteration_counter == 0:
         mapc.cur.execute("SELECT name, run, iteration, iteration_time "
                          "FROM incoming_names "
@@ -117,14 +117,31 @@ while True:
             if kmldata_row[0][index_mappersneeded] is not None and kmldata_row[
                 0][index_mappedcount] == kmldata_row[0][index_mappersneeded]:
 
-                # call a kml consensus generation
-                if mapc.generateConsensusMap(k=k,
-                                             kmlName=kmldata_row[0][index_name],
-                                             minMapCount=
-                                             kmldata_row[0][index_mappedcount]):
-                    n_success = n_success + 1
-                else:
-                    n_fail = n_fail + 1
+                mapc.cur.execute("""SELECT holdout FROM incoming_names
+                       WHERE name = '%s'""" % kmldata_row[0][index_name])
+                       
+                
+                # the kml is used for training
+                if mapc.cur.fetchall() = false: 
+                    # call a kml consensus generation
+                    if mapc.generateConsensusMap(k=k,
+                                                 kmlName=kmldata_row[0][index_name],
+                                                 kmlusage="train",
+                                                 minMapCount=
+                                                 kmldata_row[0][index_mappedcount]):
+                        n_success = n_success + 1
+                    else:
+                        n_fail = n_fail + 1
+                # the kml is used for holdout
+                else: 
+                    if mapc.generateConsensusMap(k=k,
+                                                 kmlName=kmldata_row[0][index_name],
+                                                 kmlusage="holdout",
+                                                 minMapCount=
+                                                 kmldata_row[0][index_mappedcount]):
+                        n_success = n_success + 1
+                    else:
+                        n_fail = n_fail + 1
 
                 n_processed = n_processed + 1
 

@@ -95,8 +95,8 @@ case2_accuracy <- function(grid.poly, user.polys, in.acc.wt,
   acc.out <- c("new_score" = new.score, "old_score" = old.score,
                "count_acc" = count.acc, 
                "frag_acc" = frag.acc, "edge_acc" = edge.acc, 
-               "cate_acc" = cate.acc, "in_acc" = in.acc, 
-               "out_acc" = out.acc, "user_count" = user.fldcount, 
+               "in_acc" = in.acc, "out_acc" = out.acc,
+               "cate_acc" = cate.acc,"user_count" = user.fldcount, 
                "field_skill" = lklh_field, "nofield_skill" = lklh_nofield)
   # output maps
   env <- environment()  # get environment
@@ -177,9 +177,9 @@ case3_accuracy <- function(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt,
   # and max_nofield_lklh (p(user_i = no field|groundtruth = no field))
   acc.out <- c("new_score" = new.score, "old_score" = old.score,
                "count_acc" = count.acc, "frag_acc" = frag.acc, 
-               "edge_acc" = edge.acc, "cate_acc" = cate.acc,
-               "in_acc" = in.acc, 
-               "out_acc" = out.acc, "user_count" = user.fldcount, 
+               "edge_acc" = edge.acc, 
+               "in_acc" = in.acc, "out_acc" = out.acc, 
+               "cate_acc" = cate.acc, "user_count" = user.fldcount, 
                "field_skill" = lklh_field, "nofield_skill" = lklh_nofield)
   # output maps
   env <- environment()  # get environment
@@ -205,6 +205,7 @@ case3_accuracy <- function(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt,
 #' @param edge.buf buffer for edge accuracy
 #' @param comments Should comments be printed, "T" or "F" (default)? 
 #' @param acc.switch 1 for conventional accuracy, 2 for TSS
+#' @param cate.code the category codes reads from database
 #' @details Accuracy assessment for case when worker maps fields where they  
 #' they do exist. Note that the TSS version of accuracy is still retainined 
 #' here, but is no longer used because if return NULL values in certain cases. 
@@ -212,7 +213,7 @@ case3_accuracy <- function(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt,
 case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt, 
                            in.acc.wt, out.acc.wt, new.in.acc.wt, 
                            new.out.acc.wt, frag.acc.wt, edge.acc.wt, cate.acc.wt,
-                           edge.buf, comments = "F", acc.switch = 1) {
+                           edge.buf, cate.code, comments = "F", acc.switch = 1) {
   
   # prep polygons
   user.nfields <- nrow(user.polys)  # n fields, for original count accuracy
@@ -256,7 +257,7 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
   frag.acc <- unname(geores[1])
   edge.acc <- unname(geores[2])  
   in.acc <- unname(inres[[1]][acc.switch])
-  cate.acc <- categorical_accuracy(qaqc.polys, user.polys)
+  cate.acc <- categorical_accuracy(qaqc.polys, user.polys, cate.code)
   
   # Secondary metric - Sensitivity of results outside of kml grid
   if(length(user.poly.out) == 0 & length(qaqc.poly.out) == 0) {
@@ -330,8 +331,8 @@ case4_accuracy <- function(grid.poly, user.polys, qaqc.polys, count.acc.wt,
   acc.out <- c("new_score" = new.score, "old_score" = old.score,
                "count_acc" = count.acc, 
                "frag_acc" = frag.acc, "edge_acc" = edge.acc, 
-               "cate_acc" = cate.acc, "in_acc" = in.acc, 
-               "out_acc" = out.acc, "user_count" = user.fldcount, 
+                "in_acc" = in.acc, "out_acc" = out.acc, 
+               "cate_acc" = cate.acc, "user_count" = user.fldcount, 
                "field_skill" = lklh_field, "nofield_skill" = lklh_nofield)
   
   # output maps
