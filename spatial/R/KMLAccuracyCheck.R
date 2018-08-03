@@ -24,12 +24,10 @@ pngout <- TRUE
 
 
 #### Test codes ####
-# mtype <- 'qa'
-# assignmentid <- '511'
-# kmlid <- 'ZA0401608'
-# # tryid <- '1'
-# pgupw$user <- "***REMOVED***"
-# pgupw$password <- "***REMOVED***"
+# mtype <- 'tr'
+# assignmentid <- '274'
+# kmlid <- 'ZA0009180'
+# tryid <- '1'
 # db.tester.name <- 'sye'
 # alt.root <- NULL
 # host <- NULL

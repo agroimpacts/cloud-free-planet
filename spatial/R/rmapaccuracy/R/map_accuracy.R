@@ -2,7 +2,6 @@
 #' @param maps Polygons to assess
 #' @param truth Polygons against which which accuracy will be assessed
 #' @param region: A polygon defining the region in which accuracy is assessed
-#' @importFrom sf st_difference st_intersection
 #' @return Accuracy measures from user maps
 #' @keywords internal
 map_accuracy <- function(maps, truth, region) {
