@@ -8,6 +8,7 @@
 #' @return Unpopulated raster set to provided extent and resolution
 #' @importFrom raster raster extent
 #' @keywords internal
+#' 
 dummy_raster <- function(xmin = -17.541, xmax = 51.419, ymin = -34.845, 
                          ymax = 37.540, res = 0.005) {
   r <- raster(extent(c(xmin, xmax, ymin, ymax)), res = res)
@@ -23,7 +24,7 @@ dummy_raster <- function(xmin = -17.541, xmax = 51.419, ymin = -34.845,
 #' @return Matrix of row and column number
 #' @importFrom raster rowFromY colFromX
 #' @keywords export
-#' @examples 
+#' @export 
 #' r <- rmapaccuracy:::dummy_raster()
 #' rmapaccuracy:::rowcol_from_xy(r, x = 8.9065, y = 37.5375)
 #' library(dplyr)
@@ -41,6 +42,6 @@ dummy_raster <- function(xmin = -17.541, xmax = 51.419, ymin = -34.845,
 #' # all(rcmat$row == (rowFromY(mgrid, rcmat$y) - 1))
 rowcol_from_xy <- function(x, y, offset = -1) {
   r <- dummy_raster()
-  rc <- c('row' = rowFromY(r, y) + offset, 'col' = colFromX(r, x) + offset)
-  return(rc)
+  rcmat <- cbind(col = colFromX(r, x) + offset, row = rowFromY(r, y) + offset)
+  return(rcmat)
 }

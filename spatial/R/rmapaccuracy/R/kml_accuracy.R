@@ -138,10 +138,28 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
   # Case 4. QAQC has fields, User has fields
   if(qaqc.hasfields == "Y" & user.hasfields == "Y") {
     if(comments == "T") print("Case 4: QAQC fields and User fields")
+    
+      # query database about the number of field category
+      catenum.sql <- paste0("SELECT value",
+                           " FROM configuration WHERE key='FieldCateNum'")
+      
+      Fieldcategory.num <- DBI::dbGetQuery(coninfo$con, catenum.sql)$value
+      
+      # read the first 'Fieldcategory.num' CategCode,
+      # and pass it to case4_accuracy 
+      cate.code <- lapply(1:Fieldcategory.num, function(x){
+        catecode.sql <- paste0("select value",
+                               " from configuration where key=", "'", 
+                               paste0('CategCode',x), "'")
+        name <- DBI::dbGetQuery(coninfo$con, catecode.sql)$value
+        name
+      })
+    
     acc.out <- case4_accuracy(grid.poly, user.polys, qaqc.polys, count.acc.wt,
                               in.acc.wt, out.acc.wt, new.in.acc.wt, 
                               new.out.acc.wt, frag.acc.wt, edge.acc.wt, 
-                              cate.acc.wt, edge.buf, comments, acc.switch)
+                              cate.acc.wt, edge.buf, cate.code,
+                              comments, acc.switch)
   }
   
   ### Extract to separate function
@@ -150,14 +168,14 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     if(mtype == "qa") {
       acc.sql <- paste0("insert into new_error_data (assignment_id, new_score,",
                         "old_score, count_acc, fragmentation_acc, edge_acc, ", 
-                        "category_acc,",
-                        "ingrid_acc, outgrid_acc, num_userpolygons, field_skill,",
+                        "ingrid_acc, outgrid_acc, category_acc, ", 
+                        "num_userpolygons, field_skill,",
                         " nofield_skill) values ('", assignmentid, "', ", 
                         paste(acc.out$acc.out, collapse = ", "), ")")
     } else if(mtype == "tr") {
       acc.sql <- paste0("insert into new_qual_error_data (assignment_id,", 
                         "new_score, old_score, count_acc, fragmentation_acc,",
-                        "edge_acc, category_acc, ingrid_acc, outgrid_acc,", 
+                        "edge_acc, ingrid_acc, outgrid_acc, category_acc, ", 
                         "num_userpolygons, field_skill, nofield_skill, try)",
                         " values ('", assignmentid, "', ", 
                         paste(acc.out$acc.out, collapse = ", "), ", ", tryid, ")")

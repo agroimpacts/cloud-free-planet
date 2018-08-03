@@ -1,7 +1,9 @@
 #' Control the output of label maps, risk maps, and heat maps 
 #' @param kmlid 
 #' @param min.mappedcount the minimum approved assignment count
-#' @param s3.dst S3 output directory for consensus maps
+#' @param kml.usage the use of kml, could be 'train, 'test' or 'holdout';
+#' This parameter will determine the directory of S3 folder to store consensus 
+#' maps.
 #' @param riskthres the threshold to select 'risk' pixels
 #' @param user User name for database connection
 #' @param password Password for database connection
@@ -11,7 +13,8 @@
 #' @return Sticks conflict/risk percentage pixels into database (kml_data) and
 #' (pending) writes rasters to S3 bucket
 #' @export
-consensus_map_creation <- function(kmlid, min.mappedcount, s3.dst,
+#' 
+consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
                                    output.riskmap, riskpixelthres, diam, 
                                    user, password, db.tester.name, alt.root, 
                                    host, qsite = FALSE) {
@@ -77,8 +80,8 @@ consensus_map_creation <- function(kmlid, min.mappedcount, s3.dst,
                                workerid, "'",
                                " and (status = 'Approved' OR status = ",
                                "'Rejected') and score IS NOT NULL")
-    historyassignmentid <- ((DBI::dbGetQuery(coninfo$con, 
-                                             histassignid.sql))$assignment_id)
+    historyassignmentid <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+                                             histassignid.sql)$assignment_id)
     
     # read all valid likelihood and score from history assignments
     userhistories <- lapply(c(1:length(historyassignmentid)), function(x) {
@@ -229,14 +232,33 @@ consensus_map_creation <- function(kmlid, min.mappedcount, s3.dst,
                           filter(name == kmlid) %>% 
                           dplyr::select(x, y) %>% collect()
   
-  rowcol <- rowcol_from_xy(xy_tabs$x, xy_tabs$y, r, offset = -1)
   
-  bucketname <- "activemapper"
+  rowcol <- rowcol_from_xy(xy_tabs$x, xy_tabs$y, offset = -1)
   
-  # s3.dst <- paste0("sources/train/")  
-  s3.filename <- paste0(kmlid, '_', rowcol['row'], '_', rowcol['col'])
+  S3BucketDir.sql <- paste0("SELECT value ",
+                                  "FROM configuration WHERE ",
+                                  "key='S3BucketDir'")
+
+  s3.dst <- dbFetch(DBI::dbSendQuery(coninfo$con, S3BucketDir.sql))$value
+  # read  user polygons that are not unsure
+  provider.sql <- paste0("SELECT provider FROM",
+                     " scene_data WHERE name = '", kmlid, "'")
+  
+  # provide could be 'planet' or 'wv2'
+  provider <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+                                               provider.sql))
+  
+  
+  s3.dst.train <- paste0(s3.dst, provider, '/', kml.usage, '/')
+  
+  bucketname <- unlist(strsplit(s3.dst, '/'))[1]
+  
+  # s3.dst <- paste0("activemapper/sources/train/")  
+  s3.filename <- paste0(kmlid, '_', rowcol[1,'row'], '_', rowcol[1,'col'])
   s3_upload(coninfo$dinfo["project.root"], bucketname, 
-            bayesoutput$labelmap, s3.dst, s3.filename)
+            bayesoutput$labelmap, 
+            substr(s3.dst.train, nchar(bucketname) + 1, nchar(s3.dst.train)),
+            s3.filename)
   
   if(output.riskmap == TRUE) { 
     s3.filename <- paste(kmlid + "_risk")
