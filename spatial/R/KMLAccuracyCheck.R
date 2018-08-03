@@ -26,8 +26,8 @@ pngout <- TRUE
 
 #### Test codes ####
 # mtype <- 'tr'
-# assignmentid <- '274'
-# kmlid <- 'ZA0009180'
+# assignmentid <- '241'
+# kmlid <- 'ZA0324023'
 # tryid <- '1'
 # db.tester.name <- 'sye'
 # alt.root <- NULL
