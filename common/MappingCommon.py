@@ -278,17 +278,19 @@ class MappingCommon(object):
     # Build HTML SELECT tag with field category options.
     def buildSelect(self):
         select = '<select id="categLabel" title="Select a category for this field">\n'
-        categMaxNum = int(self.getConfiguration("CategMaxNum"))
-        categText = []
-        categCode = []
-        for ndx in range(1, categMaxNum + 1):
-            categText = self.getConfiguration("CategText" + str(ndx))
-            if categText is None:
-                break
-            categCode = self.getConfiguration("CategCode" + str(ndx))
-            if categCode is None:
-                categCode = categText
-            select += "<option value='%s'>%s</option>\n" % (categCode, categText)
+        self.cur.execute("select category, categ_description, categ_default from categories order by sort_id")
+        categories = self.cur.fetchall()
+        for category in categories:
+            categName = category[0]
+            categDesc = category[1]
+            if categDesc is None:
+                categDesc = categName
+            categDefault = category[2]
+            if categDefault:
+                categDefault = "selected='selected'"
+            else:
+                categDefault = ""
+            select += "<option value='%s' %s>%s</option>\n" % (categName, categDefault, categDesc)
         select += "</select>\n"
         return select
 
