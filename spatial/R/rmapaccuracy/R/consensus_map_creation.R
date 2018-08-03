@@ -104,18 +104,19 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
     ml.nofield <- mean(data.frame(do.call(rbind, userhistories))$ml.nofield)
     score.hist <- mean(data.frame(do.call(rbind, userhistories))$score.hist)
 
-    # read  user polygons that are not unsure
-    user.sql <- paste0("SELECT geom_clean FROM",
-                        " user_maps where assignment_id = ", "'", x, "' AND NOT",
-                       " category='unsure for field' order by name")
+    # read  user polygons that are given as surely-labeled fields
+    user.sql <- paste0("SELECT name, geom_clean FROM ",
+                        "user_maps where assignment_id = ", "'", x, "' AND NOT ",
+                        "category='unsure1' AND NOT category='cloudshadow' 
+                       order by name")
     user.polys <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
                                                      gsub(", geom_clean", 
                                                           "", user.sql)))
     
     # read user polygons for the unsure category
-    user.sql.unsure <- paste0("SELECT geom_clean FROM",
-                       " user_maps where assignment_id = ", "'", x, "' AND ",
-                       " category='unsure for field' order by name")
+    user.sql.unsure <- paste0("SELECT name, geom_clean FROM ",
+                       "user_maps where assignment_id = ", "'", x, "' AND ",
+                       "category='unsure1' order by name")
     
     user.polys.unsure <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
                                                    gsub(", geom_clean", 
@@ -132,7 +133,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
       # union user polygons
       user.poly <- st_union(user.polys)
         
-      # if for N or F sites, we need to first intersection user maps by grid 
+      # if for F sites, we need to first intersection user maps by grid 
       # to remain those within-grid parts for calculation
       if(qsite == FALSE) {
         user.poly <- suppressWarnings(st_intersection(user.poly, grid.poly))
@@ -145,7 +146,8 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
       geometry.user = st_polygon()
     }  
     
-    if(user..unsure.hasfields == "N"){
+    # if user unsure maps have field polygons
+    if(user.unsure.hasfields == "Y"){
       user.polys.unsure <- suppressWarnings(st_read(coninfo$con, 
                                                     query = user.sql.unsure, 
                                                     geom_column = 'geom_clean'))
@@ -153,7 +155,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
       # union user unsure polygons
       user.poly.unsure <- st_union(user.polys.unsure)
       
-      # if for N or F sites, we need to first intersection user maps by grid 
+      # if for F sites, we need to first intersection user maps by grid 
       # to remain those within-grid parts for calculation
       if(qsite == FALSE) {
         user.poly.unsure <- suppressWarnings(st_intersection(user.poly.unsure, 
@@ -169,6 +171,8 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
     
     # we give 0.5 as posterior probability to unsure, meaning that the user
     # thinks it has only 50% to be a field
+    # bayes.poly will consist two sf rows, the first is that the surely-labeled
+    # fields, and the second is that unsure fields
     bayes.poly <- st_sf('posterior.field' = c(1, 0.5), 
                         'max.field.lklh' = c(ml.field, ml.field) , 
                         'max.nofield.lklh' = c(ml.nofield, ml.nofield) , 
