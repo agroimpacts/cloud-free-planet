@@ -4,16 +4,13 @@
 \alias{consensus_map_creation}
 \title{Control the output of label maps, risk maps, and heat maps}
 \usage{
-consensus_map_creation(kmlid, min_mappedcount, scorethres, output.riskmap,
-  riskpixelthres, diam, user, password, db.tester.name, alt.root, host,
-  qsite = FALSE)
+consensus_map_creation(kmlid, min.mappedcount, output.riskmap, riskpixelthres,
+  diam, user, password, db.tester.name, alt.root, host, qsite = FALSE)
 }
 \arguments{
 \item{kmlid}{}
 
-\item{min_mappedcount}{the minimum approved assignment count}
-
-\item{scorethres}{the threshold to select valid assignment}
+\item{min.mappedcount}{the minimum approved assignment count}
 
 \item{user}{User name for database connection}
 

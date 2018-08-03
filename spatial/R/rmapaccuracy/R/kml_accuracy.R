@@ -27,10 +27,9 @@
 #' right assignment ids to test. This option must be set to "N" when in  
 #' production. test.root allows one to simply the run the function to see if it 
 #' is located in the correct working environment.
-#' @import RPostgreSQL
-#' @importFrom  DBI dbDriver
-#' @import dplyr
 #' @import sf
+#' @import dplyr
+#' @importFrom data.table data.table 
 #' @export
 kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                          count.acc.wt, in.acc.wt, out.acc.wt, new.in.acc.wt, 
@@ -39,11 +38,8 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                          pngout = TRUE, test,  test.root, user, password, 
                          db.tester.name = NULL, alt.root = NULL, host = NULL) {
   
-  # dinfo <- getDBName()  # pull working environment
-
+  ## Extract connections and reading in of spatial data
   # Paths and connections
-  # con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), dbname = dinfo["db.name"],
-  #                       user = user, password = password)
   coninfo <- mapper_connect(user = user, password = password,
                             db.tester.name = db.tester.name, 
                             alt.root = alt.root, host = host)
@@ -64,7 +60,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                        " from qaqcfields where name=", "'", kmlid, "'")
     qaqc.polys <- suppressWarnings(st_read(coninfo$con, query = qaqc.sql, 
                                            geom_column = 'geom_clean'))
-    qaqc.polys <- st_transform(qaqc.polys, crs=prjstr)
+    qaqc.polys <- st_transform(qaqc.polys, crs =  prjstr)
     qaqc.polys <- st_buffer(qaqc.polys, 0)
   } 
 
@@ -87,8 +83,18 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     # In old versions invoked cleaning algorithm here (since removed)
     user.polys <- suppressWarnings(st_read(coninfo$con, query = user.sql, 
                                            geom_column = 'geom_clean'))
-    user.polys <- st_transform(user.polys, crs = prjstr)
-  } 
+    
+    # select only polygons
+    user.polys <- user.polys %>% filter(st_is(. , "POLYGON"))
+    
+    if(nrow(user.polys) > 0){
+      user.polys <- st_transform(user.polys, crs = prjstr)
+    }
+    else{
+      user.hasfields <- "N" # change user.hasfield to N because no rows
+    }
+    
+  } ###
   
   # Accuracy checks begin
   # Case 1: A null qaqc site recorded as null by the observer; score set to 1
@@ -101,15 +107,16 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     acc.out <- list("acc.out" = acc.out)
   } else {
     # Pick up grid cell from qaqc table, for background location, as it will be 
-    # needed for the other 3 cases
+    # needed for the other 3 cases  ### Extract this to separate function
     xy_tabs <- data.table(tbl(coninfo$con, "master_grid") %>% 
                             filter(name == kmlid) %>% 
-                            dplyr::select(x, y, name) %>% collect())
+                            select(x, y, name) %>% collect())
+                            #dplyr::select(x, y, name) %>% collect())
     
     grid.poly <- point_to_gridpoly(xy = xy_tabs, w = diam, NewCRSobj = prjstr, 
                                    OldCRSobj = gcsstr)
     grid.poly <- st_geometry(grid.poly)  # retain geometry only
-  }
+  }  ###
   
   # Case 2: A null qaqc site but user mapped field(s)
   if((qaqc.hasfields == "N") & (user.hasfields == "Y")) {
@@ -136,6 +143,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                               edge.buf, comments, acc.switch)
   }
   
+  ### Extract to separate function
   # need add field_skill and nofield_skill columns into new_error_data tables  
   if(write.acc.db == "T") {
     if(mtype == "qa") {
@@ -152,21 +160,23 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                         " values ('", assignmentid, "', ", 
                         paste(acc.out$acc.out, collapse = ", "), ", ", tryid, ")")
     }
-    ret <- dbSendQuery(coninfo$con, acc.sql)
-  }
+    ret <- DBI::dbSendQuery(coninfo$con, acc.sql)
+  } ###
 
+  ### Extract out of function. Put in KMLAccuracyCheck
   # Map results according to error class
   if(draw.maps == "T") {
     maps <- acc.out$maps
     accuracy_plots(acc.out = acc.out$acc.out, grid.poly = maps$gpol, 
-                  qaqc.poly = maps$qpol, user.poly = maps$upol,
-                  inres = maps$inres, user.poly.out = maps$upolo, 
-                  qaqc.poly.out = maps$qpolo, tpo = maps$tpo,fpo = maps$fpo, fno = maps$fno,
-                  proj.root = coninfo$dinfo["project.root"], pngout = pngout)
-  }
-
+                   qaqc.poly = maps$qpol, user.poly = maps$upol,
+                   inres = maps$inres, user.poly.out = maps$upolo, 
+                   qaqc.poly.out = maps$qpolo, tpo = maps$tpo,fpo = maps$fpo, 
+                   fno = maps$fno, proj.root = coninfo$dinfo["project.root"], 
+                   pngout = pngout)
+  } ### 
+  
   # Close connection to prevent too many from being open
-  garbage <- dbDisconnect(coninfo$con)
+  garbage <- DBI::dbDisconnect(coninfo$con)
   
   # Return error metrics
   if(comments == "T") {
