@@ -119,7 +119,7 @@ def main():
                         sub_aoi = GeoUtils.define_aoi(row[2], row[3])  # aoi by a cell grid x, y
                         # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
                         sub_planet_filters = pclient.set_filters_sr(aoi, id = scene_id)
-                        res = pclient.request_intersecting_scenes(planet_filters)
+                        res = pclient.request_intersecting_scenes(sub_planet_filters)
 
                         # if valid than add into array of valid items
                         sub_valid = False
