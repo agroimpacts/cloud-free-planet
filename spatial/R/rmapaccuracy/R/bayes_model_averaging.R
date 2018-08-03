@@ -22,12 +22,12 @@ bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
   posterior.field.rst <- raster(extent(as(rasterextent, 'Spatial')), 
                                 resolution = 0.005 / 200, crs = gcsstr)  ### HC
   
+  # consensus = sum(weights * posterior.field.rst)/sum(weight)
   # read and process user polygons using a recursive way in order to save memory
   for (t in 1:nrow(bayes.polys)) {
-    # empty geometry means that user label all map extent as no field
+    # empty geometry means that user label all map extent as no field, 
+    # posterior.field.rst = '0'
     if (st_is_empty(bayes.polys[t, "geometry"])) {
-      # p(actual=field|user t=no field)=
-      # 1 - p(actual= no field|user t= no field)
       posterior.field.val <- rep(0,
                                  ncol(posterior.field.rst) * 
                                    nrow(posterior.field.rst))
@@ -35,17 +35,16 @@ bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
       
     }
     else {
-      # polygom: p(actual=field|user t=field)
-      # bkgd: p(actual= field|user t= no field) = 
-      # 1 - p(actual= no field|user t= no field)
+      # polygon: 1 or 0.5
+      # bkgd: 0
       posterior.field.rst <- fasterize(bayes.polys[t, ], posterior.field.rst, 
                                        field = "posterior.field", 
                                        background = 0)
       }
     user.max.lklh <- fasterize(bayes.polys[t, ], posterior.field.rst, 
                                field =  "max.field.lklh", 
-                               background = bayes.polys[t,]$max.nofield.lklh[1])
-    weight <- user.max.lklh * bayes.polys[t,]$prior[1]
+                               background = bayes.polys[t,]$max.nofield.lklh)
+    weight <- user.max.lklh * bayes.polys[t,]$prior
     if (t == 1) {
       weight.acc <- weight 
       posterior.acc <- overlay(posterior.field.rst, weight, 
