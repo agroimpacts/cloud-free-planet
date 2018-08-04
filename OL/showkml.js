@@ -9,6 +9,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     } else if (workerId.length > 0) {
         workerFeedback = true;
     }
+    var defaultCategory = undefined;
 
     //
     // *** Create map, overlays, and view ***
@@ -409,7 +410,12 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         } else {
             // Use select default for normal case, empty selection for worker feedback case.
             if (!workerFeedback) {
-                document.getElementById("categLabel").selectedIndex = 0;
+                // If first time here, capture the default select value for future use.
+                if (defaultCategory == undefined) {
+                    defaultCategory = document.getElementById("categLabel").selectedIndex;
+                } else {
+                    document.getElementById("categLabel").selectedIndex = defaultCategory;
+                }
             } else {
                 document.getElementById("categLabel").value = "";
             }
