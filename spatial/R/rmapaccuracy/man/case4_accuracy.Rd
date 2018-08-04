@@ -5,8 +5,8 @@
 \title{Case 4 accuracy metric}
 \usage{
 case4_accuracy(grid.poly, user.polys, qaqc.polys, count.acc.wt, in.acc.wt,
-  out.acc.wt, new.in.acc.wt, new.out.acc.wt, frag.acc.wt, edge.acc.wt, edge.buf,
-  comments = "F", acc.switch = 1)
+  out.acc.wt, new.in.acc.wt, new.out.acc.wt, frag.acc.wt, edge.acc.wt,
+  cate.acc.wt, edge.buf, cate.code, comments = "F", acc.switch = 1)
 }
 \arguments{
 \item{grid.poly}{Polygon of sampling grid}
@@ -30,6 +30,8 @@ case4_accuracy(grid.poly, user.polys, qaqc.polys, count.acc.wt, in.acc.wt,
 \item{edge.acc.wt}{Weighting for edge accuracy}
 
 \item{edge.buf}{buffer for edge accuracy}
+
+\item{cate.code}{the category codes reads from database}
 
 \item{comments}{Should comments be printed, "T" or "F" (default)?}
 
