@@ -25,13 +25,13 @@ pngout <- TRUE
 
 
 #### Test codes ####
-mtype <- 'tr'
-assignmentid <- '241'
-kmlid <- 'ZA0324023'
-tryid <- '1'
-db.tester.name <- 'sye'
-alt.root <- NULL
-host <- NULL
+# mtype <- 'tr'
+# assignmentid <- '241'
+# kmlid <- 'ZA0324023'
+# tryid <- '1'
+# db.tester.name <- 'sye'
+# alt.root <- NULL
+# host <- NULL
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
