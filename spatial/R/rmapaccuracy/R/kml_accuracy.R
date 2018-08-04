@@ -68,13 +68,16 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
   # Read in user data
   if(mtype == "tr") {  # Training case
     user.sql <- paste0("SELECT name, try, category, geom_clean ",
-                       "FROM qual_user_maps where assignment_id=",  "' ", 
+                       "FROM qual_user_maps INNER JOIN categories ", 
+                       "USING (category) where assignment_id=",  "' ", 
                        assignmentid, "'", " AND try='",  tryid, "' ",
-                       "AND NOT category='unsure for field' order by name")
+                       "AND categ_group ='field'")
   } else if(mtype == "qa") {  # Test case
-    user.sql <- paste0("select name, category, geom_clean from",
-                       " user_maps where assignment_id=", "'", assignmentid,
-                       "' AND NOT category='unsure for field' order by name")
+    user.sql <- paste0("select name, category, geom_clean ",
+                       "FROM user_maps INNER JOIN categories ", 
+                       "USING (category) where assignment_id='",  
+                       assignmentid, "' ",
+                       "AND categ_group ='field'")
   }
   
   # test if user fields exist
@@ -138,22 +141,13 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
   # Case 4. QAQC has fields, User has fields
   if(qaqc.hasfields == "Y" & user.hasfields == "Y") {
     if(comments == "T") print("Case 4: QAQC fields and User fields")
-    
-      # query database about the number of field category
-      catenum.sql <- paste0("SELECT value",
-                           " FROM configuration WHERE key='FieldCateNum'")
       
-      Fieldcategory.num <- DBI::dbGetQuery(coninfo$con, catenum.sql)$value
-      
-      # read the first 'Fieldcategory.num' CategCode,
-      # and pass it to case4_accuracy 
-      cate.code <- lapply(1:Fieldcategory.num, function(x){
-        catecode.sql <- paste0("select value",
-                               " from configuration where key=", "'", 
-                               paste0('CategCode',x), "'")
-        name <- DBI::dbGetQuery(coninfo$con, catecode.sql)$value
-        name
-      })
+    # read the first 'Fieldcategory.num' CategCode,
+    # and pass it to case4_accuracy 
+    catecode.sql <- paste0("SELECT category ",
+                           "FROM categories WHERE categ_group='field' ", 
+                           "AND NOT category='unsure2'")
+    cate.code <- DBI::dbGetQuery(coninfo$con, catecode.sql)$category
     
     acc.out <- case4_accuracy(grid.poly, user.polys, qaqc.polys, count.acc.wt,
                               in.acc.wt, out.acc.wt, new.in.acc.wt, 
