@@ -8,7 +8,6 @@
 #' @return Unpopulated raster set to provided extent and resolution
 #' @importFrom raster raster extent
 #' @keywords internal
-#' 
 dummy_raster <- function(xmin = -17.541, xmax = 51.419, ymin = -34.845, 
                          ymax = 37.540, res = 0.005) {
   r <- raster(extent(c(xmin, xmax, ymin, ymax)), res = res)
@@ -27,8 +26,8 @@ dummy_raster <- function(xmin = -17.541, xmax = 51.419, ymin = -34.845,
 #' @details Used to find row and cell number for a given raster.
 #' @return Matrix of row and column number
 #' @importFrom raster rowFromY colFromX
-#' @keywords export
 #' @export 
+#' @examples 
 #' r <- rmapaccuracy:::dummy_raster()
 #' rmapaccuracy:::rowcol_from_xy(r, x = 8.9065, y = 37.5375)
 #' library(dplyr)
