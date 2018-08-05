@@ -33,4 +33,20 @@ Retrieve raster row and column numbers for x, y coordinate and raster
 \details{
 Used to find row and cell number for a given raster.
 }
-\keyword{export}
+\examples{
+r <- rmapaccuracy:::dummy_raster()
+rmapaccuracy:::rowcol_from_xy(r, x = 8.9065, y = 37.5375)
+library(dplyr)
+library(raster)
+# A set of checks (not run)
+# coninfo <- mapper_connect(user = pgupw$user, password = pgupw$password,
+#                           db.tester.name = "lestes",
+#                           host = "crowdmapper.org")
+# s <- paste("select id, name, x, y from master_grid where gid >=1 and",
+#            "gid <= 20")
+# xyt <- DBI::dbGetQuery(coninfo$con, s)
+# rcmat <- cbind(xyt, rmapaccuracy:::rowcol_from_xy(r, x = xyt$x, y = xyt$y))
+# mgrid <- raster("data/processed/master_grid.tif")  # master_grid tif (local)
+# all(rcmat$col == (colFromX(mgrid, rcmat$x) - 1))
+# all(rcmat$row == (rowFromY(mgrid, rcmat$y) - 1))
+}
