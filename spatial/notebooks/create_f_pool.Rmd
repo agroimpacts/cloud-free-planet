@@ -38,7 +38,6 @@ grids <- paste0("'", aois_grid, "'", collapse = ",")
 ## Update the master_grid table
 
 ```{r update_master_grid, message=FALSE, warning=FALSE, eval = TRUE}
-library(rmapaccuracy)
 coninfo <- mapper_connect(user = pgupw$user, password = pgupw$password, db.tester.name = "lsong")
 sql <- paste0("UPDATE master_grid SET avail='F' WHERE id in (", grids, ")")
 dbExecute(coninfo$con, sql)
@@ -48,22 +47,33 @@ dbExecute(coninfo$con, sql)
 ```{r csv, message=FALSE, warning=FALSE, eval = TRUE}
 library(aws.s3)
 coors <- coninfo$con %>% tbl("master_grid") %>% filter(id %in% aois_grid) %>% select(x, y, name) %>% collect()
-r <- rmapaccuracy:::dummy_raster()
-rowcol <- cbind("name" = coors$name, rmapaccuracy:::rowcol_from_xy(r, x = coors$x, y = coors$y))
+rowcol <- cbind("name" = coors$name, rmapaccuracy:::rowcol_from_xy(x = coors$x, y = coors$y))
 name_col_row <- lapply(c(1:nrow(rowcol)), function(x) {
         paste0(rowcol[x, 1], "_", rowcol[x, 2], "_", rowcol[x, 3])
 })
 result <- cbind(rowcol, name_col_row)
 
-Sys.setenv("AWS_ACCESS_KEY_ID" = "AKIAIA5K2SM5DPW52PYA",
-               "AWS_SECRET_ACCESS_KEY" = "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",
-               "AWS_DEFAULT_REGION" = "us-east-1")
+#################### Set config files for AWS##########################
+# mkdir ~/.aws
+# touch config credentials
+# 
+# Open credentials file using such as open credentials/nano credentials
+# 
+# Edit it:
+# [default]
+# aws_access_key_id = XXXXXXX
+# aws_secret_access_key = XXXXXXX
+# 
+# Open config file using such as open config/nano config
+# 
+# Edit it:
+# [default]
+# region = us-east-1
+#######################################################################
 
 localfile <- paste0(coninfo$dinfo[2], "/spatial/data/processed/f_pool.csv")
 write.csv(result, localfile, row.names = F)
 put_object(file = localfile, object = "s3://activemapper/f_pool.csv")
 file.remove(localfile)
 ```
-
-
 
