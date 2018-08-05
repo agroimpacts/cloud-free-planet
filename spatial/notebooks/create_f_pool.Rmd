@@ -1,0 +1,69 @@
+---
+title: "Create f pool"
+author: "Lei Song"
+date: "7/31/2018"
+output: 
+  html_document:
+    theme: united
+    number_sections: true 
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Get the interaction of AQIs and master grid
+
+```{r aoi, message=FALSE, warning=FALSE, eval = TRUE}
+library(sf)
+library(raster)
+library(DBI)
+library(dplyr)
+library(dbplyr)
+library(rmapaccuracy)
+
+## Read AOIs
+aois <- st_read("spatial/data/processed/image_target_aois.geojson")
+## Read master grid
+master_grid <- raster("spatial/data/interim/africa_master_brick.tif", band = 1)
+
+## Extract the ids of master grid of AOIs
+aois_grid <- mask(master_grid, aois)
+aois_grid <- getValues(aois_grid)
+aois_grid <- aois_grid[complete.cases(aois_grid)]
+grids <- paste0("'", aois_grid, "'", collapse = ",")
+```
+
+## Update the master_grid table
+
+```{r update_master_grid, message=FALSE, warning=FALSE, eval = TRUE}
+library(rmapaccuracy)
+coninfo <- mapper_connect(user = pgupw$user, password = pgupw$password, db.tester.name = "lsong")
+sql <- paste0("UPDATE master_grid SET avail='F' WHERE id in (", grids, ")")
+dbExecute(coninfo$con, sql)
+```
+
+## Make the csv file for cvml
+```{r csv, message=FALSE, warning=FALSE, eval = TRUE}
+library(aws.s3)
+coors <- coninfo$con %>% tbl("master_grid") %>% filter(id %in% aois_grid) %>% select(x, y, name) %>% collect()
+r <- rmapaccuracy:::dummy_raster()
+rowcol <- cbind("name" = coors$name, rmapaccuracy:::rowcol_from_xy(r, x = coors$x, y = coors$y))
+name_col_row <- lapply(c(1:nrow(rowcol)), function(x) {
+        paste0(rowcol[x, 1], "_", rowcol[x, 2], "_", rowcol[x, 3])
+})
+result <- cbind(rowcol, name_col_row)
+
+Sys.setenv("AWS_ACCESS_KEY_ID" = "AKIAIA5K2SM5DPW52PYA",
+               "AWS_SECRET_ACCESS_KEY" = "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",
+               "AWS_DEFAULT_REGION" = "us-east-1")
+
+localfile <- paste0(coninfo$dinfo[2], "/spatial/data/processed/f_pool.csv")
+write.csv(result, localfile, row.names = F)
+put_object(file = localfile, object = "s3://activemapper/f_pool.csv")
+file.remove(localfile)
+```
+
+
+
