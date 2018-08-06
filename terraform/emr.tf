@@ -12,7 +12,7 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
     hadoop_jar_step {
     jar="command-runner.jar"
     args = ["aws","s3","sync","s3://activemapper/cvmlAL/","/home/hadoop/cvmlAL"]
-  } 
+  }} 
 
   step {
     name="Run CVML"
@@ -20,7 +20,7 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
     hadoop_jar_step {
     jar="command-runner.jar"
     args = ["python3","/home/hadoop/cvmlAL/run_it/cvml_mapper_connection.py"]
-  } 
+  }} 
 
   ec2_attributes {
     subnet_id        = "${var.subnet}"
