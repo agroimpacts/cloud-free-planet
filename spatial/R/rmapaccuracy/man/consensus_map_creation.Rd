@@ -31,7 +31,7 @@ maps.}
 }
 \value{
 Sticks conflict/risk percentage pixels into database (kml_data) and
-(pending) writes rasters to S3 bucket
+writes rasterized labels to S3 bucket.
 }
 \description{
 Control the output of label maps, risk maps, and heat maps
