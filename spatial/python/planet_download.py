@@ -321,19 +321,19 @@ def calculate_percent_good_cells_in_tiff2(fname):
             #    good_cells += 1
             
 
-            """
-            elif cell == 1:  #It is background / no data
-                #Don't include in calculations if bkgd values fall outside of center grid area
-                if count < top_margin:
-                    exclude += 1
-                elif count > bottom_margin_start:  #Don't include in calculations if bkgd values fall outside of center grid area
-                    exclude += 1
-                elif (count % udm_cols) < margin_size_x:  #in left-side margin
-                    exclude += 1
-                elif (count % udm_cols) > grid_right_col:  #in right-side margin
-                    exclude += 1
-            # This was misleading because it didn't eliminate good cells (0's) from the margins, only missing data (1's), so the % looked higher than you would expect.
-            """
+#            """
+#            elif cell == 1:  #It is background / no data
+#                #Don't include in calculations if bkgd values fall outside of center grid area
+#                if count < top_margin:
+#                    exclude += 1
+#                elif count > bottom_margin_start:  #Don't include in calculations if bkgd values fall outside of center grid area
+#                    exclude += 1
+#                elif (count % udm_cols) < margin_size_x:  #in left-side margin
+#                    exclude += 1
+#                elif (count % udm_cols) > grid_right_col:  #in right-side margin
+#                    exclude += 1
+#            # This was misleading because it didn't eliminate good cells (0's) from the margins, only missing data (1's), so the % looked higher than you would expect.
+#            """
 
         if exclude == total_cells:
             percent_good = 0
