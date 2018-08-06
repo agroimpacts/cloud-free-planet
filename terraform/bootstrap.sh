@@ -6,6 +6,7 @@ NB_PREFIX=$(echo $2 | sed 's,s3://[^/]*/,,' | sed 's,/$,,')
 GEOPYSPARKJARS=$3
 GEOPYSPARKURI=$4
 RASTERFRAMESSHA=$5
+RASTERFRAMES_VERSION=$6
 
 # Parses a configuration file put in place by EMR to determine the role of this node
 is_master() {
@@ -54,12 +55,6 @@ if is_master; then
 	    (cd /opt/jars ; sudo curl -L -O -C - $url )
 	fi
     done
-
-    # Install pyrasterframes
-    curl -L -o /tmp/rasterframes.zip https://github.com/locationtech/rasterframes/archive/${RASTERFRAMESSHA}.zip && \
-    unzip -d /tmp /tmp/rasterframes.zip && \
-    sudo -E env "PATH=/usr/local/bin:$PATH" pip3.4 install /tmp/rasterframes-${RASTERFRAMESSHA}/pyrasterframes/python && \
-    rm -rf /tmp/rasterframes.zip /tmp/rasterframes-${RASTERFRAMESSHA}
 
     # Set up user account to manage JupyterHub
     sudo groupadd shadow
@@ -130,13 +125,30 @@ EOF
         "PYTHONPATH": "/usr/lib/spark/python/lib/pyspark.zip:/usr/lib/spark/python/lib/py4j-0.10.4-src.zip",
         "GEOPYSPARK_JARS_PATH": "/opt/jars",
         "YARN_CONF_DIR": "/etc/hadoop/conf",
-        "PYSPARK_SUBMIT_ARGS": "--conf hadoop.yarn.timeline-service.enabled=false --packages io.astraea:pyrasterframes_2.11:0.7.0-RC3 --repositories https://repo.locationtech.org/content/repositories/sfcurve-releases pyspark-shell"
+        "PYSPARK_SUBMIT_ARGS": "--conf hadoop.yarn.timeline-service.enabled=false --packages io.astraea:pyrasterframes_2.11:${RASTERFRAMES_VERSION} --repositories https://repo.locationtech.org/content/repositories/sfcurve-releases, pyspark-shell"
     }
 }
 EOF
     sudo mkdir -p /usr/local/share/jupyter/kernels/geopyspark
     sudo cp /tmp/kernel.json /usr/local/share/jupyter/kernels/geopyspark/kernel.json
     rm -f /tmp/kernel.json
+
+    # Install pyrasterframes
+    curl -L -o /tmp/rasterframes.zip https://github.com/locationtech/rasterframes/archive/${RASTERFRAMESSHA}.zip && \
+    unzip -d /tmp /tmp/rasterframes.zip && \
+    sudo -E env "PATH=/usr/local/bin:$PATH" pip3.4 install /tmp/rasterframes-${RASTERFRAMESSHA}/pyrasterframes/python && \
+    pushd /tmp/rasterframes-${RASTERFRAMESSHA}/ && \
+    curl -L -o ./sbt https://raw.githubusercontent.com/paulp/sbt-extras/master/sbt && \
+    chmod +x ./sbt && \
+    sudo yum install -y git && \
+    sudo -u jupyteruser ./sbt pyrasterframes/spPublishLocal && \
+    sudo -u jupyteruser ln -s /home/jupyteruser/.ivy2/local/io.astraea/pyrasterframes /home/jupyteruser/.ivy2/local/io.astraea/pyrasterframes_2.11 && \
+    sudo -u jupyteruser ln -s /home/jupyteruser/.ivy2/local/io.astraea/pyrasterframes_2.11/${RASTERFRAMES_VERSION}/jars/pyrasterframes.jar /home/jupyteruser/.ivy2/local/io.astraea/pyrasterframes_2.11/${RASTERFRAMES_VERSION}/jars/pyrasterframes_2.11.jar && \
+    popd && \
+    sudo rm -rf /tmp/rasterframes.zip /tmp/rasterframes-${RASTERFRAMESSHA}
+
+    # Install extra software
+    sudo pip3 install psycopg2
 
     # Execute
     cd /tmp
