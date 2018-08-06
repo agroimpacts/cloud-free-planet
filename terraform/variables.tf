@@ -35,7 +35,7 @@ variable "s3_log_uri" {
 
 variable "subnet" {
   type = "string"
-  description = "AWS subnet identifier" 
+  description = "AWS subnet identifier"
 }
 
 variable "key_name" {
@@ -96,5 +96,23 @@ variable "geopyspark_uri" {
 variable "rasterframes_sha" {
   type = "string"
   description = "Rasterframes Github SHA"
-  default = "bcf7745d23044e9a4f61dfe4540a5e0116ceb425"
+  default = "92c70f27cb48e167bb204886f5d5360b6c253d15"
+}
+
+variable "rasterframes_version" {
+  type = "string"
+  description = "Version of Rasterframes artifacts"
+  default = "0.7.1-SNAPSHOT"
+}
+
+variable "user_defined_sg" {
+  type        = "string"
+  description = "A flag to indicate if the user will supply in `security_group` the security group id to start the cluster in"
+  default     = "true"
+}
+
+variable "security_group" {
+  type        = "string"
+  description = "The security group to use for the cluster if user_defined_sg=true"
+  default     = "sg-ac924ee6"
 }
