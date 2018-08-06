@@ -96,7 +96,7 @@ case2_accuracy <- function(grid.poly, user.polys, in.acc.wt,
                "count_acc" = count.acc, 
                "frag_acc" = frag.acc, "edge_acc" = edge.acc, 
                "in_acc" = in.acc, "out_acc" = out.acc,
-               "cate_acc" = cate.acc,"user_count" = user.fldcount, 
+               "cate_acc" = cate.acc, "user_count" = user.fldcount, 
                "field_skill" = lklh_field, "nofield_skill" = lklh_nofield)
   # output maps
   env <- environment()  # get environment
