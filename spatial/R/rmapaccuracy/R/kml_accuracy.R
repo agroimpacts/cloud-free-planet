@@ -106,7 +106,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     if(comments == "T") print("Case 1: No QAQC or User fields")
     acc.out <- c("new_score" = 1, "old_score" = 1, "count_acc" = 1, 
                  "frag_acc" = 1, "edge_acc" = 1, "in_acc" = 1, 
-                 "out_acc" = 1, "user_count" = 0, 
+                 "out_acc" = 1, "cate_acc" = 1, "user_count" = 0, 
                  "field_skill" = 1, "nofield_skill" = 1)
     acc.out <- list("acc.out" = acc.out)
   } else {
@@ -161,7 +161,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
   if(write.acc.db == "T") {
     if(mtype == "qa") {
       acc.sql <- paste0("insert into new_error_data (assignment_id, new_score,",
-                        "old_score, count_acc, fragmentation_acc, edge_acc, ", 
+                        " old_score, count_acc, fragmentation_acc, edge_acc, ", 
                         "ingrid_acc, outgrid_acc, category_acc, ", 
                         "num_userpolygons, field_skill,",
                         " nofield_skill) values ('", assignmentid, "', ", 
