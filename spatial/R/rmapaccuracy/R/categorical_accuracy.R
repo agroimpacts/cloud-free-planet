@@ -46,7 +46,7 @@ categorical_accuracy <- function(qaqc.polys, user.polys, cate.code){
   
   # Error and correct area are actually both calculated twice, which will be 
   # cancelled out in the division below
-  category.acc <- 1 - sum(cat.area.rbind[, "ErrorArea"])/
+  category.acc <- 1 - sum(cat.area.rbind[, "ErrorArea"]) /
     sum(cat.area.rbind)
   return(category.acc)
 }
