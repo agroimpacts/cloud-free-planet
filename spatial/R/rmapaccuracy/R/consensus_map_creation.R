@@ -11,7 +11,7 @@
 #' @param alt.root Alternative location for writing out maps (default NULL)
 #' @param host NULL or "crowdmapper.org", if testing from remote location
 #' @return Sticks conflict/risk percentage pixels into database (kml_data) and
-#' (pending) writes rasters to S3 bucket
+#' writes rasterized labels to S3 bucket.
 #' @export
 #' 
 consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
@@ -258,7 +258,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
   bucketname <- unlist(strsplit(s3.dst, '/'))[1]
   
   # s3.dst <- paste0("activemapper/sources/train/")  
-  s3.filename <- paste0(kmlid, '_', rowcol[1,'row'], '_', rowcol[1,'col'])
+  s3.filename <- paste0(kmlid, '_', rowcol[1, 'col'], '_', rowcol[1, 'row'])
   s3_upload(coninfo$dinfo["project.root"], bucketname, 
             bayesoutput$labelmap, 
             substr(s3.dst.train, nchar(bucketname) + 1, nchar(s3.dst.train)),

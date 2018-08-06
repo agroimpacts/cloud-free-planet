@@ -1,8 +1,3 @@
-# Terraform Installation #
-
-Link to binary for linux, add the path to the binary in your .bashrc or .bash_aliases
-https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_linux_amd64.zip
-
 # Terraform Deployment Scripts #
 
 This directory holds the necessary files to start an EMR cluster with
@@ -58,13 +53,3 @@ and a description follows:
    for build instructions.
  - `TF_VAR_s3_notebook_uri`: The path on S3 for storing notebooks.  These will
    persist from session to session.
-
-You can set these variables in your .bashrc file as follows:
-export TF_VAR_subnet=
-export TF_VAR_s3_log_uri=
-export TF_VAR_key_name=
-export TF_VAR_s3_rpm_uri=
-export TF_VAR_s3_notebook_uri=
-export TF_VAR_bs_bucket=
-export TF_VAR_bs_prefix=
-
