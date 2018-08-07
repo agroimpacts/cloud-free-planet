@@ -8,7 +8,6 @@
 #' @return Unpopulated raster set to provided extent and resolution
 #' @importFrom raster raster extent
 #' @keywords internal
-#' @export
 dummy_raster <- function(xmin = -17.541, xmax = 51.419, ymin = -34.845, 
                          ymax = 37.540, res = 0.005) {
   r <- raster(extent(c(xmin, xmax, ymin, ymax)), res = res)
