@@ -18,6 +18,7 @@ import rasterio
 from rasterio import transform
 from rasterio.coords import BoundingBox
 from rasterio.windows import Window
+from datetime import datetime
 
 # AOI
 # by AOI generate grid cells
@@ -48,6 +49,7 @@ pclient.asset_type = "analytic_sr"  # "udm"  #"analytic"  #analytic_sr"
 pclient.maximgs = 1  # 15 #10 #20
 pclient.output_encoding = 'utf-8'
 pclient.output_filename = "output.csv"
+pclient.threads_number = 2 # should be number of CPUs
 
 # build a valid dt string from a month number
 def dt_construct(month, day = 1, year = 2018, t = "00:00:00.000Z"):
@@ -125,6 +127,8 @@ def main():
                 ds_start, ds_end = ds_s_band[r, c], ds_e_band[r, c]
                 ws_start, ws_end = ws_s_band[r, c], ws_e_band[r, c]
                 seasons = [(GS, ws_start, ws_end), (OS, ds_start, ds_end)] # dates ranges for the loop
+                # GS and OS images should be of the same year
+                current_year = datetime.today().year
 
                 print("Processing cell_id {}...".format(cell_id))
                 
@@ -137,16 +141,26 @@ def main():
                     if not valid_band[season_type][r, c]:
                         print("Processing season {}...".format(season_type))
 
-                        planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start), end_date = dt_construct(month = m_end))
-                        res = pclient.request_intersecting_scenes(planet_filters)
                         geom = {}
                         scene_id = ''
 
-                        # pick up scene id and its geometry
-                        for item in res.items_iter(pclient.maximgs):
-                            # each item is a GeoJSON feature
-                            geom = shape(geojson.loads(json.dumps(item["geometry"])))
-                            scene_id = item["id"]
+                        # planet analytic_sr stores imagery starting from 2016 year
+                        years = list(range(2016, current_year + 1))
+                        years.reverse()
+
+                        for yr in years:
+                            planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = yr), end_date = dt_construct(month = m_end, year = yr))
+                            res = pclient.request_intersecting_scenes(planet_filters)
+
+                            # pick up scene id and its geometry
+                            for item in res.items_iter(pclient.maximgs):
+                                # each item is a GeoJSON feature
+                                geom = shape(geojson.loads(json.dumps(item["geometry"])))
+                                scene_id = item["id"]
+                            # record success year
+                            if(scene_id != ''):
+                                current_year = yr
+                                break
 
                         # mark the current cell grid as already seen
                         if(scene_id != ''):
@@ -189,7 +203,7 @@ def main():
                                         sub_ws_start, sub_ws_end = ws_s_band[sr, sc], ws_e_band[sr, sc]
                                         sub_seasons = [(GS, sub_ws_start, sub_ws_end), (OS, sub_ds_start, sub_ds_end)] # dates ranges for the loop
 
-                                        # neighbours should be in the same perioud
+                                        # neighbours should be in the same period, otherwise we'll try to fetch them later
                                         if(seasons == sub_seasons):
                                             print("Processing sub cell_id {}...".format(sub_cell_id))
 
@@ -198,7 +212,7 @@ def main():
                                             sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
                                             
                                             # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
-                                            sub_planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start), end_date = dt_construct(month = m_end), id = scene_id)
+                                            sub_planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = current_year), end_date = dt_construct(month = m_end, year = current_year), id = scene_id)
                                             res = pclient.request_intersecting_scenes(sub_planet_filters)
                                             
                                             # flag to avoid extra lookup into array
@@ -216,6 +230,8 @@ def main():
                         # base_row = [cell_id, scene_id, season_type, ""]
                         # writer.writerow(base_row)
     
+    # await all futures
+    pclient.await_downloads()
     print("-------------------")
     print("Results:")
     print("-------------------")
