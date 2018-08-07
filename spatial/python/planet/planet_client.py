@@ -21,7 +21,7 @@ class PClientV1():
         self.maximgs = 1
         self.catalog_path = "catalog/"
         self.s3_catalog_bucket = "azavea-africa-test"
-        self.s3_catalog_prefix = "planet-scenes-2"
+        self.s3_catalog_prefix = "planet/images"
         self.item_type = "PSScene4Band"
         self.asset_type = "analytic_sr"
         self.client = api.ClientV1(api_key = api_key)
@@ -122,7 +122,7 @@ class PClientV1():
         item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(self.item_type, scene_id)
         result = requests.get(item_url, auth = HTTPBasicAuth(self.api_key, ''))
         download_url = result.json()[self.asset_type]['location']
-        output_file = self.catalog_path + scene_id + '.tif'
+        output_key = "{}{}_{}.tif".format(self.catalog_path, scene_id, season)
 
         # download
         with urllib.request.urlopen(download_url) as response, open(output_file, 'wb') as out_file:
@@ -132,7 +132,7 @@ class PClientV1():
 
     # TODO: lots of copy pasting happens there, abstract over it?
     # returns a full S3 URI here
-    def download_s3(self, scene_id):
+    def download_s3(self, scene_id, season = ''):
         print("Downloading {}...".format(scene_id))
         # activation & download
         session = requests.Session()
@@ -156,7 +156,7 @@ class PClientV1():
         item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(self.item_type, scene_id)
         result = requests.get(item_url, auth = HTTPBasicAuth(self.api_key, ''))
         download_url = result.json()[self.asset_type]['location']
-        output_key = self.s3_catalog_prefix + '/' + scene_id + '.tif'
+        output_key = "{}/{}_{}.tif".format(self.s3_catalog_prefix, scene_id, season)
 
         # upload on s3 directly from the response
         with urllib.request.urlopen(download_url) as response:
