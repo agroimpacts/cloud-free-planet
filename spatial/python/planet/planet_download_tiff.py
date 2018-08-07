@@ -36,7 +36,9 @@ ssl._create_default_https_context = ssl._create_unverified_context
 # local settings, TODO: move into config everything what is possible
 APIkey = "***REMOVED***"
 resolution = 0.005 / 2
-master_grid_path = "/Users/daunnc/Downloads/master_grid.tif"
+master_grid_path = "/Users/daunnc/Downloads/master_grid.tif" # EPSG:4326
+GS = "GS" # growing, wet season
+OS = "OS" # off, dry season
 
 # pclient init
 pclient = PClientV1(APIkey)
@@ -47,8 +49,12 @@ pclient.maximgs = 1  # 15 #10 #20
 pclient.output_encoding = 'utf-8'
 pclient.output_filename = "output.csv"
 
+# build a valid dt string from a month number
+def dt_construct(month, day = 1, year = 2018, t = "00:00:00.000Z"):
+    return "{}-{:02d}-{:02d}T{}".format(year, month, day, t)
+
 def main():
-    ext = GeoUtils.define_extent(30, -2, 0.5) # some test AOI to select a subset of extent from the master_grid.tiff
+    ext = GeoUtils.define_extent(30, -2, 0.03) # some test AOI to select a subset of extent from the master_grid.tiff
 
     # 1. Cell ID: this should be unique for the whole raster
     # 2. Country code: integerized country code
@@ -90,15 +96,27 @@ def main():
     cell_id_band, country_code_band, country_id_band, ds_s_band, ds_e_band, ws_s_band, ws_e_band = master_grid.read(window = actual_window)
 
     # extra band with information about already seen cells
-    valid_band = np.full(cell_id_band.shape, False)
+    valid_band = {
+        GS: np.full(cell_id_band.shape, False),
+        OS: np.full(cell_id_band.shape, False)
+    }
 
     # output CSV file
     fp = codecs.open(pclient.output_filename, "w", pclient.output_encoding)
     writer = csv.writer(fp)
 
+    # print(range(actual_window_height))
+    # print(range(actual_window_width))
+
     for r in range(actual_window_height):
         for c in range(actual_window_width):
-            skip_row = valid_band[r, c]
+            skip_gs, skip_os = valid_band[GS][r, c], valid_band[OS][r, c]
+            skip_row = skip_gs & skip_os
+
+            # print("~~~~~~")
+            # print((c, r))
+            # print("{} & {} = {}".format(skip_gs, skip_os, skip_row))
+            # print("~~~~~~")
 
             if not skip_row:
                 # read all metadata
@@ -106,7 +124,7 @@ def main():
                 country_code, country_id = country_code_band[r, c], country_id_band[r, c]
                 ds_start, ds_end = ds_s_band[r, c], ds_e_band[r, c]
                 ws_start, ws_end = ws_s_band[r, c], ws_e_band[r, c]
-                seasons = [(ds_start, ds_end), (ws_start, ws_end)] # dates ranges for the loop
+                seasons = [(GS, ws_start, ws_end), (OS, ds_start, ds_end)] # dates ranges for the loop
 
                 print("Processing cell_id {}...".format(cell_id))
                 
@@ -114,79 +132,96 @@ def main():
                 x, y = transform.xy(actual_transform, r, c)
                 
                 aoi = GeoUtils.define_aoi(x, y)  # aoi by a cell grid x, y
-                planet_filters = pclient.set_filters_sr(aoi)
-                res = pclient.request_intersecting_scenes(planet_filters)
-                geom = {}
-                scene_id = ''
 
-                # pick up scene id and its geometry
-                for item in res.items_iter(pclient.maximgs):
-                    # each item is a GeoJSON feature
-                    geom = shape(geojson.loads(json.dumps(item["geometry"])))
-                    scene_id = item["id"]
+                for (season_type, m_start, m_end) in seasons:
+                    if not valid_band[season_type][r, c]:
+                        print("Processing season {}...".format(season_type))
 
-                # mark the current cell grid as already seen
-                if(scene_id != ''):
-                    valid_band[r, c] = True
+                        planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start), end_date = dt_construct(month = m_end))
+                        res = pclient.request_intersecting_scenes(planet_filters)
+                        geom = {}
+                        scene_id = ''
 
-                    # activation & download
-                    output_file = pclient.download_s3(scene_id)
+                        # pick up scene id and its geometry
+                        for item in res.items_iter(pclient.maximgs):
+                            # each item is a GeoJSON feature
+                            geom = shape(geojson.loads(json.dumps(item["geometry"])))
+                            scene_id = item["id"]
 
-                    # before this step there should be done a custom cloud detection function call
-                    base_row = [cell_id, scene_id, output_file]
-                    writer.writerow(base_row)
-                    
-                    # pprint(base_row)
-                    # extent of a polygon to query neighbours
-                    # (minx, miny, maxx, maxy)
-                    # geom.bounds
-                    base_ext = GeoUtils.extent_intersection(actual_extent, GeoUtils.polygon_to_extent(geom))
-                    
-                    # walk through all cellgrid neighbours
-                    # get all row, cals intersection by  
-                    sub_window_min = transform.rowcol(actual_transform, base_ext['xmin'], base_ext['ymin'])
-                    sub_window_max = transform.rowcol(actual_transform, base_ext['xmax'], base_ext['ymax'])
-                    sub_start_row = min(sub_window_min[0], sub_window_max[0])
-                    sub_stop_row = max(sub_window_min[0], sub_window_max[0])
-                    sub_start_col = min(sub_window_min[1], sub_window_max[1])
-                    sub_stop_col = max(sub_window_min[1], sub_window_max[1])
+                        # mark the current cell grid as already seen
+                        if(scene_id != ''):
+                            valid_band[season_type][r, c] = True
 
-                    print(range(sub_start_row, sub_stop_row))
-                    print(range(sub_start_col, sub_stop_col))
+                            # activation & download
+                            output_file = pclient.download_s3(scene_id, season = season_type)
 
-                    for sr in range(sub_start_row, sub_stop_row):
-                        for sc in range(sub_start_col, sub_stop_col):
-                            skip_sub_row = valid_band[sr, sc]
+                            # before this step there should be done a custom cloud detection function call
+                            base_row = [cell_id, scene_id, season_type, output_file]
+                            writer.writerow(base_row)
+                            
+                            # pprint(base_row)
+                            # extent of a polygon to query neighbours
+                            # (minx, miny, maxx, maxy)
+                            # geom.bounds
+                            base_ext = GeoUtils.extent_intersection(actual_extent, GeoUtils.polygon_to_extent(geom))
+                            
+                            # walk through all cellgrid neighbours
+                            # get all row, cals intersection by  
+                            sub_window_min = transform.rowcol(actual_transform, base_ext['xmin'], base_ext['ymin'])
+                            sub_window_max = transform.rowcol(actual_transform, base_ext['xmax'], base_ext['ymax'])
+                            sub_start_row = min(sub_window_min[0], sub_window_max[0])
+                            sub_stop_row = max(sub_window_min[0], sub_window_max[0])
+                            sub_start_col = min(sub_window_min[1], sub_window_max[1])
+                            sub_stop_col = max(sub_window_min[1], sub_window_max[1])
 
-                            if not skip_sub_row:
-                                # read all metadata
-                                sub_cell_id = cell_id_band[sr, sc]
-                                sub_country_code, sub_country_id = country_code_band[sr, sc], country_id_band[sr, sc]
-                                sub_ds_start, sub_ds_end = ds_s_band[sr, sc], ds_e_band[sr, sc]
-                                sub_ws_start, sub_ws_end = ws_s_band[sr, sc], ws_e_band[sr, sc]
-                                sub_seasons = [(sub_ds_start, sub_ds_end), (sub_ws_start, sub_ws_end)] # dates ranges for the loop
+                            # print(range(sub_start_row, sub_stop_row))
+                            # print(range(sub_start_col, sub_stop_col))
 
-                                print("Processing sub cell_id {}...".format(sub_cell_id))
+                            for sr in range(sub_start_row, sub_stop_row):
+                                for sc in range(sub_start_col, sub_stop_col):
+                                    skip_sub_row = valid_band[season_type][sr, sc]
 
-                                sx, sy = transform.xy(actual_transform, sr, sc)
+                                    if not skip_sub_row:
+                                        # read all metadata
+                                        sub_cell_id = cell_id_band[sr, sc]
+                                        sub_country_code, sub_country_id = country_code_band[sr, sc], country_id_band[sr, sc]
+                                        sub_ds_start, sub_ds_end = ds_s_band[sr, sc], ds_e_band[sr, sc]
+                                        sub_ws_start, sub_ws_end = ws_s_band[sr, sc], ws_e_band[sr, sc]
+                                        sub_seasons = [(GS, sub_ws_start, sub_ws_end), (OS, sub_ds_start, sub_ds_end)] # dates ranges for the loop
 
-                                sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
-                                
-                                # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
-                                sub_planet_filters = pclient.set_filters_sr(aoi, id = scene_id)
-                                res = pclient.request_intersecting_scenes(sub_planet_filters)
-                                
-                                # flag to avoid extra lookup into array
-                                sub_valid = False
-                                # select the only one image as it's the only one
-                                for item in res.items_iter(1):
-                                    valid_band[sr, sc] = True
-                                    sub_valid = True
-                                    
-                                if sub_valid:
-                                    base_sub_row = [sub_cell_id, scene_id, output_file]
-                                    writer.writerow(base_sub_row)
-                                    # pprint(base_sub_row)
+                                        # neighbours should be in the same perioud
+                                        if(seasons == sub_seasons):
+                                            print("Processing sub cell_id {}...".format(sub_cell_id))
+
+                                            sx, sy = transform.xy(actual_transform, sr, sc)
+
+                                            sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
+                                            
+                                            # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
+                                            sub_planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start), end_date = dt_construct(month = m_end), id = scene_id)
+                                            res = pclient.request_intersecting_scenes(sub_planet_filters)
+                                            
+                                            # flag to avoid extra lookup into array
+                                            sub_valid = False
+                                            # select the only one image as it's the only one
+                                            for item in res.items_iter(1):
+                                                valid_band[season_type][sr, sc] = True
+                                                sub_valid = True
+                                                
+                                            if sub_valid:
+                                                base_sub_row = [sub_cell_id, scene_id, season_type, output_file]
+                                                writer.writerow(base_sub_row)
+                                                # pprint(base_sub_row)
+
+                        # base_row = [cell_id, scene_id, season_type, ""]
+                        # writer.writerow(base_row)
+    
+    print("-------------------")
+    print("Results:")
+    print("-------------------")
+    print("GS: valid {} / {}".format(np.count_nonzero(valid_band[GS]), valid_band[GS].size))
+    print("OS: valid {} / {}".format(np.count_nonzero(valid_band[OS]), valid_band[OS].size))
+    print("-------------------")
 
 if __name__ == "__main__":
     main()
