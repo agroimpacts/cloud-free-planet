@@ -20,7 +20,10 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
     hadoop_jar_step {
     jar="command-runner.jar"
     args = ["python3","/home/hadoop/cvmlAL/run_it/cvml_mapper_connection.py"]
-  }} 
+  }}
+  
+  termination_protection = false
+  keep_job_flow_alive_when_no_steps = false
 
   ec2_attributes {
     subnet_id        = "${var.subnet}"
