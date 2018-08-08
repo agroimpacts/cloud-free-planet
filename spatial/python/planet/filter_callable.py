@@ -34,6 +34,7 @@ def Cloud_Shadow_Stats(in_name, bounds, cloud_val = 2500, shadow_val = 1500, lan
     """
 
     src = rasterio.open(in_name)
+
     # bounds in the src crs projection
     # (left, bottom, right, top)
     transformed_bounds = BoundingBox(*transform_bounds("EPSG:4326", src.crs, *bounds))
