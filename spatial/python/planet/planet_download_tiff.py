@@ -1,6 +1,7 @@
 from planet_client import PClientV1
 from geo_utils import GeoUtils
 from filter_callable import Cloud_Shadow_Stats
+from fixed_thread_pool_executor import FixedThreadPoolExecutor
 
 from sys import stdout
 from shapely.geometry import shape
@@ -20,7 +21,10 @@ from rasterio import transform
 from rasterio.coords import BoundingBox
 from rasterio.windows import Window
 from datetime import datetime
+import logging
 import concurrent
+import configparser
+import multiprocessing
 
 # AOI
 # by AOI generate grid cells
@@ -36,25 +40,40 @@ import concurrent
 # disable ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
-# local settings, TODO: move into config everything what is possible
-APIkey = "***REMOVED***"
-resolution = 0.005 / 2
-master_grid_path = "/Users/daunnc/Downloads/master_grid.tif" # EPSG:4326
+# read config
+config = configparser.ConfigParser()
+config.read('config.ini')
+planet_config = config['planet']
+imagery_config = config['imagery']
+
+# logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logging.basicConfig(format = '%(message)s', datefmt = '%m-%d %H:%M')
+
+api_key = planet_config['api_key']
+resolution = float(imagery_config['resolution']) # 0.005 / 2
+master_grid_path = imagery_config['master_grid_path'] # EPSG:4326
 GS = "GS" # growing, wet season
 OS = "OS" # off, dry season
 
 # planet has limitation 5 sec per key (search queries)
-neighbours_executor = concurrent.futures.ThreadPoolExecutor(5)
+threads_number = imagery_config['threads']
+if threads_number == 'default':
+    threads_number = multiprocessing.cpu_count() * 2 + 1
+else:
+    threads_number = int(threads_number)
+
+neighbours_executor = FixedThreadPoolExecutor(size = threads_number)
 
 # pclient init
-pclient = PClientV1(APIkey)
-pclient.max_clouds = 0.25  # max proportion of pixels that are clouds
-pclient.max_bad_pixels = 0.25 # max proportion of bad pixels (transmission errors, etc.)
-pclient.asset_type = "analytic_sr"  # "udm"  #"analytic"  #analytic_sr"
-pclient.maximgs = 1  # 15 #10 #20
-pclient.output_encoding = 'utf-8'
-pclient.output_filename = "output.csv"
-pclient.threads_number = 2 # should be number of CPUs
+pclient = PClientV1(api_key)
+pclient.max_clouds = float(imagery_config['max_clouds'])  # max proportion of pixels that are clouds
+pclient.max_bad_pixels = float(imagery_config['max_bad_pixels']) # max proportion of bad pixels (transmission errors, etc.)
+pclient.asset_type = imagery_config['asset_type']  # "udm"  #"analytic"  #analytic_sr"
+pclient.maximgs = int(imagery_config['maximgs'])  # 15 #10 #20
+pclient.output_encoding = imagery_config['output_encoding']
+pclient.output_filename = imagery_config['output_filename']
 
 # build a valid dt string from a month number
 def dt_construct(month, day = 1, year = 2018, t = "00:00:00.000Z"):
@@ -112,18 +131,13 @@ def main():
     fp = codecs.open(pclient.output_filename, "w", pclient.output_encoding)
     writer = csv.writer(fp)
 
-    # print(range(actual_window_height))
-    # print(range(actual_window_width))
+    # logger.info(range(actual_window_height))
+    # logger.info(range(actual_window_width))
 
     for r in range(actual_window_height):
         for c in range(actual_window_width):
             skip_gs, skip_os = valid_band[GS][r, c], valid_band[OS][r, c]
             skip_row = skip_gs & skip_os
-
-            # print("~~~~~~")
-            # print((c, r))
-            # print("{} & {} = {}".format(skip_gs, skip_os, skip_row))
-            # print("~~~~~~")
 
             if not skip_row:
                 # read all metadata
@@ -135,7 +149,7 @@ def main():
                 # GS and OS images should be of the same year
                 current_year = datetime.today().year
 
-                print("Processing cell_id {}...".format(cell_id))
+                logger.info("Processing cell_id {}...".format(cell_id))
                 
                 # cell grid centroid 
                 x, y = transform.xy(actual_transform, r, c)
@@ -144,10 +158,11 @@ def main():
 
                 for (season_type, m_start, m_end) in seasons:
                     if not valid_band[season_type][r, c]:
-                        print("Processing season {}...".format(season_type))
+                        logger.info("Processing season {}...".format(season_type))
 
                         geom = {}
                         scene_id = ''
+                        output_file = ''
 
                         # planet analytic_sr stores imagery starting from 2016 year
                         years = list(range(2016, current_year + 1))
@@ -162,6 +177,18 @@ def main():
                                 # each item is a GeoJSON feature
                                 geom = shape(geojson.loads(json.dumps(item["geometry"])))
                                 scene_id = item["id"]
+                                # activation & download
+                                # it should be sync, to allow async check of neighbours
+                                # output_file = pclient.download_s3(scene_id, season = season_type)
+                                output_file = pclient.download_s3(scene_id, season = season_type)
+                                # use custom cloud detection function to calculate shadows
+                                cloud_perc, shadow_perc = Cloud_Shadow_Stats(output_file, GeoUtils.define_BoundingBox(x, y))
+                                # check if cell grid is good enough
+                                if (cloud_perc <= pclient.max_clouds):
+                                    break
+                                else: 
+                                    scene_id = ''
+
                             # record success year
                             if(scene_id != ''):
                                 current_year = yr
@@ -171,22 +198,11 @@ def main():
                         if(scene_id != ''):
                             valid_band[season_type][r, c] = True
 
-                            # activation & download
-                            # it should be sync, to allow async check of neighbours
-                            # output_file = pclient.download_s3(scene_id, season = season_type)
-                            local_output_file, output_file = pclient.download_localfs_s3(scene_id, season = season_type)
-                            
-                            # use custom cloud detection function to calculate shadows
-                            cloud_perc, shadow_perc = Cloud_Shadow_Stats(local_output_file, GeoUtils.define_BoundingBox(x, y))
-                            print("------------------")
-                            print("Cloud_Shadow_Stats: {}".format((cloud_perc, shadow_perc)))
-                            print("------------------")
-
                             # before this step there should be done a custom cloud detection function call
                             base_row = [cell_id, scene_id, season_type, output_file]
                             writer.writerow(base_row)
                             
-                            # pprint(base_row)
+                            # logger.debug(base_row)
                             # extent of a polygon to query neighbours
                             # (minx, miny, maxx, maxy)
                             # geom.bounds
@@ -201,56 +217,60 @@ def main():
                             sub_start_col = min(sub_window_min[1], sub_window_max[1])
                             sub_stop_col = max(sub_window_min[1], sub_window_max[1])
 
-                            # print(range(sub_start_row, sub_stop_row))
-                            # print(range(sub_start_col, sub_stop_col))
+                            # logger.info(range(sub_start_row, sub_stop_row))
+                            # logger.info(range(sub_start_col, sub_stop_col))
 
-                            for sr in range(sub_start_row, sub_stop_row):
-                                for sc in range(sub_start_col, sub_stop_col):
-                                    skip_sub_row = valid_band[season_type][sr, sc]
+                            def sync(sr, sc):
+                                skip_sub_row = valid_band[season_type][sr, sc]
 
-                                    if not skip_sub_row:
-                                        # read all metadata
-                                        sub_cell_id = cell_id_band[sr, sc]
-                                        sub_country_code, sub_country_id = country_code_band[sr, sc], country_id_band[sr, sc]
-                                        sub_ds_start, sub_ds_end = ds_s_band[sr, sc], ds_e_band[sr, sc]
-                                        sub_ws_start, sub_ws_end = ws_s_band[sr, sc], ws_e_band[sr, sc]
-                                        sub_seasons = [(GS, sub_ws_start, sub_ws_end), (OS, sub_ds_start, sub_ds_end)] # dates ranges for the loop
+                                if not skip_sub_row:
+                                    # read all metadata
+                                    sub_cell_id = cell_id_band[sr, sc]
+                                    sub_country_code, sub_country_id = country_code_band[sr, sc], country_id_band[sr, sc]
+                                    sub_ds_start, sub_ds_end = ds_s_band[sr, sc], ds_e_band[sr, sc]
+                                    sub_ws_start, sub_ws_end = ws_s_band[sr, sc], ws_e_band[sr, sc]
+                                    sub_seasons = [(GS, sub_ws_start, sub_ws_end), (OS, sub_ds_start, sub_ds_end)] # dates ranges for the loop
 
-                                        # neighbours should be in the same period, otherwise we'll try to fetch them later
-                                        if(seasons == sub_seasons):
-                                            print("Processing sub cell_id {}...".format(sub_cell_id))
+                                    # neighbours should be in the same period, otherwise we'll try to fetch them later
+                                    if(seasons == sub_seasons):
+                                        logger.info("Processing sub cell_id {}...".format(sub_cell_id))
 
-                                            sx, sy = transform.xy(actual_transform, sr, sc)
+                                        sx, sy = transform.xy(actual_transform, sr, sc)
 
-                                            sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
-                                            
-                                            # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
-                                            sub_planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = current_year), end_date = dt_construct(month = m_end, year = current_year), id = scene_id)
-                                            res = pclient.request_intersecting_scenes(sub_planet_filters)
+                                        sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
+                                                
+                                        # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
+                                        sub_planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = current_year), end_date = dt_construct(month = m_end, year = current_year), id = scene_id)
+                                        res = pclient.request_intersecting_scenes(sub_planet_filters)
 
-                                            # use custom cloud detection function to calculate shadows
-                                            sub_cloud_perc, sub_shadow_perc = Cloud_Shadow_Stats(local_output_file, GeoUtils.define_BoundingBox(sx, sy))
-                                            print("------------------")
-                                            print("Sub Cloud_Shadow_Stats: {}".format((sub_cloud_perc, sub_shadow_perc)))
-                                            print("------------------")
-                                            
+                                        # use custom cloud detection function to calculate shadows
+                                        sub_cloud_perc, sub_shadow_perc = Cloud_Shadow_Stats(output_file, GeoUtils.define_BoundingBox(sx, sy))
+                                        # check if cell grid is good enough
+                                        if (sub_cloud_perc <= pclient.max_clouds):
                                             # flag to avoid extra lookup into array
                                             sub_valid = False
                                             # select the only one image as it's the only one
                                             for item in res.items_iter(1):
                                                 valid_band[season_type][sr, sc] = True
                                                 sub_valid = True
-                                                
+                                                        
                                             if sub_valid:
                                                 base_sub_row = [sub_cell_id, scene_id, season_type, output_file]
                                                 writer.writerow(base_sub_row)
-                                                # pprint(base_sub_row)
+                                                # logger.info(base_sub_row)
+
+                            for sr in range(sub_start_row, sub_stop_row):
+                                for sc in range(sub_start_col, sub_stop_col):
+                                    neighbours_executor.submit(sync, sr, sc)
+                            
+                            # await all neighbours
+                            neighbours_executor.drain()
 
                         # base_row = [cell_id, scene_id, season_type, ""]
                         # writer.writerow(base_row)
-    
-    # await all futures
-    # pclient.await_downloads()
+
+    # await threadpool to stop
+    neighbours_executor.close()
     print("-------------------")
     print("Results:")
     print("-------------------")
