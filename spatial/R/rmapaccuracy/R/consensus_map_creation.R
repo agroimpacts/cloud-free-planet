@@ -1,6 +1,9 @@
 #' Control the output of label maps, risk maps, and heat maps 
 #' @param kmlid 
 #' @param min.mappedcount the minimum approved assignment count
+#' @param kml.usage the use of kml, could be 'train, 'test' or 'holdout';
+#' This parameter will determine the directory of S3 folder to store consensus 
+#' maps.
 #' @param riskthres the threshold to select 'risk' pixels
 #' @param user User name for database connection
 #' @param password Password for database connection
@@ -8,9 +11,10 @@
 #' @param alt.root Alternative location for writing out maps (default NULL)
 #' @param host NULL or "crowdmapper.org", if testing from remote location
 #' @return Sticks conflict/risk percentage pixels into database (kml_data) and
-#' (pending) writes rasters to S3 bucket
+#' writes rasterized labels to S3 bucket.
 #' @export
-consensus_map_creation <- function(kmlid, min.mappedcount,
+#' 
+consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
                                    output.riskmap, riskpixelthres, diam, 
                                    user, password, db.tester.name, alt.root, 
                                    host, qsite = FALSE) {
@@ -76,8 +80,8 @@ consensus_map_creation <- function(kmlid, min.mappedcount,
                                workerid, "'",
                                " and (status = 'Approved' OR status = ",
                                "'Rejected') and score IS NOT NULL")
-    historyassignmentid <- ((DBI::dbGetQuery(coninfo$con, 
-                                             histassignid.sql))$assignment_id)
+    historyassignmentid <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+                                             histassignid.sql)$assignment_id)
     
     # read all valid likelihood and score from history assignments
     userhistories <- lapply(c(1:length(historyassignmentid)), function(x) {
@@ -100,14 +104,26 @@ consensus_map_creation <- function(kmlid, min.mappedcount,
     ml.nofield <- mean(data.frame(do.call(rbind, userhistories))$ml.nofield)
     score.hist <- mean(data.frame(do.call(rbind, userhistories))$score.hist)
 
-    # test if user fields exist
-    user.sql <- paste0("select geom_clean from",
-                        " user_maps where assignment_id = ", "'", x,
-                        "'", " order by name")
+    # read  user polygons that are given as surely-labeled fields
+    user.sql <- paste0("SELECT name, geom_clean FROM ",
+                        "user_maps where assignment_id = ", "'", x, "' AND NOT ",
+                        "category='unsure1' AND NOT category='cloudshadow' 
+                       order by name")
     user.polys <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
                                                      gsub(", geom_clean", 
                                                           "", user.sql)))
+    
+    # read user polygons for the unsure category
+    user.sql.unsure <- paste0("SELECT name, geom_clean FROM ",
+                       "user_maps where assignment_id = ", "'", x, "' AND ",
+                       "category='unsure1' order by name")
+    
+    user.polys.unsure <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+                                                   gsub(", geom_clean", 
+                                                        "", user.sql.unsure)))
+    
     user.hasfields <- ifelse(nrow(user.polys) > 0, "Y", "N")
+    user.unsure.hasfields <- ifelse(nrow(user.polys.unsure) > 0, "Y", "N")
     
     # if user maps have field polygons
     if(user.hasfields == "Y") {
@@ -117,28 +133,54 @@ consensus_map_creation <- function(kmlid, min.mappedcount,
       # union user polygons
       user.poly <- st_union(user.polys)
         
-      # if for N or F sites, we need to first intersection user maps by grid 
+      # if for F sites, we need to first intersection user maps by grid 
       # to remain those within-grid parts for calculation
       if(qsite == FALSE) {
         user.poly <- suppressWarnings(st_intersection(user.poly, grid.poly))
       }
-      bayes.poly <- st_sf('posterior.field' = 1, 'posterior.nofield' = 1,
-                            'max.field.lklh' = ml.field , 
-                            'max.nofield.lklh' = ml.nofield , 
-                            'prior'= score.hist, geometry = st_sfc(user.poly))
-        
-      # set crs
-      st_crs(bayes.poly) <- gcsstr
+      
+      geometry.user = user.poly
     }
     else {
-      # if users do not map field, set geometry as empty multipolygon
-      bayes.poly <- st_sf('posterior.field' = 1, 'posterior.nofield' = 1,
-                          'max.field.lklh' = ml.field, 
-                          'max.nofield.lklh' = ml.nofield, 
-                          'prior'= score.hist, 
-                          geometry = st_sfc(st_multipolygon()))
-      st_crs(bayes.poly) <- gcsstr
+      # if users do not map field, set geometry as empty polygon
+      geometry.user = st_polygon()
     }  
+    
+    # if user unsure maps have field polygons
+    if(user.unsure.hasfields == "Y"){
+      user.polys.unsure <- suppressWarnings(st_read(coninfo$con, 
+                                                    query = user.sql.unsure, 
+                                                    geom_column = 'geom_clean'))
+      
+      # union user unsure polygons
+      user.poly.unsure <- st_union(user.polys.unsure)
+      
+      # if for F sites, we need to first intersection user maps by grid 
+      # to remain those within-grid parts for calculation
+      if(qsite == FALSE) {
+        user.poly.unsure <- suppressWarnings(st_intersection(user.poly.unsure, 
+                                                             grid.poly))
+      }
+      
+      geometry.user.unsure = user.poly.unsure
+    }
+    else {
+      # if users do not map field, set geometry as empty polygon
+      geometry.user.unsure = st_polygon()
+    } 
+    
+    # we give 0.5 as posterior probability to unsure, meaning that the user
+    # thinks it has only 50% to be a field
+    # bayes.poly will consist two sf rows, the first is that the surely-labeled
+    # fields, and the second is that unsure fields
+    bayes.poly <- st_sf('posterior.field' = c(1, 0.5), 
+                        'max.field.lklh' = c(ml.field, ml.field) , 
+                        'max.nofield.lklh' = c(ml.nofield, ml.nofield) , 
+                        'prior'= c(score.hist, score.hist), 
+                        geometry = st_sfc(geometry.user, geometry.user.unsure))
+    
+    # set crs
+    st_crs(bayes.poly) <- gcsstr
     
     bayes.poly
    
@@ -190,11 +232,37 @@ consensus_map_creation <- function(kmlid, min.mappedcount,
   dbSendQuery(coninfo$con, risk.sql) 
   
   ###################### S3 bucket output ###############
-  bucketname <- "activemapper"
-  s3.dst <- paste0("sources/wv2/", tolower(substring(kmlid, 1, 2)), "/masks/")  
-  s3.filename <- paste0(kmlid, "_label")
+  xy_tabs <- tbl(coninfo$con, "master_grid") %>% 
+                          filter(name == kmlid) %>% 
+                          dplyr::select(x, y) %>% collect()
+  
+  
+  rowcol <- rowcol_from_xy(xy_tabs$x, xy_tabs$y, offset = -1)
+  
+  S3BucketDir.sql <- paste0("SELECT value ",
+                                  "FROM configuration WHERE ",
+                                  "key='S3BucketDir'")
+
+  s3.dst <- dbFetch(DBI::dbSendQuery(coninfo$con, S3BucketDir.sql))$value
+  # read  user polygons that are not unsure
+  provider.sql <- paste0("SELECT provider FROM",
+                     " scene_data WHERE name = '", kmlid, "'")
+  
+  # provide could be 'planet' or 'wv2'
+  provider <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+                                               provider.sql))
+  
+  
+  s3.dst.train <- paste0(s3.dst, provider, '/', kml.usage, '/')
+  
+  bucketname <- unlist(strsplit(s3.dst, '/'))[1]
+  
+  # s3.dst <- paste0("activemapper/sources/train/")  
+  s3.filename <- paste0(kmlid, '_', rowcol[1, 'col'], '_', rowcol[1, 'row'])
   s3_upload(coninfo$dinfo["project.root"], bucketname, 
-            bayesoutput$labelmap, s3.dst, s3.filename)
+            bayesoutput$labelmap, 
+            substr(s3.dst.train, nchar(bucketname) + 1, nchar(s3.dst.train)),
+            s3.filename)
   
   if(output.riskmap == TRUE) { 
     s3.filename <- paste(kmlid + "_risk")

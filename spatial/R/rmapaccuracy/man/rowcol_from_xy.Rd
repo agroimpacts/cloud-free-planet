@@ -4,14 +4,23 @@
 \alias{rowcol_from_xy}
 \title{Retrieve raster row and column numbers for x, y coordinate and raster}
 \usage{
-rowcol_from_xy(x, y, r, offset = -1)
+rowcol_from_xy(x, y, xmin = -17.541, xmax = 51.419, ymin = -34.845,
+  ymax = 37.54, res = 0.005, offset = -1)
 }
 \arguments{
 \item{x}{Vector of x coordinates}
 
 \item{y}{Vector of y coordinates}
 
-\item{r}{Reference raster}
+\item{xmin}{Minimum X coordinate, defaulted to -17.541 of Africa grid}
+
+\item{xmax}{Maximum X coordinate, defaulted to 51.419 of Africa grid}
+
+\item{ymin}{Minimum Y coordinate, defaulted to -34.845 of Africa grid}
+
+\item{ymax}{Maximum Y coordinate, defaulted to 37.540 of Africa grid}
+
+\item{res}{Resolution of grid, default 0.005}
 
 \item{offset}{Adjust to match referencing convention, e.g. 0-based (-1)}
 }
@@ -41,4 +50,3 @@ library(raster)
 # all(rcmat$col == (colFromX(mgrid, rcmat$x) - 1))
 # all(rcmat$row == (rowFromY(mgrid, rcmat$y) - 1))
 }
-\keyword{export}
