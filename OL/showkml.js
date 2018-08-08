@@ -163,8 +163,11 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                                 })
                             }),
                             geometry: function(feature) {
-                                // return the coordinates of the first ring of the polygon
-                                var coordinates = feature.getGeometry().getCoordinates()[0];
+                                // return the coordinates of the all rings of the polygon
+                                var coordinates = [];
+                                for (i in feature.getGeometry().getCoordinates()) {
+                                    coordinates = coordinates.concat(feature.getGeometry().getCoordinates()[i]);
+                                }
                                 return new ol.geom.MultiPoint(coordinates);
                             }
                         })
