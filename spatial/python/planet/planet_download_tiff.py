@@ -227,6 +227,12 @@ def main():
                                             # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
                                             sub_planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = current_year), end_date = dt_construct(month = m_end, year = current_year), id = scene_id)
                                             res = pclient.request_intersecting_scenes(sub_planet_filters)
+
+                                            # use custom cloud detection function to calculate shadows
+                                            sub_cloud_perc, sub_shadow_perc = Cloud_Shadow_Stats(local_output_file, GeoUtils.define_BoundingBox(sx, sy))
+                                            print("------------------")
+                                            print("Sub Cloud_Shadow_Stats: {}".format((sub_cloud_perc, sub_shadow_perc)))
+                                            print("------------------")
                                             
                                             # flag to avoid extra lookup into array
                                             sub_valid = False
