@@ -108,23 +108,23 @@ def application(environ, start_response):
                     <title>500m Square Area in Africa</title>
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400">
-                    <!-- <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css"> -->
                     <link rel="stylesheet" href="/OL/ol.css" type="text/css">
-                    <link rel="stylesheet" href="/OL/fontello-2cc19da7/css/fontello.css" type="text/css" />
+                    <link rel="stylesheet" href="/OL/ol-ext.min.css" type="text/css">
                     <link rel="stylesheet" href="/OL/ol3-layerswitcher.css" type="text/css">
+                    <link rel="stylesheet" href="/OL/fontello-2cc19da7/css/fontello.css" type="text/css" />
                     <link rel="stylesheet" href="/OL/controlbar.css" type="text/css">
                     <link rel="stylesheet" href="/OL/showkml.css" type="text/css">
-                    <!-- <script src="https://openlayers.org/en/v4.6.5/build/ol.js" type="text/javascript"></script> -->
                     <script src="/OL/ol.js" type="text/javascript"></script>
+                    <script src="/OL/ol-ext.min.js" type="text/javascript"></script>
+                    <script type="text/javascript" src="/OL/ol3-layerswitcher.js"></script>
+                    <script type="text/javascript" src="/OL/controlbar.js"></script>
+                    <script type="text/javascript" src="/OL/buttoncontrol.js"></script>
+                    <script type="text/javascript" src="/OL/togglecontrol.js"></script>
                     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
                         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
                         crossorigin="anonymous">
                     </script>
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsts/1.6.0/jsts.min.js"></script>
-                    <script type="text/javascript" src="/OL/ol3-layerswitcher.js"></script>
-                    <script type="text/javascript" src="/OL/controlbar.js"></script>
-                    <script type="text/javascript" src="/OL/buttoncontrol.js"></script>
-                    <script type="text/javascript" src="/OL/togglecontrol.js"></script>
                     <script type="text/javascript" src="/OL/baselayers.js"></script>
                     <script type="text/javascript" src="/OL/MAcontrolbar.js"></script>
                     <script type="text/javascript" src="/OL/showkml.js"></script>
