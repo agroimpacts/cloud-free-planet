@@ -69,7 +69,7 @@ def Cloud_Shadow_Stats(in_name, bounds, cloud_val = 2500, shadow_val = 1500, lan
     # 4. extract cloud, shadow&water, land
     # The threshold here is based on Sitian and Tammy's test on 11 planet scenes.  It may not welly work for every AOI.
     # Apparently np.where() method will change or lost the datatype, so .astype(np.int16) is used to make sure the datatype is the same as original
-    cloud_array = np.where(min7x7_img > 3150, 1, 0).astype(np.int16)
+    cloud_array = np.where(min7x7_img > 1500, 1, 0).astype(np.int16)
     shadow_and_water_array = np.where(max7x7_img < 2000, 1, 0).astype(np.int16)
     land_array = np.where(b4_array > 1000, 1, 0).astype(np.int16)
 
