@@ -4,6 +4,7 @@ from geo_utils import GeoUtils
 from pprint import pprint
 from requests.auth import HTTPBasicAuth
 
+import os
 import ssl
 import requests
 import time
@@ -111,32 +112,33 @@ class PClientV1():
     def download_localfs(self, scene_id, season = ''):
         output_file = "{}{}_{}.tif".format(self.catalog_path, scene_id, season)
 
-        # activation & download
-        session = requests.Session()
-        session.auth = (self.api_key, '')
-        assets_uri = ("https://api.planet.com/data/v1/item-types/{}/items/{}/assets/").format(self.item_type, scene_id)
-                
-        assets_query_result = session.get(assets_uri)
+        if not os.path.exists(output_file): 
+            # activation & download
+            session = requests.Session()
+            session.auth = (self.api_key, '')
+            assets_uri = ("https://api.planet.com/data/v1/item-types/{}/items/{}/assets/").format(self.item_type, scene_id)
+                    
+            assets_query_result = session.get(assets_uri)
 
-        pprint(assets_query_result.status_code)
-        item_activation_json = assets_query_result.json()
-        # pprint(item_activation_json)
-        item_activation_url = item_activation_json[self.asset_type]["_links"]["activate"]
-        response = session.post(item_activation_url)
-        print(response.status_code)
-        while response.status_code!=204:
-            time.sleep(30)
+            pprint(assets_query_result.status_code)
+            item_activation_json = assets_query_result.json()
+            # pprint(item_activation_json)
+            item_activation_url = item_activation_json[self.asset_type]["_links"]["activate"]
             response = session.post(item_activation_url)
-            response.status_code = response.status_code
             print(response.status_code)
+            while response.status_code!=204:
+                time.sleep(30)
+                response = session.post(item_activation_url)
+                response.status_code = response.status_code
+                print(response.status_code)
 
-        item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(self.item_type, scene_id)
-        result = requests.get(item_url, auth = HTTPBasicAuth(self.api_key, ''))
-        download_url = result.json()[self.asset_type]['location']
+            item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(self.item_type, scene_id)
+            result = requests.get(item_url, auth = HTTPBasicAuth(self.api_key, ''))
+            download_url = result.json()[self.asset_type]['location']
 
-        # download
-        with urllib.request.urlopen(download_url) as response, open(output_file, 'wb') as out_file:
-            shutil.copyfileobj(response, out_file)
+            # download
+            with urllib.request.urlopen(download_url) as response, open(output_file, 'wb') as out_file:
+                shutil.copyfileobj(response, out_file)
 
         return output_file
 
