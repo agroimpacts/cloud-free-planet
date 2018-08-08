@@ -7,3 +7,4 @@ geojson
 planet
 requests
 boto3
+scipy

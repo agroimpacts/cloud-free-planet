@@ -10,6 +10,7 @@ import time
 import urllib.request
 import shutil
 import boto3
+from boto3.s3.transfer import S3Transfer
 import concurrent
 
 # PClientV1, class to simplify querying & downloading planet scenes using planet API V1
@@ -29,6 +30,7 @@ class PClientV1():
         self.output_filename = "output.csv"
         self.output_encoding = "utf-8"
         self.s3client = boto3.client('s3')
+        self.transfer = S3Transfer(self.s3client)
         self.threads_number = 2
         self.executor = concurrent.futures.ThreadPoolExecutor(self.threads_number)
         self.downloads = []
@@ -106,80 +108,94 @@ class PClientV1():
         return results
 
     # returns a full URI here
-    def download_localfs(self, scene_id):
+    def download_localfs(self, scene_id, season = ''):
         output_file = "{}{}_{}.tif".format(self.catalog_path, scene_id, season)
 
-        def sync(argz):
-            # activation & download
-            session = requests.Session()
-            pprint(self.api_key)
-            session.auth = (self.api_key, '')
-            assets_uri = ("https://api.planet.com/data/v1/item-types/{}/items/{}/assets/").format(self.item_type, scene_id)
+        # activation & download
+        session = requests.Session()
+        session.auth = (self.api_key, '')
+        assets_uri = ("https://api.planet.com/data/v1/item-types/{}/items/{}/assets/").format(self.item_type, scene_id)
                 
-            assets_query_result = session.get(assets_uri)
+        assets_query_result = session.get(assets_uri)
 
-            pprint(assets_query_result.status_code)
-            item_activation_json = assets_query_result.json()
-            # pprint(item_activation_json)
-            item_activation_url = item_activation_json[self.asset_type]["_links"]["activate"]
+        pprint(assets_query_result.status_code)
+        item_activation_json = assets_query_result.json()
+        # pprint(item_activation_json)
+        item_activation_url = item_activation_json[self.asset_type]["_links"]["activate"]
+        response = session.post(item_activation_url)
+        print(response.status_code)
+        while response.status_code!=204:
+            time.sleep(30)
             response = session.post(item_activation_url)
+            response.status_code = response.status_code
             print(response.status_code)
-            while response.status_code!=204:
-                time.sleep(30)
-                response = session.post(item_activation_url)
-                response.status_code = response.status_code
-                print(response.status_code)
 
-            item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(self.item_type, scene_id)
-            result = requests.get(item_url, auth = HTTPBasicAuth(self.api_key, ''))
-            download_url = result.json()[self.asset_type]['location']
+        item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(self.item_type, scene_id)
+        result = requests.get(item_url, auth = HTTPBasicAuth(self.api_key, ''))
+        download_url = result.json()[self.asset_type]['location']
 
-            # download
-            with urllib.request.urlopen(download_url) as response, open(output_file, 'wb') as out_file:
-                shutil.copyfileobj(response, out_file)
+        # download
+        with urllib.request.urlopen(download_url) as response, open(output_file, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
 
-            return output_file
-
-        self.downloads.append(self.executor.submit(sync, None))
         return output_file
 
     # TODO: lots of copy pasting happens there, abstract over it?
     # returns a full S3 URI here
     def download_s3(self, scene_id, season = ''):
-        print("Downloading {}...".format(scene_id))
         output_key = "{}/{}_{}.tif".format(self.s3_catalog_prefix, scene_id, season)
         result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
 
-        def sync(argz):
-            # activation & download
-            session = requests.Session()
-            session.auth = (self.api_key, '')
-            assets_uri = ("https://api.planet.com/data/v1/item-types/{}/items/{}/assets/").format(self.item_type, scene_id)
-                
-            assets_query_result = session.get(assets_uri)
+        try:
+            self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
+        except botocore.exceptions.ClientError:
+            print("Downloading {}...".format(scene_id))
 
-            pprint(assets_query_result.status_code)
-            item_activation_json = assets_query_result.json()
-            # pprint(item_activation_json)
-            item_activation_url = item_activation_json[self.asset_type]["_links"]["activate"]
-            response = session.post(item_activation_url)
-            print(response.status_code)
-            while response.status_code!=204:
-                time.sleep(30)
+            def sync(argz):
+                # activation & download
+                session = requests.Session()
+                session.auth = (self.api_key, '')
+                assets_uri = ("https://api.planet.com/data/v1/item-types/{}/items/{}/assets/").format(self.item_type, scene_id)
+                    
+                assets_query_result = session.get(assets_uri)
+
+                pprint(assets_query_result.status_code)
+                item_activation_json = assets_query_result.json()
+                # pprint(item_activation_json)
+                item_activation_url = item_activation_json[self.asset_type]["_links"]["activate"]
                 response = session.post(item_activation_url)
-                response.status_code = response.status_code
                 print(response.status_code)
+                while response.status_code!=204:
+                    time.sleep(30)
+                    response = session.post(item_activation_url)
+                    response.status_code = response.status_code
+                    print(response.status_code)
 
-            item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(self.item_type, scene_id)
-            result = requests.get(item_url, auth = HTTPBasicAuth(self.api_key, ''))
-            download_url = result.json()[self.asset_type]['location']
+                item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(self.item_type, scene_id)
+                result = requests.get(item_url, auth = HTTPBasicAuth(self.api_key, ''))
+                download_url = result.json()[self.asset_type]['location']
 
-            # upload on s3 directly from the response
-            with urllib.request.urlopen(download_url) as response:
-                self.s3client.put_object(Body=response.read(), Bucket=self.s3_catalog_bucket, Key=output_key)
+                # upload on s3 directly from the response
+                with urllib.request.urlopen(download_url) as response:
+                    self.s3client.put_object(Body = response.read(), Bucket = self.s3_catalog_bucket, Key = output_key)
 
-            return result
+                return result
 
-        self.downloads.append(self.executor.submit(sync, None))
+            # self.downloads.append(self.executor.submit(sync, None))
+            sync()
 
         return result
+
+    def download_localfs_s3(self, scene_id, season = ''):
+        filepath = self.download_localfs(scene_id, season)
+        
+        output_key = "{}/{}_{}.tif".format(self.s3_catalog_prefix, scene_id, season)
+        result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
+
+        try:
+            self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
+        except botocore.exceptions.ClientError:
+            print("Uploading {}...".format(scene_id))
+            self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
+
+        return filepath, result
