@@ -12,7 +12,7 @@
 #' @param edge.buf buffer for edge accuracy
 #' @param acc.switch in grid error metric: 1 = overall accuracy; 2 = TSS
 #' @param comments For testing, can turn off (F) or on (T) print statements
-#' @param write.acc.db Write error metrics into error_data table ("T" or "F") 
+#' @param write.acc.db Write error metrics into accuracy_data table ("T" or "F") 
 #' @param draw.maps Draw maps showing output error components ("T" or "F") 
 #' @param pngout Write maps to png file, TRUE (default) or FALSE (to screen)
 #' @param test "Y" or "N" for offline testing mode (see Details)
@@ -157,17 +157,16 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
   }
   
   ### Extract to separate function
-  # need add field_skill and nofield_skill columns into new_error_data tables  
   if(write.acc.db == "T") {
     if(mtype == "qa") {
-      acc.sql <- paste0("insert into new_error_data (assignment_id, new_score,",
+      acc.sql <- paste0("insert into accuracy_data (assignment_id, new_score,",
                         " old_score, count_acc, fragmentation_acc, edge_acc, ", 
                         "ingrid_acc, outgrid_acc, category_acc, ", 
                         "num_userpolygons, field_skill,",
                         " nofield_skill) values ('", assignmentid, "', ", 
                         paste(acc.out$acc.out, collapse = ", "), ")")
     } else if(mtype == "tr") {
-      acc.sql <- paste0("insert into new_qual_error_data (assignment_id,", 
+      acc.sql <- paste0("insert into qual_accuracy_data (assignment_id,", 
                         "new_score, old_score, count_acc, fragmentation_acc,",
                         "edge_acc, ingrid_acc, outgrid_acc, category_acc, ", 
                         "num_userpolygons, field_skill, nofield_skill, try)",
