@@ -1,5 +1,6 @@
 from planet_client import PClientV1
 from geo_utils import GeoUtils
+from filter_callable import Cloud_Shadow_Stats
 
 from sys import stdout
 from shapely.geometry import shape
@@ -19,6 +20,7 @@ from rasterio import transform
 from rasterio.coords import BoundingBox
 from rasterio.windows import Window
 from datetime import datetime
+import concurrent
 
 # AOI
 # by AOI generate grid cells
@@ -40,6 +42,9 @@ resolution = 0.005 / 2
 master_grid_path = "/Users/daunnc/Downloads/master_grid.tif" # EPSG:4326
 GS = "GS" # growing, wet season
 OS = "OS" # off, dry season
+
+# planet has limitation 5 sec per key (search queries)
+neighbours_executor = concurrent.futures.ThreadPoolExecutor(5)
 
 # pclient init
 pclient = PClientV1(APIkey)
@@ -167,7 +172,15 @@ def main():
                             valid_band[season_type][r, c] = True
 
                             # activation & download
-                            output_file = pclient.download_s3(scene_id, season = season_type)
+                            # it should be sync, to allow async check of neighbours
+                            # output_file = pclient.download_s3(scene_id, season = season_type)
+                            local_output_file, output_file = pclient.download_localfs_s3(scene_id, season = season_type)
+                            
+                            # use custom cloud detection function to calculate shadows
+                            cloud_perc, shadow_perc = Cloud_Shadow_Stats(local_output_file, GeoUtils.define_BoundingBox(x, y))
+                            print("------------------")
+                            print("Cloud_Shadow_Stats: {}".format((cloud_perc, shadow_perc)))
+                            print("------------------")
 
                             # before this step there should be done a custom cloud detection function call
                             base_row = [cell_id, scene_id, season_type, output_file]
@@ -231,7 +244,7 @@ def main():
                         # writer.writerow(base_row)
     
     # await all futures
-    pclient.await_downloads()
+    # pclient.await_downloads()
     print("-------------------")
     print("Results:")
     print("-------------------")

@@ -31,6 +31,10 @@ class GeoUtils():
         return BoundingBox(extent['xmin'], extent['ymin'], extent['xmax'], extent['ymax'])
 
     @classmethod
+    def define_BoundingBox(self, x, y, buffer = 0.005 / 2):
+        return self.extent_to_BoundingBox(self.define_extent(x, y, buffer))
+
+    @classmethod
     def polygon_to_extent(self, polygon):
         # (minx, miny, maxx, maxy)
         # geom.bounds
