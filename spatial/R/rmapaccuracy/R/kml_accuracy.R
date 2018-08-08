@@ -12,7 +12,7 @@
 #' @param edge.buf buffer for edge accuracy
 #' @param acc.switch in grid error metric: 1 = overall accuracy; 2 = TSS
 #' @param comments For testing, can turn off (F) or on (T) print statements
-#' @param write.acc.db Write error metrics into error_data table ("T" or "F") 
+#' @param write.acc.db Write error metrics into accuracy_data table ("T" or "F") 
 #' @param draw.maps Draw maps showing output error components ("T" or "F") 
 #' @param pngout Write maps to png file, TRUE (default) or FALSE (to screen)
 #' @param test "Y" or "N" for offline testing mode (see Details)
@@ -33,8 +33,8 @@
 #' @export
 kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                          count.acc.wt, in.acc.wt, out.acc.wt, new.in.acc.wt, 
-                         new.out.acc.wt, frag.acc.wt, edge.acc.wt, edge.buf, 
-                         acc.switch, comments, write.acc.db, draw.maps, 
+                         new.out.acc.wt, frag.acc.wt, edge.acc.wt, cate.acc.wt, 
+                         edge.buf, acc.switch, comments, write.acc.db, draw.maps, 
                          pngout = TRUE, test,  test.root, user, password, 
                          db.tester.name = NULL, alt.root = NULL, host = NULL) {
   
@@ -52,12 +52,13 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     
   # Collect QAQC fields (if there are any; if not then "N" value will be 
   # returned). This should work for both training and test sites
-  qaqc.sql <- paste0("select gid from qaqcfields where name=", "'", kmlid, "'")
+  qaqc.sql <- paste0("select gid from qaqcfields where name=", 
+                     "'", kmlid, "'")
   qaqc.polys <- DBI::dbGetQuery(coninfo$con, qaqc.sql)
   qaqc.hasfields <- ifelse(nrow(qaqc.polys) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
-    qaqc.sql <- paste0("select gid, geom_clean",
-                       " from qaqcfields where name=", "'", kmlid, "'")
+    qaqc.sql <- paste0("SELECT gid, category, geom_clean ",
+                       "FROM qaqcfields WHERE name=", "'", kmlid, "'")
     qaqc.polys <- suppressWarnings(st_read(coninfo$con, query = qaqc.sql, 
                                            geom_column = 'geom_clean'))
     qaqc.polys <- st_transform(qaqc.polys, crs =  prjstr)
@@ -66,14 +67,17 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
 
   # Read in user data
   if(mtype == "tr") {  # Training case
-    user.sql <- paste0("select name, try, geom_clean",
-                       " from qual_user_maps where assignment_id=",  "'", 
-                       assignmentid, "'", " and try='",  tryid, 
-                       "' order by name")
+    user.sql <- paste0("SELECT name, try, category, geom_clean ",
+                       "FROM qual_user_maps INNER JOIN categories ", 
+                       "USING (category) where assignment_id=",  "' ", 
+                       assignmentid, "'", " AND try='",  tryid, "' ",
+                       "AND categ_group ='field'")
   } else if(mtype == "qa") {  # Test case
-    user.sql <- paste0("select name, geom_clean from",
-                       " user_maps where assignment_id=", "'", assignmentid,
-                       "'", " order by name")
+    user.sql <- paste0("select name, category, geom_clean ",
+                       "FROM user_maps INNER JOIN categories ", 
+                       "USING (category) where assignment_id='",  
+                       assignmentid, "' ",
+                       "AND categ_group ='field'")
   }
   
   # test if user fields exist
@@ -102,7 +106,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     if(comments == "T") print("Case 1: No QAQC or User fields")
     acc.out <- c("new_score" = 1, "old_score" = 1, "count_acc" = 1, 
                  "frag_acc" = 1, "edge_acc" = 1, "in_acc" = 1, 
-                 "out_acc" = 1, "user_count" = 0, 
+                 "out_acc" = 1, "cate_acc" = 1, "user_count" = 0, 
                  "field_skill" = 1, "nofield_skill" = 1)
     acc.out <- list("acc.out" = acc.out)
   } else {
@@ -123,7 +127,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     if(comments == "T") print("Case 2: No QAQC fields, but User fields") 
     acc.out <- case2_accuracy(grid.poly, user.polys, in.acc.wt, out.acc.wt, 
                               count.acc.wt, new.in.acc.wt, new.out.acc.wt, 
-                              frag.acc.wt, edge.acc.wt)
+                              frag.acc.wt, edge.acc.wt, cate.acc.wt)
   }
 
   #  Case 3. QAQC has fields, User has no fields
@@ -131,31 +135,40 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     if(comments == "T") print("Case 3: QAQC fields but no User fields")
     acc.out <- case3_accuracy(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt, 
                               count.acc.wt, new.in.acc.wt, new.out.acc.wt, 
-                              frag.acc.wt, edge.acc.wt, acc.switch)
+                              frag.acc.wt, edge.acc.wt, cate.acc.wt, acc.switch)
   }
   
   # Case 4. QAQC has fields, User has fields
   if(qaqc.hasfields == "Y" & user.hasfields == "Y") {
     if(comments == "T") print("Case 4: QAQC fields and User fields")
+      
+    # read the first 'Fieldcategory.num' CategCode,
+    # and pass it to case4_accuracy 
+    catecode.sql <- paste0("SELECT category ",
+                           "FROM categories WHERE categ_group='field' ", 
+                           "AND NOT category='unsure2'")
+    cate.code <- DBI::dbGetQuery(coninfo$con, catecode.sql)$category
+    
     acc.out <- case4_accuracy(grid.poly, user.polys, qaqc.polys, count.acc.wt,
                               in.acc.wt, out.acc.wt, new.in.acc.wt, 
                               new.out.acc.wt, frag.acc.wt, edge.acc.wt, 
-                              edge.buf, comments, acc.switch)
+                              cate.acc.wt, edge.buf, cate.code,
+                              comments, acc.switch)
   }
   
   ### Extract to separate function
-  # need add field_skill and nofield_skill columns into new_error_data tables  
   if(write.acc.db == "T") {
     if(mtype == "qa") {
-      acc.sql <- paste0("insert into new_error_data (assignment_id, new_score,",
-                        "old_score, count_acc, fragmentation_acc, edge_acc,",
-                        "ingrid_acc, outgrid_acc, num_userpolygons, field_skill,",
+      acc.sql <- paste0("insert into accuracy_data (assignment_id, new_score,",
+                        " old_score, count_acc, fragmentation_acc, edge_acc, ", 
+                        "ingrid_acc, outgrid_acc, category_acc, ", 
+                        "num_userpolygons, field_skill,",
                         " nofield_skill) values ('", assignmentid, "', ", 
                         paste(acc.out$acc.out, collapse = ", "), ")")
     } else if(mtype == "tr") {
-      acc.sql <- paste0("insert into new_qual_error_data (assignment_id,", 
+      acc.sql <- paste0("insert into qual_accuracy_data (assignment_id,", 
                         "new_score, old_score, count_acc, fragmentation_acc,",
-                        "edge_acc, ingrid_acc, outgrid_acc,", 
+                        "edge_acc, ingrid_acc, outgrid_acc, category_acc, ", 
                         "num_userpolygons, field_skill, nofield_skill, try)",
                         " values ('", assignmentid, "', ", 
                         paste(acc.out$acc.out, collapse = ", "), ", ", tryid, ")")

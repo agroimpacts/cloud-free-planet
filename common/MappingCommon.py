@@ -592,11 +592,15 @@ class MappingCommon(object):
         
     # generate ConsensusMap
     # Return true or false
-    def generateConsensusMap(self, k, kmlName, minMapCount):
+    def generateConsensusMap(self, k, kmlName, minMapCount, kmlusage):
+        
+     
         riskPixelPercentage = subprocess.Popen(["Rscript",
                                                 "%s/spatial/R/consensus_map_generator.R" %
                                                 self.projectRoot,
+                                                self.cur.fetchall(),
                                                 kmlName,
+                                                kmlusage,
                                                 str(minMapCount)],
                                                stdout=subprocess.PIPE,
                                                stderr=subprocess.STDOUT).communicate()[0]
