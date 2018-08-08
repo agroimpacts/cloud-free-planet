@@ -2,17 +2,36 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
   name          = "GeoPySpark Cluster"
   applications  = ["Hadoop", "Spark", "Ganglia"]
   log_uri       = "${var.s3_log_uri}"
-  # Don't use emr > 5.12.1; Spark 2.3 currently incompatible w rasterframes
+  # Don't use emr version >5.12.1; Spark 2.3 currently incompatible w/ rasterframes
   release_label = "emr-5.12.1"
   service_role  = "${var.emr_service_role}"
+
+  step {
+    name="Sync CVML"
+    action_on_failure = "CONTINUE"
+    hadoop_jar_step {
+    jar="command-runner.jar"
+    args = ["aws","s3","sync","s3://activemapper/cvmlAL/","/home/hadoop/cvmlAL"]
+  }} 
+
+  step {
+    name="Run CVML"
+    action_on_failure = "CONTINUE"
+    hadoop_jar_step {
+    jar="command-runner.jar"
+    args = ["python3","/home/hadoop/cvmlAL/run_it/cvml_mapper_connection.py"]
+  }}
+  
+  termination_protection = false
+  keep_job_flow_alive_when_no_steps = false
 
   ec2_attributes {
     subnet_id        = "${var.subnet}"
     instance_profile = "${var.emr_instance_profile}"
     key_name         = "${var.key_name}"
 
-    emr_managed_master_security_group = "${aws_security_group.security-group.id}"
-    emr_managed_slave_security_group  = "${aws_security_group.security-group.id}"
+    emr_managed_master_security_group = "${var.user_defined_sg == "true" ? var.security_group : aws_security_group.security-group.id}"
+    emr_managed_slave_security_group  = "${var.user_defined_sg == "true" ? var.security_group : aws_security_group.security-group.id}"
   }
 
   instance_group {
@@ -39,7 +58,8 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
       "${var.s3_notebook_uri}",
       "${var.geopyspark_jars}",
       "${var.geopyspark_uri}",
-      "${var.rasterframes_sha}"
+      "${var.rasterframes_sha}",
+      "${var.rasterframes_version}"
     ]
   }
 
