@@ -2,6 +2,7 @@
 # and trigger cvml when all fsites have been processed
 # Author: Su Ye
 
+#! /usr/bin/python
 
 from MappingCommon import MappingCommon
 from datetime import datetime
@@ -69,11 +70,12 @@ while True:
             if (all(first[index_run] == rest[index_run] and
                     first[index_iteration] == rest[index_iteration] for rest in
                     it) == False):
-                    mapc.createAlertIssue("generateConsensus: runs or "
+                    mapc.createAlertIssue("Iterations of F kmls are not identical", 
+                                          "generateConsensus: runs or "
                                           "iterations of incoming F kmls "
                                           "for iteration_%s "
                                           "are not identical"
-                                          % iteration_counter + 1)
+                                          % iteration_counter)
                     exit(1)
 
         # check if it is a new iteration
@@ -85,14 +87,16 @@ while True:
             k.write("\ngenerateConsensus: iteration_%s starting up at %s\n" %
                     (iteration_counter, first[index_iteration_time]))
 
-        # check if the iteration of all kmls from cvml is correct
+        # check if the iteration of all kmls from cvml is just greater than 
+        # interation_counter by 1 when they are not equal
         if first[index_iteration] != iteration_counter and first[
             index_iteration] - iteration_counter != 1:
-           mapc.createAlertIssue("generateConsensus: cvml has processed %s "
-                                 "iterations, but generate_consensus_daemon "
-                                 "only received %s iterations"
-                                 % (first[index_iteration], iteration_counter
-                                    + 1))
+           mapc.createAlertIssue("Iterations of cvml and mapper are not idential",
+                                 "generateConsensus: cvml outputs "
+                                 "iterations_%s, but generate_consensus_daemon "
+                                 "is awaiting for iterations_%s"
+                                 % (first[index_iteration], iteration_counter+1
+                                    ))
 
         # record kmls that are actually processed among kml to be processed
         # for this processing time
@@ -109,7 +113,8 @@ while True:
 
             # check if kml has been succussfully retrieved from kml_data
             if len(kmldata_row) == 0:
-                 mapc.createAlertIssue("generateConsensus: fail to retrieve "
+                 mapc.createAlertIssue("Consensus generation fails",
+                                       "generateConsensus: fail to retrieve "
                                        "kml %s in the kml_data table"
                                            % fkml_row[i][index_name])
 
@@ -122,7 +127,7 @@ while True:
                        
                 
                 # the kml is used for training
-                if mapc.cur.fetchall() = false: 
+                if mapc.cur.fetchall() == false: 
                     # call a kml consensus generation
                     if mapc.generateConsensusMap(k=k,
                                                  kmlName=kmldata_row[0][index_name],
@@ -153,7 +158,8 @@ while True:
                     mapc.dbcon.commit()
 
                 except psycopg2.InternalError as e:
-                    mapc.createAlertIssue("generateConsensus: kml %s internal "
+                    mapc.createAlertIssue("Database error",
+                                          "generateConsensus: kml %s internal "
                                           "database error %s\n%s" %
                                           (kmldata_row[0][index_name],
                                            e.pgcode, e.pgerror))
@@ -168,10 +174,9 @@ while True:
             k.write("\ngenerateConsensus: the iteration_%s finishing up at "
                     "%s\n" %
                     (iteration_counter, datetime.now()))
-
-
+            
             # wake up cvml
-            if os.system('python run_cvml.py'):
+            if os.system('python '+ mapc.projectRoot + '/terraform/run_cvml.py'):
                 k.write("\ngenerateConsensus: the iteration_%s cvml starts "
                         "off...\n"
                         % iteration_counter)
@@ -188,8 +193,9 @@ while True:
                         "starts off...\n"
                         % iteration_counter)
             else:
-                mapc.createAlertIssue("\ngenerateConsensus: the iteration_%s "
-                                      "register_f_sites fails\n" %
+                mapc.createAlertIssue("f sites generation fails",
+                                      "generateConsensus: the iteration_%s "
+                                      "register_f_sites fails" %
                                       iteration_counter)
                 break
 
