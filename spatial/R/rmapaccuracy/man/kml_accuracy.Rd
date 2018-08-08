@@ -37,7 +37,7 @@ kml_accuracy(mtype, diam, prjsrid, kmlid, assignmentid, tryid, count.acc.wt,
 
 \item{comments}{For testing, can turn off (F) or on (T) print statements}
 
-\item{write.acc.db}{Write error metrics into error_data table ("T" or "F")}
+\item{write.acc.db}{Write error metrics into accuracy_data table ("T" or "F")}
 
 \item{draw.maps}{Draw maps showing output error components ("T" or "F")}
 
