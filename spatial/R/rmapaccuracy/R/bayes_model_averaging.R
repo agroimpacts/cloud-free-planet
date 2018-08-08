@@ -1,9 +1,11 @@
 #' Bayesian Model Averaging P(theta|D) = ∑ weight * mapper posterior probability
-#' @description Core codes for Bayesian Model Averaging P(theta|D) = ∑ weight * mapper posterior probability
+#' @description Core codes for Bayesian Model Averaging 
+#' P(theta|D) = ∑ weight * mapper posterior probability
 #' @param bayes.poly a sf object has five columns: 
-#' (1)posterior.field and (2)posterior.nofield are mapper posterior probability
-#' , which means mappers' opinion for the possibility of field (we set 0 or 1);  
-#' (3)max.field.lklh, (4) max.nofield.lklh: the producer's accuracy, which means
+#' (1)posterior.field a are mapper posterior probability, meaning that
+#' mappers' opinion for the possibility of field (we set 1 for sure category, 
+#' and 0.5 for unsure);  
+#' (3)max.field.lklh, (4) max.nofield.lklh, namely the producer's accuracy, which means
 #' that given its label as field or no field, the maximum likelihood to be the 
 #' mapper i; (5) score
 #' Weight = max.nofield.lklh (or max.field.lklh) * score
@@ -20,26 +22,24 @@ bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
   posterior.field.rst <- raster(extent(as(rasterextent, 'Spatial')), 
                                 resolution = 0.005 / 200, crs = gcsstr)  ### HC
   
+  # consensus = sum(weights * posterior.field.rst)/sum(weight)
   # read and process user polygons using a recursive way in order to save memory
   for (t in 1:nrow(bayes.polys)) {
-    # empty geometry means that user label all map extent as no field
+    # empty geometry means that user label all map extent as no field, 
+    # posterior.field.rst = '0'
     if (st_is_empty(bayes.polys[t, "geometry"])) {
-      # p(actual=field|user t=no field)=
-      # 1 - p(actual= no field|user t= no field)
-      posterior.field.val <- rep((1 - bayes.polys[t,]$posterior.nofield),
+      posterior.field.val <- rep(0,
                                  ncol(posterior.field.rst) * 
                                    nrow(posterior.field.rst))
       posterior.field.rst <- setValues(posterior.field.rst, posterior.field.val)
       
     }
     else {
-      # polygom: p(actual=field|user t=field)
-      # bkgd: p(actual= field|user t= no field) = 
-      # 1 - p(actual= no field|user t= no field)
+      # polygon: 1 or 0.5
+      # bkgd: 0
       posterior.field.rst <- fasterize(bayes.polys[t, ], posterior.field.rst, 
                                        field = "posterior.field", 
-                                       background = 
-                                         1 - bayes.polys[t, ]$posterior.nofield)
+                                       background = 0)
       }
     user.max.lklh <- fasterize(bayes.polys[t, ], posterior.field.rst, 
                                field =  "max.field.lklh", 
