@@ -143,7 +143,7 @@ class PClientV1():
     # returns a full S3 URI here
     def download_s3(self, scene_id, season = ''):
         output_key = "{}/{}/{}.tif".format(self.s3_catalog_prefix, season, scene_id)
-        result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
+        result_path = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
 
         try:
             self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
@@ -177,7 +177,10 @@ class PClientV1():
             with urllib.request.urlopen(download_url) as response:
                 self.s3client.put_object(Body = response.read(), Bucket = self.s3_catalog_bucket, Key = output_key)
 
-        return result
+            # finished
+            self.logger.info("Downloaded {}".format(scene_id))
+
+        return result_path
 
     def download_localfs_s3(self, scene_id, season = ''):
         filepath = self.download_localfs(scene_id, season)
