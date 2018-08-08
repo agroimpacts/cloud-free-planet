@@ -5,6 +5,7 @@
 # suppressMessages(library(RPostgreSQL))
 suppressMessages(library(rmapaccuracy))
 suppressWarnings(suppressMessages(library(sf)))
+suppressWarnings(suppressMessages(library(dplyr)))
 
 # Get HIT ID, assignment ID
 args <- commandArgs(TRUE)
