@@ -22,7 +22,7 @@ s3_upload <- function(proj.root, bucketname, local.object, s3.dst, s3.filename){
     localfile <- paste0(proj.root, "/spatial/R/tmp_consensus_map/", 
                         filename, "_", tm, ".tif")
     
-    writeRaster(local.object, localfile, overwrite = TRUE)
+    writeRaster(local.object, localfile, datatype='INT1U', overwrite = TRUE)
     
     # putlocal temp file in the bucket.
     put_object(file = localfile, object = paste0(s3.dst, s3.filename, ".tif"), 
