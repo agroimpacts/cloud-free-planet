@@ -68,7 +68,7 @@ if(test_root == "N") {
   qaqc_polys <- DBI::dbGetQuery(coninfo$con, qaqc_sql)
   qaqc_hasfields <- ifelse(nrow(qaqc_polys) > 0, "Y", "N") 
   if(qaqc_hasfields == "Y") {
-    qaqc_sql <- paste0("select gid, name, category, categ_comment, geom_clean",
+    qaqc_sql <- paste0("select gid, name, category, geom_clean",
                        " from qaqcfields where name=", "'", hits$name, "'", 
                        " order by gid")
     qaqc_polys <- suppressWarnings(st_read(coninfo$con, query = qaqc_sql, 
@@ -109,7 +109,7 @@ if(test_root == "N") {
   }
   if(nrow(qaqc_polys) > 0) {  # First convert to geographic coords
     suppressWarnings(qaqc_poly <- qaqc_polys %>% 
-                       select(name, category, categ_comment))
+                       select(name, category))
     suppressWarnings(st_write(qaqc_poly, delete_dsn = TRUE, quiet = TRUE, 
                               dsn = paste0(worker_path, "/", kmlid, "_r.kml")))
   }
