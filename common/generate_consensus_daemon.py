@@ -127,7 +127,7 @@ while True:
                        
                 
                 # the kml is used for training
-                if mapc.cur.fetchall() == false: 
+                if mapc.cur.fetchall() == False: 
                     # call a kml consensus generation
                     if mapc.generateConsensusMap(k=k,
                                                  kmlName=kmldata_row[0][index_name],
