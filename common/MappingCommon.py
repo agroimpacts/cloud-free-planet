@@ -602,6 +602,7 @@ class MappingCommon(object):
                                                 str(minMapCount)],
                                                stdout=subprocess.PIPE,
                                                stderr=subprocess.STDOUT).communicate()[0]
+                                               
         # using 10% as risk threshold for warning, if risky pixel percentage is larger
         # than 10% for a kml, the system will yield a warning (but won't stop)
         riskWarningThres = float(self.getConfiguration('Consensus_RiskWarningThreshold'))
@@ -613,7 +614,7 @@ class MappingCommon(object):
             k.write("generateConsensusMap alerting: risky pixels in %s consensus "
                     "map has exceeded %s percentage threshold "
                     "(the kml consensus map has %s percentage risky pixels)\n" %
-                    (kmlName, riskWarningThres * 100, riskWarningThres * 100))
+                    (kmlName, riskWarningThres * 100, riskPixelPercentage * 100))
             return True
         else:
             k.write(
