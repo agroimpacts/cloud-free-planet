@@ -22,7 +22,7 @@ def main():
     pstart_string = "initial_f_sites: Starting up at " + \
                     str(DT.now()) + os.linesep
 
-    logfname = log_file_path + "/generate_sites.log"  # log file name
+    logfname = log_file_path + "/generateSites.log"  # log file name
     k = open(logfname, "a+")
     k.write(rlog_hdr)
     k.write(pstart_string)
@@ -40,7 +40,7 @@ def main():
     mapc.cur.execute("select setseed(0.5); select name from master_grid where avail = 'F' ORDER BY RANDOM() limit {}".format(n_f))
     names_f = mapc.cur.fetchall()
 
-    # Split all into holdout1, holdout2 and train.
+    # Split all into holdout, validate and train.
     random.seed(10)
     names_f_hd = random.sample(names_f, int(n_f * pro_hd))
     random.seed(11)
@@ -51,12 +51,12 @@ def main():
     try:
         for name in names_f:
             if name in names_f_hd2:
-                name_one = name + (0, 0, 2)
+                name_one = name + (0, 0, "validate")
             elif name in names_f_hd1:
-                name_one = name + (0, 0, 1)
+                name_one = name + (0, 0, "holdout")
             else:
-                name_one = name + (0, 0, 0)
-            insert_query = "insert into incoming_names (name, run, iteration, holdout) values (%s, %s, %s, %s);"
+                name_one = name + (0, 0, "train")
+            insert_query = "insert into incoming_names (name, run, iteration, usage) values (%s, %s, %s, %s);"
             mapc.cur.execute(insert_query, name_one)
             mapc.dbcon.commit()
         end_time = str(DT.now())
