@@ -1,7 +1,28 @@
 import math
 from rasterio.coords import BoundingBox
+from rasterio import transform
 
 class GeoUtils():
+    @classmethod
+    def window_transform(self, window_min, window_max):
+        start_row = min(window_min[0], window_max[0])
+        stop_row = max(window_min[0], window_max[0])
+        start_col = min(window_min[1], window_max[1])
+        stop_col = max(window_min[1], window_max[1])
+        return ((start_row, stop_row), (start_col, stop_col))
+
+    @classmethod
+    def extent_to_windows(self, extent, actual_transform):
+        window_min = transform.rowcol(actual_transform, extent['xmin'], extent['ymin'])
+        window_max = transform.rowcol(actual_transform, extent['xmax'], extent['ymax'])
+        return self.window_transform(window_min, window_max)
+
+    @classmethod
+    def bounds_to_windows(self, bounds, grid):
+        window_min = grid.index(bounds.left, bounds.bottom)
+        window_max = grid.index(bounds.right, bounds.top)
+        return self.window_transform(window_min, window_max)
+
     # returns extent by centroid and cellgrid resolution
     @classmethod
     def define_extent(self, x, y, buffer = 0.005 / 2):

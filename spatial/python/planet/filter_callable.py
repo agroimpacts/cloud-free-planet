@@ -1,15 +1,17 @@
 #####################################################################################
-#This code includes a callable function that takes a GeoTiff format file, and returns
-#pixel count of that file, the could percentage, and the shadow percentage.
-#The workflow is
-#1. take blue, green, red, and NearInfrared bands as b1,b2,b3,b4.
-#2. get the max&min image.  The max image means every pixel takes the max value from b1 through b4 at that location.  
-#3. apply a 7x7 max filter on max image, and a 7x7 min filter on min image.
-#4. extract the cloud from min image, extract shadow(shadow plus water) from max image, land from NearInfrared.
-#Arbitary threshold eas used for extracting cloud and shadows.
-#5. get shadow by using land as a mask on shadow plus water image.
-#6. count total pixels, cloud, shadow pixels and calculate cloud_perc and shadow_perc
+# This code includes a callable function that takes a GeoTiff format file, and returns
+# pixel count of that file, the could percentage, and the shadow percentage.
+# The workflow is
+# 1. take blue, green, red, and NearInfrared bands as b1,b2,b3,b4.
+# 2. get the max&min image.  The max image means every pixel takes the max value from b1 through b4 at that location.  
+# 3. apply a 7x7 max filter on max image, and a 7x7 min filter on min image.
+# 4. extract the cloud from min image, extract shadow(shadow plus water) from max image, land from NearInfrared.
+# Arbitary threshold eas used for extracting cloud and shadows.
+# 5. get shadow by using land as a mask on shadow plus water image.
+# 6. count total pixels, cloud, shadow pixels and calculate cloud_perc and shadow_perc
 ########################################################################################
+
+from geo_utils import GeoUtils
 
 import numpy as np
 from scipy import ndimage
@@ -18,7 +20,7 @@ import rasterio
 from rasterio.warp import transform_bounds
 from rasterio.coords import BoundingBox
 
-def Cloud_Shadow_Stats(in_name, bounds, cloud_val = 2500, shadow_val = 1500, land_val = 1000):
+def cloud_shadow_stats(in_name, bounds, cloud_val = 2500, shadow_val = 1500, land_val = 1000):
     """
     Input parameter:
     in_name    - The full path of a Geotiff format image. e.g., r"D:\test_image\planet.tif"
@@ -40,13 +42,7 @@ def Cloud_Shadow_Stats(in_name, bounds, cloud_val = 2500, shadow_val = 1500, lan
     transformed_bounds = BoundingBox(*transform_bounds("EPSG:4326", src.crs, *bounds))
 
     # calculate window to read from the input tiff
-    window_min = src.index(transformed_bounds.left, transformed_bounds.bottom)
-    window_max = src.index(transformed_bounds.right, transformed_bounds.top)
-    start_row = min(window_min[0], window_max[0])
-    stop_row = max(window_min[0], window_max[0])
-    start_col = min(window_min[1], window_max[1])
-    stop_col = max(window_min[1], window_max[1])
-    actual_window = ((start_row, stop_row), (start_col, stop_col))
+    actual_window = GeoUtils.bounds_to_windows(transformed_bounds, src)
 
     # 1 open the tif, take 4 bands, and read them as arrays
     b1_array, b2_array, b3_array, b4_array = src.read(window = actual_window)

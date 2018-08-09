@@ -1,6 +1,6 @@
 from planet_client import PClientV1
 from geo_utils import GeoUtils
-from filter_callable import Cloud_Shadow_Stats
+from filter_callable import cloud_shadow_stats
 from fixed_thread_pool_executor import FixedThreadPoolExecutor
 
 from sys import stdout
@@ -67,13 +67,7 @@ else:
 neighbours_executor = FixedThreadPoolExecutor(size = threads_number)
 
 # pclient init
-pclient = PClientV1(api_key)
-pclient.max_clouds = float(imagery_config['max_clouds'])  # max proportion of pixels that are clouds
-pclient.max_bad_pixels = float(imagery_config['max_bad_pixels']) # max proportion of bad pixels (transmission errors, etc.)
-pclient.asset_type = imagery_config['asset_type']  # "udm"  #"analytic"  #analytic_sr"
-pclient.maximgs = int(imagery_config['maximgs'])  # 15 #10 #20
-pclient.output_encoding = imagery_config['output_encoding']
-pclient.output_filename = imagery_config['output_filename']
+pclient = PClientV1(api_key, config)
 
 # build a valid dt string from a month number
 def dt_construct(month, day = 1, year = 2018, t = "00:00:00.000Z"):
@@ -98,13 +92,8 @@ def main():
     actual_extent = GeoUtils.BoundingBox_to_extent(actual_bounds)
 
     # returns row, col
-    actual_window_min = master_grid.index(actual_bounds.left, actual_bounds.bottom)
-    actual_window_max = master_grid.index(actual_bounds.right, actual_bounds.top)
-    start_row = min(actual_window_min[0], actual_window_max[0])
-    stop_row = max(actual_window_min[0], actual_window_max[0])
-    start_col = min(actual_window_min[1], actual_window_max[1])
-    stop_col = max(actual_window_min[1], actual_window_max[1])
-    actual_window = ((start_row, stop_row), (start_col, stop_col))
+    actual_window = GeoUtils.bounds_to_windows(actual_bounds, master_grid)
+    ((start_row, stop_row), (start_col, stop_col)) = actual_window
     actual_window_width, actual_window_height = stop_col - start_col, stop_row - start_row
 
     # transofmration for AOI
@@ -182,7 +171,7 @@ def main():
                                 # output_file = pclient.download_s3(scene_id, season = season_type)
                                 output_file = pclient.download_s3(scene_id, season = season_type)
                                 # use custom cloud detection function to calculate shadows
-                                cloud_perc, shadow_perc = Cloud_Shadow_Stats(output_file, GeoUtils.define_BoundingBox(x, y))
+                                cloud_perc, shadow_perc = cloud_shadow_stats(output_file, GeoUtils.define_BoundingBox(x, y))
                                 # check if cell grid is good enough
                                 if (cloud_perc <= pclient.max_clouds):
                                     break
@@ -210,12 +199,7 @@ def main():
                             
                             # walk through all cellgrid neighbours
                             # get all row, cals intersection by  
-                            sub_window_min = transform.rowcol(actual_transform, base_ext['xmin'], base_ext['ymin'])
-                            sub_window_max = transform.rowcol(actual_transform, base_ext['xmax'], base_ext['ymax'])
-                            sub_start_row = min(sub_window_min[0], sub_window_max[0])
-                            sub_stop_row = max(sub_window_min[0], sub_window_max[0])
-                            sub_start_col = min(sub_window_min[1], sub_window_max[1])
-                            sub_stop_col = max(sub_window_min[1], sub_window_max[1])
+                            ((sub_start_row, sub_stop_row), (sub_start_col, sub_stop_col)) = GeoUtils.extent_to_windows(base_ext, actual_transform)
 
                             # logger.info(range(sub_start_row, sub_stop_row))
                             # logger.info(range(sub_start_col, sub_stop_col))
@@ -244,7 +228,7 @@ def main():
                                         res = pclient.request_intersecting_scenes(sub_planet_filters)
 
                                         # use custom cloud detection function to calculate shadows
-                                        sub_cloud_perc, sub_shadow_perc = Cloud_Shadow_Stats(output_file, GeoUtils.define_BoundingBox(sx, sy))
+                                        sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats(output_file, GeoUtils.define_BoundingBox(sx, sy))
                                         # check if cell grid is good enough
                                         if (sub_cloud_perc <= pclient.max_clouds):
                                             # flag to avoid extra lookup into array

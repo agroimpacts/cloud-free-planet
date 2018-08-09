@@ -37,6 +37,25 @@ class PClientV1():
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
 
+    def __init__(self, api_key, config):
+        imagery_config = config['imagery']
+        self.api_key = api_key
+        self.max_clouds = float(imagery_config['max_clouds'])  # max proportion of pixels that are clouds
+        self.max_bad_pixels = float(imagery_config['max_bad_pixels']) # max proportion of bad pixels (transmission errors, etc.)
+        self.maximgs = int(imagery_config['maximgs'])  # 15 #10 #20
+        self.output_encoding = imagery_config['output_encoding']
+        self.output_filename = imagery_config['output_filename']
+        self.catalog_path = imagery_config['catalog_path']
+        self.s3_catalog_bucket = imagery_config['s3_catalog_bucket']
+        self.s3_catalog_prefix = imagery_config['s3_catalog_prefix']
+        self.item_type = imagery_config['item_type'] # "udm"  #"analytic"  #analytic_sr"
+        self.asset_type = imagery_config['catalog_path']
+        self.client = api.ClientV1(api_key = self.api_key)
+        self.s3client = boto3.client('s3')
+        self.transfer = S3Transfer(self.s3client)
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
+
     # there are start_date and end_date present as it should be the part of a row retrieved from psql / tiff file
     def set_filters_sr(self, aoi, start_date='2017-12-15T00:00:00.000Z', end_date = '2018-03-15T00:00:00.000Z', id=''):
         # add an asset_filter for only those scenes that have an analytic_sr asset available
