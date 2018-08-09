@@ -1,8 +1,8 @@
+#! /usr/bin/python
+
 # A daemon which is used to watch the incoming fsites, generate consensus maps
 # and trigger cvml when all fsites have been processed
 # Author: Su Ye
-
-#! /usr/bin/python
 
 from MappingCommon import MappingCommon
 from datetime import datetime
@@ -36,27 +36,28 @@ while True:
     # database records without interfering with daemon.
     mapc.getSerializationLock()
 
-    # for initial iteration, query both holdout and training sites that 
+    # for initial iteration, query holdout, validate and training sites that 
     # are not processed from incoming_names table
     if iteration_counter == 0:
-        mapc.cur.execute("SELECT name, run, iteration, iteration_time "
+        mapc.cur.execute("SELECT name, run, iteration, usage, iteration_time "
                          "FROM incoming_names "
                          "INNER JOIN iteration_metrics USING (run, iteration) "
                          "WHERE processed = false")
                          
-    # if not initial iteration, query only holdout
+    # if not initial iteration, query only train type
     else: 
-        mapc.cur.execute("SELECT name, run, iteration, iteration_time "
+        mapc.cur.execute("SELECT name, run, iteration, usage, iteration_time "
                      "FROM incoming_names "
                      "INNER JOIN iteration_metrics USING (run, iteration) "
-                     "WHERE processed = false and holdout = false") 
+                     "WHERE processed = false and usage = 'train'") 
                      
     fkml_row = mapc.cur.fetchall()
     n_notprocessed = len(fkml_row)
     index_name = 0
     index_run = 1
     index_iteration = 2
-    index_iteration_time = 3
+    index_usage = 3
+    index_iteration_time = 4
 
     # check if any new incoming kmls that is not processed
     if n_notprocessed != 0:
@@ -104,8 +105,8 @@ while True:
 
         for i in range(0, n_notprocessed - 1):
 
-            mapc.cur.execute("""select name, mapped_count, mappers_needed 
-            from kml_data where kml_type = '%s' and name = '%s'""" %
+            mapc.cur.execute("SELECT name, mapped_count, mappers_needed " 
+                             "FROM kml_data WHERE kml_type = '%s' and name = '%s'"
                              (mapc.KmlFQAQC, fkml_row[i][index_name]))
             kmldata_row = mapc.cur.fetchall()
             index_mappedcount = 1
@@ -122,31 +123,16 @@ while True:
             if kmldata_row[0][index_mappersneeded] is not None and kmldata_row[
                 0][index_mappedcount] == kmldata_row[0][index_mappersneeded]:
 
-                mapc.cur.execute("""SELECT holdout FROM incoming_names
-                       WHERE name = '%s'""" % kmldata_row[0][index_name])
-                       
-                
-                # the kml is used for training
-                if mapc.cur.fetchall() == False: 
-                    # call a kml consensus generation
-                    if mapc.generateConsensusMap(k=k,
-                                                 kmlName=kmldata_row[0][index_name],
-                                                 kmlusage="train",
-                                                 minMapCount=
-                                                 kmldata_row[0][index_mappedcount]):
-                        n_success = n_success + 1
-                    else:
-                        n_fail = n_fail + 1
-                # the kml is used for holdout
-                else: 
-                    if mapc.generateConsensusMap(k=k,
-                                                 kmlName=kmldata_row[0][index_name],
-                                                 kmlusage="holdout",
-                                                 minMapCount=
-                                                 kmldata_row[0][index_mappedcount]):
-                        n_success = n_success + 1
-                    else:
-                        n_fail = n_fail + 1
+                # if the kml has enough mappers, call consensus generation
+                if mapc.generateConsensusMap(k=k,
+                                             kmlName=kmldata_row[0][index_name],
+                                             kmlusage=fkml_row[i][index_usage],
+                                             minMapCount=
+                                              kmldata_row[0][index_mappedcount]):
+                    n_success = n_success + 1
+                else:
+                    n_fail = n_fail + 1
+            
 
                 n_processed = n_processed + 1
 
@@ -154,7 +140,7 @@ while True:
                 # to be TRUE
                 try:
                     mapc.cur.execute("""update incoming_names set 
-                    processed='TRUE' where name = '%s'""" % kmldata_row[i][0])
+                    processed='TRUE' where name = '%s'""" % kmldata_row[0][index_name])
                     mapc.dbcon.commit()
 
                 except psycopg2.InternalError as e:
