@@ -107,7 +107,7 @@ while True:
 
             mapc.cur.execute("SELECT name, mapped_count, mappers_needed " 
                              "FROM kml_data WHERE kml_type = '%s' and name = '%s'"
-                             (mapc.KmlFQAQC, fkml_row[i][index_name]))
+                             %(mapc.KmlFQAQC, fkml_row[i][index_name]))
             kmldata_row = mapc.cur.fetchall()
             index_mappedcount = 1
             index_mappersneeded = 2
