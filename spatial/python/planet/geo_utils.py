@@ -1,6 +1,7 @@
 import math
 from rasterio.coords import BoundingBox
 from rasterio import transform
+from shapely.geometry import box
 
 class GeoUtils():
     @classmethod
@@ -67,6 +68,19 @@ class GeoUtils():
         }
 
     @classmethod
+    def extent_to_polygon(self, extent):
+        return box(extent['xmin'], extent['ymin'], extent['xmax'], extent['ymax'])
+ 
+    @classmethod
+    def bounds_to_extent(self, bounds):
+        return {
+            "xmin": bounds[0],
+            "xmax": bounds[2],
+            "ymin": bounds[1],
+            "ymax": bounds[3]
+        }
+
+    @classmethod
     def extent_intersection(self, ext1, ext2):
         xminNew = ext1['xmin']
         yminNew = ext1['ymin']
@@ -87,6 +101,10 @@ class GeoUtils():
             "ymin": yminNew,
             "ymax": ymaxNew
         }
+
+    @classmethod
+    def define_polygon(self, x, y, buffer = 0.005 / 2):
+        return self.extent_to_polygon(self.define_extent(x, y, buffer))
 
     @classmethod
     def define_aoi(self, x, y, buffer = 0.005 / 2):

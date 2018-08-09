@@ -49,7 +49,7 @@ class PClientV1():
         self.s3_catalog_bucket = imagery_config['s3_catalog_bucket']
         self.s3_catalog_prefix = imagery_config['s3_catalog_prefix']
         self.item_type = imagery_config['item_type'] # "udm"  #"analytic"  #analytic_sr"
-        self.asset_type = imagery_config['catalog_path']
+        self.asset_type = imagery_config['asset_type']
         self.client = api.ClientV1(api_key = self.api_key)
         self.s3client = boto3.client('s3')
         self.transfer = S3Transfer(self.s3client)
@@ -202,14 +202,15 @@ class PClientV1():
         return result_path
 
     def download_localfs_s3(self, scene_id, season = ''):
-        filepath = self.download_localfs(scene_id, season)
-        
+        filepath = ''
         output_key = "{}/{}/{}.tif".format(self.s3_catalog_prefix, season, scene_id)
         result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
 
         try:
             self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
+            filepath = result
         except botocore.exceptions.ClientError:
+            filepath = self.download_localfs(scene_id, season)
             self.logger.info("Uploading {}...".format(scene_id))
             self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
 
