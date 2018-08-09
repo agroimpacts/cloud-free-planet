@@ -1,0 +1,18 @@
+[planet]
+api_key: <none>
+
+[imagery]
+aoi: ghana_aoi.geojson
+resolution: 0.025
+master_grid_path: s3://activemapper/grid/master_grid.tif
+max_clouds: 0.25
+max_bad_pixels: 0.25
+asset_type: analytic_sr
+maximgs: 1
+output_encoding: utf-8
+output_filename: output.csv
+threads: default
+catalog_path: catalog/
+s3_catalog_bucket: azavea-africa-test
+s3_catalog_prefix: planet/images
+item_type: PSScene4Band
