@@ -274,5 +274,5 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
   
   garbage <- DBI::dbDisconnect(coninfo$con)
   
-  return(riskpixelpercentage)
+  cat(riskpixelpercentage)
 }
