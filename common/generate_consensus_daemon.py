@@ -13,7 +13,7 @@ import os
 # the below is for debugging under SuYe's project root
 # mapc = MappingCommon(projectRoot='/home/sye/github/mapperAL/')
 
-mapc = MappingCommon(projectRoot='/home/sye/github/mapperAL/')
+mapc = MappingCommon()
 
 logFilePath = mapc.projectRoot + "/log"
 k = open(logFilePath + "/generateConsensus.log", "a+")
