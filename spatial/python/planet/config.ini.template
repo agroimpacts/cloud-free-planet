@@ -2,8 +2,9 @@
 api_key: <none>
 
 [imagery]
+aoi: ghana_aoi.geojson
 resolution: 0.025
-master_grid_path: <none>
+master_grid_path: s3://activemapper/grid/master_grid.tif
 max_clouds: 0.25
 max_bad_pixels: 0.25
 asset_type: analytic_sr

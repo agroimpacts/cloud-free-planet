@@ -6,6 +6,7 @@ from fixed_thread_pool_executor import FixedThreadPoolExecutor
 from sys import stdout
 from shapely.geometry import shape
 from pprint import pprint
+from geojson import Feature, Point, FeatureCollection, Polygon, MultiPolygon
 
 import psycopg2
 import ssl
@@ -69,13 +70,18 @@ neighbours_executor = FixedThreadPoolExecutor(size = threads_number)
 # pclient init
 pclient = PClientV1(api_key, config)
 
+# aoi
+features = geojson.load(open(imagery_config['aoi']))['features']
+actual_aoi = shape(MultiPolygon([Polygon(f['geometry']) for f in features]))
+
 # build a valid dt string from a month number
 def dt_construct(month, day = 1, year = 2018, t = "00:00:00.000Z"):
     return "{}-{:02d}-{:02d}T{}".format(year, month, day, t)
 
 def main():
-    ext = GeoUtils.define_extent(30, -2, 0.03) # some test AOI to select a subset of extent from the master_grid.tiff
-
+    # ext = GeoUtils.define_extent(30, -2, 0.03) # some test AOI to select a subset of extent from the master_grid.tiff
+    ext = GeoUtils.polygon_to_extent(actual_aoi)
+    
     # 1. Cell ID: this should be unique for the whole raster
     # 2. Country code: integerized country code
     # 3. Country ID: unique cell number within each country
@@ -126,7 +132,14 @@ def main():
     for r in range(actual_window_height):
         for c in range(actual_window_width):
             skip_gs, skip_os = valid_band[GS][r, c], valid_band[OS][r, c]
-            skip_row = skip_gs & skip_os
+
+            # cell grid centroid 
+            x, y = transform.xy(actual_transform, r, c)
+
+            # polygon to check would it intersect initial AOI
+            poly = GeoUtils.define_polygon(x, y)
+
+            skip_row = skip_gs & skip_os & actual_aoi.intersects(poly)
 
             if not skip_row:
                 # read all metadata
@@ -140,9 +153,6 @@ def main():
 
                 logger.info("Processing cell_id {}...".format(cell_id))
                 
-                # cell grid centroid 
-                x, y = transform.xy(actual_transform, r, c)
-                
                 aoi = GeoUtils.define_aoi(x, y)  # aoi by a cell grid x, y
 
                 for (season_type, m_start, m_end) in seasons:
@@ -152,6 +162,7 @@ def main():
                         geom = {}
                         scene_id = ''
                         output_file = ''
+                        output_localfile = ''
 
                         # planet analytic_sr stores imagery starting from 2016 year
                         years = list(range(2016, current_year + 1))
@@ -168,10 +179,9 @@ def main():
                                 scene_id = item["id"]
                                 # activation & download
                                 # it should be sync, to allow async check of neighbours
-                                # output_file = pclient.download_s3(scene_id, season = season_type)
-                                output_file = pclient.download_s3(scene_id, season = season_type)
-                                # use custom cloud detection function to calculate shadows
-                                cloud_perc, shadow_perc = cloud_shadow_stats(output_file, GeoUtils.define_BoundingBox(x, y))
+                                output_localfile, output_file = pclient.download_localfs_s3(scene_id, season = season_type)
+                                # use custom cloud detection function to calculate clouds and shadows
+                                cloud_perc, shadow_perc = cloud_shadow_stats(output_localfile, GeoUtils.define_BoundingBox(x, y))
                                 # check if cell grid is good enough
                                 if (cloud_perc <= pclient.max_clouds):
                                     break
@@ -205,7 +215,13 @@ def main():
                             # logger.info(range(sub_start_col, sub_stop_col))
 
                             def sync(sr, sc):
-                                skip_sub_row = valid_band[season_type][sr, sc]
+                                # sub centroid
+                                sx, sy = transform.xy(actual_transform, sr, sc)
+
+                                # polygon to check would it intersect initial AOI
+                                sub_poly = GeoUtils.define_polygon(sx, sy)
+
+                                skip_sub_row = valid_band[season_type][sr, sc] & actual_aoi.intersects(sub_poly)
 
                                 if not skip_sub_row:
                                     # read all metadata
@@ -219,16 +235,14 @@ def main():
                                     if(seasons == sub_seasons):
                                         logger.info("Processing sub cell_id {}...".format(sub_cell_id))
 
-                                        sx, sy = transform.xy(actual_transform, sr, sc)
-
                                         sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
                                                 
                                         # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
                                         sub_planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = current_year), end_date = dt_construct(month = m_end, year = current_year), id = scene_id)
                                         res = pclient.request_intersecting_scenes(sub_planet_filters)
 
-                                        # use custom cloud detection function to calculate shadows
-                                        sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats(output_file, GeoUtils.define_BoundingBox(sx, sy))
+                                        # use custom cloud detection function to calculate clouds and shadows
+                                        sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats(output_localfile, GeoUtils.define_BoundingBox(sx, sy))
                                         # check if cell grid is good enough
                                         if (sub_cloud_perc <= pclient.max_clouds):
                                             # flag to avoid extra lookup into array

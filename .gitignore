@@ -12,6 +12,7 @@ kmls.zip
 .DS_Store
 .vscode
 spatial/python/planet/catalog/*.tif*
+spatial/python/planet/catalog/*/*.tif*
 spatial/python/planet/*csv
 spatial/python/planet/*.ini
 __pycache__
