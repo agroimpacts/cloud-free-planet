@@ -86,9 +86,9 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
     # read all valid likelihood and score from history assignments
     userhistories <- lapply(c(1:length(historyassignmentid)), function(x) {
    
-      # need add field_skill and nofield_skill columns to new_error_data tables
+      # need add field_skill and nofield_skill columns to accuracy_data tables
       likelihood.sql <- paste0("select new_score, field_skill, nofield_skill",
-                               " from new_error_data  where assignment_id  = '", 
+                               " from accuracy_data  where assignment_id  = '", 
                                historyassignmentid[x], "'") 
       measurements <- DBI::dbGetQuery(coninfo$con, likelihood.sql)
       
@@ -245,13 +245,15 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
 
   s3.dst <- dbFetch(DBI::dbSendQuery(coninfo$con, S3BucketDir.sql))$value
   # read  user polygons that are not unsure
-  provider.sql <- paste0("SELECT provider FROM",
-                     " scene_data WHERE name = '", kmlid, "'")
+  # provider.sql <- paste0("SELECT provider FROM",
+  #                    " scene_data WHERE name = '", kmlid, "'")
+  # 
+  # # provide could be 'planet' or 'wv2'
+  # provider <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+  #                                              provider.sql))
   
-  # provide could be 'planet' or 'wv2'
-  provider <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
-                                               provider.sql))
-  
+  # set provider as planet, and will change once provider table is complete
+  provider <- "planet"
   
   s3.dst.train <- paste0(s3.dst, provider, '/', kml.usage, '/')
   
