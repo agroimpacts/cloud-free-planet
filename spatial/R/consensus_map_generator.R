@@ -11,7 +11,7 @@ riskpixelthres <- 0.4 # determine risky pixels that are larger than threshold
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
 # Input args 
-# kmlid <- "GH0087859" # testlines
+# kmlid <- "GH0067266" # testlines
 # min.mappedcount <- 0 # testlines
 # scorethres <- 0     # testlines
 # output.riskmap <- FALSE # testlines
@@ -19,11 +19,11 @@ suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 # alt.root <- NULL # testlines
 # host <- NULL # testlines
 
-if(length(arg) < 3) stop("At least 3 arguments needed", call. = FALSE)
 arg <- commandArgs(TRUE)
 kmlid <- arg[1]  # ID of grid cell
-kml.usage <- arg[2] # the use of kml, could be 'train, 'test' or 'holdout'
+kml.usage <- arg[2] # the use of kml, could be 'train, 'validate' or 'holdout'
 min.mappedcount <- arg[3] # minimum mapped map count
+if(length(arg) < 3) stop("At least 3 arguments needed", call. = FALSE)
 if(length(arg) == 3) {
   output.riskmap <- FALSE
   db.tester.name <- NULL

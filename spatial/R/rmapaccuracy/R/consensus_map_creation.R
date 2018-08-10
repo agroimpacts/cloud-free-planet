@@ -1,7 +1,7 @@
 #' Control the output of label maps, risk maps, and heat maps 
 #' @param kmlid 
 #' @param min.mappedcount the minimum approved assignment count
-#' @param kml.usage the use of kml, could be 'train, 'test' or 'holdout';
+#' @param kml.usage the use of kml, could be 'train, 'validate' or 'holdout';
 #' This parameter will determine the directory of S3 folder to store consensus 
 #' maps.
 #' @param riskthres the threshold to select 'risk' pixels
@@ -12,6 +12,7 @@
 #' @param host NULL or "crowdmapper.org", if testing from remote location
 #' @return Sticks conflict/risk percentage pixels into database (kml_data) and
 #' writes rasterized labels to S3 bucket.
+#' @importFrom raster ncell
 #' @export
 #' 
 consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
@@ -75,40 +76,118 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
       
     # read all scored assignments including 'Approved' and 'Rejected'
     # for calculating history field and no field likelihood of worker i
+    
+    ############################# assignment history #########################
     histassignid.sql <- paste0("select assignment_id from", 
                                " assignment_data where worker_id = '", 
                                workerid, "'",
                                " and (status = 'Approved' OR status = ",
                                "'Rejected') and score IS NOT NULL")
     historyassignmentid <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
-                                             histassignid.sql)$assignment_id)
+                                            histassignid.sql)$assignment_id)
     
-    # read all valid likelihood and score from history assignments
+    if (is.null(historyassignmentid)){
+      userhistories <- NA
+    }
+    
+    # query all valid likelihood and score from history assignments
     userhistories <- lapply(c(1:length(historyassignmentid)), function(x) {
    
-      # need add field_skill and nofield_skill columns to accuracy_data tables
+      # query likelihood and scores
       likelihood.sql <- paste0("select new_score, field_skill, nofield_skill",
-                               " from accuracy_data  where assignment_id  = '", 
+                               " from accuracy_data  where assignment_id='", 
                                historyassignmentid[x], "'") 
-      measurements <- DBI::dbGetQuery(coninfo$con, likelihood.sql)
+      measurements <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+                                                       likelihood.sql))
       
       # field_skill and nofield_skill are alias of max.field.lklh 
       # and max.nofield.lklh 
-      c('ml.field' = as.numeric(measurements$field_skill), 
-        'ml.nofield' = as.numeric(measurements$nofield_skill), 
-        'score.hist' = as.numeric(measurements$new_score))
+      if (nrow(measurements) != 0){
+        c('ml.field' = as.numeric(measurements$field_skill), 
+          'ml.nofield' = as.numeric(measurements$nofield_skill), 
+          'score.hist' = as.numeric(measurements$new_score))
+      }
+      else{
+        NA
+      }
     })
-      
-    # calculating mean max likelihood and score from history
-    ml.field <- mean(data.frame(do.call(rbind, userhistories))$ml.field)
-    ml.nofield <- mean(data.frame(do.call(rbind, userhistories))$ml.nofield)
-    score.hist <- mean(data.frame(do.call(rbind, userhistories))$score.hist)
+    
+    #########################qual assignment history #########################
+    qual_histassignid.sql <- paste0("select assignment_id from", 
+                               " qual_assignment_data where worker_id = '", 
+                               workerid, "'",
+                               " and (status = 'Approved' OR status = ",
+                               "'Rejected') and score IS NOT NULL")
+    qual_historyassignmentid <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+                                                            qual_histassignid.sql)
+                                                              $assignment_id)
+    # check if any qual history assignmentid
+    if (is.null(qual_historyassignmentid)){
+      qual_userhistories <- NA
+    }
+    else{
+      # read all valid likelihood and score from history qual_assignments
+      qual_userhistories <- lapply(c(1:length(qual_historyassignmentid)), 
+                                   function(x) {
+        # query likelihood and scores
+        likelihood.sql <- paste0("select new_score, field_skill, nofield_skill",
+                                 " from qual_accuracy_data where assignment_id='",
+                                 qual_historyassignmentid[x], "'") 
+        measurements <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+                                                         likelihood.sql))
+        
+        # field_skill and nofield_skill are alias of max.field.lklh 
+        # and max.nofield.lklh 
+        if (nrow(measurements) != 0){
+          c('ml.field' = as.numeric(measurements$field_skill), 
+            'ml.nofield' = as.numeric(measurements$nofield_skill), 
+            'score.hist' = as.numeric(measurements$new_score))
+        }
+        else{
+          NA
+        }
+      })
+    }
+    
+    
+    ##########################################################################
+    # combine assignment and qual assignment and delete NA values
+    if (length(userhistories[!is.na(userhistories)]) != 0){
+      userhistories <- data.frame(do.call(rbind, 
+                                          userhistories[!is.na(userhistories)]))
+    }
+    else{
+      userhistories <- data.frame('ml.field' = NA, 
+                                  'ml.nofield' = NA, 
+                                  'score.hist' = NA)
+    }
+    
+    if (length(userhistories[!is.na(userhistories)]) != 0){
+      qual_userhistories <- data.frame(do.call(rbind,
+                                               qual_userhistories[
+                                                 !is.na(qual_userhistories)]))
+    }
+    else{
+      qual_userhistories <- data.frame('ml.field' = NA, 
+                                       'ml.nofield' = NA, 
+                                       'score.hist' = NA)
+    }
+    
+     
+    # calculating mean max likelihood and score from qual and non-qual history
+    ml.field <- mean(rbind(userhistories, qual_userhistories)$ml.field, 
+                     na.rm=TRUE)
+    ml.nofield <- mean(rbind(userhistories, qual_userhistories)$ml.nofield, 
+                       na.rm=TRUE)
+    score.hist <- mean(rbind(userhistories, qual_userhistories)$score.hist, 
+                       na.rm=TRUE)
 
-    # read  user polygons that are given as surely-labeled fields
-    user.sql <- paste0("SELECT name, geom_clean FROM ",
-                        "user_maps where assignment_id = ", "'", x, "' AND NOT ",
-                        "category='unsure1' AND NOT category='cloudshadow' 
-                       order by name")
+    # read'field-group' polygons
+    user.sql <- paste0("select name, geom_clean ",
+                       "FROM user_maps INNER JOIN categories ", 
+                       "USING (category) where assignment_id='",  
+                       assignmentid, "' ",
+                       "AND categ_group ='field'")
     user.polys <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
                                                      gsub(", geom_clean", 
                                                           "", user.sql)))
@@ -129,6 +208,9 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
     if(user.hasfields == "Y") {
       user.polys <- suppressWarnings(st_read(coninfo$con, query = user.sql, 
                                                geom_column = 'geom_clean'))
+      
+      # select only polygons
+      user.polys <- user.polys %>% filter(st_is(. , "POLYGON"))
         
       # union user polygons
       user.poly <- st_union(user.polys)
@@ -136,7 +218,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
       # if for F sites, we need to first intersection user maps by grid 
       # to remain those within-grid parts for calculation
       if(qsite == FALSE) {
-        user.poly <- suppressWarnings(st_intersection(user.poly, grid.poly))
+        user.poly <- suppressMessages(st_intersection(user.poly, grid.poly))
       }
       
       geometry.user = user.poly
@@ -152,13 +234,16 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
                                                     query = user.sql.unsure, 
                                                     geom_column = 'geom_clean'))
       
+      # select only polygons
+      user.polys.unsure <- user.polys %>% filter(st_is(. , "POLYGON"))
+      
       # union user unsure polygons
       user.poly.unsure <- st_union(user.polys.unsure)
       
       # if for F sites, we need to first intersection user maps by grid 
       # to remain those within-grid parts for calculation
       if(qsite == FALSE) {
-        user.poly.unsure <- suppressWarnings(st_intersection(user.poly.unsure, 
+        user.poly.unsure <- suppressMessages(st_intersection(user.poly.unsure, 
                                                              grid.poly))
       }
       
@@ -174,10 +259,11 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
     # bayes.poly will consist two sf rows, the first is that the surely-labeled
     # fields, and the second is that unsure fields
     bayes.poly <- st_sf('posterior.field' = c(1, 0.5), 
-                        'max.field.lklh' = c(ml.field, ml.field) , 
+                        'max.field.lklh' = c(ml.field, ml.field), 
                         'max.nofield.lklh' = c(ml.nofield, ml.nofield) , 
                         'prior'= c(score.hist, score.hist), 
-                        geometry = st_sfc(geometry.user, geometry.user.unsure))
+                        geometry = c(st_sfc(geometry.user), 
+                                     st_sfc(geometry.user.unsure)))
     
     # set crs
     st_crs(bayes.poly) <- gcsstr
@@ -186,7 +272,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
    
   })
   
-  bayes.polys <- do.call(rbind, bayes.polys)
+  bayes.polys <- suppressWarnings(do.call(rbind, bayes.polys))
   
   if (nrow(bayes.polys) == 0) {
     stop("There is no any valid assignment for creating consensus maps")
@@ -211,7 +297,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
                            ymax = max(bb.polys$ymax,bb.grid$ymax), 
                            ymin = min(bb.polys$ymin,bb.grid$ymin)), 
                          crs = gcsstr)
-    rasterextent <- st_sf(geom = st_as_sfc(new.bbbox))
+    rasterextent <- st_as_sfc(new.bbbox)
   }
   
   # Threshold here for determine field pixels in heat maps (not threshold for risk
@@ -220,10 +306,10 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
                                        rasterextent = rasterextent,
                                        threshold = 0.5)
   
-  riskpixelpercentage <- ncell(bayesoutput$riskmap
+  riskpixelpercentage <- round(ncell(bayesoutput$riskmap
                                    [bayesoutput$riskmap > riskpixelthres]) /
                              (nrow(bayesoutput$riskmap) * 
-                                ncol(bayesoutput$riskmap))
+                                ncol(bayesoutput$riskmap)), 2)
   # need add riskpixelpercentage column into kml_data tables
   # insert risk pixel percentage into kml_data table
   # UPDATE Student SET NAME = 'PRATIK', ADDRESS = 'SIKKIM' WHERE ROLL_NO = 1;
