@@ -6,7 +6,7 @@
 #' @param s3.dst the folder directory of s3 bucket for putting local objects
 #' @param s3.filename the name of local.object saved in s3
 #' @importFrom aws.s3 put_object
-#' @importFrom aws.s3 put_object
+#' @importFrom raster writeRaster
 s3_upload <- function(proj.root, bucketname, local.object, s3.dst, s3.filename){
   ## if sp class
   if (class(local.object)[1] == "RasterLayer"){
