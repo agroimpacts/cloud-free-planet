@@ -594,33 +594,32 @@ class MappingCommon(object):
     # Return true or false
     def generateConsensusMap(self, k, kmlName, minMapCount, kmlusage):
         
-        riskPixelPercentage = subprocess.Popen(["Rscript",
-                                                "%s/spatial/R/consensus_map_generator.R" %
-                                                self.projectRoot,
-                                                kmlName,
-                                                kmlusage,
-                                                str(minMapCount)],
-                                               stdout=subprocess.PIPE,
-                                               stderr=subprocess.STDOUT).communicate()[0]
-                                               
-        # using 10% as risk threshold for warning, if risky pixel percentage is larger
-        # than 10% for a kml, the system will yield a warning (but won't stop)
-        riskWarningThres = float(self.getConfiguration('Consensus_RiskWarningThreshold'))
-        if riskPixelPercentage is None:
-            k.write(
-                "generateConsensusMap: consensus creation fails for %s\n" % kmlName)
-            return False
-        elif riskPixelPercentage > riskWarningThres:
-            k.write("generateConsensusMap alerting: risky pixels in %s consensus "
-                    "map has exceeded %s percentage threshold "
-                    "(the kml consensus map has %s percentage risky pixels)\n" %
-                    (kmlName, riskWarningThres * 100, riskPixelPercentage * 100))
-            return True
+        try:
+           riskPixelPercentage = float(subprocess.Popen(["Rscript",
+                                                "%s/spatial/R/consensus_map_generator.R" % self.projectRoot, kmlName, kmlusage, str(minMapCount)],
+                                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0])
+        except Exception as e:
+           k.write("generateConsensusMap fails for %s: \n %s \n" % (kmlName, e))  
+           return False
         else:
-            k.write(
-                "generateConsensusMap: consensus creation succeed for %s\n" %
-                kmlName)
-            return True
+           # using 10% as risk threshold for warning, if risky pixel percentage is larger
+           # than 10% for a kml, the system will yield a warning (but won't stop)
+           riskWarningThres = float(self.getConfiguration('Consensus_RiskWarningThreshold'))
+           if riskPixelPercentage is None:
+               k.write(
+                   "generateConsensusMap: consensus creation fails for %s\n" % kmlName)
+               return False
+           elif riskPixelPercentage > riskWarningThres:
+               k.write("generateConsensusMap alerting: risky pixels in %s consensus "
+                       "map has exceeded %s percentage threshold "
+                       "(the kml consensus map has %s percentage risky pixels)\n" %
+                       (kmlName, riskWarningThres * 100, riskPixelPercentage * 100))
+               return True
+           else:
+               k.write(
+                   "generateConsensusMap: consensus creation succeed for %s\n" %
+                   kmlName)
+               return True
 
     # Save all the worker's drawm maps.
     # Note: if tryNum is zero, then this is not a training case.

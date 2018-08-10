@@ -19,7 +19,11 @@
 bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
 
   gcsstr <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
-  posterior.field.rst <- raster(extent(as(rasterextent, 'Spatial')), 
+  
+  posterior.field.rst <- raster(extent(as_Spatial(rasterextent)),
+  # stupid method: the centroid r doesn't allow coercing sfc to spatial
+  # bb <- st_bbox(rasterextent)
+  # posterior.field.rst <- raster(extent(bb['xmin'], bb['xmax'], bb['ymin'], bb['ymax']),
                                 resolution = 0.005 / 200, crs = gcsstr)  ### HC
   
   # consensus = sum(weights * posterior.field.rst)/sum(weight)
@@ -33,6 +37,12 @@ bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
                                    nrow(posterior.field.rst))
       posterior.field.rst <- setValues(posterior.field.rst, posterior.field.val)
       
+      # maximum likelihood matrix would be a matrix with a single value
+      max.nofield.lklh.val <- rep(bayes.polys[t,]$max.nofield.lklh,
+                                 ncol(posterior.field.rst) * 
+                                   nrow(posterior.field.rst))
+      user.max.lklh <- setValues(posterior.field.rst, max.nofield.lklh.val)
+      
     }
     else {
       # polygon: 1 or 0.5
@@ -40,10 +50,11 @@ bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
       posterior.field.rst <- fasterize(bayes.polys[t, ], posterior.field.rst, 
                                        field = "posterior.field", 
                                        background = 0)
+      user.max.lklh <- fasterize(bayes.polys[t, ], posterior.field.rst, 
+                                 field =  "max.field.lklh", 
+                                 background = bayes.polys[t,]$max.nofield.lklh)
       }
-    user.max.lklh <- fasterize(bayes.polys[t, ], posterior.field.rst, 
-                               field =  "max.field.lklh", 
-                               background = bayes.polys[t,]$max.nofield.lklh)
+    
     weight <- user.max.lklh * bayes.polys[t,]$prior
     if (t == 1) {
       weight.acc <- weight 
