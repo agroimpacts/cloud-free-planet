@@ -142,7 +142,7 @@ case3_accuracy <- function(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt,
   count.acc <- 0  # if QAQC has fields but user maps none
   frag.acc <- 0 
   edge.acc <- 0 # miss qaqc fields, give zero for frag and edge acc
-  cat.acc <- 0
+  cate.acc <- 0
   
   # Secondary metric - Sensitivity of results outside of kml grid
   if(length(qaqc.poly.out) == 0) {
