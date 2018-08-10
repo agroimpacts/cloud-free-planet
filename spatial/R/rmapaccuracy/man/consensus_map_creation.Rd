@@ -13,7 +13,7 @@ consensus_map_creation(kmlid, min.mappedcount, kml.usage, output.riskmap,
 
 \item{min.mappedcount}{the minimum approved assignment count}
 
-\item{kml.usage}{the use of kml, could be 'train, 'test' or 'holdout';
+\item{kml.usage}{the use of kml, could be 'train, 'validate' or 'holdout';
 This parameter will determine the directory of S3 folder to store consensus 
 maps.}
 
