@@ -65,7 +65,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     qaqc.polys <- st_buffer(qaqc.polys, 0)
   } 
 
-  # Read in user data
+  # Read in 'field' polygons
   if(mtype == "tr") {  # Training case
     user.sql <- paste0("SELECT name, try, category, geom_clean ",
                        "FROM qual_user_maps INNER JOIN categories ", 
