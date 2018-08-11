@@ -10,22 +10,15 @@
 #' 
 categorical_accuracy <- function(qaqc.polys, user.polys, cate.code){
   
-  # general reference field polygon
-  qfieldpolys <- qaqc.polys %>% dplyr::filter(category %in% cate.code)
-  
-  
-  # user field polygons
-  ufieldpolys <- user.polys %>% dplyr::filter(category %in% cate.code)
-  
   # calculate error for each category
   cat.area <- lapply(1:length(cate.code), function(x){
-    qpoly <- st_union(qfieldpolys %>% dplyr::filter(category == cate.code[x]))
+    qpoly <- st_union(qaqc.polys %>% dplyr::filter(category == cate.code[x]))
     
     # the focused polygons that has the same label as the above qaqc polygon 
-    upoly.focus <- st_union(ufieldpolys %>% 
+    upoly.focus <- st_union(user.polys %>% 
                               dplyr::filter(category == cate.code[x]))
     # the rest polygons 
-    upoly.rest <- st_union(ufieldpolys %>% 
+    upoly.rest <- st_union(user.polys %>% 
                              dplyr::filter(category != cate.code[x])) 
     
     # only compute the errors between two field categories, and ignore the errors
