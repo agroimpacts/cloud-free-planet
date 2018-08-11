@@ -52,13 +52,12 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     
   # Collect QAQC fields (if there are any; if not then "N" value will be 
   # returned). This should work for both training and test sites
-  qaqc.sql <- paste0("select gid from qaqcfields where name=", 
-                     "'", kmlid, "'")
-  qaqc.polys <- DBI::dbGetQuery(coninfo$con, qaqc.sql)
+  qaqc.sql <- paste0("SELECT gid, category, geom_clean FROM qaqcfields ",
+                     "INNER JOIN categories USING (category) ",
+                     "WHERE name=", "'", kmlid, "' AND categ_group ='field'")
+  qaqc.polys <- DBI::dbGetQuery(coninfo$con, gsub(", geom_clean", "", qaqc.sql))
   qaqc.hasfields <- ifelse(nrow(qaqc.polys) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
-    qaqc.sql <- paste0("SELECT gid, category, geom_clean ",
-                       "FROM qaqcfields WHERE name=", "'", kmlid, "'")
     qaqc.polys <- suppressWarnings(st_read(coninfo$con, query = qaqc.sql, 
                                            geom_column = 'geom_clean'))
     qaqc.polys <- st_transform(qaqc.polys, crs =  prjstr)
@@ -114,7 +113,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     # needed for the other 3 cases  ### Extract this to separate function
     xy_tabs <- data.table(tbl(coninfo$con, "master_grid") %>% 
                             filter(name == kmlid) %>% 
-                            select(x, y, name) %>% collect())
+                            dplyr::select(x, y, name) %>% collect())
                             #dplyr::select(x, y, name) %>% collect())
     
     grid.poly <- point_to_gridpoly(xy = xy_tabs, w = diam, NewCRSobj = prjstr, 
