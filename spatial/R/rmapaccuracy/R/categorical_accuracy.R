@@ -17,29 +17,33 @@ categorical_accuracy <- function(qaqc.polys, user.polys, cate.code){
     # the focused polygons that has the same label as the above qaqc polygon 
     upoly.focus <- st_union(user.polys %>% 
                               dplyr::filter(category == cate.code[x]))
-    # the rest polygons 
-    upoly.rest <- st_union(user.polys %>% 
-                             dplyr::filter(category != cate.code[x])) 
     
-    # only compute the errors between two field categories, and ignore the errors
-    # that are between field and no field
-    categ.error <- st_intersection(qpoly, upoly.rest)
-    error.area <- ifelse(!is.null(categ.error) & is.object(categ.error) 
-                         & length(categ.error) > 0, st_area(categ.error), 0)
-    
+    # compute correct area intersected region
     categ.correct <- st_intersection(qpoly, upoly.focus)
     correct.area <- ifelse(!is.null(categ.correct) & is.object(categ.correct) 
                            & length(categ.correct) > 0, st_area(categ.correct),
                            0)
     
-    c('ErrorArea' = error.area, 'CorrectArea' = correct.area)
+    c('CorrectArea' = correct.area)
   })
   
   cat.area.rbind <- do.call(rbind,cat.area)
   
-  # Error and correct area are actually both calculated twice, which will be 
-  # cancelled out in the division below
-  category.acc <- 1 - sum(cat.area.rbind[, "ErrorArea"]) /
-    sum(cat.area.rbind)
+  # focus on only general field intersect area, which is counted as corrected
+  # in in-grid and out-grid region. 
+  field.intersect <- st_intersection(st_union(qaqc.polys), 
+                                                  st_union(user.polys))
+  
+  # calculate the categorical error within accurate general field 
+  # (field.intersect.area ) to avoid redundant error calculation
+  if(!is.null(field.intersect)& is.object(field.intersect) 
+                & length(field.intersect) > 0){
+    category.acc <- sum(cat.area.rbind[, "CorrectArea"]) /
+                          as.numeric(st_area(field.intersect))
+  } 
+  else{
+    category.acc <- 0
+  }
+  
   return(category.acc)
 }
