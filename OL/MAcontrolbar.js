@@ -20,30 +20,92 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
 
     // Check for self-intersection.
     // Used in polygon/polygon-hole 'condition' and 'finishCondition' clauses, and for 'modifyend' processing.
-    function hasSelfIntersection(geom, closed) {
+    function hasSelfIntersection(geom, closed=false) {
         // Only applies to quadrilaterals or greater.
         if (geom && geom.getCoordinates()[0].length >= 5) {
             // Convert to JSTS geometry and coordinates.
             var jsts_geom = jstsParser.read(geom);
+            var jsts_coords = jsts_geom.getCoordinates();
+            //console.log(jsts_coords);
+            // Remove any adjacent duplicate coordinates (caused by closing shape).
+            uniqCoords = [];
+            for (i = 0; i < jsts_coords.length - 1; i++) {
+                if (!(jsts_coords[i].x == jsts_coords[i + 1].x &&
+                        jsts_coords[i].y == jsts_coords[i + 1].y)) {
+                    uniqCoords.push(jsts_coords[i]);
+                }
+            }
+            // Don't include the last (same as first) coordinate if shape not yet closed.
+            // This will prevent the inclusion of the virtual segment formed by the last
+            // point drawn and the first point drawn in the intersection check. This
+            // virtual segment will keep changing until the shape is completed.
+            if (closed) {
+                uniqCoords.push(jsts_coords[jsts_coords.length - 1]);
+            }
+            console.log(uniqCoords);
+            // Check all non-adjacent segments for intersection.
+            //  If any intersect, then report back self-intersection.
+            for (i = 0; i < uniqCoords.length - 3; i++) {
+                for (j = i + 2; j < uniqCoords.length - 1; j++) {
+                    // If closed shape, don't compare first and last segments
+                    // since they are effectively adjacent.
+                    if (!(closed && (i == 0 && j == (uniqCoords.length - 2)))) {
+                        selfIntersects = LI.hasIntersection(LI.computeIntersection(
+                            uniqCoords[i],
+                            uniqCoords[i + 1],
+                            uniqCoords[j],
+                            uniqCoords[j +1]
+                        ));
+                        console.log("hasSelfIntersection: " + i + "-" + j + ": " + selfIntersects);
+                        if (selfIntersects) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            console.log("hasSelfIntersection: false");
+            return false;
+        }
+    }
+
+    // For DrawHole, check that outer ring and inner ring(s) don't intersect with one another.
+    // Must be a 1-pixel buffer separation between rings.
+    // Create a set of single-ring polygons from the pre-existing polygon (1st argument).
+    // Used in DrawHole condition clause.
+    function hasInternalIntersection(prevGeom, geom) {
+        if (geom && geom.getCoordinates()[0].length >= 4) {
+            // First, create a positive 1-pixel buffer around the inner polygon being drawn.
+            // This is to prevent border-sharing with the outer polygon and other inner polygons.
+            var resolution = map.getView().getResolution();
+            // Convert to JSTS geometry and coordinates.
+            var jsts_geom = jstsParser.read(geom);
+            var jsts_bufGeom = jsts_geom.buffer(resolution);
+            console.log(jsts_bufGeom.getCoordinates());
+
+            // Then, make prevGeom's exterior ring into a single-ring polygon.
+            // Convert to JSTS geometry and coordinates.
+            var jsts_prevGeom = jstsParser.read(prevGeom);
             // First check the exterior ring of the polygon.
-            var jsts_coords = jsts_geom.getExteriorRing().getCoordinates();
-            // Make it into a linear ring.
-            var linRing = geomFactory.createLinearRing(jsts_coords);
-            // If linear ring is not simple, then it self-intersects.
-            intersects = !linRing.isSimple();
-            if (intersects) {
-                console.log("hasSelfIntersection: true");
+            var oCoords = jsts_prevGeom.getExteriorRing().getCoordinates();
+            var oPolygon = geomFactory.createPolygon(oCoords);
+            console.log(oPolygon.getCoordinates());
+            // Check if it contains the buffered hole-polygon being drawn.
+            contains = oPolygon.contains(jsts_bufGeom);
+            console.log("contains: " + contains);
+            if (!contains) {
+                console.log("hasInternalIntersection: outer contains buffered inner: false");
                 return true;
             }
-            // Then check all interior rings, if any.
-            for (i = 0; i < jsts_geom.getNumInteriorRing(); i++) {
-                jsts_coords = jsts_geom.getInteriorRingN(i).getCoordinates(); 
-                // Make each ring's coordinates into a linear ring.
-                var linRing = geomFactory.createLinearRing(jsts_coords);
-                // If linear ring is not simple, then it self-intersects.
-                intersects = !linRing.isSimple();
+            // Create array of single-ring polygons for 1st arg's inner rings.
+            for (i = 0; i < jsts_prevGeom.getNumInteriorRing(); i++) {
+                var iCoords = jsts_prevGeom.getInteriorRingN(i).getCoordinates(); 
+                var iPolygon = geomFactory.createPolygon(iCoords);
+                console.log(iPolygon.getCoordinates());
+                // Check if it intersects the buffered hole-polygon being drawn.
+                intersects = iPolygon.intersects(jsts_bufGeom);
+                console.log("intersects: " + intersects);
                 if (intersects) {
-                    console.log("hasSelfIntersection: true");
+                    console.log("hasInternalIntersection: inner intersects buffered inner: true");
                     return true;
                 }
             }
@@ -107,7 +169,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         return false;
     }
 
-    // Used in all Draw tool 'condition' clause for point overlap testing.
+    // Used in all Draw tool 'condition' clauses (except DrawHole) for point overlap testing.
     function pointOverlapCheck(event) {
         var feature = getClickFeature(event, 0);
 
@@ -123,17 +185,49 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             var resolution = map.getView().getResolution();
             jsts_feature = jsts_feature.buffer(-resolution);
             // See if the point overlaps with the buffered feature.
-            // Return the negation (false if it overlaps); true otherwise.
+            // Return the negation (false if it is contained); true otherwise.
             // Returning false will prevent adding the point.
-            var overlap = jsts_feature.contains(jsts_point);
-            return !overlap;
+            var contains = jsts_feature.contains(jsts_point);
+            console.log("pointOverlapCheck: contains: " + contains);
+            return !contains;
         }
         // No overlap: add the vertex.
+        console.log("pointOverlapCheck: true");
         return true;
     };
 
+    // Used by DrawHole 'condition' clause to ensure points being drawn do not overlap
+    // with other outer and inner rings.
+    function pointInternalOverlapCheck(event) {
+        var feature = getClickFeature(event, 0);
+
+        // If we found an overlap, check to see if it's truly inside the outer or inner ring's 
+        // boundary. If it's on the border, we return false to prevent adding the vertex.
+        if (feature) {
+            // Create JSTS geometries for the click coordinates and the feature it overlaps with.
+            var jsts_point = geomFactory.createPoint(
+                new jsts.geom.Coordinate(event.coordinate[0], event.coordinate[1])
+            );
+            console.log(jsts_point.getCoordinates());
+            // Create a positive 1-pixel buffer to prevent border sharing.
+            var resolution = map.getView().getResolution();
+            jsts_bufPoint = jsts_point.buffer(resolution);
+            console.log(jsts_bufPoint.getCoordinates());
+            var jsts_feature = jstsParser.read(feature.getGeometry());
+            console.log(jsts_feature.getCoordinates());
+            // See if the buffered point overlaps with the feature.
+            // Return the status (true if it is contained); false otherwise.
+            var contains = jsts_feature.contains(jsts_bufPoint);
+            console.log("pointInternalOverlapCheck: contains: " + contains);
+            return contains;
+        }
+        // No overlap: don't add the vertex.
+        console.log("pointInternalOverlapCheck: false");
+        return false;
+    };
+
     // Function to return feature at click event.
-    // Used by pointOverlapCheck().
+    // Used by pointOverlapCheck() and pointInternalOverlapCheck().
     function getClickFeature(event, clickTolerance) {
         var features = map.getFeaturesAtPixel(
             event.pixel, 
@@ -150,6 +244,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         );
         // Return the feature's starting coordinates if there's only one.
         if (features && features.length == 1) {
+            console.log("getClickFeature: 1 feature at pixel.");
             return features[0];
         } else {
             if (!features) {
@@ -162,7 +257,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
     };
 
     // Function to check if specified geometry overlaps with other existing features.
-    // Used in Draw tool 'finishCondition' clauses, 'modifyend' processing, and 'translateend' processing.
+    // Used in all Draw tool 'finishCondition' clauses, 'modifyend' processing, and 'translateend' processing.
     function hasOverlap(geom) {
         var jsts_geom = jstsParser.read(geom);
         // Create a negative 1-pixel buffer to allow for border sharing.
@@ -211,6 +306,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         group: false		    // group controls together
     });
     var polyGeom = undefined;
+    var polyGeomDone = false;
     drawBar.addControl( new ol.control.Toggle({
         html: '<i class="icon-polygon-o" ></i>',
         title: 'Polygon creation: Click at each corner of field; press ESC key to remove most recent corner. Double-click to complete field.',
@@ -220,21 +316,27 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             features: fieldsLayer.getSource().getFeaturesCollection(),
             // Store the geometry being currently drawn for use by the finishCondition.
             geometryFunction: function(coords, geom) {
-                polyGeom = geom;
-                if (!polyGeom) {
-                    polyGeom = new ol.geom.Polygon(null);
+                if (!geom) {
+                    geom = new ol.geom.Polygon(null);
                 }
                 // Close the polygon each time we come through here.
                 drawCoords = coords[0].slice();
                 if (drawCoords.length > 0) {
                     drawCoords.push(drawCoords[0].slice());
                 }
-                polyGeom.setCoordinates([drawCoords]);
-                return polyGeom;
+                geom.setCoordinates([drawCoords]);
+                // If we're done with a shape, undefine polyGeom.
+                if (polyGeomDone) {
+                    polyGeom = undefined;
+                    polyGeomDone = false;
+                } else{
+                    polyGeom = geom;
+                }
+                return geom;
             },
             // Check for feature overlap on each click.
             condition: function(event) {
-                if (hasSelfIntersection(polyGeom, false)) {
+                if (hasSelfIntersection(polyGeom)) {
                     return false;
                 }
                 if (hasLastSegmentIntersection(polyGeom)) {
@@ -256,6 +358,9 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                     ctrl.getInteraction().removeLastPoint();
                     return false;
                 }
+                // Prepare for re-use. 'geom' is undefined the first time 'condition'
+                // is called, so polyGeom will not get reset until afterward.
+                polyGeomDone = true;
                 return true;
             },
             style: new ol.style.Style({
@@ -276,6 +381,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         })
     }));
     var circleGeom = undefined;
+    var circleGeomDone = false;
     drawBar.addControl( new ol.control.Toggle({
         html: '<i class="icon-circle-thin" ></i>',
         title: 'Circle creation: Click at center of field; slide mouse to expand and click when done.',
@@ -284,8 +390,15 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             features: fieldsLayer.getSource().getFeaturesCollection(),
             geometryFunction: function(coords, geom) {
                 func = ol.interaction.Draw.createRegularPolygon();
-                circleGeom = func(coords, geom);
-                return circleGeom;
+                geom = func(coords, geom);
+                // If we're done with a shape, undefine circleGeom.
+                if (circleGeomDone) {
+                    circleGeom = undefined;
+                    circleGeomDone = false;
+                } else{
+                    circleGeom = geom;
+                }
+                return geom;
             },
             // Check for feature overlap on each click.
             condition: function(event) {
@@ -294,7 +407,13 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             // Check that currently drawn geometry doesn't overlap any previously drawn feature.
             // NOTE: Requires a specially patched version of OpenLayers v4.6.5.
             finishCondition: function(event) {
-                return !hasOverlap(circleGeom);
+                if (hasOverlap(circleGeom)) {
+                    return false;
+                }
+                // Prepare for re-use. 'geom' is undefined the first time 'condition'
+                // is called, so circleGeom will not get reset until afterward.
+                circleGeomDone = true;
+                return true;
             },
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
@@ -314,6 +433,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         })
     }));
     var rectGeom = undefined;
+    var rectGeomDone = false;
     drawBar.addControl( new ol.control.Toggle({
         html: '<i class="icon-rectangle-o" ></i>',
         title: 'Rectangle creation: Click at corner of field; slide mouse to expand and click when done.',
@@ -322,8 +442,15 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             features: fieldsLayer.getSource().getFeaturesCollection(),
             geometryFunction: function(coords, geom) {
                 func = ol.interaction.Draw.createBox();
-                rectGeom = func(coords, geom);
-                return rectGeom;
+                geom = func(coords, geom);
+                // If we're done with a shape, undefine rectGeom.
+                if (rectGeomDone) {
+                    rectGeom = undefined;
+                    rectGeomDone = false;
+                } else{
+                    rectGeom = geom;
+                }
+                return geom;
             },
             // Check for feature overlap on each click.
             condition: function(event) {
@@ -332,7 +459,13 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             // Check that currently drawn geometry doesn't overlap any previously drawn feature.
             // NOTE: Requires a specially patched version of OpenLayers v4.6.5.
             finishCondition: function(event) {
-                return !hasOverlap(rectGeom);
+                if (hasOverlap(rectGeom)) {
+                    return false;
+                }
+                // Prepare for re-use. 'geom' is undefined the first time 'condition'
+                // is called, so rectGeom will not get reset until afterward.
+                rectGeomDone = true;
+                return true;
             },
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
@@ -352,6 +485,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         })
     }));
     var squareGeom = undefined;
+    var squareGeomDone = false;
     drawBar.addControl( new ol.control.Toggle({
         html: '<i class="icon-square-o" ></i>',
         title: 'Square creation: Click at center of field; slide mouse to expand and click when done.',
@@ -360,8 +494,15 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             features: fieldsLayer.getSource().getFeaturesCollection(),
             geometryFunction: function(coords, geom) {
                 func = ol.interaction.Draw.createRegularPolygon(4);
-                squareGeom = func(coords, geom);
-                return squareGeom;
+                geom = func(coords, geom);
+                // If we're done with a shape, undefine squareGeom.
+                if (squareGeomDone) {
+                    squareGeom = undefined;
+                    squareGeomDone = false;
+                } else{
+                    squareGeom = geom;
+                }
+                return geom;
             },
             // Check for feature overlap on each click.
             condition: function(event) {
@@ -370,7 +511,13 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             // Check that currently drawn geometry doesn't overlap any previously drawn feature.
             // NOTE: Requires a specially patched version of OpenLayers v4.6.5.
             finishCondition: function(event) {
-                return !hasOverlap(squareGeom);
+                if (hasOverlap(squareGeom)) {
+                    return false;
+                }
+                // Prepare for re-use. 'geom' is undefined the first time 'condition'
+                // is called, so squareGeom will not get reset until afterward.
+                squareGeomDone = true;
+                return true;
             },
             style: new ol.style.Style({
                 fill: new ol.style.Fill({
@@ -390,6 +537,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         })
     }));
     var holeGeom = undefined;
+    var holeGeomDone = false;
     drawBar.addControl( new ol.control.Toggle({
         html: '<i class="icon-polygon-o" ></i>',
         title: 'Polygon Hole creation: Click at each corner of field; press ESC key to remove most recent corner. Double-click to complete field.',
@@ -403,42 +551,48 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             },
             // Store the geometry being currently drawn for use by condition and  finishCondition.
             geometryFunction: function(coords, geom) {
-                //console.log('holeGeom: ' + coords);
-                holeGeom = geom;
-                if (!holeGeom) {
-                    holeGeom = new ol.geom.Polygon(null);
+                if (!geom) {
+                    geom = new ol.geom.Polygon(null);
                 }
                 // Close the polygon each time we come through here.
                 drawCoords = coords[0].slice();
                 if (drawCoords.length > 0) {
                     drawCoords.push(drawCoords[0].slice());
                 }
-                holeGeom.setCoordinates([drawCoords]);
-                return holeGeom;
+                geom.setCoordinates([drawCoords]);
+                // If we're done with a shape, undefine holeGeom.
+                if (holeGeomDone) {
+                    holeGeom = undefined;
+                    holeGeomDone = false;
+                } else{
+                    holeGeom = geom;
+                }
+                return geom;
             },
             // Check for feature overlap on each click.
             condition: function(event) {
-                if (hasSelfIntersection(holeGeom, false)) {
+                console.log("DrawHole: condition");
+                if (hasSelfIntersection(holeGeom)) {
                     return false;
                 }
-                return true;
+                return pointInternalOverlapCheck(event);
             },
             // Check that currently drawn geometry doesn't overlap any previously drawn feature.
             finishCondition: function(event) {
-                console.log('holeGeom: finishCondition');
-                return true;
+                console.log('DrawHole: finishCondition');
                 if (hasSelfIntersection(holeGeom, true)) {
                     // Remove last point.
                     var ctrl = drawBar.getControls()[HOLE];
                     ctrl.getInteraction().removeLastPoint();
                     return false;
                 }
-                if (hasOverlap(holeGeom)) {
-                    // Remove last point.
-                    var ctrl = drawBar.getControls()[HOLE];
-                    ctrl.getInteraction().removeLastPoint();
+                origPolygon = drawBar.getControls()[HOLE].getInteraction().getPolygon();
+                if (hasInternalIntersection(origPolygon, holeGeom)) {
                     return false;
                 }
+                // Prepare for re-use. 'geom' is undefined the first time 'condition'
+                // is called, so holeGeom will not get reset until afterward.
+                holeGeomDone = true;
                 return true;
             },
             style: new ol.style.Style({
