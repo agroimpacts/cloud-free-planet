@@ -47,6 +47,7 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 planet_config = config['planet']
 imagery_config = config['imagery']
+test = bool(imagery_config['test'])
 
 # extra csv input flags
 with_csv = bool(imagery_config['with_csv'])
@@ -253,8 +254,10 @@ def dt_construct(month, day = 1, year = 2018, t = "00:00:00.000Z"):
 
 
 def main():
-    # ext = GeoUtils.define_extent(30, -2, 0.03) # some test AOI to select a subset of extent from the master_grid.tiff
     ext = GeoUtils.polygon_to_extent(actual_aoi)
+
+    if test:
+        ext = GeoUtils.define_extent(30, -2, 0.03) # some test AOI to select a subset of extent from the master_grid.tiff
     
     # 1. Cell ID: this should be unique for the whole raster
     # 2. Country code: integerized country code
@@ -315,7 +318,7 @@ def main():
             # polygon to check would it intersect initial AOI
             poly = GeoUtils.define_polygon(x, y)
 
-            skip_row = skip_gs & skip_os & actual_aoi.intersects(poly)
+            skip_row = skip_gs & skip_os & (actual_aoi.intersects(poly) | test)
 
             if not skip_row:
                 # read all metadata
@@ -397,7 +400,7 @@ def main():
                                 # polygon to check would it intersect initial AOI
                                 sub_poly = GeoUtils.define_polygon(sx, sy)
 
-                                skip_sub_row = valid_band[season_type][sr, sc] & actual_aoi.intersects(sub_poly)
+                                skip_sub_row = valid_band[season_type][sr, sc] & (actual_aoi.intersects(sub_poly) | test)
 
                                 if not skip_sub_row:
                                     # read all metadata

@@ -2,6 +2,7 @@
 api_key: <none>
 
 [imagery]
+test: false
 aoi: ghana_aoi.geojson
 with_csv: True
 csv_only: True
