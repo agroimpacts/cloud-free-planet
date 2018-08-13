@@ -40,7 +40,7 @@ library(RPostgreSQL)
 library(rmapaccuracy) # package for KML generation
 library(yaml)
 
-params  <-yaml.load_file(file.path(Sys.getenv('PYTHONPATH'),'config_template.yaml'))
+params  <-yaml.load_file(file.path(Sys.getenv('PYTHONPATH'),'config.yaml'))
 ```
 
 ### Check the version of packages and R

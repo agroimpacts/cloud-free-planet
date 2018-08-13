@@ -1,5 +1,5 @@
 library(yaml)
-params <- yaml.load_file('../../../common/config_template.yaml')
+params <- yaml.load_file('../../../common/config.yaml')
 # check on no data sites from KMLgenerate runs
 rm(list = ls())
 suppressMessages(library(rmapaccuracy))

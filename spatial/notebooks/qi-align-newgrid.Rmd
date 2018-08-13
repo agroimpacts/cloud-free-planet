@@ -25,7 +25,7 @@ library(data.table)
 library(raster)
 library(rgeos)
 library(yaml)
-params <- yaml.load.file(paste(Sys.getenv(PYTHONPATH),'/config_template.yaml'))
+params <- yaml.load.file(paste(Sys.getenv(PYTHONPATH),'/config.yaml'))
 
 p_kmls <- "kmls_static"
 p_grid <- "spatial/data/interim/"

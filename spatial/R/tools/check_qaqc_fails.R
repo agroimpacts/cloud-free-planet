@@ -3,7 +3,7 @@
 rm(list = ls())
 library(rmapaccuracy)
 library(yaml)
-params <- yaml.load_file('../../../common/config_template.yaml')
+params <- yaml.load_file('../../../common/config.yaml')
 prjsrid <- 102022
 count.err.wt <- 0.1  
 in.err.wt <- 0.7  

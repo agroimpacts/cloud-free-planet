@@ -7,7 +7,7 @@ def parse_yaml(input_file):
         params = yaml.load(yaml_file)
     return params
 
-params = parse_yaml(os.path.join(os.environ['PYTHONPATH'],"config_template.yaml"))
+params = parse_yaml(os.path.join(os.environ['PYTHONPATH'],"config.yaml"))
 # *****************************
 # Environment specific settings
 # *****************************
