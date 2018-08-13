@@ -2,10 +2,13 @@
 # Main script for calling consensus map generation (Bayes Averaging) functions
 # Author: Su Ye
 
+library(yaml)
+params <- yaml.load_file(file.path(Sys.getenv('PYTHONPATH'),'config_template.yaml'))
+
 # Static arguments
 output.heatmap <- FALSE # if output heat map
-user <- "***REMOVED***"
-password <- "***REMOVED***"
+user <- params$mapper$db_username
+password <- params$mapper$db_password
 diam <- 0.005 / 2 # new master grid diameter
 riskpixelthres <- 0.4 # determine risky pixels that are larger than threshold
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection

@@ -2,6 +2,8 @@
 rm(list = ls())
 suppressMessages(library(rmapaccuracy))
 library(data.table)
+library(yaml)
+params <- yaml.load_file('../../../common/config_template.yaml')
 
 # Find working location
 dinfo <- getDBName()  # pull working environment
@@ -14,8 +16,8 @@ kml.pathsbst <- "/home/sandbox/afmap/kmls_static/"
 
 # Paths and connections
 drv <- dbDriver("PostgreSQL")
-con <- dbConnect(drv, dbname = dinfo["db.name"], user = "***REMOVED***", 
-                 password = "***REMOVED***")
+con <- dbConnect(drv, dbname = dinfo["db.name"], user = params$mapper$db_username, 
+                 password = params$mapper$db_password)
 
 # select assignments where image is in the comment
 asssql <- paste0("select * from assignment_data where comment like '%image%'")

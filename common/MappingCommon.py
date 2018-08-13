@@ -15,15 +15,23 @@ import collections
 from decimal import Decimal
 from github import Github
 from lock import lock
+import yaml
 
-# Key connection parameters.
-db_production_name = 'Africa'
-db_sandbox_name = 'AfricaSandbox'
-db_user = '***REMOVED***'
-db_password = '***REMOVED***'
+def parse_yaml(input_file):
+    """Parse yaml file of configuration parameters."""
+    with open(input_file, 'r') as yaml_file:
+        params = yaml.load(yaml_file)
+    return params
+
+params = parse_yaml(os.path.join(os.environ['PYTHONPATH'],"config_template.yaml"))
+
+db_production_name = params['mapper']['db_production_name']
+db_sandbox_name = params['mapper']['db_sandbox_name']
+db_user = ['mapper']['db_username']
+db_password = ['mapper']['db_password']
 # GitHub user maphelp's token
-github_token = '5f3031c885d40fd1fd54d914f0331dc8f4e4574b'
-github_repo = 'agroimpacts/mapperAL'
+github_token = ['mapper']['github_token']
+github_repo = ['github_repo']['agroimpacts/mapperAL']
 
 class MappingCommon(object):
 

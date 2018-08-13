@@ -15,9 +15,11 @@
 # Libraries
 # suppressMessages(library(RPostgreSQL))
 suppressMessages(library(rmapaccuracy))
+library(yaml)
 
-# Hardcoded variables
+# Hardcoded variables and config parsing
 prjsrid <- 102022  # EPSG identifier for equal area project
+params <- yaml.load_file('../../../common/config_template.yaml')
 
 # Get HIT ID, assignment ID
 args <- commandArgs(TRUE)
@@ -50,8 +52,8 @@ if(test.root == "N") {
 
   # Paths and connections
   drv <- dbDriver("PostgreSQL")
-  con <- dbConnect(drv, dbname = dinfo["db.name"], user = "***REMOVED***", 
-                   password = "***REMOVED***")
+  con <- dbConnect(drv, dbname = dinfo["db.name"], user = params$mapper$db_username, 
+                   password = params$mapper$db_password)
   
   hit.sql <- paste0("select name from hit_data where hit_id='", hit.id, "'")
   hits <- dbGetQuery(con, hit.sql)
