@@ -26,6 +26,9 @@ library(glue)
 library(data.table)
 library(raster)
 library(gdalUtils)
+library(yaml)
+params <- yaml.load_file(file.path(Sys.getenv('PYTHONPATH'),'config_template.yaml'))
+
 p_kmls <- "kmls_static"
 p_grid <- "spatial/data/interim/"
 p_dat <- "spatial/data/external/"
@@ -110,13 +113,11 @@ ids_name <- mgridn_subset[ID %in% ids]
 ids_name[, (c("ID", "x", "y", "fwts", "avail")) := NULL]
 
 ## Write the names into database
-# user <- "***REMOVED***"
-# password <- "***REMOVED***"
-# save(user, password, file = "/home/lsong/mappingafrica/data/***REMOVED***.rda")
-load("/home/lsong/mappingafrica/data/***REMOVED***.rda")
+# user <- params$mapper$db_username
+# password <- params$mapper$db_password
 
 con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(),
-                      dbname = "AfricaSandbox",   
+                      dbname = params$mapper$db_sandbox_name,   
                       user = user,
                       password = password)
 

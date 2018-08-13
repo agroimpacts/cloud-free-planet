@@ -8,19 +8,21 @@ import os
 from datetime import datetime as DT
 import pandas as pd
 import numpy as np
+import yaml
 
 # save the user and password for database
-'''
-pgupw = {"user": "***REMOVED***", "password": "***REMOVED***"}
-f = open("pgupw.data", 'wb')
-pickle.dump(pgupw, f)
-f.close()
-'''
+def parse_yaml(input_file):
+    """Parse yaml file of configuration parameters."""
+    with open(input_file, 'r') as yaml_file:
+        params = yaml.load(yaml_file)
+    return params
+
+params = parse_yaml(os.path.join(os.environ['PYTHONPATH'],"config_template.yaml"))
 
 
 # Essential functions
 # Function of getting database name
-def getDBName(db_sandbox_name="AfricaSandbox", db_product_name="Africa",
+def getDBName(db_sandbox_name=params['mapper']['db_sandbox_name'], db_product_name="Africa",
               db_tester_name=None, alt_root=None):
     euser = getpass.getuser()
     uname = None
@@ -66,16 +68,16 @@ def mapper_connect(user, password, host=None, db_tester_name=None, alt_root=None
 
 # Function of generating regular KMLs
 def RegKML_gen(fname=None, kml_type=None, alt_root=None,
-               host=None, db_tester_name=None, pgupw=None):
+               host=None, db_tester_name=None, params=None):
     fname = fname
     kml_type = kml_type
     alt_root = alt_root
     host = host
     db_tester_name = db_tester_name
-    pgupw = pgupw
 
     # Connect to the database
-    coninfo = mapper_connect(user=pgupw["user"], password=pgupw["password"],
+    coninfo = mapper_connect(user=params["mapper"]["db_username"], 
+                             password=params["mapper"]["db_password"],
                              db_tester_name=db_tester_name,
                              alt_root=alt_root, host=host)
 
@@ -182,19 +184,19 @@ def RegKML_gen(fname=None, kml_type=None, alt_root=None,
 
 # Function of listening to cvml and generating KMLs
 def cvmlKML_gen(fname=None, kml_type=None, alt_root=None,
-                host=None, db_tester_name=None, pgupw=None):
+                host=None, db_tester_name=None, params=None):
     pass
 
 
 # Main function
 def main(fname=None, kml_type=None, alt_root=None,
-         host=None, db_tester_name=None, pgupw=None):
+         host=None, db_tester_name=None, params=None):
     if True:
         RegKML_gen(fname, kml_type, alt_root,
-                   host, db_tester_name, pgupw)
+                   host, db_tester_name, params)
     else:
         cvmlKML_gen(fname, kml_type, alt_root,
-                    host, db_tester_name, pgupw)
+                    host, db_tester_name, params)
 
 
 if __name__ == "__main__":
@@ -202,11 +204,8 @@ if __name__ == "__main__":
     file_name = "KMLgenerate"  # KMLgenerate
     ktype = "N"  # Type of KML (N for non-QAQC)
     alter_root = None
-    db_host = None
-    db_user_name = "lsong"
-    f = open("pgupw.data", "rb")  # Read user name and password for DB
-    pg_pw = pickle.load(f)
-    f.close()
+    db_host = params['mapper']['db_host']
+    db_user_name = 'lsong'
 
     main(fname=file_name, kml_type=ktype, alt_root=alter_root,
-         host=db_host, db_tester_name=db_user_name, pgupw=pg_pw)
+         host=db_host, db_tester_name=db_user_name, params=params)
