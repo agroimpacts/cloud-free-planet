@@ -3,7 +3,7 @@ rm(list = ls())
 suppressMessages(library(rmapaccuracy))
 library(data.table)
 library(yaml)
-params <- yaml.load_file('../../../common/config_template.yaml')
+params <- yaml.load_file('../../../common/config.yaml')
 
 # Find working location
 dinfo <- getDBName()  # pull working environment

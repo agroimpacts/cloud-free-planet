@@ -19,7 +19,7 @@ library(yaml)
 
 # Hardcoded variables and config parsing
 prjsrid <- 102022  # EPSG identifier for equal area project
-params <- yaml.load_file('../../../common/config_template.yaml')
+params <- yaml.load_file('../../../common/config.yaml')
 
 # Get HIT ID, assignment ID
 args <- commandArgs(TRUE)
