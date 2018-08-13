@@ -17,7 +17,7 @@ params = parse_yaml(os.path.join(os.environ['PYTHONPATH'],"config_template.yaml"
 def find_between(s, start, end):
   return (s.split(start))[1].split(end)[0]
 
-# Coonect to Postgres Database
+# Connect to Postgres Database
 conn = psycopg2.connect(dbname=['mapper']['db_sandbox_name'], user=params['mapper']['db_username'], password=params['mapper']['db_password'])
 curs = conn.cursor()
 
