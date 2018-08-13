@@ -11,6 +11,15 @@ from planet_download import download_planet_data_new
 from planet_download import download_scene_by_id
 from planet_download import add_logging
 from planet_download import calculate_percent_good_cells_in_tiff2  #temporarily here for testing purposes
+import yaml
+
+def parse_yaml(input_file):
+    """Parse yaml file of configuration parameters."""
+    with open(input_file, 'r') as yaml_file:
+        params = yaml.load(yaml_file)
+    return params
+
+params = parse_yaml(os.path.join(os.environ['PYTHONPATH'],"config_template.yaml"))
 
 #params expected are outdir,start_date,end_date,maximgs,xmin,xmax,ymin,ymax,max_clouds,max_bad_pixels,asset_type,lst_item_types
 param_dict = {}
@@ -32,8 +41,7 @@ param_dict["suffix"] = "_SR_GS"  #analytic_sr for growing season
 
 client = None
 session = None
-Tammys_APIkey = "***REMOVED***"
-ryans_api_key = ryans_apikey = "***REMOVED***" #To access areas outside of California
+api_key = params['mapper']['PL_API_KEY'] #To access areas outside of California
 
 add_logging()
 
@@ -106,7 +114,7 @@ def download_scene_for_ron_by_id():
     item_type = ['PSScene4Band']  
     #UDM downloads usually took 4-5 minutes each
   
-    apikey = ryans_api_key
+    apikey = api_key
     prefix=""
     suffix="_SR"
     scene_id = "20180228_095050_102f"
@@ -129,7 +137,7 @@ def download_and_window_scene_for_ron_by_id():
     asset_type = "analytic_sr"
     item_type = ['PSScene4Band']
     scene_id = "20180521_072352_1013"
-    apikey = ryans_api_key
+    apikey = api_key
     xmin = -0.575
     xmax = -0.525
     ymin = 5.7
@@ -142,7 +150,7 @@ def download_and_window_manually():
     outdir = r'd:\PlanetTest\Data'
     asset_type = "analytic_sr"
     item_type = ['PSScene4Band']  
-    apikey = ryans_api_key
+    apikey = api_key
     window_out = True
     suffix = "_SR_GS"
 
@@ -163,7 +171,7 @@ def download_and_window_manually():
     output_fname = download_scene_by_id(item_type, asset_type, scene_id, outdir, apikey, prefix, suffix, window_out, xmin, xmax, ymin, ymax)
     
 #csvname = r'D:\Users\twoodard\documents\ron_bigger.csv'
-#download_scenes_from_aois_in_csv(csvname,ryans_api_key, **param_dict)
+#download_scenes_from_aois_in_csv(csvname, api_key, **param_dict)
 
 
 # I used MyGeodata Converter, a free online kml to csv converter (https://mygeodata.cloud/converter/)
@@ -205,7 +213,7 @@ param_dict["outdir"] = r'd:\PlanetTest\Data\MatchWV2gridcells\OS'
 param_dict["start_date_short"] =  '2017-06-30' 
 param_dict["end_date_short"] = '2017-08-31'
 param_dict["suffix"] = "_SR_OS" 
-download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+download_scenes_from_aois_in_csv(csvname, api_key, **param_dict)
 
 ppath = "D:\\PlanetTest\\data\\MatchWV2gridcells\\GS\\"
 txtfname = ppath + 'already_downloaded.txt'
@@ -219,18 +227,18 @@ param_dict["outdir"] = r'd:\PlanetTest\Data\MatchWV2gridcells\GS'
 param_dict["start_date_short"] =  '2018-01-01' 
 param_dict["end_date_short"] = '2018-03-01'
 param_dict["suffix"] = "_SR_GS" 
-download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+download_scenes_from_aois_in_csv(csvname, api_key, **param_dict)
 
 csvname = r'D:\Users\twoodard\documents\ghana_boxes_order_fixed.csv'
 param_dict["outdir"] = r'd:\PlanetTest\Data\GhanaNew'
 param_dict["start_date_short"] =  '2017-06-30' 
 param_dict["end_date_short"] = '2017-08-31'
 param_dict["suffix"] = "_SR_OS" 
-download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+download_scenes_from_aois_in_csv(csvname, api_key, **param_dict)
 param_dict["start_date_short"] =  '2018-01-01' 
 param_dict["end_date_short"] = '2018-03-01'
 param_dict["suffix"] = "_SR_GS" 
-download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+download_scenes_from_aois_in_csv(csvname, api_key, **param_dict)
 #Note - I just found out that the growing season dates may not be the same for Ghana as they are for SA.
 
 #originalname = r'D:\Users\twoodard\documents\wv2_boxes_order_fixed.csv'
@@ -251,7 +259,7 @@ param_dict["outdir"] = r'd:\PlanetTest\Data\MatchWV2gridcells'
 param_dict["start_date_short"] =  '2018-01-01' 
 param_dict["end_date_short"] = '2018-03-01'
 param_dict["suffix"] = "_SR_GS" 
-download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+download_scenes_from_aois_in_csv(csvname, api_key, **param_dict)
 
 
 #csvname = r'D:\Users\twoodard\documents\extents_qual_sites_complete_orig_set.csv'
@@ -261,14 +269,14 @@ param_dict["outdir"] = r'd:\PlanetTest\Data\MatchWV2gridcells'
 param_dict["start_date_short"] =  '2017-06-30' 
 param_dict["end_date_short"] = '2017-08-31'
 param_dict["suffix"] = "_SR_OS" 
-download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+download_scenes_from_aois_in_csv(csvname, api_key, **param_dict)
 
 csvname = r'D:\Users\twoodard\documents\extents_qual_sites_complete_orig_set.csv'
 param_dict["outdir"] = r'd:\PlanetTest\Data\SA_OffSeason'
 param_dict["start_date_short"] =  '2017-06-30' 
 param_dict["end_date_short"] = '2018-08-31'
 param_dict["suffix"] = "_SR_OS" 
-download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
+download_scenes_from_aois_in_csv(csvname, api_key, **param_dict)
 
 
 
@@ -276,13 +284,13 @@ download_scenes_from_aois_in_csv(csvname, ryans_api_key, **param_dict)
 csvname = r'D:\Users\twoodard\documents\lyndon_sites_Asamankese_only - copy.csv'  #This one has completed grid cells removed.  Gets smaller as I debug & test.
 param_dict["start_date_short"] =  '2018-02-01'
 param_dict["end_date_short"] = '2018-03-31'
-download_scenes_from_aois_in_csv(csvname,ryans_api_key, **param_dict)
+download_scenes_from_aois_in_csv(csvname, api_key, **param_dict)
 
 #csvname = r'D:\Users\twoodard\documents\lyndon_sites_all_but_Asamankese.csv'
 csvname = r'D:\Users\twoodard\documents\lyndon_sites_all_but_Asamankese-skipped.csv'  #the ones that need to be redone
 param_dict["start_date_short"] =  '2018-03-01'
 param_dict["end_date_short"] = '2018-04-30'
-download_scenes_from_aois_in_csv(csvname,ryans_api_key, **param_dict)
+download_scenes_from_aois_in_csv(csvname, api_key, **param_dict)
 
 
 #need to download this one by id later:
@@ -293,7 +301,7 @@ param_dict["start_date_short"] =  '2018-02-01'
 param_dict["end_date_short"] = '2018-03-31'
 param_dict["maximgs"] = 1 #Lets speed up the testing process! Just do 1 image per grid cell.
 param_dict["asset_type"] = "analytic_sr"
-download_scenes_from_aois_in_csv(csvname,Tammys_APIkey, **param_dict)
+download_scenes_from_aois_in_csv(csvname, api_key, **param_dict)
 
 
 
