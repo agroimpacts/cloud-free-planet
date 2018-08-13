@@ -11,7 +11,7 @@ library(rgdal)
 library(rmapaccuracy)
 library(yaml)
 
-params <- yaml.load_file('../../../common/config_template.yaml')
+params <- yaml.load_file('../../../common/config.yaml')
 
 # Static arguments
 prjsrid <- 102022
