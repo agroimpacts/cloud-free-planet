@@ -24,6 +24,9 @@ library(dplyr)
 library(data.table)
 library(raster)
 library(rgeos)
+library(yaml)
+params <- yaml.load.file(paste(Sys.getenv(PYTHONPATH),'/config_template.yaml'))
+
 p_kmls <- "kmls_static"
 p_grid <- "spatial/data/interim/"
 p_dat <- "spatial/data/external/"
@@ -56,10 +59,10 @@ ptmat <- do.call(rbind, kmlcentroids)
 # library(RPostgreSQL)
 # "sandbox.crowdmapper.org"
 # drv <- dbDriver("PostgreSQL")  
-# con <- dbConnect(drv, host = "sandbox.crowdmapper.org", 
-#                  dbname = "AfricaSandbox",
-#                  user = "***REMOVED***", 
-#                  password = "***REMOVED***")
+# con <- dbConnect(drv, host = params$mapper$db_host,
+#                  dbname = params$mapper$db_sandbox_name,
+#                  user = params$mapper$db_username, 
+#                  password = params$mapper$db_password)
 
 # grab the old kml sites
 oldkmls <- fread(file.path(p_old, "kmls.csv"))

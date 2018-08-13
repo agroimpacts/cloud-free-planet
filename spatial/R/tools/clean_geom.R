@@ -7,7 +7,7 @@ library(raster)
 library(rgeos)
 library(rgdal)
 library(rmapaccuracy)
-
+library(yaml)
 # Static arguments
 prjsrid <- 102022
 count.err.wt <- 0.1  
@@ -19,8 +19,8 @@ write.err.db <- "T"
 draw.maps  <- "T"  
 test <- "N"  
 test.root <- "N"  
-user <- "***REMOVED***"
-password <- "***REMOVED***"
+user <- params$mapper$db_username
+password <- params$mapper$db_password
 kmlid <- "SA226678"
 assignmentid <- "5YxF2SNUXHOM"
 assignmentidtype <- "training_id"

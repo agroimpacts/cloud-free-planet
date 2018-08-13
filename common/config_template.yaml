@@ -1,0 +1,27 @@
+mapper:
+    DEBUG: True
+    # Key connection parameters.
+    db_production_name: Africa 
+    db_sandbox_name: AfricaSandbox
+    db_username:
+    db_password:
+    db_url: 127.0.0.1:5432
+    db_host: sandbox.crowdmapper.org
+    # GitHub user maphelp's token
+    github_token: 5f3031c885d40fd1fd54d914f0331dc8f4e4574b
+    github_repo: agroimpacts/mapperAL
+    # Flask Mail Settings
+    MAIL_SERVER: smtp.cox.net
+    MAIL_PORT: 465
+    MAIL_USE_SSL: True
+    MAIL_USE_TLS: False
+    MAIL_USERNAME: ***REMOVED***
+    MAIL_PASSWORD: ***REMOVED***
+    MAIL_DEFAULT_SENDER: '"AgroImpacts Administrator" <lestes@clarku.edu>'
+    ADMINS: ['"AgroImpacts Administrator" <dmcr@princeton.edu>', '"AgroImpacts Administrator" <lestes@clarku.edu>',]
+    # Planet Settings
+    PL_API_KEY:
+
+cvml:
+    aws_access: 
+    aws_secret:
