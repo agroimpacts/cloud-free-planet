@@ -47,11 +47,11 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 planet_config = config['planet']
 imagery_config = config['imagery']
-test = bool(imagery_config['test'])
+test = json.loads(imagery_config['test'].lower())
 
 # extra csv input flags
-with_csv = bool(imagery_config['with_csv'])
-csv_only = bool(imagery_config['csv_only'])
+with_csv = json.loads(imagery_config['with_csv'].lower())
+csv_only = json.loads(imagery_config['csv_only'].lower())
 csv_points = imagery_config['csv_points']
 
 # logger
