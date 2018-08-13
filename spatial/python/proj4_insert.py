@@ -3,13 +3,22 @@
 # Import Packages
 import os
 import psycopg2
+import yaml
+
+def parse_yaml(input_file):
+    """Parse yaml file of configuration parameters."""
+    with open(input_file, 'r') as yaml_file:
+        params = yaml.load(yaml_file)
+    return params
+
+params = parse_yaml(os.path.join(os.environ['PYTHONPATH'],"config_template.yaml"))
 
 # Define functions
 def find_between(s, start, end):
   return (s.split(start))[1].split(end)[0]
 
 # Coonect to Postgres Database
-conn = psycopg2.connect('dbname=AfricaSandbox user=***REMOVED*** password=***REMOVED***')
+conn = psycopg2.connect(dbname=['mapper']['db_sandbox_name'], user=params['mapper']['db_username'], password=params['mapper']['db_password'])
 curs = conn.cursor()
 
 # Define insert template
