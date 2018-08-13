@@ -19,7 +19,7 @@ def parse_yaml(input_file):
         params = yaml.load(yaml_file)
     return params
 
-params = parse_yaml(os.path.join(os.environ['PYTHONPATH'],"config_template.yaml"))
+params = parse_yaml(os.path.join(os.environ['PYTHONPATH'],"config.yaml"))
 
 #params expected are outdir,start_date,end_date,maximgs,xmin,xmax,ymin,ymax,max_clouds,max_bad_pixels,asset_type,lst_item_types
 param_dict = {}
