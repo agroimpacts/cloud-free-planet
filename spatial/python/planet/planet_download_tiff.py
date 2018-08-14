@@ -53,6 +53,7 @@ test = json.loads(imagery_config['test'].lower())
 with_csv = json.loads(imagery_config['with_csv'].lower())
 csv_only = json.loads(imagery_config['csv_only'].lower())
 csv_points = imagery_config['csv_points']
+csv_header = ["cell_id", "scene_id", "col", "row", "season", "uri"]
 
 # logger
 logger = logging.getLogger(__name__)
@@ -115,7 +116,7 @@ def main_csv():
         fp = codecs.open(filename = pclient.output_filename_csv, mode = "a", encoding = pclient.output_encoding)
 
     writer = csv.writer(fp)
-    writer.writerow(["cell_id", "scene_id", "col", "row", "season", "uri"])
+    writer.writerow(csv_header)
 
     for line in cell_grids:
         (cell_id, x, y, cell_name) = line
@@ -130,7 +131,8 @@ def main_csv():
             ws_start, ws_end = ws_s_band[r, c], ws_e_band[r, c]
             seasons = [(GS, ws_start, ws_end), (OS, ds_start, ds_end)] # dates ranges for the loop
             # GS and OS images should be of the same year
-            current_year = datetime.today().year
+            current_year_start = datetime.today().year
+            current_year_end = current_year_start
 
             logger.info("Processing cell_id {}...".format(cell_id))
                 
@@ -150,7 +152,17 @@ def main_csv():
                     years.reverse()
 
                     for yr in years:
-                        planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = yr), end_date = dt_construct(month = m_end, year = yr))
+                        yr_start = yr
+                        yr_end = yr
+
+                        if m_start <= m_end:
+                            yr_start = yr
+                            yr_end = yr
+                        else:
+                            yr_start = yr - 1
+                            yr_end = yr
+
+                        planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = yr_start), end_date = dt_construct(month = m_end, year = yr_end))
                         res = pclient.request_intersecting_scenes(planet_filters)
 
                         # pick up scene id and its geometry
@@ -171,7 +183,8 @@ def main_csv():
 
                         # record success year
                         if(scene_id != ''):
-                            current_year = yr
+                            current_year_start = yr_start
+                            current_year_end = yr_end
                             break
 
                     # mark the current cell grid as already seen
@@ -211,7 +224,7 @@ def main_csv():
                                     sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
                                                 
                                     # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
-                                    sub_planet_filters = pclient.set_filters_sr(sub_aoi, start_date = dt_construct(month = m_start, year = current_year), end_date = dt_construct(month = m_end, year = current_year), id = scene_id)
+                                    sub_planet_filters = pclient.set_filters_sr(sub_aoi, start_date = dt_construct(month = m_start, year = current_year_start), end_date = dt_construct(month = m_end, year = current_year_end), id = scene_id)
                                     res = pclient.request_intersecting_scenes(sub_planet_filters)
 
                                     # use custom cloud detection function to calculate clouds and shadows
@@ -253,7 +266,7 @@ def dt_construct(month, day = 1, year = 2018, t = "00:00:00.000Z"):
     return "{}-{:02d}-{:02d}T{}".format(year, month, day, t)
 
 
-def main():
+def main_json():
     ext = GeoUtils.polygon_to_extent(actual_aoi)
 
     if test:
@@ -303,7 +316,7 @@ def main():
     fp = codecs.open(filename = pclient.output_filename, mode = "a", encoding = pclient.output_encoding) # buffering = 20*(1024**2)
     writer = csv.writer(fp)
     if not (with_csv and csv_only):
-        writer.writerow(["cell_id", "scene_id", "col", "row", "season", "uri"])
+        writer.writerow(csv_header)
 
     # logger.info(range(actual_window_height))
     # logger.info(range(actual_window_width))
@@ -465,11 +478,14 @@ def main():
     print("OS: valid {} / {}".format(np.count_nonzero(valid_band[OS]), valid_band[OS].size))
     print("-------------------")
 
-if __name__ == "__main__":
+def main():
     if csv_only and with_csv:
         main_csv()
     elif with_csv:
         main_csv() 
-        main()
+        main_json()
     else:
-        main()
+        main_json()
+
+if __name__ == "__main__":
+    main()
