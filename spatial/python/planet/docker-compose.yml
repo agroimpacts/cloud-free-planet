@@ -1,0 +1,5 @@
+version: '3'
+services:
+  planet-downloader:
+    build: .
+    image: daunnc/planet-downloader

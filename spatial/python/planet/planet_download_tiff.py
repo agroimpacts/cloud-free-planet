@@ -44,7 +44,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 # read config
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('cfg/config.ini')
 planet_config = config['planet']
 imagery_config = config['imagery']
 cloud_config = config['cloud_shadow']
