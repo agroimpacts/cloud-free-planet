@@ -19,7 +19,6 @@ import sys
 import rasterio
 from rasterio.warp import transform_bounds
 from rasterio.coords import BoundingBox
-from retry import retry
 import configparser
 
 # returns nodata percentage

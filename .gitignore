@@ -15,4 +15,5 @@ spatial/python/planet/catalog/*.tif*
 spatial/python/planet/catalog/*/*.tif*
 spatial/python/planet/*csv
 spatial/python/planet/*.ini
+spatial/python/planet/*/*.ini
 __pycache__
