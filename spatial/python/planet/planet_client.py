@@ -23,6 +23,7 @@ class PClientV1():
         self.api_key = api_key
         self.max_clouds = 0.25
         self.max_bad_pixels = 0.25
+        self.max_nodata = 0.25
         self.maximgs = 1
         self.catalog_path = "catalog/"
         self.s3_catalog_bucket = "azavea-africa-test"
@@ -42,9 +43,11 @@ class PClientV1():
         self.api_key = api_key
         self.max_clouds = float(imagery_config['max_clouds'])  # max proportion of pixels that are clouds
         self.max_bad_pixels = float(imagery_config['max_bad_pixels']) # max proportion of bad pixels (transmission errors, etc.)
+        self.max_nodata = float(imagery_config['max_nodata']) # max nodata values per cellgrid
         self.maximgs = int(imagery_config['maximgs'])  # 15 #10 #20
         self.output_encoding = imagery_config['output_encoding']
         self.output_filename = imagery_config['output_filename']
+        self.output_filename_csv = imagery_config['output_filename_csv']
         self.catalog_path = imagery_config['catalog_path']
         self.s3_catalog_bucket = imagery_config['s3_catalog_bucket']
         self.s3_catalog_prefix = imagery_config['s3_catalog_prefix']
@@ -201,17 +204,33 @@ class PClientV1():
 
         return result_path
 
+    def upload_s3_csv(self):
+        output_key = "{}/{}".format(self.s3_catalog_prefix, self.output_filename)
+        result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
+        self.transfer.upload_file(self.output_filename, self.s3_catalog_bucket, output_key)
+        return result
+
+    def upload_s3_csv_csv(self):
+        output_key = "{}/{}".format(self.s3_catalog_prefix, self.output_filename_csv)
+        result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
+        self.transfer.upload_file(self.output_filename_csv, self.s3_catalog_bucket, output_key)
+        return result
+
     def download_localfs_s3(self, scene_id, season = ''):
         filepath = ''
-        output_key = "{}/{}/{}.tif".format(self.s3_catalog_prefix, season, scene_id)
-        result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
+        output_key = '{}/{}/{}.tif'.format(self.s3_catalog_prefix, season, scene_id)
+        s3_result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
+        local_result = '{}{}/{}.tif'.format(self.catalog_path, season, scene_id)
 
-        try:
-            self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
-            filepath = result
-        except botocore.exceptions.ClientError:
-            filepath = self.download_localfs(scene_id, season)
-            self.logger.info("Uploading {}...".format(scene_id))
-            self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
+        if not os.path.exists(local_result):
+            try:
+                self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
+                filepath = result
+            except botocore.exceptions.ClientError:
+                filepath = self.download_localfs(scene_id, season)
+                self.logger.info("Uploading {}...".format(scene_id))
+                self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
+        else:
+            filepath = local_result
 
-        return filepath, result
+        return filepath, s3_result
