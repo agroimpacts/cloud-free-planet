@@ -135,6 +135,8 @@ def assignment():
             # has not yet been assigned to, and in random order.
             (hitId, kmlName) = mapc.getRandomAssignableHit(workerId)
             if hitId is None:
+                # Release serialization lock.
+                mapc.releaseSerializationLock()
                 mapc.createAlertIssue("No available HITs in hit_data table",
                         """There are no HITs in the hit_data table that are available to worker %s\n
                         Ensure create_hit_daemon is running, and check its log file.""" % 

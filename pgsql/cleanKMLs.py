@@ -3,12 +3,21 @@ import os
 import sys
 import psycopg2
 from psycopg2.extensions import adapt
+from MappingCommon import MappingCommon
 
+def parse_yaml(input_file):
+    """Parse yaml file of configuration parameters."""
+    with open(input_file, 'r') as yaml_file:
+        params = yaml.load(yaml_file)
+    return params
 
+mapc = MappingCommon()
+params = mapc.parse_yaml("config.yaml")
 
-db_sandbox_name = 'SouthAfricaSandbox'
-db_user = '***REMOVED***'
-db_password = '***REMOVED***'
+db_production_name = params['mapper']['db_production_name']
+db_sandbox_name = params['mapper']['db_sandbox_name']
+db_user = params['mapper']['db_username']
+db_password = params['mapper']['db_password']
 
 def cleanKMLs():
     # Initialize connection to sandbox:

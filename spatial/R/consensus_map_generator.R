@@ -1,31 +1,32 @@
 # consensus_map_generator.R
-# Main script for calling consensus map generation (Bayes fusion) functions
+# Main script for calling consensus map generation (Bayes Averaging) functions
 # Author: Su Ye
+
+library(yaml)
+params <- yaml.load_file(file.path(Sys.getenv('PYTHONPATH'),'config.yaml'))
 
 # Static arguments
 output.heatmap <- FALSE # if output heat map
-user <- "***REMOVED***"
-password <- "***REMOVED***"
-diam <- 0.005 / 2 ## new master grid diameter
-riskpixelthres <- 0.4 # determine risky pixels that are larger than thres
-
+user <- params$mapper$db_username
+password <- params$mapper$db_password
+diam <- 0.005 / 2 # new master grid diameter
+riskpixelthres <- 0.4 # determine risky pixels that are larger than threshold
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
 # Input args 
-# kmlid <- "ZM1375404" # testlines
-# min_mappedcount <- 0 # testlines
+# kmlid <- "GH0067266" # testlines
+# min.mappedcount <- 0 # testlines
 # scorethres <- 0     # testlines
 # output.riskmap <- FALSE # testlines
-# db.tester.name <- 'sye'
-# alt.root <- NULL
-# host <- NULL
+# db.tester.name <- 'sye' # testlines
+# alt.root <- NULL # testlines
+# host <- NULL # testlines
 
-if(length(arg) < 3) stop("At least 3 arguments needed", call. = FALSE)
 arg <- commandArgs(TRUE)
-kmlid <- arg[1]  # ID of grid cell 
-min_mappedcount <- arg[2] # minimum mapped map count
-# score threshold for selecting 'valid' assignments for merging consensus
-scorethres <- arg[3] 
+kmlid <- arg[1]  # ID of grid cell
+kml.usage <- arg[2] # the use of kml, could be 'train, 'validate' or 'holdout'
+min.mappedcount <- arg[3] # minimum mapped map count
+if(length(arg) < 3) stop("At least 3 arguments needed", call. = FALSE)
 if(length(arg) == 3) {
   output.riskmap <- FALSE
   db.tester.name <- NULL
@@ -48,15 +49,16 @@ if(length(arg) > 3) {
   } else {
     alt.root <- arg[6]
   } 
-  if(is.na(arg[8])) {
+  if(is.na(arg[7])) {
     host <- NULL
   } else {
-    host <- arg[8]
+    host <- arg[7]
   }
 }
 
-consensus_map_creation(kmlid = kmlid, min_mappedcount = min_mappedcount, 
-                       scorethres = scorethres, output.riskmap = output.riskmap,
+consensus_map_creation(kmlid = kmlid, kml.usage = kml.usage, 
+                       min.mappedcount = min.mappedcount, 
+                       output.riskmap = output.riskmap,
                        riskpixelthres  = riskpixelthres, diam = diam, 
                        user = user, password = password, 
                        db.tester.name = db.tester.name, 

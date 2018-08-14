@@ -1,12 +1,12 @@
 #' Creates polygon grid box from point
 #' @param xy A data.frame containing x and y coordinates and name of grid point
 #' @param w A value in meters specifiying 1/2 the diameter of the grid polygon
-#' @param CRSobj The projection string for the output polygon
+#' @param OldCRSobj The crs for the input polygon
+#' @param NewCRSobj crs to transform polygon to
 #' @details This function is created for use by KMLgenerate, which uses it to 
 #' convert grid points to polygons. 
-#' @import sf
 #' @export
-point_to_gridpoly <- function(xy, w, NewCRSobj, OldCRSobj) {
+point_to_gridpoly <- function(xy, w, OldCRSobj, NewCRSobj) {
   dw <- list("x" = c(-w, w, w, -w, -w), "y" = c(w, w, -w, -w, w))
   pols <- do.call(rbind, lapply(1:nrow(xy), function(i) {  # i <- 1
     xs <- unlist(sapply(dw$x, function(x) unname(xy[i, "x"] + x)))
