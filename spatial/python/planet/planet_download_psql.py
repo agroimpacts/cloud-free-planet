@@ -12,6 +12,15 @@ import json
 import codecs
 import csv
 import shutil
+import yaml
+
+def parse_yaml(input_file):
+    """Parse yaml file of configuration parameters."""
+    with open(input_file, 'r') as yaml_file:
+        params = yaml.load(yaml_file)
+    return params
+
+params = parse_yaml(os.path.join(os.environ['PYTHONPATH'],"config.yaml"))
 
 # AOI
 # by AOI generate grid cells
@@ -28,7 +37,7 @@ import shutil
 ssl._create_default_https_context = ssl._create_unverified_context
 
 # local settings, TODO: move into config everything what is possible
-APIkey = "***REMOVED***"
+APIkey = params['mapper']['PL_API_KEY']
 resolution = 0.005 / 2
 
 # pclient init
@@ -42,7 +51,7 @@ pclient.output_filename = "output.csv"
 
 def main():
     # psql connection // TODO: abstracted out?
-    conn = psycopg2.connect('host=sandbox.crowdmapper.org dbname=AfricaSandbox user=***REMOVED*** password=***REMOVED***')
+    conn = psycopg2.connect(host=params['mapper']['db_host'], dbname=params['mapper']['db_sandbox_name'], user=params['mapper']['db_username'], password=params['mapper']['db_password'])
     curs = conn.cursor()
     ext = GeoUtils.define_extent(30, -2, 10) # some test AOI to select a subset of extent from psql
 

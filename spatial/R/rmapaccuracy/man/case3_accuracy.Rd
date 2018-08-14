@@ -5,7 +5,8 @@
 \title{Case 3 accuracy metric}
 \usage{
 case3_accuracy(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt, count.acc.wt,
-  new.in.acc.wt, new.out.acc.wt, frag.acc.wt, edge.acc.wt, acc.switch = 1)
+  new.in.acc.wt, new.out.acc.wt, frag.acc.wt, edge.acc.wt, cate.acc.wt,
+  acc.switch = 1)
 }
 \arguments{
 \item{grid.poly}{Polygon of sampling grid}

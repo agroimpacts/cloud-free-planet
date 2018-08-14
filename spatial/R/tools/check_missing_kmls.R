@@ -1,3 +1,5 @@
+library(yaml)
+params <- yaml.load_file('../../../common/config.yaml')
 # check on no data sites from KMLgenerate runs
 rm(list = ls())
 suppressMessages(library(rmapaccuracy))
@@ -11,8 +13,8 @@ kml.path <- paste0(dinfo["project.root"], "/kmls/")
 
 # Paths and connections
 drv <- dbDriver("PostgreSQL")
-con <- dbConnect(drv, dbname = dinfo["db.name"], user = "***REMOVED***", 
-                 password = "***REMOVED***")
+con <- dbConnect(drv, dbname = dinfo["db.name"], user = params$mapper$db_username, 
+                 password = params$mapper$db_password)
 
 kmls <- data.table(dbGetQuery(con, "select * from kml_data", 
                               stringAsFactors = FALSE))
