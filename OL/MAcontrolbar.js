@@ -22,7 +22,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
     // Used in polygon/polygon-hole 'condition' and 'finishCondition' clauses, and for 'modifyend' processing.
     function hasSelfIntersection(geom, closed=false) {
         // Only applies to quadrilaterals or greater.
-        if (geom && geom.getCoordinates()[0].length >= 5) {
+        if (geom && geom.getLinearRing(0).getCoordinates().length >= 5) {
             // Convert to JSTS geometry and coordinates.
             var jsts_geom = jstsParser.read(geom);
             var jsts_coords = jsts_geom.getCoordinates();
@@ -42,7 +42,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             if (closed) {
                 uniqCoords.push(jsts_coords[jsts_coords.length - 1]);
             }
-            console.log(uniqCoords);
+            //console.log(uniqCoords);
             // Check all non-adjacent segments for intersection.
             //  If any intersect, then report back self-intersection.
             for (i = 0; i < uniqCoords.length - 3; i++) {
@@ -68,68 +68,82 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         }
     }
 
-    // For DrawHole, check that outer ring and inner ring(s) don't intersect with one another.
-    // Must be a 1-pixel buffer separation between rings.
-    // Create a set of single-ring polygons from the pre-existing polygon (1st argument).
-    // Used in DrawHole condition clause.
-    function hasInternalIntersection(prevGeom, geom) {
-        if (geom && geom.getCoordinates()[0].length >= 4) {
-            // First, create a positive 1-pixel buffer around the inner polygon being drawn.
-            // This is to prevent border-sharing with the outer polygon and other inner polygons.
-            var resolution = map.getView().getResolution();
-            // Convert to JSTS geometry and coordinates.
-            var jsts_geom = jstsParser.read(geom);
-            var jsts_bufGeom = jsts_geom.buffer(resolution);
-            console.log(jsts_bufGeom.getCoordinates());
-
-            // Then, make prevGeom's exterior ring into a single-ring polygon.
-            // Convert to JSTS geometry and coordinates.
-            var jsts_prevGeom = jstsParser.read(prevGeom);
-            // First check the exterior ring of the polygon.
-            var oCoords = jsts_prevGeom.getExteriorRing().getCoordinates();
-            var oPolygon = geomFactory.createPolygon(oCoords);
-            console.log(oPolygon.getCoordinates());
-            // Check if it contains the buffered hole-polygon being drawn.
-            contains = oPolygon.contains(jsts_bufGeom);
-            console.log("contains: " + contains);
-            if (!contains) {
-                console.log("hasInternalIntersection: outer contains buffered inner: false");
+    // Check for self-intersection within each ring of a polygon.
+    // Create a set of single-ring polygons from the pre-existing polygon.
+    // Used with multi-ring polygons for 'modifyend' processing.
+    function hasInternalSelfIntersection(mrPolygon) {
+        // Ring 0 is the outer ring; rings 1 through N are inner rings.
+        for (var i = 0; i < mrPolygon.getLinearRingCount(); i++) {
+            iLinearRing = mrPolygon.getLinearRing(i);
+            srPolygon = new ol.geom.Polygon([iLinearRing.getCoordinates()]);
+            console.log(srPolygon.getCoordinates());
+            // Check this ring for self-intersections.
+            if (hasSelfIntersection(srPolygon, true)) {
                 return true;
             }
-            // Create array of single-ring polygons for 1st arg's inner rings.
-            for (i = 0; i < jsts_prevGeom.getNumInteriorRing(); i++) {
-                var iCoords = jsts_prevGeom.getInteriorRingN(i).getCoordinates(); 
-                var iPolygon = geomFactory.createPolygon(iCoords);
-                console.log(iPolygon.getCoordinates());
-                // Check if it intersects the buffered hole-polygon being drawn.
-                intersects = iPolygon.intersects(jsts_bufGeom);
-                console.log("intersects: " + intersects);
-                if (intersects) {
-                    console.log("hasInternalIntersection: inner intersects buffered inner: true");
-                    return true;
-                }
-            }
         }
-        console.log("hasSelfIntersection: false");
         return false;
     }
 
     // Check most-recent drawn segment against all other shapes on the canvas for any intersection.
     // Used in polygon 'condition' clause.
     function hasLastSegmentIntersection(geom) {
-        if (!(geom && geom.getCoordinates()[0].length >= 3)) {
+        // Create array of JSTS geometries for all features on the canvas.
+        var features = fieldsLayer.getSource().getFeatures();
+        var jsts_geomSet = [];
+        for (var f in features) {
+            var feature = features[f];
+            var jsts_featureGeom = jstsParser.read(feature.getGeometry());
+            // Add this feature to the array.
+            jsts_geomSet = jsts_geomSet.concat(jsts_featureGeom);
+        }
+        // Compare last polygon segment drawn to the segments of all shapes on the canvas.
+        return hasLastSegmentIntersectionWithSet(geom, jsts_geomSet, -1);
+    }
+
+    // Check most-recent drawn segment against all rings associated with the polygon for any intersection.
+    // Used in DrawHole 'condition' clause.
+    function hasLastSegmentInternalIntersection(origPolygon, geom) {
+        if (!origPolygon) {
+            return false;
+        }
+        // Create array of single-ring polygons for all of origPolygon's rings.
+        var jsts_geomSet = [];
+        // Convert to JSTS geometry and coordinates.
+        var jsts_origGeom = jstsParser.read(origPolygon);
+        // Make origPolygon's exterior ring into a single-ring polygon.
+        var oCoords = jsts_origGeom.getExteriorRing().getCoordinates();
+        var oPolygon = geomFactory.createPolygon(oCoords);
+        console.log(oPolygon.getCoordinates());
+        // Add this polygon to the array.
+        jsts_geomSet = jsts_geomSet.concat(oPolygon);
+
+        // Create single-ring polygons for origPolygon's inner rings.
+        for (i = 0; i < jsts_origGeom.getNumInteriorRing(); i++) {
+            var iCoords = jsts_origGeom.getInteriorRingN(i).getCoordinates(); 
+            var iPolygon = geomFactory.createPolygon(iCoords);
+            console.log(iPolygon.getCoordinates());
+            // Add this polygon to the array.
+            jsts_geomSet = jsts_geomSet.concat(iPolygon);
+        }
+        // Compare last polygon segment drawn to the segments of all origPolygon rings.
+        return hasLastSegmentIntersectionWithSet(geom, jsts_geomSet, +1);
+    }
+
+    function hasLastSegmentIntersectionWithSet(geom, jsts_geomSet, buffer) {
+        if (!(geom && geom.getLinearRing(0).getCoordinates().length >= 3)) {
             return false;
         }
         // If drawing first segment, handle as special case
         // since JSTS considers this an invalid geometry.
-        if (geom.getCoordinates()[0].length == 3) {
-            var coords = geom.getCoordinates()[0];
+        if (geom.getLinearRing(0).getCoordinates().length == 3) {
+            var coords = geom.getLinearRing(0).getCoordinates();
             uniqCoords = [];
             uniqCoords.push(new jsts.geom.Coordinate(coords[0][0], coords[0][1]));
             uniqCoords.push(new jsts.geom.Coordinate(coords[1][0], coords[1][1]));
             i = 0;
         // Convert polygon being drawn to JSTS geometry and coordinates.
-        } else if (geom.getCoordinates()[0].length >= 4) {
+        } else if (geom.getLinearRing(0).getCoordinates().length >= 4) {
             var jsts_geom = jstsParser.read(geom);
             var jsts_coords = jsts_geom.getCoordinates();
             // Remove any adjacent duplicate coordinates (caused by closing shape).
@@ -141,31 +155,35 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                     uniqCoords.push(jsts_coords[i]);
                 }
             }
-            // Specify the index of the last segment's starting coorninate.
+            // Specify the index of the last segment's starting coordinate.
             i = uniqCoords.length - 2;
         }
-        // Compare last polygon segment drawn to the segments of all shapes on the canvas.
-        var features = fieldsLayer.getSource().getFeatures();
-        for (var f in features) {
-            var feature = features[f];
-            var jsts_featureGeom = jstsParser.read(feature.getGeometry());
+        // Compare last polygon segment drawn to the segments of all shapes in the set.
+        var resolution = map.getView().getResolution();
+        for (var f in jsts_geomSet) {
+            var jsts_featureGeom = jsts_geomSet[f];
             // Create a negative 1-pixel buffer to allow for border sharing.
-            var resolution = map.getView().getResolution();
-            var jsts_bufGeom = jsts_featureGeom.buffer(-resolution);
-            var jsts_bufCoords = jsts_bufGeom.getExteriorRing().getCoordinates();
-            for (j = 0; j < jsts_bufCoords.length - 1; j++) {
-                intersects = LI.hasIntersection(LI.computeIntersection(
-                    uniqCoords[i],
-                    uniqCoords[i + 1],
-                    jsts_bufCoords[j],
-                    jsts_bufCoords[j +1]
-                ));
-                console.log("hasLastSegmentIntersection: " + i + "-" + j + ": " + intersects);
-                if (intersects) {
-                    return true;
+            var jsts_bufGeom = jsts_featureGeom.buffer(parseFloat(buffer) * resolution);
+            // Note that buffering may result in multiple geometries for wasp-waisted polygons.
+            // Look for intersections within each sub-geometry.
+            for (g = 0; g < jsts_bufGeom.getNumGeometries(); g++) {
+                jsts_bufSubGeom = jsts_bufGeom.getGeometryN(g);
+                var jsts_bufCoords = jsts_bufSubGeom.getExteriorRing().getCoordinates();
+                for (j = 0; j < jsts_bufCoords.length - 1; j++) {
+                    intersects = LI.hasIntersection(LI.computeIntersection(
+                        uniqCoords[i],
+                        uniqCoords[i + 1],
+                        jsts_bufCoords[j],
+                        jsts_bufCoords[j +1]
+                    ));
+                    if (intersects) {
+                        console.log("hasLastSegmentIntersectionWithSet: seg " + i + "-> feature " + f + ":seg " + j + ": true");
+                        return true;
+                    }
                 }
             }
         }
+        console.log("hasLastSegmentIntersectionWithSet: false");
         return false;
     }
 
@@ -209,12 +227,11 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                 new jsts.geom.Coordinate(event.coordinate[0], event.coordinate[1])
             );
             console.log(jsts_point.getCoordinates());
-            // Create a positive 1-pixel buffer to prevent border sharing.
+            // Create a *positive* 1-pixel buffer to prevent border sharing.
             var resolution = map.getView().getResolution();
             jsts_bufPoint = jsts_point.buffer(resolution);
-            console.log(jsts_bufPoint.getCoordinates());
             var jsts_feature = jstsParser.read(feature.getGeometry());
-            console.log(jsts_feature.getCoordinates());
+            //console.log(jsts_feature.getCoordinates());
             // See if the buffered point overlaps with the feature.
             // Return the status (true if it is contained); false otherwise.
             var contains = jsts_feature.contains(jsts_bufPoint);
@@ -257,7 +274,8 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
     };
 
     // Function to check if specified geometry overlaps with other existing features.
-    // Used in all Draw tool 'finishCondition' clauses, 'modifyend' processing, and 'translateend' processing.
+    // Used in all Draw tool 'finishCondition' clauses (except for DrawHole), 
+    // 'modifyend' processing, and 'translateend' processing.
     function hasOverlap(geom) {
         var jsts_geom = jstsParser.read(geom);
         // Create a negative 1-pixel buffer to allow for border sharing.
@@ -289,6 +307,74 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         console.log("hasOverlap: feature does not intersect.");
         return false;
     };
+
+    // Check that outer ring and inner ring(s) don't intersect with one another.
+    // Must be a 1-pixel buffer separation between rings.
+    // Create a set of single-ring polygons from the multi-ring polygon.
+    // Used with multi-ring polygons for 'modifyend' processing.
+    function hasInternalOverlap_Modify(mrPolygon) {
+        // Ring 0 is the outer ring; rings 1 through N are inner rings.
+        for (var i = 1; i < mrPolygon.getLinearRingCount(); i++) {
+            iLinearRing = mrPolygon.getLinearRing(i);
+            srPolygon = new ol.geom.Polygon([iLinearRing.getCoordinates()]);
+            console.log("hasInternalOverlap_Modify");
+            console.log(srPolygon.getCoordinates());
+            // Check this ring for overlap with other rings.
+            if (hasInternalOverlap(mrPolygon, srPolygon)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Check that outer ring and inner ring(s) don't intersect with one another.
+    // Must be a 1-pixel buffer separation between rings.
+    // Create a set of single-ring polygons from the pre-existing polygon (1st argument).
+    // Used in DrawHole finishCondition clause.
+    function hasInternalOverlap(origPolygon, geom) {
+        // Convert to JSTS geometry and coordinates.
+        var jsts_origPolygon = jstsParser.read(origPolygon);
+        var jsts_geom = jstsParser.read(geom);
+        console.log("hasInternalOverlap");
+        console.log(jsts_geom.getCoordinates());
+        // Now, create a *positive* 1-pixel buffer around the inner polygon being drawn.
+        // This is to prevent border-sharing with the outer polygon and other inner polygons.
+        var resolution = map.getView().getResolution();
+        var jsts_bufGeom = jsts_geom.buffer(resolution);
+
+        // Then, make origPolygon's exterior ring into a single-ring polygon.
+        // First check the exterior ring of the polygon.
+        var oCoords = jsts_origPolygon.getExteriorRing().getCoordinates();
+        var oPolygon = geomFactory.createPolygon(oCoords);
+        console.log(oPolygon.getCoordinates());
+        // Check if it contains the buffered hole-polygon being drawn.
+        contains = oPolygon.contains(jsts_bufGeom);
+        console.log("contains: " + contains);
+        if (!contains) {
+            console.log("hasInternalOverlap: outer contains buffered inner: false");
+            return true;
+        }
+        // Create array of single-ring polygons for origPolygon's inner rings.
+        for (var i = 0; i < jsts_origPolygon.getNumInteriorRing(); i++) {
+            var iCoords = jsts_origPolygon.getInteriorRingN(i).getCoordinates(); 
+            var iPolygon = geomFactory.createPolygon(iCoords);
+            console.log(iPolygon.getCoordinates());
+            // Don't compare to feature being modified.
+            if (iPolygon.equals(jsts_geom)) {
+                console.log("skipped identical inner ring");
+                continue;
+            }
+            // Check if it intersects the buffered hole-polygon being drawn.
+            var intersects = iPolygon.intersects(jsts_bufGeom);
+            console.log("intersects: " + intersects);
+            if (intersects) {
+                console.log("hasInternalOverlap: inner intersects buffered inner: true");
+                return true;
+            }
+        }
+        console.log("hasInternalOverlap: false");
+        return false;
+    }
 
     // Create new control bar and add it to the map.
     var mainbar = new ol.control.Bar({
@@ -575,6 +661,10 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                 if (hasSelfIntersection(holeGeom)) {
                     return false;
                 }
+                origPolygon = drawBar.getControls()[HOLE].getInteraction().getPolygon();
+                if (hasLastSegmentInternalIntersection(origPolygon, holeGeom)) {
+                    return false;
+                }
                 return pointInternalOverlapCheck(event);
             },
             // Check that currently drawn geometry doesn't overlap any previously drawn feature.
@@ -587,7 +677,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                     return false;
                 }
                 origPolygon = drawBar.getControls()[HOLE].getInteraction().getPolygon();
-                if (hasInternalIntersection(origPolygon, holeGeom)) {
+                if (hasInternalOverlap(origPolygon, holeGeom)) {
                     return false;
                 }
                 // Prepare for re-use. 'geom' is undefined the first time 'condition'
@@ -767,7 +857,12 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             console.log("modifyend");
             // If current feature self-intersects,
             // restore current feature to pre-modification coordinates.
-            if (hasSelfIntersection(modifyFeature.getGeometry(), true)) {
+            if (hasInternalSelfIntersection(modifyFeature.getGeometry())) {
+                modifyFeature.getGeometry().setCoordinates(modifyCoords);
+                return;
+            }
+            // If current feature has an internal between-rings intersection.
+            if (hasInternalOverlap_Modify(modifyFeature.getGeometry())) {
                 modifyFeature.getGeometry().setCoordinates(modifyCoords);
                 return;
             }
