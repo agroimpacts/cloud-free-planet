@@ -4,16 +4,18 @@
 \alias{consensus_map_creation}
 \title{Control the output of label maps, risk maps, and heat maps}
 \usage{
-consensus_map_creation(kmlid, min_mappedcount, scorethres, output.riskmap,
+consensus_map_creation(kmlid, min.mappedcount, kml.usage, output.riskmap,
   riskpixelthres, diam, user, password, db.tester.name, alt.root, host,
   qsite = FALSE)
 }
 \arguments{
 \item{kmlid}{}
 
-\item{min_mappedcount}{the minimum approved assignment count}
+\item{min.mappedcount}{the minimum approved assignment count}
 
-\item{scorethres}{the threshold to select valid assignment}
+\item{kml.usage}{the use of kml, could be 'train, 'validate' or 'holdout';
+This parameter will determine the directory of S3 folder to store consensus 
+maps.}
 
 \item{user}{User name for database connection}
 
@@ -29,7 +31,7 @@ consensus_map_creation(kmlid, min_mappedcount, scorethres, output.riskmap,
 }
 \value{
 Sticks conflict/risk percentage pixels into database (kml_data) and
-(pending) writes rasters to S3 bucket
+writes rasterized labels to S3 bucket.
 }
 \description{
 Control the output of label maps, risk maps, and heat maps

@@ -2,7 +2,7 @@
 % Please edit documentation in R/bayes_model_averaging.R
 \name{bayes_model_averaging}
 \alias{bayes_model_averaging}
-\title{Core codes for Bayesian Model Averaging P(theta|D) = ∑ weight * mapper posterior probability}
+\title{Bayesian Model Averaging P(theta|D) = ∑ weight * mapper posterior probability}
 \usage{
 bayes_model_averaging(bayes.polys, rasterextent, threshold)
 }
@@ -13,16 +13,18 @@ bayes_model_averaging(bayes.polys, rasterextent, threshold)
 as field or no field}
 
 \item{bayes.poly}{a sf object has five columns: 
-(1)posterior_field and (2)posterior_nofield are mapper posterior probability
-, which means mappers' opinion for the possibility of field (we set 0 or 1);  
-(3)max_field_lklh, (4) max_nofield_lklh: the producer's accuracy, which means
+(1)posterior.field a are mapper posterior probability, meaning that
+mappers' opinion for the possibility of field (we set 1 for sure category, 
+and 0.5 for unsure);  
+(3)max.field.lklh, (4) max.nofield.lklh, namely the producer's accuracy, which means
 that given its label as field or no field, the maximum likelihood to be the 
 mapper i; (5) score
-Weight = max_nofield_lklh (or max_field_lklh) * score}
+Weight = max.nofield.lklh (or max.field.lklh) * score}
 }
 \value{
 A list of three rasters--heat map, risk map, and consensus map
 }
 \description{
-Core codes for Bayesian Model Averaging P(theta|D) = ∑ weight * mapper posterior probability
+Core codes for Bayesian Model Averaging 
+P(theta|D) = ∑ weight * mapper posterior probability
 }

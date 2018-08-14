@@ -38,6 +38,9 @@ library(dplyr) # package for big database
 library(dbplyr)
 library(RPostgreSQL)
 library(rmapaccuracy) # package for KML generation
+library(yaml)
+
+params  <-yaml.load_file(file.path(Sys.getenv('PYTHONPATH'),'config.yaml'))
 ```
 
 ### Check the version of packages and R
@@ -265,13 +268,13 @@ The database is already built in our server. The name is 'AfricaSandbox'. Use `d
 # system("createdb AfricaSandbox")
 
 ## create user
-# system("createuser -s -l -d -r ***REMOVED***")
+# system(paste("createuser -s -l -d -r ", params$mapper$db_username))
 
 ## connect to the database
 con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(),
                       dbname = "AfricaSandbox",   
-                      user = "***REMOVED***",
-                      password = "***REMOVED***")
+                      user = params$mapper$db_username,
+                      password = params$mapper$db_password)
 
 ## create a table in database
 sql <- paste("CREATE TABLE master_grid_new",
@@ -301,8 +304,8 @@ DBI::dbDisconnect(con)
 ```{r efficiency, message=FALSE, warning=FALSE, eval = TRUE}
 con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(),
                       dbname = "AfricaSandbox",   
-                      user = "***REMOVED***",
-                      password = "***REMOVED***")
+                      user = params$mapper$db_username,
+                      password = params$mapper$db_password)
 
 # ids <- sample(mgrid$ID, 20 ,replace=FALSE) # get random ID from mgrid to test
 
@@ -324,8 +327,8 @@ library(leaflet)
 africa <- readOGR(fp(p_odat, "africa_countries_gcs.sqlite"), verbose = FALSE)
 con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(),
                       dbname = "AfricaSandbox",   
-                      user = "***REMOVED***",
-                      password = "***REMOVED***")
+                      user = params$mapper$db_username,
+                      password = params$mapper$db_password)
 
 ## set parameters
 wgs <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
