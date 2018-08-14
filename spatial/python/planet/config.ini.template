@@ -31,3 +31,8 @@ user:
 password:
 master_grid_table:
 scene_data_table:
+
+[cloud_shadow]
+cloud_val: 1500
+shadow_val: 2000
+land_val: 1000
