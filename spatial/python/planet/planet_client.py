@@ -23,6 +23,7 @@ class PClientV1():
         self.api_key = api_key
         self.max_clouds = 0.25
         self.max_bad_pixels = 0.25
+        self.max_nodata = 0.25
         self.maximgs = 1
         self.catalog_path = "catalog/"
         self.s3_catalog_bucket = "azavea-africa-test"
@@ -42,6 +43,7 @@ class PClientV1():
         self.api_key = api_key
         self.max_clouds = float(imagery_config['max_clouds'])  # max proportion of pixels that are clouds
         self.max_bad_pixels = float(imagery_config['max_bad_pixels']) # max proportion of bad pixels (transmission errors, etc.)
+        self.max_nodata = float(imagery_config['max_nodata']) # max nodata values per cellgrid
         self.maximgs = int(imagery_config['maximgs'])  # 15 #10 #20
         self.output_encoding = imagery_config['output_encoding']
         self.output_filename = imagery_config['output_filename']

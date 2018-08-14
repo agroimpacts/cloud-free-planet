@@ -1,6 +1,6 @@
 from planet_client import PClientV1
 from geo_utils import GeoUtils
-from filter_callable import cloud_shadow_stats
+from filter_callable import cloud_shadow_stats, nodata_stats
 from fixed_thread_pool_executor import FixedThreadPoolExecutor
 
 from sys import stdout
@@ -81,7 +81,7 @@ pclient = PClientV1(api_key, config)
 features = geojson.load(open(imagery_config['aoi']))['features']
 actual_aoi = shape(MultiPolygon([Polygon(f['geometry']) for f in features]))
 
-def csv_loader():
+def main_csv():
     # sequence of cellgrids to walkthrough
     cell_grids = [ ]
 
@@ -359,10 +359,14 @@ def main():
                                 # activation & download
                                 # it should be sync, to allow async check of neighbours
                                 output_localfile, output_file = pclient.download_localfs_s3(scene_id, season = season_type)
+                                
+                                bbox_local = GeoUtils.define_BoundingBox(x, y)
+                                # nodata percentage
+                                nodata_perc = nodata_stats(output_localfile, bbox_local)
                                 # use custom cloud detection function to calculate clouds and shadows
-                                cloud_perc, shadow_perc = cloud_shadow_stats(output_localfile, GeoUtils.define_BoundingBox(x, y))
+                                cloud_perc, shadow_perc = cloud_shadow_stats(output_localfile, bbox_local)
                                 # check if cell grid is good enough
-                                if (cloud_perc <= pclient.max_clouds):
+                                if (cloud_perc <= pclient.max_clouds and nodata_perc <= pclient.max_nodata):
                                     break
                                 else: 
                                     scene_id = ''
@@ -419,11 +423,14 @@ def main():
                                         # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
                                         sub_planet_filters = pclient.set_filters_sr(sub_aoi, start_date = dt_construct(month = m_start, year = current_year), end_date = dt_construct(month = m_end, year = current_year), id = scene_id)
                                         res = pclient.request_intersecting_scenes(sub_planet_filters)
-
+                                        
+                                        sub_bbox_local = GeoUtils.define_BoundingBox(sx, sy)
+                                        # nodata percentage
+                                        sub_nodata_perc = nodata_stats(output_localfile, sub_bbox_local)
                                         # use custom cloud detection function to calculate clouds and shadows
                                         sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats(output_localfile, GeoUtils.define_BoundingBox(sx, sy))
                                         # check if cell grid is good enough
-                                        if (sub_cloud_perc <= pclient.max_clouds):
+                                        if (sub_cloud_perc <= pclient.max_clouds and sub_nodata_perc <= pclient.max_nodata):
                                             # flag to avoid extra lookup into array
                                             sub_valid = False
                                             # select the only one image as it's the only one
@@ -459,10 +466,10 @@ def main():
     print("-------------------")
 
 if __name__ == "__main__":
-    if csv_only & with_csv:
-        csv_loader()
+    if csv_only and with_csv:
+        main_csv()
     elif with_csv:
-        csv_loader() 
+        main_csv() 
         main()
     else:
         main()
