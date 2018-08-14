@@ -29,11 +29,13 @@ pngout <- TRUE
 # assignmentid <- '278'
 # kmlid <- 'ZA0669180'
 # tryid <- '1'
-# db.tester.name <- 'sye'
+# db.tester.name <- 'lestes'
 # alt.root <- NULL
-# host <- NULL
+# host <- "crowdmapper.org"
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
+params <- yaml::yaml.load_file(file.path(Sys.getenv('PYTHONPATH'), 
+                                         'config.yaml'))
 
 # Input args 
 arg <- commandArgs(TRUE)
@@ -83,7 +85,8 @@ if(comments == "T") {
 }
 
 if(test.root == "Y") {
-  coninfo <- mapper_connect(user = pgupw$user, password = pgupw$password,
+  coninfo <- mapper_connect(user = params$mapper$db_username, 
+                            password = params$mapper$db_password,
                             db.tester.name = db.tester.name, 
                             alt.root = alt.root, host = host)
   prjstr <- (tbl(coninfo$con, "spatial_ref_sys") %>% 
@@ -101,12 +104,13 @@ if(test.root == "Y") {
                out.acc.wt = out.acc.wt, new.in.acc.wt = new.in.acc.wt,
                new.out.acc.wt = new.out.acc.wt, frag.acc.wt = frag.acc.wt,
                edge.acc.wt = edge.acc.wt, cate.acc.wt = cate.acc.wt,
-               edge.buf = edge.buf, acc.switch = acc.switch, comments = comments, 
-               write.acc.db = write.acc.db, draw.maps = draw.maps, 
-               pngout = pngout, test = test, test.root = test.root, 
-               user = pgupw$user, password = pgupw$password, 
-               db.tester.name = db.tester.name, 
-               alt.root = alt.root, host = host)
+               edge.buf = edge.buf, acc.switch = acc.switch, 
+               comments = comments, write.acc.db = write.acc.db, 
+               draw.maps = draw.maps, pngout = pngout, test = test, 
+               test.root = test.root, user = params$mapper$db_username, 
+               password = params$mapper$db_password, 
+               db.tester.name = db.tester.name, alt.root = alt.root, 
+               host = host)
 }
 
 
