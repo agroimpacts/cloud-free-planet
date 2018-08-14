@@ -3,3 +3,12 @@ services:
   planet-downloader:
     build: .
     image: daunnc/planet-downloader
+    command: python planet_download_tiff.py
+    # set a proper default profile
+    environment:
+      AWS_PROFILE: clark
+    volumes:
+      - ${PWD}/catalog:/opt/planet/catalog # mount local catalog
+      - ${PWD}/cfg:/opt/planet/cfg # mount script configs
+      - ${HOME}/.aws:/root/.aws # mount aws credentials
+      # - ${HOME}/path_to_master_grid:/opt/master_path # mount master gird to speed up processing
