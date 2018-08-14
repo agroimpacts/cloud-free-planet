@@ -13,7 +13,6 @@
 #' @param pngout Output plot to png? (default: TRUE)
 #' @details Not currently functional, but intended to provide replacement for 
 #' plotting code in kml_accuracy
-#' @import sf
 #' @keywords internal
 accuracy_plots <- function(acc.out, grid.poly, qaqc.poly, user.poly, inres, 
                            user.poly.out, qaqc.poly.out, tpo, fpo, fno, proj.root, 

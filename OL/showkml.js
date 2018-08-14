@@ -1,4 +1,4 @@
-function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId, wmsUrl, wmsAttributes) {
+function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId, wmsUrl, wmsAttributes, snapTolerance) {
 
     var saveStrategyActive = false;
     var workerFeedback = false;
@@ -9,6 +9,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     } else if (workerId.length > 0) {
         workerFeedback = true;
     }
+    var defaultCategory = undefined;
 
     //
     // *** Create map, overlays, and view ***
@@ -66,6 +67,38 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         evt.preventDefault();
     });
     
+    //
+    //*** Create the WMS layers  based on wms_data table ***
+    //
+    // Named constants (must match order in getWMSAttributes()).
+    var PROVIDER = 0;
+    var IMAGE_NAME = 1;
+    var STYLE = 2;
+    var ZINDEX = 3;
+    var VISIBLE = 4;
+    var DESCRIPTION = 5;
+
+    // Array is assumed to be in ascending zIndex order, so process in reverse.
+    var wmsLayer = [];
+    for (var i = wmsAttributes.length - 1; i >= 0; i--) {
+        wmsAttribute = wmsAttributes[i];
+        wmsLayer[i] = new ol.layer.Image({
+            zIndex: wmsAttribute[ZINDEX],
+            visible: wmsAttribute[VISIBLE],
+            title: wmsAttribute[DESCRIPTION],
+            source: new ol.source.ImageWMS({
+                url: wmsUrl,
+                params: {
+                    VERSION: '1.1.1',
+                    LAYERS: wmsAttribute[PROVIDER] + ':' + wmsAttribute[IMAGE_NAME],
+                    STYLES: wmsAttribute[PROVIDER] + ':' + wmsAttribute[STYLE]
+                }
+            })
+        });    
+        // Add new WMS layer to Satellite Image Overlays in Layer Switcher.
+        map.getLayers().getArray()[1].getLayers().push(wmsLayer[i]);
+    }
+
     // *** Create grid cell ***
     // White bounding box KML layer: URL defined in configuration table.
     // No title: so not in layer switcher.
@@ -130,8 +163,11 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                                 })
                             }),
                             geometry: function(feature) {
-                                // return the coordinates of the first ring of the polygon
-                                var coordinates = feature.getGeometry().getCoordinates()[0];
+                                // return the coordinates of the all rings of the polygon
+                                var coordinates = [];
+                                for (i in feature.getGeometry().getCoordinates()) {
+                                    coordinates = coordinates.concat(feature.getGeometry().getCoordinates()[i]);
+                                }
                                 return new ol.geom.MultiPoint(coordinates);
                             }
                         })
@@ -154,38 +190,6 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         // Add fieldsLayer as a managed layer (i.e., don't use setMap()).
         map.getLayers().getArray()[0].getLayers().push(fieldsLayer);
         
-        //
-        //*** Create the WMS layers  based on wms_data table ***
-        //
-        // Named constants (must match order in getWMSAttributes()).
-        var PROVIDER = 0;
-        var IMAGE_NAME = 1;
-        var STYLE = 2;
-        var ZINDEX = 3;
-        var VISIBLE = 4;
-        var DESCRIPTION = 5;
-
-        // Array is assumed to be in ascending zIndex order, so process in reverse.
-        var wmsLayer = [];
-        for (var i = wmsAttributes.length - 1; i >= 0; i--) {
-            wmsAttribute = wmsAttributes[i];
-            wmsLayer[i] = new ol.layer.Image({
-                zIndex: wmsAttribute[ZINDEX],
-                visible: wmsAttribute[VISIBLE],
-                title: wmsAttribute[DESCRIPTION],
-                source: new ol.source.ImageWMS({
-                    url: wmsUrl,
-                    params: {
-                        VERSION: '1.1.1',
-                        LAYERS: wmsAttribute[PROVIDER] + ':' + wmsAttribute[IMAGE_NAME],
-                        STYLES: wmsAttribute[PROVIDER] + ':' + wmsAttribute[STYLE]
-                    }
-                })
-            });    
-            // Add new WMS layer to Satellite Image Overlays in Layer Switcher.
-            map.getLayers().getArray()[1].getLayers().push(wmsLayer[i]);
-        }
-
     // Else, create reference map and worker map layers
     } else {
         var wMapLayer = new ol.layer.Vector({
@@ -257,7 +261,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
 
     // Main control bar with sub-menus
     if (!workerFeedback) {
-        var retVals = addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy, kmlName);
+        var retVals = addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy, kmlName, snapTolerance);
         var mainbar = retVals[0];
         var selectButton = retVals[1];
 
@@ -409,7 +413,12 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         } else {
             // Use select default for normal case, empty selection for worker feedback case.
             if (!workerFeedback) {
-                document.getElementById("categLabel").selectedIndex = 0;
+                // If first time here, capture the default select value for future use.
+                if (defaultCategory == undefined) {
+                    defaultCategory = document.getElementById("categLabel").selectedIndex;
+                } else {
+                    document.getElementById("categLabel").selectedIndex = defaultCategory;
+                }
             } else {
                 document.getElementById("categLabel").value = "";
             }

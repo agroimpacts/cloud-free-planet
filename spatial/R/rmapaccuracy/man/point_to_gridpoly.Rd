@@ -4,14 +4,16 @@
 \alias{point_to_gridpoly}
 \title{Creates polygon grid box from point}
 \usage{
-point_to_gridpoly(xy, w, NewCRSobj, OldCRSobj)
+point_to_gridpoly(xy, w, OldCRSobj, NewCRSobj)
 }
 \arguments{
 \item{xy}{A data.frame containing x and y coordinates and name of grid point}
 
 \item{w}{A value in meters specifiying 1/2 the diameter of the grid polygon}
 
-\item{CRSobj}{The projection string for the output polygon}
+\item{OldCRSobj}{The crs for the input polygon}
+
+\item{NewCRSobj}{crs to transform polygon to}
 }
 \description{
 Creates polygon grid box from point

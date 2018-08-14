@@ -2,7 +2,8 @@
 
 rm(list = ls())
 library(rmapaccuracy)
-
+library(yaml)
+params <- yaml.load_file('../../../common/config.yaml')
 prjsrid <- 102022
 count.err.wt <- 0.1  
 in.err.wt <- 0.7  
@@ -13,8 +14,8 @@ write.err.db <- "F"
 draw.maps  <- "F"  
 test <- "N"  
 test.root <- "N"  
-user <- "***REMOVED***"
-password <- "***REMOVED***"
+user <- params$mapper$db_username
+password <- params$mapper$db_password
 mtype <- "qa"
 tryid <- NULL
 
@@ -37,8 +38,8 @@ setwd(b_path)
 ## Connect to database
 dinfo <- getDBName()  # pull working environment
 drv <- dbDriver("PostgreSQL")
-con <- dbConnect(drv, dbname = dinfo["db.name"], user = "***REMOVED***", 
-                 password = "***REMOVED***")
+con <- dbConnect(drv, dbname = dinfo["db.name"], user = params$mapper$db_username, 
+                 password = params$mapper$db_password)
 
 # assignment ID
 # assignmentid <- "3N2BF7Y2VQUZ3QL0FP22D2G0M4FHMP"

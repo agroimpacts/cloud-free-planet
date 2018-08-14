@@ -12,7 +12,7 @@
 #' @param edge.buf buffer for edge accuracy
 #' @param acc.switch in grid error metric: 1 = overall accuracy; 2 = TSS
 #' @param comments For testing, can turn off (F) or on (T) print statements
-#' @param write.acc.db Write error metrics into error_data table ("T" or "F") 
+#' @param write.acc.db Write error metrics into accuracy_data table ("T" or "F") 
 #' @param draw.maps Draw maps showing output error components ("T" or "F") 
 #' @param pngout Write maps to png file, TRUE (default) or FALSE (to screen)
 #' @param test "Y" or "N" for offline testing mode (see Details)
@@ -27,23 +27,19 @@
 #' right assignment ids to test. This option must be set to "N" when in  
 #' production. test.root allows one to simply the run the function to see if it 
 #' is located in the correct working environment.
-#' @import RPostgreSQL
-#' @importFrom  DBI dbDriver
-#' @import dplyr
 #' @import sf
+#' @import dplyr
+#' @importFrom data.table data.table 
 #' @export
 kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                          count.acc.wt, in.acc.wt, out.acc.wt, new.in.acc.wt, 
-                         new.out.acc.wt, frag.acc.wt, edge.acc.wt, edge.buf, 
-                         acc.switch, comments, write.acc.db, draw.maps, 
+                         new.out.acc.wt, frag.acc.wt, edge.acc.wt, cate.acc.wt, 
+                         edge.buf, acc.switch, comments, write.acc.db, draw.maps, 
                          pngout = TRUE, test,  test.root, user, password, 
                          db.tester.name = NULL, alt.root = NULL, host = NULL) {
   
-  # dinfo <- getDBName()  # pull working environment
-
+  ## Extract connections and reading in of spatial data
   # Paths and connections
-  # con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), dbname = dinfo["db.name"],
-  #                       user = user, password = password)
   coninfo <- mapper_connect(user = user, password = password,
                             db.tester.name = db.tester.name, 
                             alt.root = alt.root, host = host)
@@ -56,28 +52,31 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     
   # Collect QAQC fields (if there are any; if not then "N" value will be 
   # returned). This should work for both training and test sites
-  qaqc.sql <- paste0("select gid from qaqcfields where name=", "'", kmlid, "'")
-  qaqc.polys <- DBI::dbGetQuery(coninfo$con, qaqc.sql)
+  qaqc.sql <- paste0("SELECT gid, category, geom_clean FROM qaqcfields ",
+                     "INNER JOIN categories USING (category) ",
+                     "WHERE name=", "'", kmlid, "' AND categ_group ='field'")
+  qaqc.polys <- DBI::dbGetQuery(coninfo$con, gsub(", geom_clean", "", qaqc.sql))
   qaqc.hasfields <- ifelse(nrow(qaqc.polys) > 0, "Y", "N") 
   if(qaqc.hasfields == "Y") {
-    qaqc.sql <- paste0("select gid, geom_clean",
-                       " from qaqcfields where name=", "'", kmlid, "'")
     qaqc.polys <- suppressWarnings(st_read(coninfo$con, query = qaqc.sql, 
                                            geom_column = 'geom_clean'))
-    qaqc.polys <- st_transform(qaqc.polys, crs=prjstr)
+    qaqc.polys <- st_transform(qaqc.polys, crs =  prjstr)
     qaqc.polys <- st_buffer(qaqc.polys, 0)
   } 
 
-  # Read in user data
+  # Read in 'field' polygons
   if(mtype == "tr") {  # Training case
-    user.sql <- paste0("select name, try, geom_clean",
-                       " from qual_user_maps where assignment_id=",  "'", 
-                       assignmentid, "'", " and try='",  tryid, 
-                       "' order by name")
+    user.sql <- paste0("SELECT name, try, category, geom_clean ",
+                       "FROM qual_user_maps INNER JOIN categories ", 
+                       "USING (category) where assignment_id=",  "' ", 
+                       assignmentid, "'", " AND try='",  tryid, "' ",
+                       "AND categ_group ='field'")
   } else if(mtype == "qa") {  # Test case
-    user.sql <- paste0("select name, geom_clean from",
-                       " user_maps where assignment_id=", "'", assignmentid,
-                       "'", " order by name")
+    user.sql <- paste0("select name, category, geom_clean ",
+                       "FROM user_maps INNER JOIN categories ", 
+                       "USING (category) where assignment_id='",  
+                       assignmentid, "' ",
+                       "AND categ_group ='field'")
   }
   
   # test if user fields exist
@@ -87,8 +86,18 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     # In old versions invoked cleaning algorithm here (since removed)
     user.polys <- suppressWarnings(st_read(coninfo$con, query = user.sql, 
                                            geom_column = 'geom_clean'))
-    user.polys <- st_transform(user.polys, crs = prjstr)
-  } 
+    
+    # select only polygons
+    user.polys <- user.polys %>% filter(st_is(. , "POLYGON"))
+    
+    if(nrow(user.polys) > 0){
+      user.polys <- st_transform(user.polys, crs = prjstr)
+    }
+    else{
+      user.hasfields <- "N" # change user.hasfield to N because no rows
+    }
+    
+  } ###
   
   # Accuracy checks begin
   # Case 1: A null qaqc site recorded as null by the observer; score set to 1
@@ -96,27 +105,28 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     if(comments == "T") print("Case 1: No QAQC or User fields")
     acc.out <- c("new_score" = 1, "old_score" = 1, "count_acc" = 1, 
                  "frag_acc" = 1, "edge_acc" = 1, "in_acc" = 1, 
-                 "out_acc" = 1, "user_count" = 0, 
+                 "out_acc" = 1, "cate_acc" = 1, "user_count" = 0, 
                  "field_skill" = 1, "nofield_skill" = 1)
     acc.out <- list("acc.out" = acc.out)
   } else {
     # Pick up grid cell from qaqc table, for background location, as it will be 
-    # needed for the other 3 cases
+    # needed for the other 3 cases  ### Extract this to separate function
     xy_tabs <- data.table(tbl(coninfo$con, "master_grid") %>% 
                             filter(name == kmlid) %>% 
                             dplyr::select(x, y, name) %>% collect())
+                            #dplyr::select(x, y, name) %>% collect())
     
     grid.poly <- point_to_gridpoly(xy = xy_tabs, w = diam, NewCRSobj = prjstr, 
                                    OldCRSobj = gcsstr)
     grid.poly <- st_geometry(grid.poly)  # retain geometry only
-  }
+  }  ###
   
   # Case 2: A null qaqc site but user mapped field(s)
   if((qaqc.hasfields == "N") & (user.hasfields == "Y")) {
     if(comments == "T") print("Case 2: No QAQC fields, but User fields") 
     acc.out <- case2_accuracy(grid.poly, user.polys, in.acc.wt, out.acc.wt, 
                               count.acc.wt, new.in.acc.wt, new.out.acc.wt, 
-                              frag.acc.wt, edge.acc.wt)
+                              frag.acc.wt, edge.acc.wt, cate.acc.wt)
   }
 
   #  Case 3. QAQC has fields, User has no fields
@@ -124,49 +134,61 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
     if(comments == "T") print("Case 3: QAQC fields but no User fields")
     acc.out <- case3_accuracy(grid.poly, qaqc.polys, in.acc.wt, out.acc.wt, 
                               count.acc.wt, new.in.acc.wt, new.out.acc.wt, 
-                              frag.acc.wt, edge.acc.wt, acc.switch)
+                              frag.acc.wt, edge.acc.wt, cate.acc.wt, acc.switch)
   }
   
   # Case 4. QAQC has fields, User has fields
   if(qaqc.hasfields == "Y" & user.hasfields == "Y") {
     if(comments == "T") print("Case 4: QAQC fields and User fields")
+      
+    # read the first 'Fieldcategory.num' CategCode,
+    # and pass it to case4_accuracy 
+    catecode.sql <- paste0("SELECT category ",
+                           "FROM categories WHERE categ_group='field' ", 
+                           "AND NOT category='unsure2'")
+    cate.code <- DBI::dbGetQuery(coninfo$con, catecode.sql)$category
+    
     acc.out <- case4_accuracy(grid.poly, user.polys, qaqc.polys, count.acc.wt,
                               in.acc.wt, out.acc.wt, new.in.acc.wt, 
                               new.out.acc.wt, frag.acc.wt, edge.acc.wt, 
-                              edge.buf, comments, acc.switch)
+                              cate.acc.wt, edge.buf, cate.code,
+                              comments, acc.switch)
   }
   
-  # need add field_skill and nofield_skill columns into new_error_data tables  
+  ### Extract to separate function
   if(write.acc.db == "T") {
     if(mtype == "qa") {
-      acc.sql <- paste0("insert into new_error_data (assignment_id, new_score,",
-                        "old_score, count_acc, fragmentation_acc, edge_acc,",
-                        "ingrid_acc, outgrid_acc, num_userpolygons, field_skill,",
+      acc.sql <- paste0("insert into accuracy_data (assignment_id, new_score,",
+                        " old_score, count_acc, fragmentation_acc, edge_acc, ", 
+                        "ingrid_acc, outgrid_acc, category_acc, ", 
+                        "num_userpolygons, field_skill,",
                         " nofield_skill) values ('", assignmentid, "', ", 
                         paste(acc.out$acc.out, collapse = ", "), ")")
     } else if(mtype == "tr") {
-      acc.sql <- paste0("insert into new_qual_error_data (assignment_id,", 
+      acc.sql <- paste0("insert into qual_accuracy_data (assignment_id,", 
                         "new_score, old_score, count_acc, fragmentation_acc,",
-                        "edge_acc, ingrid_acc, outgrid_acc,", 
+                        "edge_acc, ingrid_acc, outgrid_acc, category_acc, ", 
                         "num_userpolygons, field_skill, nofield_skill, try)",
                         " values ('", assignmentid, "', ", 
                         paste(acc.out$acc.out, collapse = ", "), ", ", tryid, ")")
     }
-    ret <- dbSendQuery(coninfo$con, acc.sql)
-  }
+    ret <- DBI::dbSendQuery(coninfo$con, acc.sql)
+  } ###
 
+  ### Extract out of function. Put in KMLAccuracyCheck
   # Map results according to error class
   if(draw.maps == "T") {
     maps <- acc.out$maps
     accuracy_plots(acc.out = acc.out$acc.out, grid.poly = maps$gpol, 
-                  qaqc.poly = maps$qpol, user.poly = maps$upol,
-                  inres = maps$inres, user.poly.out = maps$upolo, 
-                  qaqc.poly.out = maps$qpolo, tpo = maps$tpo,fpo = maps$fpo, fno = maps$fno,
-                  proj.root = coninfo$dinfo["project.root"], pngout = pngout)
-  }
-
+                   qaqc.poly = maps$qpol, user.poly = maps$upol,
+                   inres = maps$inres, user.poly.out = maps$upolo, 
+                   qaqc.poly.out = maps$qpolo, tpo = maps$tpo,fpo = maps$fpo, 
+                   fno = maps$fno, proj.root = coninfo$dinfo["project.root"], 
+                   pngout = pngout)
+  } ### 
+  
   # Close connection to prevent too many from being open
-  garbage <- dbDisconnect(coninfo$con)
+  garbage <- DBI::dbDisconnect(coninfo$con)
   
   # Return error metrics
   if(comments == "T") {

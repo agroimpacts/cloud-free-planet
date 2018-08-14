@@ -6,9 +6,9 @@
 \usage{
 kml_accuracy(mtype, diam, prjsrid, kmlid, assignmentid, tryid, count.acc.wt,
   in.acc.wt, out.acc.wt, new.in.acc.wt, new.out.acc.wt, frag.acc.wt,
-  edge.acc.wt, edge.buf, acc.switch, comments, write.acc.db, draw.maps,
-  pngout = TRUE, test, test.root, user, password, db.tester.name = NULL,
-  alt.root = NULL, host = NULL)
+  edge.acc.wt, cate.acc.wt, edge.buf, acc.switch, comments, write.acc.db,
+  draw.maps, pngout = TRUE, test, test.root, user, password,
+  db.tester.name = NULL, alt.root = NULL, host = NULL)
 }
 \arguments{
 \item{mtype}{"qa" or "tr" for qaqc or training types}
@@ -37,7 +37,7 @@ kml_accuracy(mtype, diam, prjsrid, kmlid, assignmentid, tryid, count.acc.wt,
 
 \item{comments}{For testing, can turn off (F) or on (T) print statements}
 
-\item{write.acc.db}{Write error metrics into error_data table ("T" or "F")}
+\item{write.acc.db}{Write error metrics into accuracy_data table ("T" or "F")}
 
 \item{draw.maps}{Draw maps showing output error components ("T" or "F")}
 
