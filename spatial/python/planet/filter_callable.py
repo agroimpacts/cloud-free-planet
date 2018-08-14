@@ -20,6 +20,7 @@ import rasterio
 from rasterio.warp import transform_bounds
 from rasterio.coords import BoundingBox
 from retry import retry
+import configparser
 
 # returns nodata percentage
 def nodata_stats(in_name, bounds):
@@ -37,7 +38,10 @@ def nodata_stats(in_name, bounds):
     
     return sum([np.count_nonzero(band == nodata) for band in bands]) / src.count
 
-def cloud_shadow_stats(in_name, bounds, cloud_val = 2500, shadow_val = 1500, land_val = 1000):
+def cloud_shadow_stats_config(in_name, bounds, config):
+    return cloud_shadow_stats(in_name, bounds, int(config['cloud_val']), int(config['shadow_val']), int(config['land_val']))
+
+def cloud_shadow_stats(in_name, bounds, cloud_val = 1500, shadow_val = 2000, land_val = 1000):
     """
     Input parameter:
     in_name    - The full path of a Geotiff format image. e.g., r"D:\test_image\planet.tif"
@@ -83,9 +87,9 @@ def cloud_shadow_stats(in_name, bounds, cloud_val = 2500, shadow_val = 1500, lan
     # 4. extract cloud, shadow&water, land
     # The threshold here is based on Sitian and Tammy's test on 11 planet scenes.  It may not welly work for every AOI.
     # Apparently np.where() method will change or lost the datatype, so .astype(np.int16) is used to make sure the datatype is the same as original
-    cloud_array = np.where(min7x7_img > 1500, 1, 0).astype(np.int16)
-    shadow_and_water_array = np.where(max7x7_img < 2000, 1, 0).astype(np.int16)
-    land_array = np.where(b4_array > 1000, 1, 0).astype(np.int16)
+    cloud_array = np.where(min7x7_img > cloud_val, 1, 0).astype(np.int16)
+    shadow_and_water_array = np.where(max7x7_img < shadow_val, 1, 0).astype(np.int16)
+    land_array = np.where(b4_array > land_val, 1, 0).astype(np.int16)
 
     del max7x7_img, min7x7_img, b4_array
 
