@@ -6,6 +6,7 @@ test: false
 aoi: ghana_aoi.geojson
 with_csv: True
 csv_only: True
+csv_mode: a
 csv_points: individual_sites_needing_images.csv
 resolution: 0.025
 master_grid_path: s3://activemapper/grid/master_grid.tif

@@ -53,6 +53,7 @@ test = json.loads(imagery_config['test'].lower())
 with_csv = json.loads(imagery_config['with_csv'].lower())
 csv_only = json.loads(imagery_config['csv_only'].lower())
 csv_points = imagery_config['csv_points']
+csv_mode = imagery_config['csv_mode']
 csv_header = ["cell_id", "scene_id", "col", "row", "season", "uri"]
 
 # logger
@@ -111,9 +112,9 @@ def main_csv():
     }
 
     # output CSV file
-    fp = codecs.open(filename = pclient.output_filename, mode = "a", encoding = pclient.output_encoding) # buffering = 20*(1024**2)
+    fp = codecs.open(filename = pclient.output_filename, mode = csv_mode, encoding = pclient.output_encoding) # buffering = 20*(1024**2)
     if csv_only:
-        fp = codecs.open(filename = pclient.output_filename_csv, mode = "a", encoding = pclient.output_encoding)
+        fp = codecs.open(filename = pclient.output_filename_csv, mode = csv_mode, encoding = pclient.output_encoding)
 
     writer = csv.writer(fp)
     writer.writerow(csv_header)
@@ -313,7 +314,7 @@ def main_json():
     }
 
     # output CSV file
-    fp = codecs.open(filename = pclient.output_filename, mode = "a", encoding = pclient.output_encoding) # buffering = 20*(1024**2)
+    fp = codecs.open(filename = pclient.output_filename, mode = csv_mode, encoding = pclient.output_encoding) # buffering = 20*(1024**2)
     writer = csv.writer(fp)
     if not (with_csv and csv_only):
         writer.writerow(csv_header)
