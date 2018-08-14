@@ -2,17 +2,37 @@
 api_key: <none>
 
 [imagery]
+test: false
 aoi: ghana_aoi.geojson
+with_csv: True
+csv_only: True
+csv_mode: a
+csv_points: individual_sites_needing_images.csv
 resolution: 0.025
 master_grid_path: s3://activemapper/grid/master_grid.tif
 max_clouds: 0.25
 max_bad_pixels: 0.25
+max_nodata: 0.25
 asset_type: analytic_sr
 maximgs: 1
 output_encoding: utf-8
 output_filename: output.csv
+output_filename_csv: output_csv.csv
 threads: default
 catalog_path: catalog/
-s3_catalog_bucket: azavea-africa-test
-s3_catalog_prefix: planet/images
+s3_catalog_bucket: activemapper
+s3_catalog_prefix: sources/planet/images
 item_type: PSScene4Band
+
+[database]
+host:
+dbname:
+user:
+password:
+master_grid_table:
+scene_data_table:
+
+[cloud_shadow]
+cloud_val: 1500
+shadow_val: 2000
+land_val: 1000
