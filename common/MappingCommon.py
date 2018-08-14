@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 import pwd
 import cgi
@@ -16,22 +17,6 @@ from decimal import Decimal
 from github import Github
 from lock import lock
 import yaml
-
-def parse_yaml(input_file):
-    """Parse yaml file of configuration parameters."""
-    with open(input_file, 'r') as yaml_file:
-        params = yaml.load(yaml_file)
-    return params
-
-params = parse_yaml(os.path.join(os.environ['PYTHONPATH'],"config.yaml"))
-
-db_production_name = params['mapper']['db_production_name']
-db_sandbox_name = params['mapper']['db_sandbox_name']
-db_user = ['mapper']['db_username']
-db_password = ['mapper']['db_password']
-# GitHub user maphelp's token
-github_token = ['mapper']['github_token']
-github_repo = ['github_repo']['agroimpacts/mapperAL']
 
 class MappingCommon(object):
 
@@ -85,8 +70,26 @@ class MappingCommon(object):
     # Serialization lock file name
     lockFile = 'serial_file.lck'
 
+    db_production_name = None
+    db_sandbox_name = None
+    db_user = None
+    db_password = None
+    # GitHub user maphelp's token
+    github_token = None
+    github_repo = None
+
     def __init__(self, projectRoot=None):
         
+        params = self.parse_yaml("config.yaml")
+
+        db_production_name = params['mapper']['db_production_name']
+        db_sandbox_name = params['mapper']['db_sandbox_name']
+        db_user = params['mapper']['db_username']
+        db_password = params['mapper']['db_password']
+        # GitHub user maphelp's token
+        github_token = params['mapper']['github_token']
+        github_repo = params['mapper']['github_repo']
+
         # Determine sandbox/mapper based on effective user name.
         self.euser = pwd.getpwuid(os.getuid()).pw_name
         if self.euser == 'mapper':
@@ -124,6 +127,22 @@ class MappingCommon(object):
     #
     # *** Utility Functions ***
     #
+
+    # Parse yaml file of configuration parameters.
+    def parse_yaml(self, input_file):
+        input_file = self.findProjectFile(input_file)
+        with open(input_file, 'r') as yaml_file:
+            params = yaml.load(yaml_file)
+        return params
+
+    # Project files are non-python files stored under the PYTHONPATH directory.
+    # PYTHONPATH env var not defined when running under apache. Need to look in sys.path instead.
+    def findProjectFile(self, filename):
+        for dirname in sys.path:
+            candidate = os.path.join(dirname, filename)
+            if os.path.isfile(candidate):
+                return candidate
+        raise Error("Can't find file %s" % filename)
 
     # Retrieve a tunable parameter from the configuration table.
     def getConfiguration(self, key):
