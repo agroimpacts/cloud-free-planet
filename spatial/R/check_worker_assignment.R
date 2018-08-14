@@ -7,6 +7,9 @@ suppressMessages(library(rmapaccuracy))
 suppressWarnings(suppressMessages(library(sf)))
 suppressWarnings(suppressMessages(library(dplyr)))
 
+params <- yaml::yaml.load_file(file.path(Sys.getenv('PYTHONPATH'), 
+                                         'config.yaml'))
+
 # Get HIT ID, assignment ID
 args <- commandArgs(TRUE)
 if(length(args) < 3) stop("Need at least 3 arguments")
@@ -31,7 +34,8 @@ if(!is.na(args[6])) {
 }
 
 # Find working location
-coninfo <- mapper_connect(user = pgupw$user, password = pgupw$password,
+coninfo <- mapper_connect(user = params$mapper$db_username, 
+                          password = params$mapper$db_password,
                           db.tester.name = db.tester.name, 
                           alt.root = alt.root, host = host)
 

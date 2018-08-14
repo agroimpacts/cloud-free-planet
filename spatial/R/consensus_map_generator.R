@@ -1,9 +1,8 @@
 # consensus_map_generator.R
 # Main script for calling consensus map generation (Bayes Averaging) functions
 # Author: Su Ye
-
-library(yaml)
-params <- yaml.load_file(file.path(Sys.getenv('PYTHONPATH'),'config.yaml'))
+params <- yaml::yaml.load_file(file.path(Sys.getenv('PYTHONPATH'), 
+                                         'config.yaml'))
 
 # Static arguments
 output.heatmap <- FALSE # if output heat map
