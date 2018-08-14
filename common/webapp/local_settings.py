@@ -1,13 +1,8 @@
-import os
-import yaml
+from MappingCommon import MappingCommon
 
-def parse_yaml(input_file):
-    """Parse yaml file of configuration parameters."""
-    with open(input_file, 'r') as yaml_file:
-        params = yaml.load(yaml_file)
-    return params
+mapc = MappingCommon()
+params = mapc.parse_yaml("config.yaml")
 
-params = parse_yaml(os.path.join(os.environ['PYTHONPATH'],"config.yaml"))
 # *****************************
 # Environment specific settings
 # *****************************
@@ -21,7 +16,6 @@ DEBUG = params['mapper']['DEBUG']
 SECRET_KEY = 'This is an UNSECURE Secret. CHANGE THIS for production environments.'
 
 # SQLAlchemy settings
-# *** TODO: TEMP definitions. Replace with central definitions. ***
 db_production_name = params['mapper']['db_production_name']
 db_name = params['mapper']['db_sandbox_name']
 db_user = params['mapper']['db_username']
@@ -36,9 +30,13 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False    # Avoids a SQLAlchemy Warning
 # Change it in https://myaccount.google.com/security#connectedapps (near the bottom).
 MAIL_SERVER = params['mapper']['MAIL_SERVER']
 MAIL_PORT = params['mapper']['MAIL_PORT']
-MAIL_USE_SSL = params['mapper']['MAIL_USE_SLL']
+MAIL_USE_SSL = params['mapper']['MAIL_USE_SSL']
 MAIL_USE_TLS = params['mapper']['MAIL_USE_TLS']
 MAIL_USERNAME = params['mapper']['MAIL_USERNAME']
 MAIL_PASSWORD = params['mapper']['MAIL_PASSWORD']
-MAIL_DEFAULT_SENDER = params['mapper']['MAIL_DEFAULT_SENDER']
-ADMINS = params['mapper']['ADMINS']
+
+MAIL_DEFAULT_SENDER = '"AgroImpacts Administrator" <lestes@clarku.edu>'
+ADMINS = [
+    '"AgroImpacts Administrator" <dmcr@princeton.edu>',
+    '"AgroImpacts Administrator" <lestes@clarku.edu>',
+    ]

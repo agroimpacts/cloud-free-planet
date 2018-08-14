@@ -3,6 +3,7 @@ import os
 import sys
 import psycopg2
 from psycopg2.extensions import adapt
+from MappingCommon import MappingCommon
 
 def parse_yaml(input_file):
     """Parse yaml file of configuration parameters."""
@@ -10,7 +11,8 @@ def parse_yaml(input_file):
         params = yaml.load(yaml_file)
     return params
 
-params = parse_yaml(os.path.join(os.environ['PYTHONPATH'],"config_template.yaml"))
+mapc = MappingCommon()
+params = mapc.parse_yaml("config.yaml")
 
 db_production_name = params['mapper']['db_production_name']
 db_sandbox_name = params['mapper']['db_sandbox_name']
