@@ -21,6 +21,22 @@ from rasterio.warp import transform_bounds
 from rasterio.coords import BoundingBox
 from retry import retry
 
+# returns nodata percentage
+def nodata_stats(in_name, bounds):
+    src = rasterio.open(in_name)
+    nodata = src.nodata
+
+    # bounds in the src crs projection
+    # (left, bottom, right, top)
+    transformed_bounds = BoundingBox(*transform_bounds("EPSG:4326", src.crs, *bounds))
+
+    # calculate window to read from the input tiff
+    actual_window = GeoUtils.bounds_to_windows(transformed_bounds, src)
+
+    bands = src.read(window = actual_window)
+    
+    return sum([np.count_nonzero(band == nodata) for band in bands]) / src.count
+
 def cloud_shadow_stats(in_name, bounds, cloud_val = 2500, shadow_val = 1500, land_val = 1000):
     """
     Input parameter:
@@ -51,7 +67,7 @@ def cloud_shadow_stats(in_name, bounds, cloud_val = 2500, shadow_val = 1500, lan
     # 2. make max image and min image from four input bands.
     # np.dstack() takes a list of bands and makes a band stack
     # np.amax() find the max along the axis, here 2 means the axis that penetrates through bands in each pixel.
-    band_list = [b1_array,b2_array,b3_array,b4_array]
+    band_list = [b1_array ,b2_array, b3_array, b4_array]
     stacked = np.dstack(band_list)
     max_img = np.amax(stacked,2)
     min_img = np.amin(stacked,2)
