@@ -225,7 +225,7 @@ class PClientV1():
         if not os.path.exists(local_result):
             try:
                 self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
-                filepath = result
+                filepath = s3_result
             except botocore.exceptions.ClientError:
                 filepath = self.download_localfs(scene_id, season)
                 self.logger.info("Uploading {}...".format(scene_id))
