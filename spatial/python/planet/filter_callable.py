@@ -39,19 +39,13 @@ def nodata_stats(in_name, bounds):
     return sum([np.count_nonzero(band == nodata) for band in bands]) / src.count
 
 def size_shape_filter(cloud_array_initial, cloud_reflectance_thresh = 1500, object_size_thresh = 200, eccentricity_thresh=.95):
-    """
-    Takes a cloud mask array from the minimum filter and caluclates the
-    eccentricity and are aof each object that was identified as cloud.
-    Objects with eccentricity near 1 are more thin and linear (Roads or 
-    strips of bright soil). Objects of small area are typically bright roofs. 
-    Values selected by hand from visualizing growing season planet scenes over ghana.
-    """
-
-    # identify objects, label each with unique id
-    possible_cloud_labels = measure.label(cloud_array_initial)
 
     # if the cloud_array really contains something, then do the following, otherwise return
-    if np.count_nonzero(cloud_array) > 0:
+    if np.count_nonzero(cloud_array_initial) > 0:
+        
+        # identify objects, label each with unique id
+        possible_cloud_labels = measure.label(cloud_array_initial)
+        # get metrics
         cloud_info = measure.regionprops(possible_cloud_labels)
         
         #iterate objects in the cloud_info
@@ -61,18 +55,24 @@ def size_shape_filter(cloud_array_initial, cloud_reflectance_thresh = 1500, obje
             if int(cloud_info[j]['area'] )> object_size_thresh:
                 if cloud_info[j]['eccentricity'] < eccentricity_thresh:
                     obj_array = np.where(possible_cloud_labels == j+1, 1, 0)
-                    cloud_labels.apped(obj_array)
+                    cloud_labels.append(obj_array)
             j+=1
-        # returns the union of all objects that made it through size and shape (eccentricity) filter
-        return np.logical_or(*cloud_labels)
+        # check if there are any labels identified as having clouds left
+        
+        if len(cloud_labels) > 1:
+            return np.logical_or(*cloud_labels)
+        elif len(cloud_labels) == 1:
+            return cloud_labels[0]
+        else:
+            return np.zeros(cloud_array_initial.shape)
 
     else:
-        return cloud_array_initial
+        return np.zeros(cloud_array_initial.shape)
 
 def cloud_shadow_stats_config(in_name, bounds, config):
     return cloud_shadow_stats(in_name, bounds, int(config['cloud_val']), int(config['eccentricity_val']), int(config['area_val']))
 
-def cloud_shadow_stats(in_name, bounds, cloud_val = 1500, eccentricity_val = .95, area_val = 200):
+def cloud_shadow_stats(in_name, bounds, cloud_val = 1500):
     """
     Input parameter:
     in_name    - The full path of a Geotiff format image. e.g., r"D:\test_image\planet.tif"
@@ -105,21 +105,14 @@ def cloud_shadow_stats(in_name, bounds, cloud_val = 1500, eccentricity_val = .95
 
     del b1_array, b2_array, b3_array, band_list
 
-    # 3. make max 7x7 filtered max and min image
-    max7x7_img = ndimage.maximum_filter(max_img, 7)
-    min7x7_img = ndimage.minimum_filter(min_img, 7)
-
     del max_img, min_img
 
     # 4. extract cloud, shadow&water, land
     # The threshold here is based on Sitian and Tammy's test on 11 planet scenes.  It may not welly work for every AOI.
     # Apparently np.where() method will change or lost the datatype, so .astype(np.int16) is used to make sure the datatype is the same as original
-    cloud_array_initial = np.where(min7x7_img > cloud_val, 1, 0).astype(np.int16)
-
-    del max7x7_img, min7x7_img, b4_array
+    cloud_array_initial = np.where(min_img > cloud_val, 1, 0).astype(np.int16)
     
-    # 5. Object oriented filtering to deal with buildings and roads misclassed as clouds
-    cloud_array = size_shape_filter(cloud_array_initial, eccentricity_val, area_val)
+    cloud_array = size_shape_filter(cloud_array_initial)
     
     # 6. Calculate Statistics
     grid_count = np.ma.count(cloud_array) # acutally count all pixels 
