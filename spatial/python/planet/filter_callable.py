@@ -15,6 +15,7 @@ from geo_utils import GeoUtils
 
 import numpy as np
 from scipy import ndimage
+from skimage import measure
 import sys
 import rasterio
 from rasterio.warp import transform_bounds
@@ -37,22 +38,49 @@ def nodata_stats(in_name, bounds):
     
     return sum([np.count_nonzero(band == nodata) for band in bands]) / src.count
 
-def cloud_shadow_stats_config(in_name, bounds, config):
-    return cloud_shadow_stats(in_name, bounds, int(config['cloud_val']), int(config['shadow_val']), int(config['land_val']))
+def size_shape_filter(cloud_array_initial, cloud_reflectance_thresh = 1500, object_size_thresh = 200, eccentricity_thresh=.95):
+    """
+    Takes a cloud mask array from the minimum filter and caluclates the
+    eccentricity and are aof each object that was identified as cloud.
+    Objects with eccentricity near 1 are more thin and linear (Roads or 
+    strips of bright soil). Objects of small area are typically bright roofs. 
+    Values selected by hand from visualizing growing season planet scenes over ghana.
+    """
 
-def cloud_shadow_stats(in_name, bounds, cloud_val = 1500, shadow_val = 2000, land_val = 1000):
+    # identify objects, label each with unique id
+    possible_cloud_labels = measure.label(cloud_array_initial)
+
+    # if the cloud_array really contains something, then do the following, otherwise return
+    if np.count_nonzero(cloud_array) > 0:
+        cloud_info = measure.regionprops(possible_cloud_labels)
+        
+        #iterate objects in the cloud_info
+        j = 0
+        cloud_labels = []
+        while j < len(cloud_info):
+            if int(cloud_info[j]['area'] )> object_size_thresh:
+                if cloud_info[j]['eccentricity'] < eccentricity_thresh:
+                    obj_array = np.where(possible_cloud_labels == j+1, 1, 0)
+                    cloud_labels.apped(obj_array)
+            j+=1
+        # returns the union of all objects that made it through size and shape (eccentricity) filter
+        return np.logical_or(*cloud_labels)
+
+    else:
+        return cloud_array_initial
+
+def cloud_shadow_stats_config(in_name, bounds, config):
+    return cloud_shadow_stats(in_name, bounds, int(config['cloud_val']), int(config['eccentricity_val']), int(config['area_val']))
+
+def cloud_shadow_stats(in_name, bounds, cloud_val = 1500, eccentricity_val = .95, area_val = 200):
     """
     Input parameter:
     in_name    - The full path of a Geotiff format image. e.g., r"D:\test_image\planet.tif"
     bounds     - lat lon bounds to read data from
-    cloud_val  - The threshold of cloud in the min image(for more about "min image", see #2 in the following); default = 2500;  
-    shadow_val - The threshold of shadow in the max image; default = 1500;
-    land_val   - The threshold of land in the Near Infrared image (band 4); defalt = 1000
-
-    Output: cloud_perc, shadow_perc
+    cloud_val  - The threshold of cloud in the min image(for more about "min image", see #2 in the following);  
+    Output: cloud_perc
     The output is a tuple with two float numbers:  
     cloud_perc  - cloud pixels percentage in that image, 
-    shadow_perc - shadow percentage in that image.
     """
 
     src = rasterio.open(in_name)
@@ -86,22 +114,18 @@ def cloud_shadow_stats(in_name, bounds, cloud_val = 1500, shadow_val = 2000, lan
     # 4. extract cloud, shadow&water, land
     # The threshold here is based on Sitian and Tammy's test on 11 planet scenes.  It may not welly work for every AOI.
     # Apparently np.where() method will change or lost the datatype, so .astype(np.int16) is used to make sure the datatype is the same as original
-    cloud_array = np.where(min7x7_img > cloud_val, 1, 0).astype(np.int16)
-    shadow_and_water_array = np.where(max7x7_img < shadow_val, 1, 0).astype(np.int16)
-    land_array = np.where(b4_array > land_val, 1, 0).astype(np.int16)
+    cloud_array_initial = np.where(min7x7_img > cloud_val, 1, 0).astype(np.int16)
 
     del max7x7_img, min7x7_img, b4_array
-
-    # 5. get shadow by masking 
-    shadow_array = np.where(land_array == 1, shadow_and_water_array, 0).astype(np.int16)
-
+    
+    # 5. Object oriented filtering to deal with buildings and roads misclassed as clouds
+    cloud_array = size_shape_filter(cloud_array_initial, eccentricity_val, area_val)
+    
     # 6. Calculate Statistics
-    grid_count = np.ma.count(shadow_array) # acutally count all pixels 
+    grid_count = np.ma.count(cloud_array) # acutally count all pixels 
     cloud_count = np.count_nonzero(cloud_array ==1)
-    shadow_count = np.count_nonzero(shadow_array ==1)
 
     cloud_perc = cloud_count / grid_count
-    shadow_perc = shadow_count / grid_count
 
-    del cloud_array, shadow_and_water_array, land_array, shadow_array
-    return cloud_perc, shadow_perc
+    del cloud_array
+    return cloud_perc
