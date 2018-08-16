@@ -8,7 +8,7 @@
 #' @return categorical accuracy
 #' @import dplyr
 #' 
-categorical_accuracy <- function(qaqc.polys, user.polys, cate.code){
+categorical_accuracy <- function(qaqc.polys, user.polys, cate.code) {
   
   # calculate error for each category
   cat.area <- lapply(1:length(cate.code), function(x){
