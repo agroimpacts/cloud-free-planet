@@ -9,3 +9,7 @@ class RFClient():
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         self.api = API(refresh_token = self.api_key, host = self.api_uri)
+
+    def create_project(self, project_name):
+        api = self.api
+        # api.
