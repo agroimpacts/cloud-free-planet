@@ -4,7 +4,7 @@
 SDIR=`dirname $0`
 DATADIR=$SDIR/data
 
-# Assumes we were called with '/home/${USER}/afmap/pgsql/<script_name>'.
+# Assumes we were called with '/home/${USER}/mapper/pgsql/<script_name>'.
 IFS='/'
 array=($0)
 user=${array[2]}
