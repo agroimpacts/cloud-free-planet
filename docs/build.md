@@ -11,25 +11,25 @@ bash:
 export PATH="/usr/pgsql-9.4/bin:$PATH"
 
 3) Add Apache http/https WSGI configurations for sandbox and mapper virtual hosts:
-see configuration file examples in the .../afmap/apache subdirectory.
+see configuration file examples in the .../mapper/apache subdirectory.
 
-4) Append changes from the .../afmap/etc/aliases file into the system's aliases file.
+4) Append changes from the .../mapper/etc/aliases file into the system's aliases file.
 
 5) Add the following lines to .bashrc for sandbox and mapper users:
 a) For sandbox user:
-export PYTHONPATH="/u/sandbox/afmap/mturk"
+export PYTHONPATH="/u/sandbox/mapper/common"
 umask 0007
 b) For mapper user:
-export PYTHONPATH="/u/mapper/afmap/mturk"
+export PYTHONPATH="/u/mapper/mapper/common"
 umask 0007
 NOTE: This allows MTurkMappingAfrica.py to be imported from scripts running in 
-      other than the .../afmap/mturk directory, during an *interactive* session.
-      Cron daemons always need to run from the .../afmap/mturk directory
+      other than the .../mapper/common directory, during an *interactive* session.
+      Cron daemons always need to run from the .../mapper/common directory
       because crontab ignores the .bashrc settings.
 
-6) a) Build processmail by cd'ing to ~/afmap/processmail/src, and typing 'make' as user mapper or sandbox, and then 'make install' as root. This is necesary to process incoming emails from MTurk.
-   b) Change permssions of ~/afmap/processmail directory: chmod o+rx ~/afmap/processmail
+6) a) Build processmail by cd'ing to ~/mapper/processmail/src, and typing 'make' as user mapper or sandbox, and then 'make install' as root. This is necesary to process incoming emails from MTurk.
+   b) Change permssions of ~/mapper/processmail directory: chmod o+rx ~/mapper/processmail
 
-7) Build boto by logging in as root, cd'ing to ~/afmap/boto, and typing:
+7) Build boto by logging in as root, cd'ing to ~/mapper/boto, and typing:
     ./setup.sh >setup.out 2>&1
 
