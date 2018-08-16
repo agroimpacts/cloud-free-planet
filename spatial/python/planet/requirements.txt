@@ -9,4 +9,5 @@ requests
 boto3
 scipy
 rtree>=0.8.3
+scikit-image
 rasterfoundry
