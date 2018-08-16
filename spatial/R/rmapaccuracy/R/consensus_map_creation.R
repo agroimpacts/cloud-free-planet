@@ -339,11 +339,11 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
   #                                              provider.sql))
   
   # set provider as planet, and will change once provider table is complete
-  provider <- "planet"
+  # provider <- "planet"
   
-  s3.dst.train <- paste0(s3.dst, provider, '/', kml.usage, '/')
+  s3.dst.train <- paste0(s3.dst, '/label/')
   
-  bucketname <- unlist(strsplit(s3.dst, '/'))[1]
+  bucketname <- unlist(strsplit(s3.dst.train, '/'))[1]
   
   # s3.dst <- paste0("activemapper/sources/train/")  
   s3.filename <- paste0(kmlid, '_', rowcol[1, 'col'], '_', rowcol[1, 'row'])
@@ -354,8 +354,10 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
   
   if(output.riskmap == TRUE) { 
     s3.filename <- paste(kmlid + "_risk")
-    s3_upload(coninfo$dinfo["project.root"], bucketname, bayesoutput$riskmap, 
-              s3.dst, s3.filename)
+    s3_upload(coninfo$dinfo["project.root"], bucketname, 
+              bayesoutput$riskmap, 
+              substr(s3.dst.train, nchar(bucketname) + 1, nchar(s3.dst.train)),
+              s3.filename)
   }
    
   #######################################################
