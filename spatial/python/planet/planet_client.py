@@ -378,6 +378,12 @@ class PClientV1():
             filepath = local_result
             if self.local_mode:
                 s3_result = local_result
+            else:
+                try:
+                    self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
+                except botocore.exceptions.ClientError:
+                    self.logger.info("Uploading {}...".format(scene_id))
+                    self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
 
         return filepath, s3_result
 
