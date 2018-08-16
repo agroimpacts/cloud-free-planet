@@ -27,12 +27,12 @@ with_analytic_xml: False
 with_visual: False
 
 [database]
-host:
-dbname:
-user:
-password:
-master_grid_table:
-scene_data_table:
+host: <none>
+dbname: <none>
+user: <none>
+password: <none>
+master_grid_table: <none>
+scene_data_table: <none>
 
 [cloud_shadow]
 cloud_val: 1500
