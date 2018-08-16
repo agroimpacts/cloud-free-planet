@@ -252,12 +252,16 @@ def main_csv():
 
                         # await all neighbours
                         neighbours_executor.drain()
+                        # await all downloads
+                        pclient.drain()
 
     # await threadpool to stop
     neighbours_executor.close()
     fp.close()
     if csv_only:
         pclient.upload_s3_csv_csv()
+        pclient.close()
+
     print("-------------------")
     print("CSV DONE")
     print("-------------------")
@@ -465,6 +469,8 @@ def main_json():
                             
                             # await all neighbours
                             neighbours_executor.drain()
+                            # await all downloads
+                            pclient.drain()
 
                         # base_row = [cell_id, scene_id, season_type, ""]
                         # writer.writerow(base_row)
@@ -473,6 +479,7 @@ def main_json():
     neighbours_executor.close()
     fp.close()
     pclient.upload_s3_csv()
+    pclient.close()
     print("-------------------")
     print("Results:")
     print("-------------------")
