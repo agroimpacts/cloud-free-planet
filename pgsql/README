@@ -37,9 +37,9 @@ CREATE/RESTORE DATABASE
    and schema by running the restore script:
    (NOTE: having the script log into Postgresql as superuser ***REMOVED*** to do this 
     ensures that all ***REMOVED*** extension objects are owned by ***REMOVED***.)
-   /home/mapper/afmap/pgsql/restoreRenamedDbFromBackup.sh
+   /home/mapper/mapper/pgsql/restoreRenamedDbFromBackup.sh
      or
-   /home/sandbox/afmap/pgsql/restoreRenamedDbFromBackup.sh
+   /home/sandbox/mapper/pgsql/restoreRenamedDbFromBackup.sh
    NOTE: This script will restore ***REMOVED*** to be a regular DB user (not a superuser).
 8) As root, edit /var/lib/pgsql/9.4/data/pg_hba.conf:
    - comment all 'postgres ***REMOVED*** md5' lines
@@ -51,9 +51,9 @@ SET UP BACKUPS
 --------------
 10) To configure daily database backups:
 a) As root, execute:
-   crontab /home/(sandbox | mapper)/afmap/pgsql/crontabSetup.root
-b) Set permissions to 600 for /home/sandbox/afmap/pgsql/pgpassfile_* and 
-   /home/mapper/afmap/pgsql/pgpassfile_* .
+   crontab /home/(sandbox | mapper)/mapper/pgsql/crontabSetup.root
+b) Set permissions to 600 for /home/sandbox/mapper/pgsql/pgpassfile_* and 
+   /home/mapper/mapper/pgsql/pgpassfile_* .
 c) For ease of execution of DB scripts, as users sandbox and mapper, copy 
-   /home/sandbox/afmap/pgsql/pgpassfile_sandbox and /home/mapper/afmap/pgsql/pgpassfile_mapper 
+   /home/sandbox/mapper/pgsql/pgpassfile_sandbox and /home/mapper/mapper/pgsql/pgpassfile_mapper 
    (respectively) to ~/.pgpass . 
