@@ -337,7 +337,7 @@ class PClientV1():
     def upload_s3_csv(self):
         result = ''
         if not self.local_mode:
-            output_key = "{}/{}".format(self.s3_catalog_prefix, self.output_filename)
+            output_key = "{}/{}".format(self.s3_catalog_prefix, self.output_filename.split('/')[-1])
             result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
             self.transfer.upload_file(self.output_filename, self.s3_catalog_bucket, output_key)
         else:
@@ -346,7 +346,7 @@ class PClientV1():
         return result
 
     def upload_s3_csv_csv(self):
-        output_key = "{}/{}".format(self.s3_catalog_prefix, self.output_filename_csv)
+        output_key = "{}/{}".format(self.s3_catalog_prefix, self.output_filename_csv.split('/')[-1])
         result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
         self.transfer.upload_file(self.output_filename_csv, self.s3_catalog_bucket, output_key)
         return result
