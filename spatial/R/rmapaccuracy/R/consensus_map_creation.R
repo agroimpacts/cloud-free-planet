@@ -1,28 +1,20 @@
 #' Control the output of label maps, risk maps, and heat maps 
 #' @param kmlid 
-#' @param min.mappedcount the minimum approved assignment count
 #' @param kml.usage the use of kml, could be 'train, 'validate' or 'holdout';
 #' This parameter will determine the directory of S3 folder to store consensus 
 #' maps.
 #' @param riskthres the threshold to select 'risk' pixels
-#' @param user User name for database connection
-#' @param password Password for database connection
-#' @param db.tester.name User name for testing (default NULL)
-#' @param alt.root Alternative location for writing out maps (default NULL)
 #' @param host NULL or "crowdmapper.org", if testing from remote location
 #' @return Sticks conflict/risk percentage pixels into database (kml_data) and
 #' writes rasterized labels to S3 bucket.
 #' @importFrom raster ncell
 #' @export
 #' 
-consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
-                                   output.riskmap, riskpixelthres, diam, 
+consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam, 
                                    user, password, db.tester.name, alt.root, 
                                    host, qsite = FALSE) {
   
-  coninfo <- mapper_connect(user = user, password = password,
-                            db.tester.name = db.tester.name, 
-                            alt.root = alt.root, host = host)
+  coninfo <- mapper_connect(host = host)
   # prjstr <- as.character(tbl(coninfo$con, "spatial_ref_sys") %>% 
   #                          filter(srid == prjsrid) %>% 
   #                          select(proj4text) %>% collect())
@@ -41,12 +33,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
                             kmlid, "'")
   mappedcount <- as.numeric((DBI::dbGetQuery(coninfo$con, 
                                              mappedcount.sql))$mapped_count)
- 
-  if (mappedcount < min.mappedcount) {
-    stop("there is not enough approved assignment for creating consensus maps")
-  }
 
-  
   # query assignmentid flagged as 'approved'
   assignment.sql <- paste0("select assignment_id from assignment_data", 
                            " where hit_id ='", hitid, 
@@ -151,7 +138,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
     
     
     ##########################################################################
-    # combine assignment and qual assignment and delete NA values
+    # combine regular assignment hisotry for the user and delete NA values
     if (length(userhistories[!is.na(userhistories)]) != 0){
       userhistories <- data.frame(do.call(rbind, 
                                           userhistories[!is.na(userhistories)]))
@@ -162,7 +149,8 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
                                   'score.hist' = NA)
     }
     
-    if (length(userhistories[!is.na(userhistories)]) != 0){
+    # combine qual assignment hisotry for the user
+    if (length(qual_userhistories[!is.na(qual_userhistories)]) != 0){
       qual_userhistories <- data.frame(do.call(rbind,
                                                qual_userhistories[
                                                  !is.na(qual_userhistories)]))
@@ -306,13 +294,20 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
                                        rasterextent = rasterextent,
                                        threshold = 0.5)
   
+  # call risky pixel threshold from configuration table
+  riskthreshold.sql <- paste0("SELECT value ",
+                              "FROM configuration WHERE ",
+                              "key='Consensus_RiskyPixelThreshold'")
+  
+  riskpixelthres <- as.numeric(dbFetch(DBI::dbSendQuery(coninfo$con, 
+                                                        riskthreshold.sql))$value)
+  
   riskpixelpercentage <- round(ncell(bayesoutput$riskmap
                                    [bayesoutput$riskmap > riskpixelthres]) /
                              (nrow(bayesoutput$riskmap) * 
                                 ncol(bayesoutput$riskmap)), 2)
-  # need add riskpixelpercentage column into kml_data tables
+  
   # insert risk pixel percentage into kml_data table
-  # UPDATE Student SET NAME = 'PRATIK', ADDRESS = 'SIKKIM' WHERE ROLL_NO = 1;
   risk.sql <- paste0("update kml_data set consensus_conflict = '", 
                     riskpixelpercentage, "' where name = '", kmlid, "'")
   dbSendQuery(coninfo$con, risk.sql) 
@@ -339,11 +334,11 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
   #                                              provider.sql))
   
   # set provider as planet, and will change once provider table is complete
-  provider <- "planet"
+  # provider <- "planet"
   
-  s3.dst.train <- paste0(s3.dst, provider, '/', kml.usage, '/')
+  s3.dst.train <- paste0(s3.dst, '/labels/')
   
-  bucketname <- unlist(strsplit(s3.dst, '/'))[1]
+  bucketname <- unlist(strsplit(s3.dst.train, '/'))[1]
   
   # s3.dst <- paste0("activemapper/sources/train/")  
   s3.filename <- paste0(kmlid, '_', rowcol[1, 'col'], '_', rowcol[1, 'row'])
@@ -354,8 +349,10 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
   
   if(output.riskmap == TRUE) { 
     s3.filename <- paste(kmlid + "_risk")
-    s3_upload(coninfo$dinfo["project.root"], bucketname, bayesoutput$riskmap, 
-              s3.dst, s3.filename)
+    s3_upload(coninfo$dinfo["project.root"], bucketname, 
+              bayesoutput$riskmap, 
+              substr(s3.dst.train, nchar(bucketname) + 1, nchar(s3.dst.train)),
+              s3.filename)
   }
    
   #######################################################
