@@ -4,11 +4,11 @@ api_key: <none>
 [imagery]
 local_mode: False
 test: false
-aoi: ghana_aoi.geojson
+aoi: cfg/ghana_aoi.geojson
 with_csv: True
 csv_only: True
 csv_mode: a
-csv_points: individual_sites_needing_images.csv
+csv_points: cfg/individual_sites_needing_images.csv
 resolution: 0.025
 master_grid_path: s3://activemapper/grid/master_grid.tif
 max_clouds: 0.25
@@ -36,8 +36,10 @@ scene_data_table: <none>
 
 [cloud_shadow]
 cloud_val: 1500
-eccentricity_val: .95
+eccentricity_val: 0.95
 area_val: 200
+shadow_val: 2000
+land_val: 1000
 
 [rasterfoundry]
 api_key: <none>
