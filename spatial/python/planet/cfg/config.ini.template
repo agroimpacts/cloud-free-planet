@@ -21,7 +21,7 @@ output_filename_csv: output_csv.csv
 threads: default
 catalog_path: catalog/
 s3_catalog_bucket: activemapper
-s3_catalog_prefix: sources/planet
+s3_catalog_prefix: planet
 with_analytic: False
 with_analytic_xml: False
 with_visual: False
