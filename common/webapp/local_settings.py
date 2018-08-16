@@ -1,7 +1,7 @@
 from MappingCommon import MappingCommon
 
 mapc = MappingCommon()
-params = mapc.parse_yaml("config.yaml")
+params = mapc.parseYaml("config.yaml")
 
 # *****************************
 # Environment specific settings
