@@ -4,8 +4,8 @@
 MAILTO=lestes@clarku.edu,dmcr@princeton.edu
 SHELL=/bin/bash
 # Min Hour(0-23) Day Month DOW Command
-15 23 * * * PGDIR=/home/mapper/afmap/pgsql;export PGPASSFILE=$PGDIR/pgpassfile_mapper;$PGDIR/daily_backup.sh
-45 23 * * * PGDIR=/home/sandbox/afmap/pgsql;export PGPASSFILE=$PGDIR/pgpassfile_sandbox;$PGDIR/daily_backup.sh
+15 23 * * * PGDIR=/home/mapper/mapper/pgsql;export PGPASSFILE=$PGDIR/pgpassfile_mapper;$PGDIR/daily_backup.sh
+45 23 * * * PGDIR=/home/sandbox/mapper/pgsql;export PGPASSFILE=$PGDIR/pgpassfile_sandbox;$PGDIR/daily_backup.sh
 
 # Renew Let's Encrypt certs for mapper an sandbox if expiring soon.
 15 00 * * Sun /bin/certbot renew
