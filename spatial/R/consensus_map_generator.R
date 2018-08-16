@@ -2,13 +2,8 @@
 # Main script for calling consensus map generation (Bayes Averaging) functions
 # Author: Su Ye
 
-library(yaml)
-params <- yaml.load_file(file.path(Sys.getenv('PYTHONPATH'),'config.yaml'))
-
 # Static arguments
 output.heatmap <- FALSE # if output heat map
-user <- params$mapper$db_username
-password <- params$mapper$db_password
 diam <- 0.005 / 2 # new master grid diameter
 riskpixelthres <- 0.4 # determine risky pixels that are larger than threshold
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
@@ -29,8 +24,6 @@ min.mappedcount <- arg[3] # minimum mapped map count
 if(length(arg) < 3) stop("At least 3 arguments needed", call. = FALSE)
 if(length(arg) == 3) {
   output.riskmap <- FALSE
-  db.tester.name <- NULL
-  alt.root <- NULL
   host <- NULL
 } 
 if(length(arg) > 3) {
@@ -39,27 +32,15 @@ if(length(arg) > 3) {
   } else{
     output.riskmap <- arg[4]
   }
-  if(is.na(arg[5])){
-    db.tester.name <- NULL
-  } else {
-    db.tester.name <- arg[5]
-  }
-  if(is.na(arg[6])) {
-    alt.root <- NULL
-  } else {
-    alt.root <- arg[6]
-  } 
-  if(is.na(arg[7])) {
+  if(is.na(arg[5])) {
     host <- NULL
   } else {
-    host <- arg[7]
+    host <- arg[5]
   }
 }
 
 consensus_map_creation(kmlid = kmlid, kml.usage = kml.usage, 
                        min.mappedcount = min.mappedcount, 
                        output.riskmap = output.riskmap,
-                       riskpixelthres  = riskpixelthres, diam = diam, 
-                       user = user, password = password, 
-                       db.tester.name = db.tester.name, 
-                       alt.root = alt.root, host = host)
+                       riskpixelthres = riskpixelthres, diam = diam, 
+                       host = host)

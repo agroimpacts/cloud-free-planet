@@ -29,9 +29,9 @@ pngout <- TRUE
 # assignmentid <- '278'
 # kmlid <- 'ZA0669180'
 # tryid <- '1'
-# db.tester.name <- 'sye'
+# db.tester.name <- 'lestes'
 # alt.root <- NULL
-# host <- NULL
+# host <- "crowdmapper.org"
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
@@ -46,8 +46,6 @@ if(length(arg) == 4) {
   if(tryid != "None" & mtype == "qa") {
     stop("QAs do not have try numbers", call. = FALSE)
   }
-  db.tester.name <- NULL
-  alt.root <- NULL
   host <- NULL
 } 
 if(length(arg) > 4) {
@@ -57,19 +55,9 @@ if(length(arg) > 4) {
     stop("Training sites need to have try numbers", call. = FALSE)
   }
   if(is.na(arg[5])) {
-    db.tester.name <- NULL
-  } else {
-    db.tester.name <- arg[5]
-  }
-  if(is.na(arg[6])) {
-    alt.root <- NULL
-  } else {
-    alt.root <- arg[6]
-  } 
-  if(is.na(arg[7])) {
     host <- NULL
   } else {
-    host <- arg[7]
+    host <- arg[5]
   }
 }
 if(comments == "T") {
@@ -83,9 +71,7 @@ if(comments == "T") {
 }
 
 if(test.root == "Y") {
-  coninfo <- mapper_connect(user = pgupw$user, password = pgupw$password,
-                            db.tester.name = db.tester.name, 
-                            alt.root = alt.root, host = host)
+  coninfo <- mapper_connect(host = host)
   prjstr <- (tbl(coninfo$con, "spatial_ref_sys") %>% 
                filter(srid == prjsrid) %>% collect())$proj4text
   print(paste("database =", coninfo$dinfo["db.name"], "directory = ", 
@@ -101,12 +87,10 @@ if(test.root == "Y") {
                out.acc.wt = out.acc.wt, new.in.acc.wt = new.in.acc.wt,
                new.out.acc.wt = new.out.acc.wt, frag.acc.wt = frag.acc.wt,
                edge.acc.wt = edge.acc.wt, cate.acc.wt = cate.acc.wt,
-               edge.buf = edge.buf, acc.switch = acc.switch, comments = comments, 
-               write.acc.db = write.acc.db, draw.maps = draw.maps, 
-               pngout = pngout, test = test, test.root = test.root, 
-               user = pgupw$user, password = pgupw$password, 
-               db.tester.name = db.tester.name, 
-               alt.root = alt.root, host = host)
+               edge.buf = edge.buf, acc.switch = acc.switch, 
+               comments = comments, write.acc.db = write.acc.db, 
+               draw.maps = draw.maps, pngout = pngout, test = test, 
+               test.root = test.root, host = host)
 }
 
 
