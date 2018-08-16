@@ -94,18 +94,11 @@ class MappingCommon(object):
         self.euser = pwd.getpwuid(os.getuid()).pw_name
         if self.euser == 'mapper':
             self.mapper = True
-            self.projectRoot = '/home/mapper/afmap'
         else:
-            if projectRoot is None:
-                if self.euser == 'sandbox':
-                    self.mapper = False
-                    self.projectRoot = '/home/sandbox/afmap'
-                else:
-                    self.mapper = False
-                    self.projectRoot = '/home/%s/afmap_private' % self.euser
-            else:
-                self.mapper = False
+            self.mapper = False
+            if projectRoot is not None:
                 self.projectRoot = projectRoot
+        self.projectRoot = '/home/%s/mapper' % self.euser
 
         if self.mapper:
             self.db_name = db_production_name
@@ -600,14 +593,14 @@ class MappingCommon(object):
             # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum)],
             # Replace the 2 instances of "dmcr" in the next line with your user name.
-            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum), "dmcr", "/home/dmcr/afmap_private"],
+            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum), "dmcr", "/home/dmcr/mapper"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         elif kmlType == MappingCommon.KmlQAQC:
             # Note: "None" must be passed as a string here.
             # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None"],
             # Replace the 2 instances of "dmcr" in the next line with your user name.
-            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None", "dmcr", "/home/dmcr/afmap_private"],
+            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None", "dmcr", "/home/dmcr/mapper"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         else:
             assert False
