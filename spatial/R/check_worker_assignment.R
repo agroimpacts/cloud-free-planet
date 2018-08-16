@@ -15,25 +15,13 @@ hitid <- args[1]
 workerid <- args[2]   
 test_root <- args[3]
 if(!is.na(args[4])) {
-  db.tester.name <- args[4]
-} else {
-  db.tester.name <- NULL
-}
-if(!is.na(args[5])) {
-  alt.root <- args[5]
-} else {
-  alt.root <- NULL
-} 
-if(!is.na(args[6])) {
-  host <- args[6]
+  host <- args[4]
 } else {
   host <- NULL
 }
 
 # Find working location
-coninfo <- mapper_connect(user = pgupw$user, password = pgupw$password,
-                          db.tester.name = db.tester.name, 
-                          alt.root = alt.root, host = host)
+coninfo <- mapper_connect(host = host)
 
 initial_options <- commandArgs(trailingOnly = FALSE)
 kml_path <- paste0(coninfo$dinfo["project.root"], "/maps/")

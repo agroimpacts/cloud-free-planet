@@ -126,9 +126,7 @@ while True:
                 # if the kml has enough mappers, call consensus generation
                 if mapc.generateConsensusMap(k=k,
                                              kmlName=kmldata_row[0][index_name],
-                                             kmlusage=fkml_row[i][index_usage],
-                                             minMapCount=
-                                              kmldata_row[0][index_mappedcount]):
+                                             kmlusage=fkml_row[i][index_usage]):
                     n_success = n_success + 1
                 else:
                     n_fail = n_fail + 1
