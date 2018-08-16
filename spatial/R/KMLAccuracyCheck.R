@@ -26,12 +26,10 @@ pngout <- TRUE
 
 #### Test codes ####
 # mtype <- 'tr'
-# assignmentid <- '278'
-# kmlid <- 'ZA0669180'
+# assignmentid <- '280'
+# kmlid <- 'ZA0649200'
 # tryid <- '1'
-# db.tester.name <- 'lestes'
-# alt.root <- NULL
-# host <- "crowdmapper.org"
+# host <- NULL
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
@@ -65,8 +63,6 @@ if(comments == "T") {
   print(paste("KML ID:", kmlid))
   print(paste("Assignment ID:", assignmentid))
   print(paste("Try ID:", tryid))
-  print(paste("Testing user name:", db.tester.name))
-  print(paste("Alternative root path:", alt.root))
   print(paste("Host name:", host))
 }
 

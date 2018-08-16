@@ -36,9 +36,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
   
   ## Extract connections and reading in of spatial data
   # Paths and connections
-  coninfo <- mapper_connect(user = user, password = password,
-                            db.tester.name = db.tester.name, 
-                            alt.root = alt.root, host = host)
+  coninfo <- mapper_connect(host = host)
   
   prjstr <- as.character(tbl(coninfo$con, "spatial_ref_sys") %>% 
                            filter(srid == prjsrid) %>% 
