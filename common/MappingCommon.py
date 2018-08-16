@@ -581,10 +581,7 @@ class MappingCommon(object):
     # Return floating point score (0.0-1.0), or None if could not be scored.
     def kmlAccuracyCheck(self, kmlType, kmlName, assignmentId, tryNum=None):
         if kmlType == MappingCommon.KmlTraining:
-            # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum)],
-            # Replace the 2 instances of "dmcr" in the next line with your user name.
-            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum), "dmcr", "/home/dmcr/mapper"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         elif kmlType == MappingCommon.KmlQAQC:
             # Note: "None" must be passed as a string here.
