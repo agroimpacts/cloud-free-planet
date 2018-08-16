@@ -3,6 +3,7 @@ from planet.api import filters
 from geo_utils import GeoUtils
 from pprint import pprint
 from requests.auth import HTTPBasicAuth
+from fixed_thread_pool_executor import FixedThreadPoolExecutor
 
 import os
 import ssl
@@ -15,6 +16,9 @@ from boto3.s3.transfer import S3Transfer
 import botocore
 import concurrent
 import logging
+import configparser
+import json
+import multiprocessing
 
 # PClientV1, class to simplify querying & downloading planet scenes using planet API V1
 # We need to consider usage of a new API
@@ -28,15 +32,40 @@ class PClientV1():
         self.catalog_path = "catalog/"
         self.s3_catalog_bucket = "azavea-africa-test"
         self.s3_catalog_prefix = "planet/images"
-        self.item_type = "PSScene4Band"
-        self.asset_type = "analytic_sr"
+        self.products = {
+            'analytic_sr': {
+                'item_type': 'PSScene4Band',
+                'asset_type': 'analytic_sr',
+                'ext': 'tif'
+            },
+            'analytic': {
+                'item_type': 'PSScene4Band',
+                'asset_type': 'analytic',
+                'ext': 'tif'
+            },
+            'analytic_xml': {
+                'item_type': 'PSScene4Band',
+                'asset_type': 'analytic_xml',
+                'ext': 'xml'
+            },
+            'visual': {
+                'item_type': 'PSScene3Band',
+                'asset_type': 'visual',
+                'ext': 'tif'
+            }
+        }
         self.client = api.ClientV1(api_key = api_key)
         self.output_filename = "output.csv"
         self.output_encoding = "utf-8"
         self.s3client = boto3.client('s3')
+        self.with_analytic = False
+        self.with_analytic_xml = False
+        self.with_visual = False
+        self.local_mode = False
         self.transfer = S3Transfer(self.s3client)
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
+        self.secondary_uploads_executor = FixedThreadPoolExecutor(size = 5)
 
     def __init__(self, api_key, config):
         imagery_config = config['imagery']
@@ -51,13 +80,45 @@ class PClientV1():
         self.catalog_path = imagery_config['catalog_path']
         self.s3_catalog_bucket = imagery_config['s3_catalog_bucket']
         self.s3_catalog_prefix = imagery_config['s3_catalog_prefix']
-        self.item_type = imagery_config['item_type'] # "udm"  #"analytic"  #analytic_sr"
-        self.asset_type = imagery_config['asset_type']
+        self.products = {
+            'analytic_sr': {
+                'item_type': 'PSScene4Band',
+                'asset_type': 'analytic_sr',
+                'ext': 'tif'
+            },
+            'analytic': {
+                'item_type': 'PSScene4Band',
+                'asset_type': 'analytic',
+                'ext': 'tif'
+            },
+            'analytic_xml': {
+                'item_type': 'PSScene4Band',
+                'asset_type': 'analytic_xml',
+                'ext': 'xml'
+            },
+            'visual': {
+                'item_type': 'PSScene3Band',
+                'asset_type': 'visual',
+                'ext': 'tif'
+            }
+        }
         self.client = api.ClientV1(api_key = self.api_key)
         self.s3client = boto3.client('s3')
+        self.with_analytic = json.loads(imagery_config['with_analytic'].lower())
+        self.with_analytic_xml = json.loads(imagery_config['with_analytic_xml'].lower())
+        self.with_visual = json.loads(imagery_config['with_visual'].lower())
+        self.local_mode = json.loads(imagery_config['local_mode'].lower())
         self.transfer = S3Transfer(self.s3client)
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
+        # planet has limitation 5 sec per key (search queries)
+        threads_number = imagery_config['threads']
+        if threads_number == 'default':
+            threads_number = multiprocessing.cpu_count() * 2 + 1
+        else:
+            threads_number = int(threads_number)
+
+        self.secondary_uploads_executor = FixedThreadPoolExecutor(size = threads_number)
 
     # there are start_date and end_date present as it should be the part of a row retrieved from psql / tiff file
     def set_filters_sr(self, aoi, start_date='2017-12-15T00:00:00.000Z', end_date = '2018-03-15T00:00:00.000Z', id=''):
@@ -118,9 +179,32 @@ class PClientV1():
 
         return query
 
+    # there are start_date and end_date present as it should be the part of a row retrieved from psql / tiff file
+    def set_filters_id(self, id=''):
+        asset_filter = {
+            "type": "PermissionFilter",
+            "config": ["assets.analytic_sr:download"]
+        }
+
+        string_filter = {
+            "type": "StringInFilter",
+            "field_name": "id",
+            "config": [id]
+        }
+
+        filters_list = [asset_filter, string_filter]
+
+        # combine filters:
+        query = {
+            'type': 'AndFilter',
+            'config': filters_list
+        }
+
+        return query
+
     def request_intersecting_scenes(self, query):
         # build the request
-        item_types = [self.item_type]  # params["lst_item_types"]
+        item_types = ['PSScene4Band']  # params["lst_item_types"]
         request = api.filters.build_search_request(query, item_types)
 
         # post the request
@@ -128,21 +212,21 @@ class PClientV1():
         return results
 
     # returns a full URI here
-    def download_localfs(self, scene_id, season = ''):
-        output_file = "{}{}/{}.tif".format(self.catalog_path, season, scene_id)
+    def download_localfs_generic(self, scene_id, season = '', asset_type = 'analytic_sr', ext = 'tif', item_type='PSScene4Band'):
+        output_file = "{}{}/{}/{}.{}".format(self.catalog_path, asset_type, season, scene_id, ext)
 
         if not os.path.exists(output_file): 
             # activation & download
             session = requests.Session()
             session.auth = (self.api_key, '')
-            assets_uri = ("https://api.planet.com/data/v1/item-types/{}/items/{}/assets/").format(self.item_type, scene_id)
+            assets_uri = ("https://api.planet.com/data/v1/item-types/{}/items/{}/assets/").format(item_type, scene_id)
                     
             assets_query_result = session.get(assets_uri)
 
             self.logger.info(assets_query_result.status_code)
             item_activation_json = assets_query_result.json()
             # self.logger.info(item_activation_json)
-            item_activation_url = item_activation_json[self.asset_type]["_links"]["activate"]
+            item_activation_url = item_activation_json[asset_type]["_links"]["activate"]
             response = session.post(item_activation_url)
             self.logger.info(response.status_code)
             while response.status_code!=204:
@@ -151,9 +235,9 @@ class PClientV1():
                 response.status_code = response.status_code
                 self.logger.info(response.status_code)
 
-            item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(self.item_type, scene_id)
+            item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(item_type, scene_id)
             result = requests.get(item_url, auth = HTTPBasicAuth(self.api_key, ''))
-            download_url = result.json()[self.asset_type]['location']
+            download_url = result.json()[asset_type]['location']
 
             # download
             with urllib.request.urlopen(download_url) as response, open(output_file, 'wb') as out_file:
@@ -163,8 +247,8 @@ class PClientV1():
 
     # TODO: lots of copy pasting happens there, abstract over it?
     # returns a full S3 URI here
-    def download_s3(self, scene_id, season = ''):
-        output_key = "{}/{}/{}.tif".format(self.s3_catalog_prefix, season, scene_id)
+    def download_s3_generic(self, scene_id, season = '', asset_type = 'analytic_sr', ext = 'tif', item_type='PSScene4Band'):
+        output_key = "{}/{}/{}/{}.{}".format(self.s3_catalog_prefix, asset_type, season, scene_id, ext)
         result_path = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
 
         try:
@@ -175,14 +259,14 @@ class PClientV1():
             # activation & download
             session = requests.Session()
             session.auth = (self.api_key, '')
-            assets_uri = ("https://api.planet.com/data/v1/item-types/{}/items/{}/assets/").format(self.item_type, scene_id)
+            assets_uri = ("https://api.planet.com/data/v1/item-types/{}/items/{}/assets/").format(item_type, scene_id)
                     
             assets_query_result = session.get(assets_uri)
 
             self.logger.info(assets_query_result.status_code)
             item_activation_json = assets_query_result.json()
             # self.logger.info(item_activation_json)
-            item_activation_url = item_activation_json[self.asset_type]["_links"]["activate"]
+            item_activation_url = item_activation_json[asset_type]["_links"]["activate"]
             response = session.post(item_activation_url)
             self.logger.info(response.status_code)
             while response.status_code!=204:
@@ -191,7 +275,7 @@ class PClientV1():
                 response.status_code = response.status_code
                 self.logger.info(response.status_code)
 
-            item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(self.item_type, scene_id)
+            item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(item_type, scene_id)
             result = requests.get(item_url, auth = HTTPBasicAuth(self.api_key, ''))
             download_url = result.json()[self.asset_type]['location']
 
@@ -204,10 +288,61 @@ class PClientV1():
 
         return result_path
 
+    # returns a full URI here
+    def download_localfs_product(self, product_type, scene_id, season = ''):
+        cfg = self.products[product_type]
+        return self.download_localfs_generic(
+            scene_id = scene_id, 
+            season = season, 
+            asset_type = cfg['asset_type'], 
+            ext = cfg['ext'], 
+            item_type= cfg['item_type']
+        )
+
+    # returns a full URI here
+    def download_s3_product(self, product_type, scene_id, season = ''):
+        cfg = self.products[product_type]
+        return self.download_s3_generic(
+            scene_id = scene_id, 
+            season = season, 
+            asset_type = cfg['asset_type'], 
+            ext = cfg['ext'], 
+            item_type= cfg['item_type']
+        )
+
+    def download_localfs_analytic_sr(self, scene_id, season = ''):
+        return self.download_localfs_product('analytic_sr', scene_id, season)
+
+    def download_s3_analytic_sr(self, scene_id, season = ''):
+        return self.download_s3_product('analytic_sr', scene_id, season)
+
+    def download_localfs_analytic(self, scene_id, season = ''):
+        return self.download_localfs_product('analytic', scene_id, season)
+
+    def download_s3_analytic(self, scene_id, season = ''):
+        return self.download_s3_product('analytic', scene_id, season)
+
+    def download_localfs_analytic_xml(self, scene_id, season = ''):
+        return self.download_localfs_product('analytic_xml', scene_id, season)
+
+    def download_s3_analytic_xml(self, scene_id, season = ''):
+        return self.download_s3_product('analytic_xml', scene_id, season)
+
+    def download_localfs_visual(self, scene_id, season = ''):
+        return self.download_localfs_product('visual', scene_id, season)
+
+    def download_s3_visual(self, scene_id, season = ''):
+        return self.download_s3_product('visual', scene_id, season)
+
     def upload_s3_csv(self):
-        output_key = "{}/{}".format(self.s3_catalog_prefix, self.output_filename)
-        result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
-        self.transfer.upload_file(self.output_filename, self.s3_catalog_bucket, output_key)
+        result = ''
+        if not self.local_mode:
+            output_key = "{}/{}".format(self.s3_catalog_prefix, self.output_filename)
+            result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
+            self.transfer.upload_file(self.output_filename, self.s3_catalog_bucket, output_key)
+        else:
+            result = self.output_filename
+        
         return result
 
     def upload_s3_csv_csv(self):
@@ -216,21 +351,98 @@ class PClientV1():
         self.transfer.upload_file(self.output_filename_csv, self.s3_catalog_bucket, output_key)
         return result
 
-    def download_localfs_s3(self, scene_id, season = ''):
+    def download_localfs_s3_product(self, scene_id, season = '', product_type = 'analytic_sr'):
+        cfg = self.products[product_type]
+        asset_type = cfg['asset_type'] 
+        ext = cfg['ext']
+        item_type= cfg['item_type']
+
         filepath = ''
-        output_key = '{}/{}/{}.tif'.format(self.s3_catalog_prefix, season, scene_id)
+        output_key = "{}/{}/{}/{}.{}".format(self.s3_catalog_prefix, asset_type, season, scene_id, ext)
         s3_result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
-        local_result = '{}{}/{}.tif'.format(self.catalog_path, season, scene_id)
+        local_result = "{}{}/{}/{}.{}".format(self.catalog_path, asset_type, season, scene_id, ext)
 
         if not os.path.exists(local_result):
-            try:
-                self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
-                filepath = result
-            except botocore.exceptions.ClientError:
-                filepath = self.download_localfs(scene_id, season)
-                self.logger.info("Uploading {}...".format(scene_id))
-                self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
+            if not self.local_mode:
+                try:
+                    self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
+                    filepath = s3_result
+                except botocore.exceptions.ClientError:
+                    filepath = self.download_localfs_product(product_type, scene_id, season)
+                    self.logger.info("Uploading {}...".format(scene_id))
+                    self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
+            else:
+                filepath = self.download_localfs_product(product_type, scene_id, season)
+                s3_result = local_result
         else:
             filepath = local_result
+            if self.local_mode:
+                s3_result = local_result
+            else:
+                try:
+                    self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
+                except botocore.exceptions.ClientError:
+                    self.logger.info("Uploading {}...".format(scene_id))
+                    self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
 
         return filepath, s3_result
+
+    def download_localfs_s3(self, scene_id, season = ''):
+        sub_products = []
+        if self.with_analytic:
+            sub_products.append('with_analytic')
+
+        if self.with_analytic_xml:
+            sub_products.append('with_analytic_xml')
+
+        if self.with_visual:
+            sub_products.append('with_visual')
+
+        for sub_product in sub_products:
+            self.secondary_uploads_executor.submit(self.download_localfs_s3_product, scene_id, season, sub_product)
+
+        return self.download_localfs_s3_product(scene_id, season)
+
+
+    def drain(self):
+        self.secondary_uploads_executor.drain()
+
+    def close(self):
+        self.secondary_uploads_executor.close()
+
+if __name__ == "__main__":
+    # disable ssl
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+    # read config
+    config = configparser.ConfigParser()
+    config.read('cfg/config.ini')
+    planet_config = config['planet']
+    imagery_config = config['imagery']
+
+    # logger
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    logging.basicConfig(format = '%(message)s', datefmt = '%m-%d %H:%M')
+
+    api_key = planet_config['api_key']
+
+    # pclient init
+    pclient = PClientV1(api_key, config)
+
+    # planet_filters = pclient.set_filters_id('20170828_092138_0f4b')
+
+    # res = pclient.request_intersecting_scenes(planet_filters)
+    # pick up scene id and its geometry
+    # for item in res.items_iter(1):
+        # each item is a GeoJSON feature
+        # scene_id = item["id"]
+        # print(item)
+        # activation & download
+        # it should be sync, to allow async check of neighbours
+        # output_localfile = pclient.download_localfsV2(scene_id, asset_type = 'visual', item_type='PSScene3Band')
+        # output_localfile = pclient.download_localfsV2(scene_id, asset_type = 'visual_xml', item_type='PSScene3Band', ext = 'xml')
+        # output_localfile = pclient.download_localfsV2(scene_id, asset_type = 'analytic')
+        # output_localfile = pclient.download_localfsV2(scene_id, asset_type = 'analytic_xml', ext = 'xml')
+        # use custom cloud detection function to calculate clouds and shadows
+    
