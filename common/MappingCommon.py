@@ -80,7 +80,17 @@ class MappingCommon(object):
 
     def __init__(self, projectRoot=None):
         
-        params = self.parse_yaml("config.yaml")
+        # Determine sandbox/mapper based on effective user name.
+        self.euser = pwd.getpwuid(os.getuid()).pw_name
+        self.projectRoot = '/home/%s/mapper' % self.euser
+        if self.euser == 'mapper':
+            self.mapper = True
+        else:
+            self.mapper = False
+            if projectRoot is not None:
+                self.projectRoot = projectRoot
+
+        params = self.parseYaml("config.yaml")
 
         db_production_name = params['mapper']['db_production_name']
         db_sandbox_name = params['mapper']['db_sandbox_name']
@@ -89,23 +99,6 @@ class MappingCommon(object):
         # GitHub user maphelp's token
         github_token = params['mapper']['github_token']
         github_repo = params['mapper']['github_repo']
-
-        # Determine sandbox/mapper based on effective user name.
-        self.euser = pwd.getpwuid(os.getuid()).pw_name
-        if self.euser == 'mapper':
-            self.mapper = True
-            self.projectRoot = '/home/mapper/afmap'
-        else:
-            if projectRoot is None:
-                if self.euser == 'sandbox':
-                    self.mapper = False
-                    self.projectRoot = '/home/sandbox/afmap'
-                else:
-                    self.mapper = False
-                    self.projectRoot = '/home/%s/afmap_private' % self.euser
-            else:
-                self.mapper = False
-                self.projectRoot = projectRoot
 
         if self.mapper:
             self.db_name = db_production_name
@@ -129,20 +122,11 @@ class MappingCommon(object):
     #
 
     # Parse yaml file of configuration parameters.
-    def parse_yaml(self, input_file):
-        input_file = self.findProjectFile(input_file)
+    def parseYaml(self, input_file):
+        input_file = "%s/common/%s" % (self.projectRoot, input_file)
         with open(input_file, 'r') as yaml_file:
             params = yaml.load(yaml_file)
         return params
-
-    # Project files are non-python files stored under the PYTHONPATH directory.
-    # PYTHONPATH env var not defined when running under apache. Need to look in sys.path instead.
-    def findProjectFile(self, filename):
-        for dirname in sys.path:
-            candidate = os.path.join(dirname, filename)
-            if os.path.isfile(candidate):
-                return candidate
-        raise Error("Can't find file %s" % filename)
 
     # Retrieve a tunable parameter from the configuration table.
     def getConfiguration(self, key):
@@ -600,14 +584,14 @@ class MappingCommon(object):
             # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum)],
             # Replace the 2 instances of "dmcr" in the next line with your user name.
-            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum), "dmcr", "/home/dmcr/afmap_private"],
+            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum), "dmcr", "/home/dmcr/mapper"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         elif kmlType == MappingCommon.KmlQAQC:
             # Note: "None" must be passed as a string here.
             # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None"],
             # Replace the 2 instances of "dmcr" in the next line with your user name.
-            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None", "dmcr", "/home/dmcr/afmap_private"],
+            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None", "dmcr", "/home/dmcr/mapper"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         else:
             assert False
