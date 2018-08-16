@@ -34,8 +34,6 @@ pngout <- TRUE
 # host <- "crowdmapper.org"
 
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
-params <- yaml::yaml.load_file(file.path(Sys.getenv('PYTHONPATH'), 
-                                         'config.yaml'))
 
 # Input args 
 arg <- commandArgs(TRUE)
@@ -48,8 +46,6 @@ if(length(arg) == 4) {
   if(tryid != "None" & mtype == "qa") {
     stop("QAs do not have try numbers", call. = FALSE)
   }
-  db.tester.name <- NULL
-  alt.root <- NULL
   host <- NULL
 } 
 if(length(arg) > 4) {
@@ -59,19 +55,9 @@ if(length(arg) > 4) {
     stop("Training sites need to have try numbers", call. = FALSE)
   }
   if(is.na(arg[5])) {
-    db.tester.name <- NULL
-  } else {
-    db.tester.name <- arg[5]
-  }
-  if(is.na(arg[6])) {
-    alt.root <- NULL
-  } else {
-    alt.root <- arg[6]
-  } 
-  if(is.na(arg[7])) {
     host <- NULL
   } else {
-    host <- arg[7]
+    host <- arg[5]
   }
 }
 if(comments == "T") {
@@ -85,10 +71,7 @@ if(comments == "T") {
 }
 
 if(test.root == "Y") {
-  coninfo <- mapper_connect(user = params$mapper$db_username, 
-                            password = params$mapper$db_password,
-                            db.tester.name = db.tester.name, 
-                            alt.root = alt.root, host = host)
+  coninfo <- mapper_connect(host = host)
   prjstr <- (tbl(coninfo$con, "spatial_ref_sys") %>% 
                filter(srid == prjsrid) %>% collect())$proj4text
   print(paste("database =", coninfo$dinfo["db.name"], "directory = ", 
@@ -107,10 +90,7 @@ if(test.root == "Y") {
                edge.buf = edge.buf, acc.switch = acc.switch, 
                comments = comments, write.acc.db = write.acc.db, 
                draw.maps = draw.maps, pngout = pngout, test = test, 
-               test.root = test.root, user = params$mapper$db_username, 
-               password = params$mapper$db_password, 
-               db.tester.name = db.tester.name, alt.root = alt.root, 
-               host = host)
+               test.root = test.root, host = host)
 }
 
 
