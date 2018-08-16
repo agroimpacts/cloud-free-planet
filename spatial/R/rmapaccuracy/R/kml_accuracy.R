@@ -16,10 +16,6 @@
 #' @param draw.maps Draw maps showing output error components ("T" or "F") 
 #' @param pngout Write maps to png file, TRUE (default) or FALSE (to screen)
 #' @param test "Y" or "N" for offline testing mode (see Details)
-#' @param user User name for database connection
-#' @param password Password for database connection
-#' @param db.tester.name User name for testing (default NULL)
-#' @param alt.root Alternative location for writing out maps (default NULL)
 #' @param host NULL or "crowdmapper.org", if testing from remote location
 #' @details For the test argument, it can be set to "Y" if one wants to test 
 #' only a single kmlid. In this case, the function code will pull the 
@@ -34,9 +30,9 @@
 kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                          count.acc.wt, in.acc.wt, out.acc.wt, new.in.acc.wt, 
                          new.out.acc.wt, frag.acc.wt, edge.acc.wt, cate.acc.wt, 
-                         edge.buf, acc.switch, comments, write.acc.db, draw.maps, 
-                         pngout = TRUE, test,  test.root, user, password, 
-                         db.tester.name = NULL, alt.root = NULL, host = NULL) {
+                         edge.buf, acc.switch, comments, write.acc.db, 
+                         draw.maps, pngout = TRUE, test, test.root, 
+                         host = NULL) {
   
   ## Extract connections and reading in of spatial data
   # Paths and connections
