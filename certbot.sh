@@ -1,5 +1,5 @@
 #! /bin/bash -x
 
-certbot certonly --webroot -w /home/sandbox/afmap -d sandbox.crowdmapper.org
+certbot certonly --webroot -w /home/sandbox/mapper -d sandbox.crowdmapper.org
 
-# To renew, use a crontab job to execute 'certbot renew' every few weeks.
+# To renew, use a root crontab job to execute 'certbot renew' every week (fllowed by an apache restart).
