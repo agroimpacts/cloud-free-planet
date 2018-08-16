@@ -36,9 +36,10 @@ scene_data_table: <none>
 
 [cloud_shadow]
 cloud_val: 1500
-shadow_val: 2000
-land_val: 1000
+eccentricity_val: .95
+area_val: 200
 
 [rasterfoundry]
 api_key: <none>
 api_uri: app.rasterfoundry.com
+
