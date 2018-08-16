@@ -5,10 +5,6 @@
 #' This parameter will determine the directory of S3 folder to store consensus 
 #' maps.
 #' @param riskthres the threshold to select 'risk' pixels
-#' @param user User name for database connection
-#' @param password Password for database connection
-#' @param db.tester.name User name for testing (default NULL)
-#' @param alt.root Alternative location for writing out maps (default NULL)
 #' @param host NULL or "crowdmapper.org", if testing from remote location
 #' @return Sticks conflict/risk percentage pixels into database (kml_data) and
 #' writes rasterized labels to S3 bucket.
@@ -20,9 +16,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
                                    user, password, db.tester.name, alt.root, 
                                    host, qsite = FALSE) {
   
-  coninfo <- mapper_connect(user = user, password = password,
-                            db.tester.name = db.tester.name, 
-                            alt.root = alt.root, host = host)
+  coninfo <- mapper_connect(host = host)
   # prjstr <- as.character(tbl(coninfo$con, "spatial_ref_sys") %>% 
   #                          filter(srid == prjsrid) %>% 
   #                          select(proj4text) %>% collect())
