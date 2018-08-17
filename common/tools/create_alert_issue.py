@@ -1,7 +1,6 @@
 #! /usr/bin/python
 
 import sys
-sys.path.append("..")  # search one directory up
 from MappingCommon import MappingCommon
 
 if  not (len(sys.argv) == 3):
