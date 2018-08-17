@@ -82,7 +82,8 @@ class MappingCommon(object):
         
         # Determine sandbox/mapper based on effective user name.
         self.euser = pwd.getpwuid(os.getuid()).pw_name
-        self.projectRoot = '/home/%s/mapper' % self.euser
+        self.home = os.environ['HOME']
+        self.projectRoot = '%s/mapper' % self.home
         if self.euser == 'mapper':
             self.mapper = True
         else:
