@@ -5,14 +5,13 @@
 #' maps.
 #' @param riskthres the threshold to select 'risk' pixels
 #' @param host NULL or "crowdmapper.org", if testing from remote location
+#' @param qsite Q ir F site?  Default is FALSE
 #' @return Sticks conflict/risk percentage pixels into database (kml_data) and
 #' writes rasterized labels to S3 bucket.
 #' @importFrom raster ncell
 #' @export
-#' 
 consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam, 
-                                   user, password, db.tester.name, alt.root, 
-                                   host, qsite = FALSE) {
+                                   user, password, host, qsite = FALSE) {
   
   coninfo <- mapper_connect(host = host)
   # prjstr <- as.character(tbl(coninfo$con, "spatial_ref_sys") %>% 
@@ -204,7 +203,7 @@ consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam,
       user.poly <- st_union(user.polys)
         
       # if for F sites, we need to first intersection user maps by grid 
-      # to remain those within-grid parts for calculation
+      # to retain those within-grid parts for calculation
       if(qsite == FALSE) {
         user.poly <- suppressMessages(st_intersection(user.poly, grid.poly))
       }
