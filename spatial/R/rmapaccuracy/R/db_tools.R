@@ -1,12 +1,9 @@
 #' Find correct root path and database name 
-#' @param db.sandbox.name Name of development server/database
-#' @param db.production.name Name of production server/database
 #' @return Root path and database name in named vector 
 #' @note The function arguments currently default to Africa*, so expect 
 #' these to change with project upgrades
 #' @export
-get_db_name <- function(db.sandbox.name = 'AfricaSandbox', 
-                        db.production.name = 'Africa') {
+get_db_name <- function() {
   info <- Sys.info()
   euser <- unname(info["effective_user"])
   if(euser == "mapper") {
@@ -18,25 +15,25 @@ get_db_name <- function(db.sandbox.name = 'AfricaSandbox',
   }
   
   # Project root
-  pathv <- strsplit(getwd(), .Platform$file.sep)[[1]]
-  sstr <- c("mapper", "mapper_sandbox", "afmap_sandbox", "afmap")
-  if(any(sstr %in% pathv)) {
-    project.root <- paste0(pathv[1:grep(paste(sstr, collapse = "|"), pathv)], 
-                           collapse = .Platform$file.sep)
-  } else {
-    stop(paste(getwd(), "is not a mapper directory"), call. = FALSE)
-  }
+  project_root <- file.path(Sys.getenv("HOME"), "mapper")
+  
+  # Parse config
+  common_path <- file.path(project_root, "common")
+  params <- yaml::yaml.load_file(file.path(common_path, 'config.yaml'))
 
   # DB Names
   if(sandbox == TRUE) {
-    db.name <- db.sandbox.name
+    db_name <- params$mapper$db_sandbox_name
   } else {
-    db.name <- db.production.name
+    db_name <- params$mapper$db_production_name
   }
   
   # # credentials
   # params <- yaml::yaml.load_file(file.path(project.root, 'common/config.yaml'))
-  return(c("db.name" = db.name, "project.root" = project.root))
+  olist <- list("db_name" = db_name, "project_root" = project_root, 
+                "user" = params$mapper$db_username, 
+                "password" = params$mapper$db_password)
+  return(olist)
 }
 
 #' Find correct root path and database name 
@@ -48,14 +45,14 @@ get_db_name <- function(db.sandbox.name = 'AfricaSandbox',
 #' @export
 mapper_connect <- function(host = NULL) {
   dinfo <- get_db_name()  # pull working environment
-  common_path <- file.path(dinfo["project.root"], "common")
-  params <- yaml::yaml.load_file(file.path(common_path, 'config.yaml'))
+  # common_path <- file.path(dinfo["project.root"], "common")
+  # params <- yaml::yaml.load_file(file.path(common_path, 'config.yaml'))
   
   # Paths and connections
   con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), host = host, 
-                        dbname = dinfo["db.name"],   
-                        user = params$mapper$db_username, 
-                        password = params$mapper$db_password)
+                        dbname = dinfo$db_name,   
+                        user = dinfo$user, 
+                        password = dinfo$password)
   return(list("con" = con, "dinfo" = dinfo, "params" = params))
 }
 
