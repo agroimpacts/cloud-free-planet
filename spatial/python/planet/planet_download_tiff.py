@@ -389,7 +389,7 @@ def main_json():
                                 # activation & download
                                 # it should be sync, to allow async check of neighbours
                                 output_localfile, output_file = pclient.download_localfs_s3(scene_id, season = season_type)
-                                
+
                                 bbox_local = GeoUtils.define_BoundingBox(x, y)
                                 # nodata percentage
                                 nodata_perc = nodata_stats(output_localfile, bbox_local)
