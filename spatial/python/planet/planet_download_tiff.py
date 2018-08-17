@@ -150,7 +150,7 @@ def main_csv():
                     output_localfile = ''
 
                     # planet analytic_sr stores imagery starting from 2016 year
-                    years = list(range(2016, current_year + 1))
+                    years = list(range(2016, current_year_start + 1))
                     years.reverse()
 
                     for yr in years:
@@ -271,12 +271,12 @@ def main_csv():
 def dt_construct(month, day = 1, year = 2018, t = "00:00:00.000Z"):
     return "{}-{:02d}-{:02d}T{}".format(year, month, day, t)
 
-
 def main_json():
     ext = GeoUtils.polygon_to_extent(actual_aoi)
 
     if test:
-        ext = GeoUtils.define_extent(30, -2, 0.03) # some test AOI to select a subset of extent from the master_grid.tiff
+        # ext = GeoUtils.define_extent(30, -2, 0.03) # some test AOI to select a subset of extent from the master_grid.tiff
+        ext = GeoUtils.define_extent(27.0, -25.98, -0.03)
     
     # 1. Cell ID: this should be unique for the whole raster
     # 2. Country code: integerized country code
@@ -347,7 +347,8 @@ def main_json():
                 ws_start, ws_end = ws_s_band[r, c], ws_e_band[r, c]
                 seasons = [(GS, ws_start, ws_end), (OS, ds_start, ds_end)] # dates ranges for the loop
                 # GS and OS images should be of the same year
-                current_year = datetime.today().year
+                current_year_start = datetime.today().year
+                current_year_end = current_year_start
 
                 logger.info("Processing cell_id {}...".format(cell_id))
                 
@@ -363,11 +364,21 @@ def main_json():
                         output_localfile = ''
 
                         # planet analytic_sr stores imagery starting from 2016 year
-                        years = list(range(2016, current_year + 1))
+                        years = list(range(2016, current_year_start + 1))
                         years.reverse()
 
                         for yr in years:
-                            planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = yr), end_date = dt_construct(month = m_end, year = yr))
+                            yr_start = yr
+                            yr_end = yr
+
+                            if m_start <= m_end:
+                                yr_start = yr
+                                yr_end = yr
+                            else:
+                                yr_start = yr - 1
+                                yr_end = yr
+
+                            planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = yr_start), end_date = dt_construct(month = m_end, year = yr_end))
                             res = pclient.request_intersecting_scenes(planet_filters)
 
                             # pick up scene id and its geometry
@@ -392,7 +403,8 @@ def main_json():
 
                             # record success year
                             if(scene_id != ''):
-                                current_year = yr
+                                current_year_start = yr_start
+                                current_year_end = yr_end
                                 break
 
                         # mark the current cell grid as already seen
@@ -440,7 +452,7 @@ def main_json():
                                         sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
                                                 
                                         # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
-                                        sub_planet_filters = pclient.set_filters_sr(sub_aoi, start_date = dt_construct(month = m_start, year = current_year), end_date = dt_construct(month = m_end, year = current_year), id = scene_id)
+                                        sub_planet_filters = pclient.set_filters_sr(sub_aoi, start_date = dt_construct(month = m_start, year = current_year_start), end_date = dt_construct(month = m_end, year = current_year_end), id = scene_id)
                                         res = pclient.request_intersecting_scenes(sub_planet_filters)
                                         
                                         sub_bbox_local = GeoUtils.define_BoundingBox(sx, sy)
