@@ -7,8 +7,7 @@
 kml_accuracy(mtype, diam, prjsrid, kmlid, assignmentid, tryid, count.acc.wt,
   in.acc.wt, out.acc.wt, new.in.acc.wt, new.out.acc.wt, frag.acc.wt,
   edge.acc.wt, cate.acc.wt, edge.buf, acc.switch, comments, write.acc.db,
-  draw.maps, pngout = TRUE, test, test.root, user, password,
-  db.tester.name = NULL, alt.root = NULL, host = NULL)
+  draw.maps, pngout = TRUE, test, test.root, host = NULL)
 }
 \arguments{
 \item{mtype}{"qa" or "tr" for qaqc or training types}
@@ -44,14 +43,6 @@ kml_accuracy(mtype, diam, prjsrid, kmlid, assignmentid, tryid, count.acc.wt,
 \item{pngout}{Write maps to png file, TRUE (default) or FALSE (to screen)}
 
 \item{test}{"Y" or "N" for offline testing mode (see Details)}
-
-\item{user}{User name for database connection}
-
-\item{password}{Password for database connection}
-
-\item{db.tester.name}{User name for testing (default NULL)}
-
-\item{alt.root}{Alternative location for writing out maps (default NULL)}
 
 \item{host}{NULL or "crowdmapper.org", if testing from remote location}
 }

@@ -19,11 +19,12 @@ get_db_name <- function(db.sandbox.name = 'AfricaSandbox',
   
   # Project root
   pathv <- strsplit(getwd(), .Platform$file.sep)[[1]]
-  if("mapper" %in% pathv) {
-    project.root <- paste0(pathv[1:grep("mapper", pathv)], 
+  sstr <- c("mapper", "mapper_sandbox", "afmap_sandbox", "afmap")
+  if(any(sstr %in% pathv)) {
+    project.root <- paste0(pathv[1:grep(paste(sstr, collapse = "|"), pathv)], 
                            collapse = .Platform$file.sep)
   } else {
-    stop("You are not in a mapper directory", call. = FALSE)
+    stop(paste(getwd(), "is not a mapper directory"), call. = FALSE)
   }
 
   # DB Names
