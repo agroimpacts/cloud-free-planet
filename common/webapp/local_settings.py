@@ -37,6 +37,5 @@ MAIL_PASSWORD = params['mapper']['MAIL_PASSWORD']
 
 MAIL_DEFAULT_SENDER = '"AgroImpacts Administrator" <lestes@clarku.edu>'
 ADMINS = [
-    '"AgroImpacts Administrator" <dmcr@princeton.edu>',
     '"AgroImpacts Administrator" <lestes@clarku.edu>',
     ]
