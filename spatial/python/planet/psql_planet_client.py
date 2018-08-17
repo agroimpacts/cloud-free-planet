@@ -1,5 +1,20 @@
 import psycopg2
 
+# scenes_data
+# PK [provider | scene_id | cell_id | season] | global_col | global_row | url | tms_url
+# 
+# CREATE TABLE scenes_data (
+#   provider VARCHAR(24) NOT NULL,
+#   scene_id VARCHAR(128) NOT NULL,
+#   cell_id INTEGER NOT NULL,
+#   season VARCHAR(2) NOT NULL,
+#   global_col INTEGER NULL,
+#   global_row INTEGER NULL,
+#   url VARCHAR(255) NULL,
+#   tms_url VARCHAR(255) NULL,
+#   PRIMARY KEY(provider, scene_id, cell_id, season)
+# );
+
 class PSQLPClient():
     def __init__(self, config):
         db_config = config['database']
@@ -45,4 +60,8 @@ class PSQLPClient():
             conn.rollback()
 
      def insert_row(self, row, curs):
-         curs.execute("""INSERT INTO {} VALUES (%s, %s, %s, %s)""".format(self.scene_data_table), (row[0], row[1], row[2], row[3]))
+         # [provider | scene_id | cell_id | season] | global_col | global_row | url | tms_url
+         curs.execute(
+             """INSERT INTO {} VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""".format(self.scene_data_table), 
+             (row['provider'], row['scene_id'], row['cell_id'], row['season'], row.get('global_col'), row.get('global_row'), row.get('url'), row.get('tms_url'))
+         )
