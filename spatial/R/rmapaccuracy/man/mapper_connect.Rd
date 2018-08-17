@@ -4,19 +4,10 @@
 \alias{mapper_connect}
 \title{Find correct root path and database name}
 \usage{
-mapper_connect(user, password, host = NULL, db.tester.name = NULL,
-  alt.root = NULL)
+mapper_connect(host = NULL)
 }
 \arguments{
-\item{user}{User name for mapper database}
-
-\item{password}{Password for mapper database}
-
 \item{host}{NULL is running on crowdmapper, else crowdmapper.org for remote}
-
-\item{db.tester.name}{Name of non-sandbox user, for testing}
-
-\item{alt.root}{An alternative root, for testing off of mapper VM}
 }
 \value{
 Database connection, root path, and database name in list
