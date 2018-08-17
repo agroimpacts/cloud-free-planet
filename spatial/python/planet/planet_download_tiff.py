@@ -276,7 +276,7 @@ def main_json():
 
     if test:
         # ext = GeoUtils.define_extent(30, -2, 0.03) # some test AOI to select a subset of extent from the master_grid.tiff
-        ext = GeoUtils.define_extent(27.0, -25.98, -0.03)
+        ext = GeoUtils.define_extent(27.03, -25.98, 0.05)
     
     # 1. Cell ID: this should be unique for the whole raster
     # 2. Country code: integerized country code
