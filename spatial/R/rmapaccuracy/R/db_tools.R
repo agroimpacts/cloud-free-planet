@@ -18,10 +18,8 @@ get_db_name <- function(db.sandbox.name = 'AfricaSandbox',
   }
   
   # Project root
-  # pathv <- strsplit(getwd(), .Platform$file.sep)[[1]]
-  # hack to work around symlink in crowdmapper /var/www/html/afmap_sandbox
-  pathv <- strsplit(system("pwd", intern = TRUE), .Platform$file.sep)[[1]]
-  if("mapper" %in% pathv) {
+  pathv <- strsplit(getwd(), .Platform$file.sep)[[1]]
+  if(any(c("mapper", "mapper_sandbox", "afmap_sandbox", "afmap") %in% pathv)) {
     project.root <- paste0(pathv[1:grep("mapper", pathv)], 
                            collapse = .Platform$file.sep)
   } else {
