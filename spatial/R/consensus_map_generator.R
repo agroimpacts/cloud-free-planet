@@ -37,5 +37,4 @@ if(length(arg) > 2) {
 
 consensus_map_creation(kmlid = kmlid, kml.usage = kml.usage, 
                        output.riskmap = output.riskmap,
-                       diam = diam, 
-                       host = host)
+                       diam = diam, host = host)
