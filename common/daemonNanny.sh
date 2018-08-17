@@ -44,6 +44,11 @@ checkrestart() {
     fi
 }
 
+checkuptime() {
+    uptime=(`cat /proc/uptime`)
+    upseconds=${uptime[0]%.*}
+}
+
 # Retrieve the variable values:
 # varArray[0]: 'failed to restart' count
 # varArray[1]: 'restarted' count
@@ -55,16 +60,18 @@ else
     varArray=(0 0 0)
 fi
 
-
 # Main path starts here
 checkrestart
-if [ $restart == 1 ]; then
+# Daemon not running: System startup, or we killed it, or it failed.
+# We need to start the daemon.
+if [[ $restart -eq 1 ]]; then
     nohup $COMMAND >>$LOGFILE 2>&1 &
     echo $! >$PIDFILE
     sleep 20
     checkrestart
-    if [ $restart == 1 ]; then
-        if [[ ${varArray[0]} == 0 ]]; then
+    # Daemon still not running after 20 seconds. Report problem periodically.
+    if [[ $restart -eq 1 ]]; then
+        if [[ ${varArray[0]} -eq 0 ]]; then
             varArray[1]=0
             varArray[2]=0
             echo "`date`: Failed to restart $PROGRAM"
@@ -81,8 +88,12 @@ EOF`
         if [[ ${varArray[0]} -ge $NotifSkipCount ]]; then
             varArray[0]=0
         fi
+    # Daemon still running after 20 seconds. Report change of state periodically.
+    # NOTE: Normal case when system starts up.
     else
-        if [[ ${varArray[1]} == 0 ]]; then
+        # Don't create alert if daemon start is within 10 minutes of system boot.
+        checkuptime
+        if [[ ${varArray[1]} -eq 0 && $upseconds -gt 600 ]]; then
             varArray[0]=0
             varArray[2]=0
             echo "`date`: $PROGRAM restarted"
@@ -100,8 +111,9 @@ EOF`
             varArray[1]=0
         fi
     fi
+# Daemon already running. Just increment the already-running count.
 else
-    if [[ ${varArray[2]} == 0 ]]; then
+    if [[ ${varArray[2]} -eq 0 ]]; then
         varArray[0]=0
         varArray[1]=0
         echo "`date`: $PROGRAM already running"
