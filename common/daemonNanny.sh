@@ -19,25 +19,18 @@ fi
 # assuming 5-minute crontab check intervals.
 NotifSkipCount=144          # 12 hours
 
-AFMAP_HOME=`dirname $0`/..
+MAPPER_HOME=`dirname $0`/..
 PROGRAM=`basename $COMMAND`
 BASEPROGRAM=${PROGRAM%.*}
-PIDFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.pid
-LOGFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.oe.log
-VARFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.var
+PIDFILE=${MAPPER_HOME}/log/${BASEPROGRAM}.pid
+LOGFILE=${MAPPER_HOME}/log/${BASEPROGRAM}.oe.log
+VARFILE=${MAPPER_HOME}/log/${BASEPROGRAM}.var
 
 NOW=`/bin/date '+%m/%d/%Y %H:%M:%S'`
 
-# This email address has been configured on trac.princeton.edu in
-# /etc/aliases and /usr/local/etc/email2trac.conf to create a ticket
-# under the Internal Alert component.
-TO="lestes@clarku.edu,dmcr@princeton.edu"
-
-# Utility functions
-email() {
-    /bin/mail -s "$SUBJECT" "$TO" << EOEMAIL
-$emailBody
-EOEMAIL
+# Generate a GitHub issue when an unexpected event occurs.
+createIssue() {
+    ${MAPPER_HOME}/common/tools/create_alert_issue.py "$SUBJECT" "$alertBody"
 }
 
 checkrestart() {
@@ -76,13 +69,13 @@ if [ $restart == 1 ]; then
             varArray[2]=0
             echo "`date`: Failed to restart $PROGRAM"
             SUBJECT="Daemon nanny has failed to restart a daemon"
-            emailBody=`/bin/cat <<EOF
+            alertBody=`/bin/cat <<EOF
 $SUBJECT
 
 Daemon $PROGRAM failed to restart at $NOW.
 Please check $LOGFILE for details.
 EOF`
-            email
+            createIssue
         fi
         let varArray[0]=${varArray[0]}+1
         if [[ ${varArray[0]} -ge $NotifSkipCount ]]; then
@@ -94,13 +87,13 @@ EOF`
             varArray[2]=0
             echo "`date`: $PROGRAM restarted"
             SUBJECT="Daemon nanny has restarted a daemon"
-            emailBody=`/bin/cat <<EOF
+            alertBody=`/bin/cat <<EOF
 $SUBJECT
 
 Daemon $PROGRAM restarted at $NOW.
 Please check $LOGFILE for details.
 EOF`
-            email
+            createIssue
         fi
         let varArray[1]=${varArray[1]}+1
         if [[ ${varArray[1]} -ge $NotifSkipCount ]]; then
