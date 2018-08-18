@@ -1,4 +1,4 @@
-# This email address has been configured on user sandbox to create an Internal Alert GitHub issue.
+# This MAILTO email address has been configured on user sandbox to create an Internal Alert GitHub issue.
 # See common/procmail_crontab_issue_rc under user sandbox.
 # This crontab script can run from any user account on crowdmapper.org .
 MAILTO=sandbox@crowdmapper.org
