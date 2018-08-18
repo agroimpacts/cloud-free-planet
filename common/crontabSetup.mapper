@@ -1,7 +1,7 @@
-# This email address has been configured on trac.princeton.edu in
-# /etc/aliases and /usr/local/etc/email2trac.conf to create a ticket
-# under the Internal Alert component.
-MAILTO=dmcr@princeton.edu
+# This MAILTO email address has been configured on user sandbox to create an Internal Alert GitHub issue.
+# See common/procmail_crontab_issue_rc under user sandbox.
+# This crontab script can run from any user account on crowdmapper.org .
+MAILTO=sandbox@crowdmapper.org
 SHELL=/bin/bash
 # Min Hour(0-23) Day Month DOW Command
 0,5,10,15,20,25,30,35,40,45,50,55 * * * * /home/${USER}/mapper/common/daemonNanny.sh /home/${USER}/mapper/common/create_hit_daemon.py >>/home/${USER}/mapper/log/daemonNanny.log

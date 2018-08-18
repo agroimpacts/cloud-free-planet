@@ -1,6 +1,13 @@
 #! /usr/bin/python
 
+# This script is called by scripts running under crontab, and that environment 
+# does not have PYHTHONPATH defined, so we need to add it to sys.path here.
+
 import sys
+import os
+home = os.environ['HOME']
+sys.path.append("%s/mapper/common" % home)
+
 from MappingCommon import MappingCommon
 
 if  not (len(sys.argv) == 3):
