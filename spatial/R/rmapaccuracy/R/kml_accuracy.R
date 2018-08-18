@@ -177,7 +177,7 @@ kml_accuracy <- function(mtype, diam, prjsrid, kmlid, assignmentid, tryid,
                    qaqc.poly = maps$qpol, user.poly = maps$upol,
                    inres = maps$inres, user.poly.out = maps$upolo, 
                    qaqc.poly.out = maps$qpolo, tpo = maps$tpo,fpo = maps$fpo, 
-                   fno = maps$fno, proj.root = coninfo$dinfo["project.root"], 
+                   fno = maps$fno, proj.root = coninfo$dinfo$project_root, 
                    pngout = pngout)
   } ### 
   
