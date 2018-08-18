@@ -53,7 +53,7 @@ mapper_connect <- function(host = NULL) {
                         dbname = dinfo$db_name,   
                         user = dinfo$user, 
                         password = dinfo$password)
-  return(list("con" = con, "dinfo" = dinfo, "params" = params))
+  return(list("con" = con, "dinfo" = dinfo))
 }
 
 
