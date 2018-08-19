@@ -5,81 +5,64 @@ import psycopg2
 from psycopg2.extensions import adapt
 from MappingCommon import MappingCommon
 
-def parse_yaml(input_file):
-    """Parse yaml file of configuration parameters."""
-    with open(input_file, 'r') as yaml_file:
-        params = yaml.load(yaml_file)
-    return params
-
 mapc = MappingCommon()
-params = mapc.parse_yaml("config.yaml")
-
-db_production_name = params['mapper']['db_production_name']
-db_sandbox_name = params['mapper']['db_sandbox_name']
-db_user = params['mapper']['db_username']
-db_password = params['mapper']['db_password']
 
 def cleanKMLs():
-    # Initialize connection to sandbox:
-    
-    dbcon = psycopg2.connect("dbname=%s user=%s password=%s" % (db_sandbox_name, db_user, db_password))
-    cur = dbcon.cursor()
-
     #Get all F and N kmls from kml_data
-    cur.execute("select gid, name, kml_type from kml_data where kml_type in ( 'F', 'N');")
-    totalRows = cur.rowcount
+    mapc.cur.execute("select gid, name, kml_type from kml_data where kml_type in ( 'F', 'N');")
+    totalRows = mapc.cur.rowcount
     print totalRows
-    f_n_kmls = cur.fetchall()
-    dbcon.commit()
+    f_n_kmls = mapc.cur.fetchall()
+    mapc.dbcon.commit()
     f_n_names_tuple = zip(*f_n_kmls)[1]
     f_n_names = [(n,) for n in f_n_names_tuple]
     print f_n_names
 
     # delete dependent assignment_data rows:
-    cur.execute("select h.hit_id from hit_data h inner join kml_data k using (name) where k.kml_type in ('F', 'N');")
-    hitSelectRowCount =cur.rowcount
-    hitIDs = cur.fetchall()
-    dbcon.commit()
+    mapc.cur.execute("select h.hit_id from hit_data h inner join kml_data k using (name) where k.kml_type in ('F', 'N');")
+    hitSelectRowCount =mapc.cur.rowcount
+    hitIDs = mapc.cur.fetchall()
+    mapc.dbcon.commit()
     
-    cur.execute("select a.assignment_id from assignment_data a inner join hit_data h on a.hit_id = h.hit_id inner join kml_data k on k.name = h.name where k.kml_type in ('F','N');")
-    assignmentSelectRowCount = cur.rowcount
-    assignmentIDs = cur.fetchall()
-    dbcon.commit()
+    mapc.cur.execute("select a.assignment_id from assignment_data a inner join hit_data h on a.hit_id = h.hit_id inner join kml_data k on k.name = h.name where k.kml_type in ('F','N');")
+    assignmentSelectRowCount = mapc.cur.rowcount
+    assignmentIDs = mapc.cur.fetchall()
+    mapc.dbcon.commit()
 
-    cur.executemany("delete from user_maps where assignment_id =%s;", assignmentIDs)
-    dbcon.commit()
+    mapc.cur.executemany("delete from user_maps where assignment_id =%s;", assignmentIDs)
+    mapc.dbcon.commit()
 
-    cur.executemany("delete from error_data where assignment_id =%s;", assignmentIDs)
-    dbcon.commit()
+    mapc.cur.executemany("delete from error_data where assignment_id =%s;", assignmentIDs)
+    mapc.dbcon.commit()
 
-    cur.executemany("delete from assignment_data where hit_id=%s;", hitIDs)
-    dbcon.commit()
+    mapc.cur.executemany("delete from assignment_data where hit_id=%s;", hitIDs)
+    mapc.dbcon.commit()
 
     # delete dependent hit_data rows:
-    cur.executemany("delete from hit_data where name =%s;", f_n_names)
-    hitDataRowCount = cur.rowcount
+    mapc.cur.executemany("delete from hit_data where name =%s;", f_n_names)
+    hitDataRowCount = mapc.cur.rowcount
     if hitDataRowCount == hitSelectRowCount:
-        dbcon.commit()
+        mapc.dbcon.commit()
     else:
         print "bad result deleting from hit_data! Too many/few rows."
-        dbcon.rollback()
-        cur.close()
-        dbcon.close()
+        mapc.dbcon.rollback()
+        mapc.cur.close()
+        mapc.dbcon.close()
         return
 
     print "updating in master_grid"
     # update master_grid rows that match the kmls
-    cur.execute("update master_grid set avail = 'T' where name in (select name from kml_data where kml_type in ('F', 'N'));")
+    mapc.cur.execute("update master_grid set avail = 'T' where name in (select name from kml_data where kml_type in ('F', 'N'));")
 
-    masterRowCount = cur.rowcount
+    masterRowCount = mapc.cur.rowcount
     if masterRowCount <= totalRows:
-        dbcon.commit()
+        mapc.dbcon.commit()
         print "updating finished in master_grid"
     else:
         print "bad result updating from master_grid! Too many rows."
-        dbcon.rollback()
-        cur.close()
-        dbcon.close()
+        mapc.dbcon.rollback()
+        mapc.cur.close()
+        mapc.dbcon.close()
         return
     
 
@@ -95,26 +78,26 @@ def cleanKMLs():
                 print "kml named: " + fp + " had no kml file."
 
     # decrement master_grid_counter Block number is hardcoded.
-    cur.execute("select counter from master_grid_counter where block=1;")
-    masterGridCounter = cur.fetchone()[0]
+    mapc.cur.execute("select counter from master_grid_counter where block=1;")
+    masterGridCounter = mapc.cur.fetchone()[0]
     masterGridCounter-=masterRowCount
-    cur.execute("update master_grid_counter set counter=%s where block=1", (masterGridCounter,))
+    mapc.cur.execute("update master_grid_counter set counter=%s where block=1", (masterGridCounter,))
 
     # Finally delete from kml_data all F and N kmls:
-    cur.execute("delete from kml_data where kml_type in ('F', 'N');")
-    deletedRowCount = cur.rowcount
+    mapc.cur.execute("delete from kml_data where kml_type in ('F', 'N');")
+    deletedRowCount = mapc.cur.rowcount
     if deletedRowCount == totalRows:
-        dbcon.commit()
+        mapc.dbcon.commit()
     else:
         print "Bad result deleting from kml_data!"
-        dbcon.rollback()
-        cur.close()
-        dbcon.close()
+        mapc.dbcon.rollback()
+        mapc.cur.close()
+        mapc.dbcon.close()
         return
 
-     #Close db connection and cursor
-    cur.close()
-    dbcon.close()
+     #Close db connection and mapc.cursor
+    mapc.cur.close()
+    mapc.dbcon.close()
 
 if __name__ == "__main__":
     cleanKMLs()
