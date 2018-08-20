@@ -2,6 +2,7 @@ from planet_client import PClientV1
 from geo_utils import GeoUtils
 from filter_callable import cloud_shadow_stats_config_old, nodata_stats
 from fixed_thread_pool_executor import FixedThreadPoolExecutor
+from psql_planet_client import PSQLPClient
 
 from sys import stdout
 from shapely.geometry import shape
@@ -84,6 +85,9 @@ pclient = PClientV1(api_key, config)
 features = geojson.load(open(imagery_config['aoi']))['features']
 actual_aoi = shape(MultiPolygon([Polygon(f['geometry']) for f in features]))
 
+psqlclient = PSQLPClient(config)
+psqlclient.connect()
+
 def main_csv():
     # sequence of cellgrids to walkthrough
     cell_grids = [ ]
@@ -140,6 +144,7 @@ def main_csv():
                 
             aoi = GeoUtils.define_aoi(x, y)  # aoi by a cell grid x, y
 
+            psql_rows = []
             for (season_type, m_start, m_end) in seasons:
                 if not valid_cell_grids[season_type][r, c]:
                     logger.info("Processing season {}...".format(season_type))
@@ -195,6 +200,7 @@ def main_csv():
 
                         base_row = [cell_id, scene_id, c, r, season_type, output_file]
                         writer.writerow(base_row)
+                        psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, ''))
                             
                         # logger.debug(base_row)
                         # extent of a polygon to query neighbours
@@ -244,6 +250,7 @@ def main_csv():
                                             sub_global_row, sub_global_col = master_grid.index(sx, sy)
                                             base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file]
                                             writer.writerow(base_sub_row)
+                                            psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, ''))
 
                         # query cellgrid neighbours
                         # and walk through all cellgrid neighbours
@@ -254,6 +261,8 @@ def main_csv():
                         neighbours_executor.drain()
                         # await all downloads
                         pclient.drain()
+                        # insert everything into psql
+                        psqlclient.insert_rows_by_one_async(psql_rows)
 
     # await threadpool to stop
     neighbours_executor.close()
@@ -262,6 +271,7 @@ def main_csv():
         pclient.upload_s3_csv_csv()
         pclient.close()
 
+    psqlclient.close()
     print("-------------------")
     print("CSV DONE")
     print("-------------------")
@@ -275,8 +285,8 @@ def main_json():
     ext = GeoUtils.polygon_to_extent(actual_aoi)
 
     if test:
-        # ext = GeoUtils.define_extent(30, -2, 0.03) # some test AOI to select a subset of extent from the master_grid.tiff
-        ext = GeoUtils.define_extent(27.03, -25.98, 0.05)
+        ext = GeoUtils.define_extent(30, -2, 0.03) # some test AOI to select a subset of extent from the master_grid.tiff
+        # ext = GeoUtils.define_extent(27.03, -25.98, 0.05)
     
     # 1. Cell ID: this should be unique for the whole raster
     # 2. Country code: integerized country code
@@ -354,6 +364,7 @@ def main_json():
                 
                 aoi = GeoUtils.define_aoi(x, y)  # aoi by a cell grid x, y
 
+                psql_rows = []
                 for (season_type, m_start, m_end) in seasons:
                     if not valid_band[season_type][r, c]:
                         logger.info("Processing season {}...".format(season_type))
@@ -414,6 +425,7 @@ def main_json():
                             global_row, global_col = master_grid.index(x, y)
                             base_row = [cell_id, scene_id, global_col, global_row, season_type, output_file]
                             writer.writerow(base_row)
+                            psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, ''))
                             
                             # logger.debug(base_row)
                             # extent of a polygon to query neighbours
@@ -474,6 +486,7 @@ def main_json():
                                                 base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file]
                                                 writer.writerow(base_sub_row)
                                                 # logger.info(base_sub_row)
+                                                psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, ''))
 
                             for sr in range(sub_start_row, sub_stop_row):
                                 for sc in range(sub_start_col, sub_stop_col):
@@ -483,6 +496,8 @@ def main_json():
                             neighbours_executor.drain()
                             # await all downloads
                             pclient.drain()
+                            # insert everything into psql
+                            psqlclient.insert_rows_by_one_async(psql_rows)
 
                         # base_row = [cell_id, scene_id, season_type, ""]
                         # writer.writerow(base_row)
@@ -492,6 +507,7 @@ def main_json():
     fp.close()
     pclient.upload_s3_csv()
     pclient.close()
+    psqlclient.close()
     print("-------------------")
     print("Results:")
     print("-------------------")
