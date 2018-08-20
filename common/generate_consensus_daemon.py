@@ -9,11 +9,16 @@ from datetime import datetime
 import psycopg2
 import time
 import os
+import csv
+import boto3
+import boto3.session
 
 # the below is for debugging under SuYe's project root
 # mapc = MappingCommon(projectRoot='/home/sye/github/mapperAL/')
+# mapc = MappingCommon('/media/su/DataFactory/MappingAfrica/mapper')
 
 mapc = MappingCommon()
+
 
 logFilePath = mapc.projectRoot + "/log"
 k = open(logFilePath + "/generateConsensus.log", "a+")
@@ -158,7 +163,40 @@ while True:
             k.write("\ngenerateConsensus: the iteration_%s finishing up at "
                     "%s\n" %
                     (iteration_counter, datetime.now()))
-            
+
+            # output incoming_names to csv table
+            mapc.cur.execute("""SELECT * From incoming_names """)
+            incoming_rows = mapc.cur.fetchall()
+
+            fieldnames = ['name', 'run', 'iteration', 'processed', 'usage']
+
+            with open(logFilePath + "/incoming_names.csv", 'w') as csvOutput:
+                csvOutputWriter = csv.DictWriter(csvOutput, fieldnames=fieldnames)
+                csvOutputWriter.writeheader()
+                for x in xrange(len(incoming_rows)):
+                    csvOutputDic = {'name': incoming_rows[x][0], 'run': incoming_rows[x][1],
+                                    'iteration': incoming_rows[x][2], 'processed': incoming_rows[x][3],
+                                    'usage': incoming_rows[x][4]}
+                    csvOutputWriter.writerow(csvOutputDic)
+
+            # Set up AWS and upload csv to /activermapper/planet
+            aws_session = boto3.session.Session()
+
+            params = mapc.parseYaml("config.yaml")
+
+            s3_client = aws_session.client('s3', aws_access_key_id=params['cvml']['aws_secret'],
+                                                 aws_secret_access_key=params['cvml']['aws_access'],
+                                                 region_name=params['cvml']['aws_region'])
+
+            bucket = str(mapc.getConfiguration('S3BucketDir'))
+
+            des_on_s3 = "planet/incoming_names.csv"
+
+            s3_client.upload_file(logFilePath + "/incoming_names.csv", bucket, des_on_s3)
+
+            # remove tmp incoming_name.csv
+            os.remove(logFilePath + "/incoming_names.csv")
+
             # wake up cvml
             if os.system('python '+ mapc.projectRoot + '/terraform/run_cvml.py'):
                 k.write("\ngenerateConsensus: the iteration_%s cvml starts "
