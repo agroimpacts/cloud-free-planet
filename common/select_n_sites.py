@@ -73,7 +73,7 @@ while True:
     if avail_kml_count < min_avail_kml:
         # Step 1. Poll the database to see which grid IDs are still available
         # Including fwts >= 5, there might be less than 500 once.
-        mapc.cur.execute("select id, name from master_grid where avail = 'T' and gid >= " +
+        mapc.cur.execute("select name from master_grid where avail = 'T' and gid >= " +
                          str(first_avail_line) + " and gid <= " +
                          str(first_avail_line + kml_batch_size - 1) +
                          " and fwts >= " + str(fwt))
@@ -85,7 +85,7 @@ while True:
             # Update master to show grid is no longer available for selecting/writing
             for row in xy_tabs:
                 xy_tab = row + (kml_type, 0)
-                insert_query = "insert into kml_data (gid, name, kml_type, mapped_count) values (%s, %s, %s, %s);"
+                insert_query = "insert into kml_data (name, kml_type, mapped_count) values (%s, %s, %s);"
                 mapc.cur.execute(insert_query, xy_tab)
                 mapc.cur.execute("update master_grid set avail='%s' where name = '%s'" % (kml_type, row[1]))
             mapc.dbcon.commit()
