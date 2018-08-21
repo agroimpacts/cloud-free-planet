@@ -28,11 +28,12 @@ with_visual: False
 
 [database]
 host: <none>
-dbname: <none>
+dbname: AfricaSandbox
 user: <none>
 password: <none>
-master_grid_table: <none>
-scene_data_table: <none>
+master_grid_table: master_grid
+scene_data_table: scenes_data
+enabled: Flase
 
 [cloud_shadow]
 cloud_val: 1500
