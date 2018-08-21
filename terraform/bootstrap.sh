@@ -134,7 +134,7 @@ EOF
     rm -f /tmp/kernel.json
 
     # Install pyrasterframes
-    curl -L -o /tmp/rasterframes.zip https://github.com/locationtech/rasterframes/archive/${RASTERFRAMESSHA}.zip && \
+    curl -L -o /tmp/rasterframes.zip https://github.com/geotrellis/rasterframes/archive/${RASTERFRAMESSHA}.zip && \
     unzip -d /tmp /tmp/rasterframes.zip && \
     sudo -E env "PATH=/usr/local/bin:$PATH" pip3.4 install /tmp/rasterframes-${RASTERFRAMESSHA}/pyrasterframes/python && \
     pushd /tmp/rasterframes-${RASTERFRAMESSHA}/ && \
@@ -176,7 +176,7 @@ else
     sudo -E env "PATH=/usr/local/bin:$PATH" pip3.4 install "$GEOPYSPARKURI"
 
     # Install pyrasterframes
-    curl -L -o /tmp/rasterframes.zip https://github.com/locationtech/rasterframes/archive/${RASTERFRAMESSHA}.zip && \
+    curl -L -o /tmp/rasterframes.zip https://github.com/geotrellis/rasterframes/archive/${RASTERFRAMESSHA}.zip && \
     unzip -d /tmp /tmp/rasterframes.zip && \
     sudo pip3 install /tmp/rasterframes-${RASTERFRAMESSHA}/pyrasterframes/python && \
     rm -rf /tmp/rasterframes.zip /tmp/rasterframes-${RASTERFRAMESSHA}
