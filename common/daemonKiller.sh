@@ -15,7 +15,7 @@ fi
 AFMAP_HOME=`basename $HOME`
 CREATEHIT=`pgrep -f /home/${AFMAP_HOME}*.*create_hit_daemon.py`
 CLEANUP=`pgrep -f /home/${AFMAP_HOME}*.*cleanup_absent_worker.py`
-KMLGENERATE=`pgrep -f /home/${AFMAP_HOME}*.*KMLgenerate.R`
+KMLGENERATE=`pgrep -f /home/${AFMAP_HOME}*.*select_n_sites.py`
 
 if [ -n "$CREATEHIT" ]; then
     echo "create_hit_daemon.py PID on $AFMAP_HOME: $CREATEHIT"
@@ -32,11 +32,11 @@ else
     echo "cleanup_absent_worker.py not running"
 fi
 if [ -n "$KMLGENERATE" ]; then
-    echo "KMLgenerate.R PID on $AFMAP_HOME: $KMLGENERATE"
+    echo "select_n_sites.py PID on $AFMAP_HOME: $KMLGENERATE"
     echo "kill $KMLGENERATE"
     kill $KMLGENERATE
 else
-    echo "KMLgenerate.R not running"
+    echo "select_n_sites.py not running"
 fi
 
 
