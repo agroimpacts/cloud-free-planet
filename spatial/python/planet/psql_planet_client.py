@@ -86,18 +86,28 @@ class PSQLPClient():
     def insert_rows_by_one(self, rows):
         if self.enabled:
             # [provider | scene_id | cell_id | season] | global_col | global_row | url | tms_url
-            try:
                 curs = self.conn.cursor()
-                
                 for row in rows:
-                    curs.execute(
-                        """INSERT INTO {} VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""".format(self.scene_data_table), 
-                        (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7])
-                    )
-                
-                self.conn.commit()
-            except:
-                self.conn.rollback()
+                    try:
+                        curs.execute(
+                            """INSERT INTO {} VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""".format(self.scene_data_table), 
+                            (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7])
+                        )
+                    except psycopg2.IntegrityError:
+                        self.conn.rollback()
+                        try:
+                            curs.execute(
+                                """
+                                UPDATE {} SET global_col = %s, global_row = %s, url = %s, tms_url = %s
+                                WHERE provider = %s AND scene_id = %s AND cell_id = %s AND season = %s
+                                """.format(self.scene_data_table),
+                                (row[4], row[5], row[6], row[7], row[0], row[1], row[2], row[3])
+                            )
+                        except psycopg2.IntegrityError:
+                            self.conn.rollback()
+                        else: self.conn.commit()
+                    else:
+                        self.conn.commit()
 
     def insert_rows_by_one_async(self, rows):
         if self.enabled:
