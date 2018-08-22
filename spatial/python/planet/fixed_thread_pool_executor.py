@@ -1,5 +1,5 @@
 # Source code: https://gist.github.com/tliron/81dd915166b0bfc64be08b4f8e22c835
-# Ported on Python3
+# Ported to Python3
 
 from threading import Thread, Lock
 from queue import Queue

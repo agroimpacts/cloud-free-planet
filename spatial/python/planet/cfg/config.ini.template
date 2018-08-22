@@ -2,37 +2,51 @@
 api_key: <none>
 
 [imagery]
+local_mode: False
 test: false
-aoi: ghana_aoi.geojson
+aoi: cfg/ghana_aoi.geojson
 with_csv: True
 csv_only: True
 csv_mode: a
-csv_points: individual_sites_needing_images.csv
+csv_points: cfg/individual_sites_needing_images.csv
 resolution: 0.025
 master_grid_path: s3://activemapper/grid/master_grid.tif
-max_clouds: 0.25
-max_bad_pixels: 0.25
-max_nodata: 0.25
-asset_type: analytic_sr
+max_clouds: 0.01
+max_shadows: 0.01
+max_bad_pixels: 0.03
+max_nodata: 0.01
 maximgs: 1
 output_encoding: utf-8
-output_filename: output.csv
-output_filename_csv: output_csv.csv
+output_filename: catalog/planet_catalog.csv
+output_filename_csv: catalog/planet_catalog_csv.csv
 threads: default
 catalog_path: catalog/
 s3_catalog_bucket: activemapper
-s3_catalog_prefix: sources/planet/images
-item_type: PSScene4Band
+s3_catalog_prefix: planet
+with_analytic: False
+with_analytic_xml: False
+with_visual: False
 
 [database]
-host:
-dbname:
-user:
-password:
-master_grid_table:
-scene_data_table:
+host: <none>
+dbname: AfricaSandbox
+user: <none>
+password: <none>
+master_grid_table: master_grid
+scene_data_table: scenes_data
+enabled: Flase
 
 [cloud_shadow]
 cloud_val: 1500
-shadow_val: 2000
+eccentricity_val: 0.95
+area_val: 200
+shadow_val: 1500
 land_val: 1000
+peri_to_area_val: 0.3
+
+[rasterfoundry]
+enabled: False
+api_key: <none>
+api_uri: app.rasterfoundry.com
+visibility: PRIVATE
+tileVisibility: PRIVATE
