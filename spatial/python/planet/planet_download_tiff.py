@@ -57,7 +57,7 @@ with_csv = json.loads(imagery_config['with_csv'].lower())
 csv_only = json.loads(imagery_config['csv_only'].lower())
 csv_points = imagery_config['csv_points']
 csv_mode = imagery_config['csv_mode']
-csv_header = ["cell_id", "scene_id", "col", "row", "season", "uri"]
+csv_header = ["cell_id", "scene_id", "col", "row", "season", "url", "tms_url"]
 
 # logger
 logger = logging.getLogger(__name__)
@@ -85,12 +85,13 @@ pclient = PClientV1(api_key, config)
 # rfclient init
 rfclient = RFClient(config)
 
+# psql client init
+psqlclient = PSQLPClient(config)
+psqlclient.connect()
+
 # aoi
 features = geojson.load(open(imagery_config['aoi']))['features']
 actual_aoi = shape(MultiPolygon([Polygon(f['geometry']) for f in features]))
-
-psqlclient = PSQLPClient(config)
-psqlclient.connect()
 
 def main_csv():
     # sequence of cellgrids to walkthrough
@@ -202,9 +203,9 @@ def main_csv():
                     if(scene_id != ''):
                         valid_cell_grids[season_type][r, c] = True
 
-                        base_row = [cell_id, scene_id, c, r, season_type, output_file]
-                        writer.writerow(base_row)
                         tms_uri = rfclient.create_tms_uri(scene_id, output_file)
+                        base_row = [cell_id, scene_id, c, r, season_type, output_file, tms_uri]
+                        writer.writerow(base_row)
                         psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, tms_uri))
                             
                         # logger.debug(base_row)
@@ -253,9 +254,9 @@ def main_csv():
                                                         
                                         if sub_valid:
                                             sub_global_row, sub_global_col = master_grid.index(sx, sy)
-                                            base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file]
-                                            writer.writerow(base_sub_row)
                                             tms_uri = rfclient.create_tms_uri(scene_id, output_file)
+                                            base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file, tms_uri]
+                                            writer.writerow(base_sub_row)
                                             psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, tms_uri))
 
                         # query cellgrid neighbours
@@ -429,9 +430,9 @@ def main_json():
                             valid_band[season_type][r, c] = True
 
                             global_row, global_col = master_grid.index(x, y)
-                            base_row = [cell_id, scene_id, global_col, global_row, season_type, output_file]
-                            writer.writerow(base_row)
                             tms_uri = rfclient.create_tms_uri(scene_id, output_file)
+                            base_row = [cell_id, scene_id, global_col, global_row, season_type, output_file, tms_uri]
+                            writer.writerow(base_row)
                             psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, tms_uri))
                             
                             # logger.debug(base_row)
@@ -490,9 +491,9 @@ def main_json():
                                                         
                                             if sub_valid:
                                                 sub_global_row, sub_global_col = master_grid.index(sx, sy)
-                                                base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file]
-                                                writer.writerow(base_sub_row)
                                                 tms_uri = rfclient.create_tms_uri(scene_id, output_file)
+                                                base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file, tms_uri]
+                                                writer.writerow(base_sub_row)
                                                 psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, tms_uri))
 
                             for sr in range(sub_start_row, sub_stop_row):
