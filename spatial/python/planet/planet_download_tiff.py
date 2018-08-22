@@ -1,6 +1,6 @@
 from planet_client import PClientV1
 from geo_utils import GeoUtils
-from filter_callable import cloud_shadow_stats_config_old, nodata_stats
+from filter_callable import cloud_shadow_stats_config, nodata_stats
 from fixed_thread_pool_executor import FixedThreadPoolExecutor
 from psql_planet_client import PSQLPClient
 from rf_client import RFClient
@@ -191,7 +191,7 @@ def main_csv():
                                 # it should be sync, to allow async check of neighbours
                                 output_localfile, output_file = pclient.download_localfs_s3(scene_id, season = season_type)
                                 # use custom cloud detection function to calculate clouds and shadows
-                                cloud_perc, shadow_perc = cloud_shadow_stats_config_old(output_localfile, GeoUtils.define_BoundingBox(x, y), cloud_config)
+                                cloud_perc, shadow_perc = cloud_shadow_stats_config(output_localfile, GeoUtils.define_BoundingBox(x, y), cloud_config)
                                 # check if cell grid is good enough
                                 if (cloud_perc <= pclient.max_clouds):
                                     break
@@ -247,7 +247,7 @@ def main_csv():
                                         res = pclient.request_intersecting_scenes(sub_planet_filters)
 
                                         # use custom cloud detection function to calculate clouds and shadows
-                                        sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config_old(output_localfile, GeoUtils.define_BoundingBox(sx, sy), cloud_config)
+                                        sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config(output_localfile, GeoUtils.define_BoundingBox(sx, sy), cloud_config)
                                         # check if cell grid is good enough
                                         if (sub_cloud_perc <= pclient.max_clouds):
                                             # flag to avoid extra lookup into array
@@ -429,7 +429,7 @@ def main_json():
                                     # nodata percentage
                                     nodata_perc = nodata_stats(output_localfile, bbox_local)
                                     # use custom cloud detection function to calculate clouds and shadows
-                                    cloud_perc, shadow_perc = cloud_shadow_stats_config_old(output_localfile, bbox_local, cloud_config)
+                                    cloud_perc, shadow_perc = cloud_shadow_stats_config(output_localfile, bbox_local, cloud_config)
                                     # check if cell grid is good enough
                                     if (cloud_perc <= pclient.max_clouds and nodata_perc <= pclient.max_nodata):
                                         break
@@ -496,7 +496,7 @@ def main_json():
                                             # nodata percentage
                                             sub_nodata_perc = nodata_stats(output_localfile, sub_bbox_local)
                                             # use custom cloud detection function to calculate clouds and shadows
-                                            sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config_old(output_localfile, GeoUtils.define_BoundingBox(sx, sy), cloud_config)
+                                            sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config(output_localfile, GeoUtils.define_BoundingBox(sx, sy), cloud_config)
                                             # check if cell grid is good enough
                                             if (sub_cloud_perc <= pclient.max_clouds and sub_nodata_perc <= pclient.max_nodata):
                                                 # flag to avoid extra lookup into array
