@@ -3,6 +3,7 @@ from geo_utils import GeoUtils
 from filter_callable import cloud_shadow_stats_config_old, nodata_stats
 from fixed_thread_pool_executor import FixedThreadPoolExecutor
 from psql_planet_client import PSQLPClient
+from rf_client import RFClient
 
 from sys import stdout
 from shapely.geometry import shape
@@ -80,6 +81,9 @@ neighbours_executor = FixedThreadPoolExecutor(size = threads_number)
 
 # pclient init
 pclient = PClientV1(api_key, config)
+
+# rfclient init
+rfclient = RFClient(config)
 
 # aoi
 features = geojson.load(open(imagery_config['aoi']))['features']
@@ -200,7 +204,8 @@ def main_csv():
 
                         base_row = [cell_id, scene_id, c, r, season_type, output_file]
                         writer.writerow(base_row)
-                        psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, ''))
+                        tms_uri = rfclient.create_tms_uri(scene_id, output_file)
+                        psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, tms_uri))
                             
                         # logger.debug(base_row)
                         # extent of a polygon to query neighbours
@@ -250,7 +255,8 @@ def main_csv():
                                             sub_global_row, sub_global_col = master_grid.index(sx, sy)
                                             base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file]
                                             writer.writerow(base_sub_row)
-                                            psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, ''))
+                                            tms_uri = rfclient.create_tms_uri(scene_id, output_file)
+                                            psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, tms_uri))
 
                         # query cellgrid neighbours
                         # and walk through all cellgrid neighbours
@@ -425,7 +431,8 @@ def main_json():
                             global_row, global_col = master_grid.index(x, y)
                             base_row = [cell_id, scene_id, global_col, global_row, season_type, output_file]
                             writer.writerow(base_row)
-                            psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, ''))
+                            tms_uri = rfclient.create_tms_uri(scene_id, output_file)
+                            psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, tms_uri))
                             
                             # logger.debug(base_row)
                             # extent of a polygon to query neighbours
@@ -485,8 +492,8 @@ def main_json():
                                                 sub_global_row, sub_global_col = master_grid.index(sx, sy)
                                                 base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file]
                                                 writer.writerow(base_sub_row)
-                                                # logger.info(base_sub_row)
-                                                psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, ''))
+                                                tms_uri = rfclient.create_tms_uri(scene_id, output_file)
+                                                psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, tms_uri))
 
                             for sr in range(sub_start_row, sub_stop_row):
                                 for sc in range(sub_start_col, sub_stop_col):
