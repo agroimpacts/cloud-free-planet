@@ -43,6 +43,6 @@ shadow_val: 2000
 land_val: 1000
 
 [rasterfoundry]
+enabled: False
 api_key: <none>
 api_uri: app.rasterfoundry.com
-
