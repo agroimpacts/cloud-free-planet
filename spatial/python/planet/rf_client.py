@@ -15,6 +15,8 @@ class RFClient():
         imagery_config = config['imagery']
         self.api_key = rf_config['api_key']
         self.api_uri = rf_config['api_uri']
+        self.visibility = rf_config['visibility']
+        self.tileVisibility = rf_config['tileVisibility']
         # it's enabled only in s3 mode and with explicit enabled flag
         self.enabled = json.loads(rf_config['enabled'].lower()) and not json.loads(imagery_config['local_mode'].lower())
         self.logger = logging.getLogger(__name__)
@@ -110,8 +112,8 @@ class RFClient():
 
     def create_scene_project(self, scene_id, scene_uri):
         if self.enabled:
-            new_project = self.create_project("Project {}".format(scene_id))
-            new_scene = self.create_scene(scene_id, scene_uri)
+            new_project = self.create_project("Project {}".format(scene_id), self.visibility, self.tileVisibility)
+            new_scene = self.create_scene(scene_id, scene_uri, self.visibility)
             result = self.add_scenes_to_project([new_scene], new_project)
             return new_scene, Project(new_project, self.api)
 
