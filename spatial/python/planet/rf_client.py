@@ -16,7 +16,7 @@ class RFClient():
         self.api_key = rf_config['api_key']
         self.api_uri = rf_config['api_uri']
         # it's enabled only in s3 mode and with explicit enabled flag
-        self.enabled = json.loads(rf_config['enabled'].lower()) and json.loads(imagery_config['local_mode'].lower())
+        self.enabled = json.loads(rf_config['enabled'].lower()) and not json.loads(imagery_config['local_mode'].lower())
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         if self.enabled:
