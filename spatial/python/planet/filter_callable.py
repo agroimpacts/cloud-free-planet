@@ -209,7 +209,13 @@ def cloud_shadow_stats(in_name, bounds, cloud_val = 1500, object_size_thresh = 2
 
     # bounds in the src crs projection
     # (left, bottom, right, top)
-    transformed_bounds = BoundingBox(*transform_bounds("EPSG:4326", src.crs, *bounds))
+    # double check that bounds belong to image
+    transformed_bounds = GeoUtils.extent_to_BoundingBox(
+        GeoUtils.extent_intersection(
+            GeoUtils.BoundingBox_to_extent(src.bounds),
+            GeoUtils.BoundingBox_to_extent(BoundingBox(*transform_bounds("EPSG:4326", src.crs, *bounds)))
+        )
+    )
 
     # calculate window to read from the input tiff
     actual_window = GeoUtils.bounds_to_windows(transformed_bounds, src)
