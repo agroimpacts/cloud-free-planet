@@ -11,7 +11,7 @@
 #' @importFrom raster ncell
 #' @export
 consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam, 
-                                   user, password, host, qsite = FALSE) {
+                                   host, qsite = FALSE) {
   
   coninfo <- mapper_connect(host = host)
   # prjstr <- as.character(tbl(coninfo$con, "spatial_ref_sys") %>% 
