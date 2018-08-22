@@ -15,7 +15,7 @@ import multiprocessing
 #   global_col INTEGER NULL,
 #   global_row INTEGER NULL,
 #   url VARCHAR(255) NULL,
-#   tms_url VARCHAR(255) NULL,
+#   tms_url TEXT NULL,
 #   PRIMARY KEY(provider, scene_id, cell_id, season)
 # );
 
