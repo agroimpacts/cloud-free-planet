@@ -46,3 +46,5 @@ land_val: 1000
 enabled: False
 api_key: <none>
 api_uri: app.rasterfoundry.com
+visibility: PRIVATE
+tileVisibility: PRIVATE
