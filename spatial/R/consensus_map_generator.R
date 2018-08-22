@@ -7,7 +7,7 @@ diam <- 0.005 / 2 # new master grid diameter
 suppressMessages(library(rmapaccuracy)) # have to load this to get connection
 
 # Input args 
-# kmlid <- "GH0067266" # testlines
+# kmlid <- "GH0075752" # testlines
 # output.riskmap <- FALSE # testlines
 # host <- NULL # testlines
 
