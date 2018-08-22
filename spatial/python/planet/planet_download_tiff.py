@@ -141,135 +141,140 @@ def main_csv():
             ds_start, ds_end = ds_s_band[r, c], ds_e_band[r, c]
             ws_start, ws_end = ws_s_band[r, c], ws_e_band[r, c]
             seasons = [(GS, ws_start, ws_end), (OS, ds_start, ds_end)] # dates ranges for the loop
-            # GS and OS images should be of the same year
-            current_year_start = datetime.today().year
-            current_year_end = current_year_start
+            valid_dates = (ds_start >= 0 and ds_start <= 12) and (ds_end >= 0 and ds_end <= 12) and (ws_start >= 0 and ws_start <= 12) and (ws_end >= 0 and ws_end <= 12)
 
-            logger.info("Processing cell_id {}...".format(cell_id))
-                
-            aoi = GeoUtils.define_aoi(x, y)  # aoi by a cell grid x, y
+            if not valid_dates:
+                logger.info("cell_id {} is not valid (bad dates data, check the AOI you are querying for)".format(cell_id))
+            else: 
+                # GS and OS images should be of the same year
+                current_year_start = datetime.today().year
+                current_year_end = current_year_start
 
-            psql_rows = []
-            for (season_type, m_start, m_end) in seasons:
-                if not valid_cell_grids[season_type][r, c]:
-                    logger.info("Processing season {}...".format(season_type))
+                logger.info("Processing cell_id {}...".format(cell_id))
+                    
+                aoi = GeoUtils.define_aoi(x, y)  # aoi by a cell grid x, y
 
-                    geom = {}
-                    scene_id = ''
-                    output_file = ''
-                    output_localfile = ''
+                psql_rows = []
+                for (season_type, m_start, m_end) in seasons:
+                    if not valid_cell_grids[season_type][r, c]:
+                        logger.info("Processing season {}...".format(season_type))
 
-                    # planet analytic_sr stores imagery starting from 2016 year
-                    years = list(range(2016, current_year_start + 1))
-                    years.reverse()
+                        geom = {}
+                        scene_id = ''
+                        output_file = ''
+                        output_localfile = ''
 
-                    for yr in years:
-                        yr_start = yr
-                        yr_end = yr
+                        # planet analytic_sr stores imagery starting from 2016 year
+                        years = list(range(2016, current_year_start + 1))
+                        years.reverse()
 
-                        if m_start <= m_end:
+                        for yr in years:
                             yr_start = yr
                             yr_end = yr
-                        else:
-                            yr_start = yr - 1
-                            yr_end = yr
 
-                        planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = yr_start), end_date = dt_construct(month = m_end, year = yr_end))
-                        res = pclient.request_intersecting_scenes(planet_filters)
+                            if m_start <= m_end:
+                                yr_start = yr
+                                yr_end = yr
+                            else:
+                                yr_start = yr - 1
+                                yr_end = yr
 
-                        # pick up scene id and its geometry
-                        for item in res.items_iter(pclient.maximgs):
-                            # each item is a GeoJSON feature
-                            geom = shape(geojson.loads(json.dumps(item["geometry"])))
-                            scene_id = item["id"]
-                            # activation & download
-                            # it should be sync, to allow async check of neighbours
-                            output_localfile, output_file = pclient.download_localfs_s3(scene_id, season = season_type)
-                            # use custom cloud detection function to calculate clouds and shadows
-                            cloud_perc, shadow_perc = cloud_shadow_stats_config_old(output_localfile, GeoUtils.define_BoundingBox(x, y), cloud_config)
-                            # check if cell grid is good enough
-                            if (cloud_perc <= pclient.max_clouds):
+                            planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = yr_start), end_date = dt_construct(month = m_end, year = yr_end))
+                            res = pclient.request_intersecting_scenes(planet_filters)
+
+                            # pick up scene id and its geometry
+                            for item in res.items_iter(pclient.maximgs):
+                                # each item is a GeoJSON feature
+                                geom = shape(geojson.loads(json.dumps(item["geometry"])))
+                                scene_id = item["id"]
+                                # activation & download
+                                # it should be sync, to allow async check of neighbours
+                                output_localfile, output_file = pclient.download_localfs_s3(scene_id, season = season_type)
+                                # use custom cloud detection function to calculate clouds and shadows
+                                cloud_perc, shadow_perc = cloud_shadow_stats_config_old(output_localfile, GeoUtils.define_BoundingBox(x, y), cloud_config)
+                                # check if cell grid is good enough
+                                if (cloud_perc <= pclient.max_clouds):
+                                    break
+                                else: 
+                                    scene_id = ''
+
+                            # record success year
+                            if(scene_id != ''):
+                                current_year_start = yr_start
+                                current_year_end = yr_end
                                 break
-                            else: 
-                                scene_id = ''
 
-                        # record success year
+                        # mark the current cell grid as already seen
                         if(scene_id != ''):
-                            current_year_start = yr_start
-                            current_year_end = yr_end
-                            break
+                            valid_cell_grids[season_type][r, c] = True
 
-                    # mark the current cell grid as already seen
-                    if(scene_id != ''):
-                        valid_cell_grids[season_type][r, c] = True
+                            tms_uri = rfclient.create_tms_uri(scene_id, output_file)
+                            base_row = [cell_id, scene_id, c, r, season_type, output_file, tms_uri]
+                            writer.writerow(base_row)
+                            psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, tms_uri))
+                                
+                            # logger.debug(base_row)
+                            # extent of a polygon to query neighbours
+                            # (minx, miny, maxx, maxy)
+                            # geom.bounds
+                            base_ext = GeoUtils.extent_intersection(actual_extent, GeoUtils.polygon_to_extent(geom))
 
-                        tms_uri = rfclient.create_tms_uri(scene_id, output_file)
-                        base_row = [cell_id, scene_id, c, r, season_type, output_file, tms_uri]
-                        writer.writerow(base_row)
-                        psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, tms_uri))
-                            
-                        # logger.debug(base_row)
-                        # extent of a polygon to query neighbours
-                        # (minx, miny, maxx, maxy)
-                        # geom.bounds
-                        base_ext = GeoUtils.extent_intersection(actual_extent, GeoUtils.polygon_to_extent(geom))
+                            def sync(sub_row):
+                                sub_cell_id, sx, sy, sub_name = sub_row.object
 
-                        def sync(sub_row):
-                            sub_cell_id, sx, sy, sub_name = sub_row.object
+                                global_sub_row, global_sub_col = master_grid.index(sx, sy)
 
-                            global_sub_row, global_sub_col = master_grid.index(sx, sy)
+                                # polygon to check would it intersect initial AOI
+                                sub_poly = GeoUtils.define_polygon(sx, sy)
 
-                            # polygon to check would it intersect initial AOI
-                            sub_poly = GeoUtils.define_polygon(sx, sy)
+                                skip_sub_row = valid_cell_grids[season_type][sr, sc]
+                                
+                                if not skip_sub_row:
+                                    # read all metadata
+                                    sub_country_code, sub_country_id = country_code_band[sr, sc], country_id_band[sr, sc]
+                                    sub_ds_start, sub_ds_end = ds_s_band[sr, sc], ds_e_band[sr, sc]
+                                    sub_ws_start, sub_ws_end = ws_s_band[sr, sc], ws_e_band[sr, sc]
+                                    sub_seasons = [(GS, sub_ws_start, sub_ws_end), (OS, sub_ds_start, sub_ds_end)] # dates ranges for the loop
 
-                            skip_sub_row = valid_cell_grids[season_type][sr, sc]
-                            
-                            if not skip_sub_row:
-                                # read all metadata
-                                sub_country_code, sub_country_id = country_code_band[sr, sc], country_id_band[sr, sc]
-                                sub_ds_start, sub_ds_end = ds_s_band[sr, sc], ds_e_band[sr, sc]
-                                sub_ws_start, sub_ws_end = ws_s_band[sr, sc], ws_e_band[sr, sc]
-                                sub_seasons = [(GS, sub_ws_start, sub_ws_end), (OS, sub_ds_start, sub_ds_end)] # dates ranges for the loop
+                                    # neighbours should be in the same period, otherwise we'll try to fetch them later
+                                    if(seasons == sub_seasons):
+                                        logger.info("Processing sub cell_id {}...".format(sub_cell_id))
 
-                                # neighbours should be in the same period, otherwise we'll try to fetch them later
-                                if(seasons == sub_seasons):
-                                    logger.info("Processing sub cell_id {}...".format(sub_cell_id))
+                                        sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
+                                                    
+                                        # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
+                                        sub_planet_filters = pclient.set_filters_sr(sub_aoi, start_date = dt_construct(month = m_start, year = current_year_start), end_date = dt_construct(month = m_end, year = current_year_end), id = scene_id)
+                                        res = pclient.request_intersecting_scenes(sub_planet_filters)
 
-                                    sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
-                                                
-                                    # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
-                                    sub_planet_filters = pclient.set_filters_sr(sub_aoi, start_date = dt_construct(month = m_start, year = current_year_start), end_date = dt_construct(month = m_end, year = current_year_end), id = scene_id)
-                                    res = pclient.request_intersecting_scenes(sub_planet_filters)
+                                        # use custom cloud detection function to calculate clouds and shadows
+                                        sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config_old(output_localfile, GeoUtils.define_BoundingBox(sx, sy), cloud_config)
+                                        # check if cell grid is good enough
+                                        if (sub_cloud_perc <= pclient.max_clouds):
+                                            # flag to avoid extra lookup into array
+                                            sub_valid = False
+                                            # select the only one image as it's the only one
+                                            for item in res.items_iter(1):
+                                                valid_cell_grids[season_type][sr, sc] = True
+                                                sub_valid = True
+                                                            
+                                            if sub_valid:
+                                                sub_global_row, sub_global_col = master_grid.index(sx, sy)
+                                                tms_uri = rfclient.create_tms_uri(scene_id, output_file)
+                                                base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file, tms_uri]
+                                                writer.writerow(base_sub_row)
+                                                psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, tms_uri))
 
-                                    # use custom cloud detection function to calculate clouds and shadows
-                                    sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config_old(output_localfile, GeoUtils.define_BoundingBox(sx, sy), cloud_config)
-                                    # check if cell grid is good enough
-                                    if (sub_cloud_perc <= pclient.max_clouds):
-                                        # flag to avoid extra lookup into array
-                                        sub_valid = False
-                                        # select the only one image as it's the only one
-                                        for item in res.items_iter(1):
-                                            valid_cell_grids[season_type][sr, sc] = True
-                                            sub_valid = True
-                                                        
-                                        if sub_valid:
-                                            sub_global_row, sub_global_col = master_grid.index(sx, sy)
-                                            tms_uri = rfclient.create_tms_uri(scene_id, output_file)
-                                            base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file, tms_uri]
-                                            writer.writerow(base_sub_row)
-                                            psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, tms_uri))
+                            # query cellgrid neighbours
+                            # and walk through all cellgrid neighbours
+                            for sub_row in idx.intersection((base_ext['xmin'], base_ext['ymin'], base_ext['xmax'], base_ext['ymax']), objects = True):
+                                neighbours_executor.submit(sync, sub_row)
 
-                        # query cellgrid neighbours
-                        # and walk through all cellgrid neighbours
-                        for sub_row in idx.intersection((base_ext['xmin'], base_ext['ymin'], base_ext['xmax'], base_ext['ymax']), objects = True):
-                            neighbours_executor.submit(sync, sub_row)
-
-                        # await all neighbours
-                        neighbours_executor.drain()
-                        # await all downloads
-                        pclient.drain()
-                        # insert everything into psql
-                        psqlclient.insert_rows_by_one_async(psql_rows)
+                            # await all neighbours
+                            neighbours_executor.drain()
+                            # await all downloads
+                            pclient.drain()
+                            # insert everything into psql
+                            psqlclient.insert_rows_by_one_async(psql_rows)
 
     # await threadpool to stop
     neighbours_executor.close()
@@ -292,8 +297,14 @@ def main_json():
     ext = GeoUtils.polygon_to_extent(actual_aoi)
 
     if test:
-        ext = GeoUtils.define_extent(30, -2, 0.03) # some test AOI to select a subset of extent from the master_grid.tiff
-        # ext = GeoUtils.define_extent(27.03, -25.98, 0.05)
+        # ext = GeoUtils.define_extent(30, -2, 0.03) # some test AOI to select a subset of extent from the master_grid.tiff
+        ext = GeoUtils.define_extent(27.03, -25.98, 0.05)
+        # ext = {
+        #     "xmin": 27.03,
+        #     "ymin": -25.97,
+        #     "xmax": 27.08,
+        #     "ymax": -25.99
+        # }
     
     # 1. Cell ID: this should be unique for the whole raster
     # 2. Country code: integerized country code
@@ -363,152 +374,158 @@ def main_json():
                 ds_start, ds_end = ds_s_band[r, c], ds_e_band[r, c]
                 ws_start, ws_end = ws_s_band[r, c], ws_e_band[r, c]
                 seasons = [(GS, ws_start, ws_end), (OS, ds_start, ds_end)] # dates ranges for the loop
-                # GS and OS images should be of the same year
-                current_year_start = datetime.today().year
-                current_year_end = current_year_start
+                # check if dates are months, the only way to check data
+                valid_dates = (ds_start >= 0 and ds_start <= 12) and (ds_end >= 0 and ds_end <= 12) and (ws_start >= 0 and ws_start <= 12) and (ws_end >= 0 and ws_end <= 12)
 
-                logger.info("Processing cell_id {}...".format(cell_id))
-                
-                aoi = GeoUtils.define_aoi(x, y)  # aoi by a cell grid x, y
+                if not valid_dates:
+                    logger.info("cell_id {} is not valid (bad dates data, check the AOI you are querying for)".format(cell_id))
+                else:
+                    # GS and OS images should be of the same year
+                    current_year_start = datetime.today().year
+                    current_year_end = current_year_start
 
-                psql_rows = []
-                for (season_type, m_start, m_end) in seasons:
-                    if not valid_band[season_type][r, c]:
-                        logger.info("Processing season {}...".format(season_type))
+                    logger.info("Processing cell_id {}...".format(cell_id))
+                    
+                    aoi = GeoUtils.define_aoi(x, y)  # aoi by a cell grid x, y
 
-                        geom = {}
-                        scene_id = ''
-                        output_file = ''
-                        output_localfile = ''
+                    psql_rows = []
+                    for (season_type, m_start, m_end) in seasons:
+                        if not valid_band[season_type][r, c]:
+                            logger.info("Processing season {}...".format(season_type))
 
-                        # planet analytic_sr stores imagery starting from 2016 year
-                        years = list(range(2016, current_year_start + 1))
-                        years.reverse()
+                            geom = {}
+                            scene_id = ''
+                            output_file = ''
+                            output_localfile = ''
 
-                        for yr in years:
-                            yr_start = yr
-                            yr_end = yr
+                            # planet analytic_sr stores imagery starting from 2016 year
+                            years = list(range(2016, current_year_start + 1))
+                            years.reverse()
 
-                            if m_start <= m_end:
+                            for yr in years:
                                 yr_start = yr
                                 yr_end = yr
-                            else:
-                                yr_start = yr - 1
-                                yr_end = yr
 
-                            planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = yr_start), end_date = dt_construct(month = m_end, year = yr_end))
-                            res = pclient.request_intersecting_scenes(planet_filters)
+                                if m_start <= m_end:
+                                    yr_start = yr
+                                    yr_end = yr
+                                else:
+                                    yr_start = yr - 1
+                                    yr_end = yr
 
-                            # pick up scene id and its geometry
-                            for item in res.items_iter(pclient.maximgs):
-                                # each item is a GeoJSON feature
-                                geom = shape(geojson.loads(json.dumps(item["geometry"])))
-                                scene_id = item["id"]
-                                # activation & download
-                                # it should be sync, to allow async check of neighbours
-                                output_localfile, output_file = pclient.download_localfs_s3(scene_id, season = season_type)
+                                planet_filters = pclient.set_filters_sr(aoi, start_date = dt_construct(month = m_start, year = yr_start), end_date = dt_construct(month = m_end, year = yr_end))
+                                res = pclient.request_intersecting_scenes(planet_filters)
 
-                                bbox_local = GeoUtils.define_BoundingBox(x, y)
-                                # nodata percentage
-                                nodata_perc = nodata_stats(output_localfile, bbox_local)
-                                # use custom cloud detection function to calculate clouds and shadows
-                                cloud_perc, shadow_perc = cloud_shadow_stats_config_old(output_localfile, bbox_local, cloud_config)
-                                # check if cell grid is good enough
-                                if (cloud_perc <= pclient.max_clouds and nodata_perc <= pclient.max_nodata):
+                                # pick up scene id and its geometry
+                                for item in res.items_iter(pclient.maximgs):
+                                    # each item is a GeoJSON feature
+                                    geom = shape(geojson.loads(json.dumps(item["geometry"])))
+                                    scene_id = item["id"]
+                                    # activation & download
+                                    # it should be sync, to allow async check of neighbours
+                                    output_localfile, output_file = pclient.download_localfs_s3(scene_id, season = season_type)
+
+                                    bbox_local = GeoUtils.define_BoundingBox(x, y)
+                                    # nodata percentage
+                                    nodata_perc = nodata_stats(output_localfile, bbox_local)
+                                    # use custom cloud detection function to calculate clouds and shadows
+                                    cloud_perc, shadow_perc = cloud_shadow_stats_config_old(output_localfile, bbox_local, cloud_config)
+                                    # check if cell grid is good enough
+                                    if (cloud_perc <= pclient.max_clouds and nodata_perc <= pclient.max_nodata):
+                                        break
+                                    else: 
+                                        scene_id = ''
+
+                                # record success year
+                                if(scene_id != ''):
+                                    current_year_start = yr_start
+                                    current_year_end = yr_end
                                     break
-                                else: 
-                                    scene_id = ''
 
-                            # record success year
+                            # mark the current cell grid as already seen
                             if(scene_id != ''):
-                                current_year_start = yr_start
-                                current_year_end = yr_end
-                                break
+                                valid_band[season_type][r, c] = True
 
-                        # mark the current cell grid as already seen
-                        if(scene_id != ''):
-                            valid_band[season_type][r, c] = True
+                                global_row, global_col = master_grid.index(x, y)
+                                tms_uri = rfclient.create_tms_uri(scene_id, output_file)
+                                base_row = [cell_id, scene_id, global_col, global_row, season_type, output_file, tms_uri]
+                                writer.writerow(base_row)
+                                psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, tms_uri))
+                                
+                                # logger.debug(base_row)
+                                # extent of a polygon to query neighbours
+                                # (minx, miny, maxx, maxy)
+                                # geom.bounds
+                                base_ext = GeoUtils.extent_intersection(actual_extent, GeoUtils.polygon_to_extent(geom))
+                                
+                                # walk through all cellgrid neighbours
+                                # get all row, cals intersection by  
+                                ((sub_start_row, sub_stop_row), (sub_start_col, sub_stop_col)) = GeoUtils.extent_to_windows(base_ext, actual_transform)
 
-                            global_row, global_col = master_grid.index(x, y)
-                            tms_uri = rfclient.create_tms_uri(scene_id, output_file)
-                            base_row = [cell_id, scene_id, global_col, global_row, season_type, output_file, tms_uri]
-                            writer.writerow(base_row)
-                            psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, tms_uri))
-                            
-                            # logger.debug(base_row)
-                            # extent of a polygon to query neighbours
-                            # (minx, miny, maxx, maxy)
-                            # geom.bounds
-                            base_ext = GeoUtils.extent_intersection(actual_extent, GeoUtils.polygon_to_extent(geom))
-                            
-                            # walk through all cellgrid neighbours
-                            # get all row, cals intersection by  
-                            ((sub_start_row, sub_stop_row), (sub_start_col, sub_stop_col)) = GeoUtils.extent_to_windows(base_ext, actual_transform)
+                                # logger.info(range(sub_start_row, sub_stop_row))
+                                # logger.info(range(sub_start_col, sub_stop_col))
 
-                            # logger.info(range(sub_start_row, sub_stop_row))
-                            # logger.info(range(sub_start_col, sub_stop_col))
+                                def sync(sr, sc):
+                                    # sub centroid
+                                    sx, sy = transform.xy(actual_transform, sr, sc)
 
-                            def sync(sr, sc):
-                                # sub centroid
-                                sx, sy = transform.xy(actual_transform, sr, sc)
+                                    # polygon to check would it intersect initial AOI
+                                    sub_poly = GeoUtils.define_polygon(sx, sy)
 
-                                # polygon to check would it intersect initial AOI
-                                sub_poly = GeoUtils.define_polygon(sx, sy)
+                                    skip_sub_row = valid_band[season_type][sr, sc] & (actual_aoi.intersects(sub_poly) | test)
 
-                                skip_sub_row = valid_band[season_type][sr, sc] & (actual_aoi.intersects(sub_poly) | test)
+                                    if not skip_sub_row:
+                                        # read all metadata
+                                        sub_cell_id = cell_id_band[sr, sc]
+                                        sub_country_code, sub_country_id = country_code_band[sr, sc], country_id_band[sr, sc]
+                                        sub_ds_start, sub_ds_end = ds_s_band[sr, sc], ds_e_band[sr, sc]
+                                        sub_ws_start, sub_ws_end = ws_s_band[sr, sc], ws_e_band[sr, sc]
+                                        sub_seasons = [(GS, sub_ws_start, sub_ws_end), (OS, sub_ds_start, sub_ds_end)] # dates ranges for the loop
 
-                                if not skip_sub_row:
-                                    # read all metadata
-                                    sub_cell_id = cell_id_band[sr, sc]
-                                    sub_country_code, sub_country_id = country_code_band[sr, sc], country_id_band[sr, sc]
-                                    sub_ds_start, sub_ds_end = ds_s_band[sr, sc], ds_e_band[sr, sc]
-                                    sub_ws_start, sub_ws_end = ws_s_band[sr, sc], ws_e_band[sr, sc]
-                                    sub_seasons = [(GS, sub_ws_start, sub_ws_end), (OS, sub_ds_start, sub_ds_end)] # dates ranges for the loop
+                                        # neighbours should be in the same period, otherwise we'll try to fetch them later
+                                        if(seasons == sub_seasons):
+                                            logger.info("Processing sub cell_id {}...".format(sub_cell_id))
 
-                                    # neighbours should be in the same period, otherwise we'll try to fetch them later
-                                    if(seasons == sub_seasons):
-                                        logger.info("Processing sub cell_id {}...".format(sub_cell_id))
+                                            sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
+                                                    
+                                            # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
+                                            sub_planet_filters = pclient.set_filters_sr(sub_aoi, start_date = dt_construct(month = m_start, year = current_year_start), end_date = dt_construct(month = m_end, year = current_year_end), id = scene_id)
+                                            res = pclient.request_intersecting_scenes(sub_planet_filters)
+                                            
+                                            sub_bbox_local = GeoUtils.define_BoundingBox(sx, sy)
+                                            # nodata percentage
+                                            sub_nodata_perc = nodata_stats(output_localfile, sub_bbox_local)
+                                            # use custom cloud detection function to calculate clouds and shadows
+                                            sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config_old(output_localfile, GeoUtils.define_BoundingBox(sx, sy), cloud_config)
+                                            # check if cell grid is good enough
+                                            if (sub_cloud_perc <= pclient.max_clouds and sub_nodata_perc <= pclient.max_nodata):
+                                                # flag to avoid extra lookup into array
+                                                sub_valid = False
+                                                # select the only one image as it's the only one
+                                                for item in res.items_iter(1):
+                                                    valid_band[season_type][sr, sc] = True
+                                                    sub_valid = True
+                                                            
+                                                if sub_valid:
+                                                    sub_global_row, sub_global_col = master_grid.index(sx, sy)
+                                                    tms_uri = rfclient.create_tms_uri(scene_id, output_file)
+                                                    base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file, tms_uri]
+                                                    writer.writerow(base_sub_row)
+                                                    psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, tms_uri))
 
-                                        sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
-                                                
-                                        # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
-                                        sub_planet_filters = pclient.set_filters_sr(sub_aoi, start_date = dt_construct(month = m_start, year = current_year_start), end_date = dt_construct(month = m_end, year = current_year_end), id = scene_id)
-                                        res = pclient.request_intersecting_scenes(sub_planet_filters)
-                                        
-                                        sub_bbox_local = GeoUtils.define_BoundingBox(sx, sy)
-                                        # nodata percentage
-                                        sub_nodata_perc = nodata_stats(output_localfile, sub_bbox_local)
-                                        # use custom cloud detection function to calculate clouds and shadows
-                                        sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config_old(output_localfile, GeoUtils.define_BoundingBox(sx, sy), cloud_config)
-                                        # check if cell grid is good enough
-                                        if (sub_cloud_perc <= pclient.max_clouds and sub_nodata_perc <= pclient.max_nodata):
-                                            # flag to avoid extra lookup into array
-                                            sub_valid = False
-                                            # select the only one image as it's the only one
-                                            for item in res.items_iter(1):
-                                                valid_band[season_type][sr, sc] = True
-                                                sub_valid = True
-                                                        
-                                            if sub_valid:
-                                                sub_global_row, sub_global_col = master_grid.index(sx, sy)
-                                                tms_uri = rfclient.create_tms_uri(scene_id, output_file)
-                                                base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file, tms_uri]
-                                                writer.writerow(base_sub_row)
-                                                psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, tms_uri))
+                                for sr in range(sub_start_row, sub_stop_row):
+                                    for sc in range(sub_start_col, sub_stop_col):
+                                        neighbours_executor.submit(sync, sr, sc)
+                                
+                                # await all neighbours
+                                neighbours_executor.drain()
+                                # await all downloads
+                                pclient.drain()
+                                # insert everything into psql
+                                psqlclient.insert_rows_by_one_async(psql_rows)
 
-                            for sr in range(sub_start_row, sub_stop_row):
-                                for sc in range(sub_start_col, sub_stop_col):
-                                    neighbours_executor.submit(sync, sr, sc)
-                            
-                            # await all neighbours
-                            neighbours_executor.drain()
-                            # await all downloads
-                            pclient.drain()
-                            # insert everything into psql
-                            psqlclient.insert_rows_by_one_async(psql_rows)
-
-                        # base_row = [cell_id, scene_id, season_type, ""]
-                        # writer.writerow(base_row)
+                            # base_row = [cell_id, scene_id, season_type, ""]
+                            # writer.writerow(base_row)
 
     # await threadpool to stop
     neighbours_executor.close()
