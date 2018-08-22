@@ -14,7 +14,7 @@ import boto3
 import boto3.session
 
 # the below is for debugging under SuYe's project root
-# mapc = MappingCommon(projectRoot='/home/sye/github/mapperAL/')
+# mapc = MappingCommon(projectRoot='/home/sye/mapper/')
 # mapc = MappingCommon('/media/su/DataFactory/MappingAfrica/mapper')
 
 mapc = MappingCommon()
@@ -63,6 +63,7 @@ while True:
     index_iteration = 2
     index_usage = 3
     index_iteration_time = 4
+    
 
     # check if any new incoming kmls that is not processed
     if n_notprocessed != 0:
@@ -77,7 +78,7 @@ while True:
                     first[index_iteration] == rest[index_iteration] for rest in
                     it) == False):
                     mapc.createAlertIssue("Iterations of F kmls are not identical", 
-                                          "generateConsensus: runs or "
+                                          "generateConsensusDaemon: runs or "
                                           "iterations of incoming F kmls "
                                           "for iteration_%s "
                                           "are not identical"
@@ -98,7 +99,7 @@ while True:
         if first[index_iteration] != iteration_counter and first[
             index_iteration] - iteration_counter != 1:
            mapc.createAlertIssue("Iterations of cvml and mapper are not idential",
-                                 "generateConsensus: cvml outputs "
+                                 "generateConsensusDaemon: cvml outputs "
                                  "iterations_%s, but generate_consensus_daemon "
                                  "is awaiting for iterations_%s"
                                  % (first[index_iteration], iteration_counter+1
@@ -108,7 +109,7 @@ while True:
         # for this processing time
         n_processed = 0
 
-        for i in range(0, n_notprocessed - 1):
+        for i in range(n_notprocessed):
 
             mapc.cur.execute("SELECT name, mapped_count, mappers_needed " 
                              "FROM kml_data WHERE kml_type = '%s' and name = '%s'"
@@ -120,10 +121,10 @@ while True:
             # check if kml has been succussfully retrieved from kml_data
             if len(kmldata_row) == 0:
                  mapc.createAlertIssue("Consensus generation fails",
-                                       "generateConsensus: fail to retrieve "
+                                       "generateConsensusDaemon: fail to retrieve "
                                        "kml %s in the kml_data table"
                                            % fkml_row[i][index_name])
-
+                                           
             # check if not processed kmls has enough mappers
             if kmldata_row[0][index_mappersneeded] is not None and kmldata_row[
                 0][index_mappedcount] == kmldata_row[0][index_mappersneeded]:
@@ -148,7 +149,7 @@ while True:
 
                 except psycopg2.InternalError as e:
                     mapc.createAlertIssue("Database error",
-                                          "generateConsensus: kml %s internal "
+                                          "generateConsensusDaemon: kml %s internal "
                                           "database error %s\n%s" %
                                           (kmldata_row[0][index_name],
                                            e.pgcode, e.pgerror))
@@ -199,26 +200,30 @@ while True:
 
             # wake up cvml
             if os.system('python '+ mapc.projectRoot + '/terraform/run_cvml.py'):
-                k.write("\ngenerateConsensus: the iteration_%s cvml starts "
-                        "off...\n"
+                k.write("\ngenerateConsensus: the iteration_%s triggering cvml "
+                        "succeed\n"
                         % iteration_counter)
             else:
-                mapc.createAlertIssue("\ngenerateConsensus: the iteration_%s "
+                mapc.createAlertIssue("Fail to trigger cvml",
+                                      "\ngenerateConsensusDaemon: the iteration_%s "
                                       "fails in waking up cvml\n" %
                                       iteration_counter)
+                k.write("\ngenerateConsensus: fail to trigger cvml\n")
                 break
 
             # call register_f_sites to generate F sites for the next
             # iteration
             if os.system('python register_f_sites.py'):
                 k.write("\ngenerateConsensus: the iteration_%s register_f_sites "
-                        "starts off...\n"
+                        "succeed\n"
                         % iteration_counter)
             else:
                 mapc.createAlertIssue("f sites generation fails",
                                       "generateConsensus: the iteration_%s "
                                       "register_f_sites fails" %
                                       iteration_counter)
+                k.write("\ngenerateConsensus: fail to trigger cvml\n"
+                        % iteration_counter)
                 break
 
 
