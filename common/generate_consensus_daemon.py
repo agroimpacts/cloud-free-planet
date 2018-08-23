@@ -59,6 +59,7 @@ while True:
                      "WHERE processed = false and usage = 'train'") 
                      
     fkml_row = mapc.cur.fetchall()
+    mapc.dbcon.commit();
     n_notprocessed = len(fkml_row)
     index_name = 0
     index_run = 1
@@ -117,6 +118,7 @@ while True:
                              "FROM kml_data WHERE kml_type = '%s' and name = '%s'"
                              %(mapc.KmlFQAQC, fkml_row[i][index_name]))
             kmldata_row = mapc.cur.fetchall()
+            mapc.dbcon.commit();
             index_mappedcount = 1
             index_mappersneeded = 2
 
@@ -170,6 +172,7 @@ while True:
             # output incoming_names to csv table
             mapc.cur.execute("""SELECT * From incoming_names """)
             incoming_rows = mapc.cur.fetchall()
+            mapc.dbcon.commit();
 
             fieldnames = ['name', 'run', 'iteration', 'processed', 'usage']
 

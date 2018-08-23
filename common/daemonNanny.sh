@@ -30,7 +30,7 @@ createIssue() {
 
 if [ ! -x "$COMMAND" ]; then
     echo "`date`: $COMMAND does not exist or is not executable"
-    SUBJECT="Daemon nanny cannot start non-existent or non-executable daemon"
+    SUBJECT="Daemon nanny cannot start non-existent or non-executable $PROGRAM daemon"
     alertBody=`/bin/cat <<EOF
 $SUBJECT
 
@@ -84,7 +84,7 @@ if [[ $restart -eq 1 ]]; then
             varArray[1]=0
             varArray[2]=0
             echo "`date`: Failed to restart $PROGRAM"
-            SUBJECT="Daemon nanny has failed to restart a daemon"
+            SUBJECT="Daemon nanny has failed to restart $PROGRAM daemon"
             alertBody=`/bin/cat <<EOF
 $SUBJECT
 
@@ -106,7 +106,7 @@ EOF`
             varArray[0]=0
             varArray[2]=0
             echo "`date`: $PROGRAM restarted"
-            SUBJECT="Daemon nanny has restarted a daemon"
+            SUBJECT="Daemon nanny has restarted $PROGRAM daemon"
             alertBody=`/bin/cat <<EOF
 $SUBJECT
 
