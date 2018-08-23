@@ -13,7 +13,9 @@ kmls.zip
 .vscode
 spatial/python/planet/catalog/*.tif*
 spatial/python/planet/catalog/*/*.tif*
+spatial/python/planet/catalog/*/*/*.tif*
 spatial/python/planet/*csv
+spatial/python/planet/*/*csv
 spatial/python/planet/*.ini
 spatial/python/planet/*/*.ini
 spatial/python/planet/master_grid.tif
