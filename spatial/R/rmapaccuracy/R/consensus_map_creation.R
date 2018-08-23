@@ -11,7 +11,7 @@
 #' @importFrom raster ncell
 #' @export
 consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam, 
-                                   user, password, host, qsite = FALSE) {
+                                   host, qsite = FALSE) {
   
   coninfo <- mapper_connect(host = host)
   # prjstr <- as.character(tbl(coninfo$con, "spatial_ref_sys") %>% 
@@ -339,7 +339,7 @@ consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam,
   
   bucketname <- unlist(strsplit(s3.dst.train, '/'))[1]
   
-  # s3.dst <- paste0("activemapper/sources/train/")  
+  # s3.dst <- paste0(":activemapper/sources/train/")  
   s3.filename <- paste0(kmlid, '_', rowcol[1, 'col'], '_', rowcol[1, 'row'])
   s3_upload(coninfo$dinfo["project_root"], bucketname, 
             bayesoutput$labelmap, 
