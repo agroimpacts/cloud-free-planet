@@ -1,10 +1,12 @@
 FROM ubuntu:latest
 
 RUN apt-get update \
-  && apt-get install -y python3-pip python3-dev libspatialindex-dev \
+  && apt-get install -y python3-pip python3-dev libspatialindex-dev ca-certificates \
   && cd /usr/local/bin \
   && ln -s /usr/bin/python3 python \
   && pip3 install --upgrade pip
+
+ENV CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
 COPY ./* /opt/planet/
 
