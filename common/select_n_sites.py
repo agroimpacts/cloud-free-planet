@@ -68,6 +68,7 @@ while True:
     # Get the anchor of loading data
     mapc.cur.execute("select value from system_data where key = 'firstAvailLine';")
     first_avail_line = int(mapc.cur.fetchone()[0])
+    mapc.dbcon.commit()
 
     # Select new grid cells for conversion to kmls if N unmapped < min_avail_kml
     if avail_kml_count < min_avail_kml:
