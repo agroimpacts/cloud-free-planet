@@ -4,8 +4,8 @@
 \alias{consensus_map_creation}
 \title{Control the output of label maps, risk maps, and heat maps}
 \usage{
-consensus_map_creation(kmlid, kml.usage, output.riskmap, diam, user, password,
-  host, qsite = FALSE)
+consensus_map_creation(kmlid, kml.usage, output.riskmap, diam, host,
+  qsite = FALSE)
 }
 \arguments{
 \item{kmlid}{}
