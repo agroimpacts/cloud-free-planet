@@ -341,14 +341,14 @@ consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam,
   
   # s3.dst <- paste0("activemapper/sources/train/")  
   s3.filename <- paste0(kmlid, '_', rowcol[1, 'col'], '_', rowcol[1, 'row'])
-  s3_upload(coninfo$dinfo["project.root"], bucketname, 
+  s3_upload(coninfo$dinfo["project_root"], bucketname, 
             bayesoutput$labelmap, 
             substr(s3.dst.train, nchar(bucketname) + 1, nchar(s3.dst.train)),
             s3.filename)
   
   if(output.riskmap == TRUE) { 
     s3.filename <- paste(kmlid + "_risk")
-    s3_upload(coninfo$dinfo["project.root"], bucketname, 
+    s3_upload(coninfo$dinfo["project_root"], bucketname, 
               bayesoutput$riskmap, 
               substr(s3.dst.train, nchar(bucketname) + 1, nchar(s3.dst.train)),
               s3.filename)
