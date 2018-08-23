@@ -211,7 +211,7 @@ def main_csv():
                             tms_uri = rfclient.create_tms_uri(scene_id, output_file)
                             base_row = [cell_id, scene_id, c, r, season_type, output_file, tms_uri]
                             writer.writerow(base_row)
-                            psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, tms_uri))
+                            psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(c), str(r), output_file, tms_uri))
                                 
                             # logger.debug(base_row)
                             # extent of a polygon to query neighbours
