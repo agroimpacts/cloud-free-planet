@@ -41,6 +41,7 @@ while True:
         order by completion_time""", 
         (MappingCommon.HITAssigned, hitDuration,))
     assignments = mapc.cur.fetchall()
+    mapc.dbcon.commit()
 
     # If none then there's nothing to do for this polling cycle.
     timestamp = False
@@ -85,6 +86,7 @@ while True:
         order by completion_time""", 
         (MappingCommon.HITPending, hitPendingAssignLimit,))
     assignments = mapc.cur.fetchall()
+    mapc.dbcon.commit()
 
     # If none then there's nothing to do for this polling cycle.
     if len(assignments) > 0:
