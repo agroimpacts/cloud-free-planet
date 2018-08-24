@@ -48,14 +48,17 @@ while True:
     # Query polling interval
     mapc.cur.execute("select value from configuration where key = 'KMLPollingInterval';")
     kml_polling_interval = int(mapc.cur.fetchone()[0])
+    mapc.dbcon.commit()
 
     # Target batch size: should be at least 500
     mapc.cur.execute("select value from configuration where key = 'NKMLBatchSize';")
     kml_batch_size = int(mapc.cur.fetchone()[0])
+    mapc.dbcon.commit()
 
     # how many unmapped kmls should there be, at a minimum
     mapc.cur.execute("select value from configuration where key = 'MinAvailNKMLTarget';")
     min_avail_kml = int(mapc.cur.fetchone()[0])
+    mapc.dbcon.commit()
 
     # how many unmapped kmls are there?
     mapc.cur.execute(
@@ -64,10 +67,12 @@ while True:
         "and delete_time is null) and (kml_type = 'N' or kml_type = 'F') "
         "and mapped_count = 0")
     avail_kml_count = int(mapc.cur.fetchone()[0])
+    mapc.dbcon.commit()
 
     # Get the anchor of loading data
     mapc.cur.execute("select value from system_data where key = 'firstAvailLine';")
     first_avail_line = int(mapc.cur.fetchone()[0])
+    mapc.dbcon.commit()
 
     # Select new grid cells for conversion to kmls if N unmapped < min_avail_kml
     if avail_kml_count < min_avail_kml:
@@ -78,6 +83,7 @@ while True:
                          str(first_avail_line + kml_batch_size - 1) +
                          " and fwts >= " + str(fwt))
         xy_tabs = mapc.cur.fetchall()
+        mapc.dbcon.commit()
 
         try:
             # Step 2. Update database tables
