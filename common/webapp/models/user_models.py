@@ -44,6 +44,8 @@ class User(db.Model, UserMixin):
 
     roles = db.relationship('Role', secondary='users_roles',
                             backref=db.backref('users', lazy='dynamic'))
+    # Default the session length to 1 hour.
+    sessionLifetime = 3600
 
 # Define the Role data model
 class Role(db.Model):
