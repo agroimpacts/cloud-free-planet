@@ -16,6 +16,7 @@ AFMAP_HOME=`basename $HOME`
 CREATEHIT=`pgrep -f /home/${AFMAP_HOME}*.*create_hit_daemon.py`
 CLEANUP=`pgrep -f /home/${AFMAP_HOME}*.*cleanup_absent_worker.py`
 KMLGENERATE=`pgrep -f /home/${AFMAP_HOME}*.*select_n_sites.py`
+GENERATECONSENSUS=`pgrep -f /home/${AFMAP_HOME}*.*generate_consensus_daemon.py`
 
 if [ -n "$CREATEHIT" ]; then
     echo "create_hit_daemon.py PID on $AFMAP_HOME: $CREATEHIT"
@@ -37,6 +38,13 @@ if [ -n "$KMLGENERATE" ]; then
     kill $KMLGENERATE
 else
     echo "select_n_sites.py not running"
+fi
+if [ -n "$GENERATECONSENSUS" ]; then
+    echo "generate_consensus_daemon.py PID on $AFMAP_HOME: $GENERATECONSENSUS"
+    echo "kill $GENERATECONSENSUS"
+    kill $GENERATECONSENSUS
+else
+    echo "generate_consensus_daemon.py not running"
 fi
 
 
