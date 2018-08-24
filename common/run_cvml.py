@@ -2,15 +2,15 @@
 # terraform binary must be callable from shell
 import os
 from MappingCommon import MappingCommon
-
+import subprocess
 
 def main():
     # sets up .terraform/
     mapc = MappingCommon()
     os.chdir(mapc.projectRoot + "/terraform")
-    os.system(mapc.projectRoot + "/terraform/terraform init")
+    subprocess.Popen(mapc.projectRoot + "/terraform/terraform init", shell=True).wait()
     # starts cvml cluster and a single iteration
-    os.system(mapc.projectRoot + "/terraform/terraform apply -auto-approve")
+    subprocess.Popen(mapc.projectRoot + "/terraform/terraform apply -auto-approve", shell=True).wait()
     return True
 
 
