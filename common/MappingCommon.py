@@ -133,17 +133,27 @@ class MappingCommon(object):
     def getConfiguration(self, key):
         self.cur.execute("select value from configuration where key = '%s'" % key)
         try:
-            return self.cur.fetchone()[0]
+            value = self.cur.fetchone()[0]
         except TypeError as e:
             if str(e).startswith("'NoneType'"):
-                return None
+                value = None
             else:
                 raise
+        self.dbcon.commit();
+        return value
 
     # Retrieve a runtime parameter from the system_data table.
     def getSystemData(self, key):
         self.cur.execute("select value from system_data where key = '%s'" % key)
-        return self.cur.fetchone()[0]
+        try:
+            value = self.cur.fetchone()[0]
+        except TypeError as e:
+            if str(e).startswith("'NoneType'"):
+                value = None
+            else:
+                raise
+        self.dbcon.commit();
+        return value
 
     # Set a runtime parameter in the system_data table.
     def setSystemData(self, key, value):
@@ -165,12 +175,14 @@ class MappingCommon(object):
     def querySingleValue(self, sql):
         self.cur.execute(sql)
         try:
-            return self.cur.fetchone()[0]
+            value = self.cur.fetchone()[0]
         except TypeError as e:
             if str(e).startswith("'NoneType'"):
-                return None
+                value = None
             else:
                 raise
+        self.dbcon.commit();
+        return value
 
     # Retrieve the KML type and its description for a  given KML name.
     def getKmlType(self, kmlName):
@@ -363,6 +375,7 @@ class MappingCommon(object):
             mappedCount = None
             fwts = None
             gid = None
+        self.dbcon.commit()
         return kmlName, mappedCount, fwts, gid
 
     # Return a HIT type based on specified probablilties.
@@ -586,10 +599,7 @@ class MappingCommon(object):
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         elif kmlType == MappingCommon.KmlQAQC:
             # Note: "None" must be passed as a string here.
-            # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None"],
-            # Replace the 2 instances of "dmcr" in the next line with your user name.
-            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None", "dmcr", "/home/dmcr/mapper"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         else:
             assert False

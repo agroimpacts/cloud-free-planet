@@ -39,6 +39,7 @@ def main():
     # Randomly get n_f F sites of Ghana from f sites pool as initial F sites
     mapc.cur.execute("select setseed(0.5); select name from master_grid where avail = 'F' ORDER BY RANDOM() limit {}".format(n_f))
     names_f = mapc.cur.fetchall()
+    mapc.dbcon.commit()
 
     # Split all into holdout, validate and train.
     random.seed(10)
