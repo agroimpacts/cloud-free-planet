@@ -153,4 +153,14 @@ f <- "../data/processed/individual_sites_needing_images.csv"
 if(!file.exists(f)) fwrite(qfn_ids, file = f, row.names = FALSE)
 ```
 
+## Write out set of Q sites for testing
+```{r, eval = FALSE}
+setwd("..")
+f <- "data/processed/individual_sites_needing_images.csv"
+data.table::fread(f)
+```
+
+
+
+
 
