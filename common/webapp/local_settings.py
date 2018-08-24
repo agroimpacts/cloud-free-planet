@@ -13,7 +13,7 @@ DEBUG = params['mapper']['DEBUG']
 # DO NOT use Unsecure Secrets in production environments
 # Generate a safe one with:
 #     python -c "import os; print repr(os.urandom(24));"
-SECRET_KEY = 'This is an UNSECURE Secret. CHANGE THIS for production environments.'
+SECRET_KEY = params['mapper']['SECRET_KEY']
 
 # SQLAlchemy settings
 db_production_name = params['mapper']['db_production_name']
