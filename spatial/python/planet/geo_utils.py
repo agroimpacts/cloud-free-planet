@@ -6,10 +6,8 @@ from shapely.geometry import box
 class GeoUtils():
     @classmethod
     def window_transform(self, window_min, window_max):
-        start_row = min(window_min[0], window_max[0])
-        stop_row = max(window_min[0], window_max[0])
-        start_col = min(window_min[1], window_max[1])
-        stop_col = max(window_min[1], window_max[1])
+        start_row, stop_row = sorted([window_min[0], window_max[0]])
+        start_col, stop_col = sorted([window_min[1], window_max[1]])
         return ((start_row, stop_row), (start_col, stop_col))
 
     @classmethod

@@ -47,12 +47,14 @@ def main():
     # how many new incoming names so far
     mapc.cur.execute("select count(*) from incoming_names where processed = false")
     count_incoming_names = int(mapc.cur.fetchone()[0])
+    mapc.dbcon.commit()
 
     # Add the incoming names from cvml
     if count_incoming_names > 0:
         # Step 1. Get the new incoming names
         mapc.cur.execute("select name from incoming_names where processed = false")
         rows = mapc.cur.fetchall()
+        mapc.dbcon.commit()
         incoming_names = ', '.join("'{}'".format(row[0]) for row in rows)
 
         try:

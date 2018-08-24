@@ -7,3 +7,4 @@ SHELL=/bin/bash
 0,5,10,15,20,25,30,35,40,45,50,55 * * * * /home/${USER}/mapper/common/daemonNanny.sh /home/${USER}/mapper/common/create_hit_daemon.py >>/home/${USER}/mapper/log/daemonNanny.log
 0,5,10,15,20,25,30,35,40,45,50,55 * * * * /home/${USER}/mapper/common/daemonNanny.sh /home/${USER}/mapper/common/cleanup_absent_worker.py >>/home/${USER}/mapper/log/daemonNanny.log
 0,5,10,15,20,25,30,35,40,45,50,55 * * * * /home/${USER}/mapper/common/daemonNanny.sh /home/${USER}/mapper/common/select_n_sites.py >>/home/${USER}/mapper/log/daemonNanny.log
+0,5,10,15,20,25,30,35,40,45,50,55 * * * * /home/${USER}/mapper/common/daemonNanny.sh /home/${USER}/mapper/common/generate_consensus_daemon.py >>/home/${USER}/mapper/log/daemonNanny.log

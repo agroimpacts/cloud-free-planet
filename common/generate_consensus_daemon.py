@@ -12,6 +12,8 @@ import os
 import csv
 import boto3
 import boto3.session
+import run_cvml
+import register_f_sites
 
 # the below is for debugging under SuYe's project root
 # mapc = MappingCommon(projectRoot='/home/sye/mapper/')
@@ -57,6 +59,7 @@ while True:
                      "WHERE processed = false and usage = 'train'") 
                      
     fkml_row = mapc.cur.fetchall()
+    mapc.dbcon.commit();
     n_notprocessed = len(fkml_row)
     index_name = 0
     index_run = 1
@@ -115,6 +118,7 @@ while True:
                              "FROM kml_data WHERE kml_type = '%s' and name = '%s'"
                              %(mapc.KmlFQAQC, fkml_row[i][index_name]))
             kmldata_row = mapc.cur.fetchall()
+            mapc.dbcon.commit();
             index_mappedcount = 1
             index_mappersneeded = 2
 
@@ -168,6 +172,7 @@ while True:
             # output incoming_names to csv table
             mapc.cur.execute("""SELECT * From incoming_names """)
             incoming_rows = mapc.cur.fetchall()
+            mapc.dbcon.commit();
 
             fieldnames = ['name', 'run', 'iteration', 'processed', 'usage']
 
@@ -199,7 +204,7 @@ while True:
             os.remove(logFilePath + "/incoming_names.csv")
 
             # wake up cvml
-            if os.system('python '+ mapc.projectRoot + '/terraform/run_cvml.py'):
+            if run_cvml.main():
                 k.write("\ngenerateConsensus: the iteration_%s triggering cvml "
                         "succeed\n"
                         % iteration_counter)
@@ -213,7 +218,7 @@ while True:
 
             # call register_f_sites to generate F sites for the next
             # iteration
-            if os.system('python register_f_sites.py'):
+            if register_f_sites.main():
                 k.write("\ngenerateConsensus: the iteration_%s register_f_sites "
                         "succeed\n"
                         % iteration_counter)

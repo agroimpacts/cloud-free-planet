@@ -8,11 +8,6 @@ if [ -z "$COMMAND" ]; then
     echo "`date`: Usage: $0 <full_daemon_path>"
     exit 1
 fi
-if [ ! -x "$COMMAND" ]; then
-    echo "`date`: $COMMAND does not exist or is not executable"
-    exit 2
-fi
-
 # Notification skip count: set this to the number of crontab intervals to skip
 # before reporting the same notification again. E.g., setting notifSkipCount to 12
 # would imply that identical notifications would be generated only once an hour
@@ -32,6 +27,20 @@ NOW=`/bin/date '+%m/%d/%Y %H:%M:%S'`
 createIssue() {
     ${MAPPER_HOME}/common/tools/create_alert_issue.py "$SUBJECT" "$alertBody"
 }
+
+if [ ! -x "$COMMAND" ]; then
+    echo "`date`: $COMMAND does not exist or is not executable"
+    SUBJECT="Daemon nanny cannot start non-existent or non-executable $PROGRAM daemon"
+    alertBody=`/bin/cat <<EOF
+$SUBJECT
+
+Daemon $PROGRAM could not be started at $NOW.
+Check to make sure it exists and is executable.
+EOF`
+    createIssue
+
+    exit 2
+fi
 
 checkrestart() {
     restart=0
@@ -75,7 +84,7 @@ if [[ $restart -eq 1 ]]; then
             varArray[1]=0
             varArray[2]=0
             echo "`date`: Failed to restart $PROGRAM"
-            SUBJECT="Daemon nanny has failed to restart a daemon"
+            SUBJECT="Daemon nanny has failed to restart $PROGRAM daemon"
             alertBody=`/bin/cat <<EOF
 $SUBJECT
 
@@ -97,7 +106,7 @@ EOF`
             varArray[0]=0
             varArray[2]=0
             echo "`date`: $PROGRAM restarted"
-            SUBJECT="Daemon nanny has restarted a daemon"
+            SUBJECT="Daemon nanny has restarted $PROGRAM daemon"
             alertBody=`/bin/cat <<EOF
 $SUBJECT
 
