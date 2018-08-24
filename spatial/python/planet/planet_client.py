@@ -62,6 +62,7 @@ class PClientV1():
         self.with_analytic_xml = False
         self.with_visual = False
         self.local_mode = False
+        self.s3_only = False
         self.transfer = S3Transfer(self.s3client)
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
@@ -108,6 +109,7 @@ class PClientV1():
         self.with_analytic_xml = json.loads(imagery_config['with_analytic_xml'].lower())
         self.with_visual = json.loads(imagery_config['with_visual'].lower())
         self.local_mode = json.loads(imagery_config['local_mode'].lower())
+        self.s3_only = json.loads(imagery_config['s3_only'].lower())
         self.transfer = S3Transfer(self.s3client)
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
@@ -362,28 +364,32 @@ class PClientV1():
         s3_result = 's3://{}/{}'.format(self.s3_catalog_bucket, output_key)
         local_result = "{}{}/{}/{}.{}".format(self.catalog_path, asset_type, season, scene_id, ext)
 
-        if not os.path.exists(local_result):
-            if not self.local_mode:
-                try:
-                    self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
-                    filepath = s3_result
-                except botocore.exceptions.ClientError:
+        if not self.s3_only:
+            if not os.path.exists(local_result):
+                if not self.local_mode:
+                    try:
+                        self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
+                        filepath = s3_result
+                    except botocore.exceptions.ClientError:
+                        filepath = self.download_localfs_product(product_type, scene_id, season)
+                        self.logger.info("Uploading {}...".format(scene_id))
+                        self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
+                else:
                     filepath = self.download_localfs_product(product_type, scene_id, season)
-                    self.logger.info("Uploading {}...".format(scene_id))
-                    self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
+                    s3_result = local_result
             else:
-                filepath = self.download_localfs_product(product_type, scene_id, season)
-                s3_result = local_result
+                filepath = local_result
+                if self.local_mode:
+                    s3_result = local_result
+                else:
+                    try:
+                        self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
+                    except botocore.exceptions.ClientError:
+                        self.logger.info("Uploading {}...".format(scene_id))
+                        self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
         else:
-            filepath = local_result
-            if self.local_mode:
-                s3_result = local_result
-            else:
-                try:
-                    self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
-                except botocore.exceptions.ClientError:
-                    self.logger.info("Uploading {}...".format(scene_id))
-                    self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
+            s3_result = self.download_s3_product('analytic_sr', scene_id, season)
+            filepath = s3_result
 
         return filepath, s3_result
 

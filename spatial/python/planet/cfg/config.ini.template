@@ -3,6 +3,7 @@ api_key: <none>
 
 [imagery]
 local_mode: False
+s3_only: False
 test: false
 aoi: cfg/ghana_aoi.geojson
 with_csv: True
