@@ -330,9 +330,8 @@ class MappingCommon(object):
                     ON (sd.cell_id = mg.id)
                     WHERE season = '%s' AND name = '%s'
                     LIMIT 1""" % (season, kmlName))
-            try:
-                row = self.cur.fetchone()
-            except: 
+            row = self.cur.fetchone()
+            if row is None:
                 row = [season, None]
             urls.append(row) 
         self.dbcon.commit()
