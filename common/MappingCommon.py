@@ -318,14 +318,26 @@ class MappingCommon(object):
         select += "</select>\n"
         return select
 
-    # Get WMS attribute array for specified KML name.
-    def getWMSAttributes(self, kmlName):
-        self.cur.execute("""SELECT provider, image_name, style, zindex, visible, description
-                FROM wms_data
-                WHERE enabled AND name = '%s'
-                ORDER BY zindex""" % kmlName)
+    # Create XYZ attribute array for specified KML name.
+    # First row is for growing season, and 2nd row is for off-season.
+    # Only select the first DB row for each.
+    # If no row, specify None as the url.
+    def getXYZAttributes(self, kmlName):
+        urls = []
+        for season in ['GS', 'OS']:
+            self.cur.execute("""SELECT season, tms_url 
+                    FROM scenes_data sd INNER JOIN master_grid mg
+                    ON (sd.cell_id = mg.id)
+                    WHERE season = '%s' AND name = '%s'
+                    LIMIT 1""" % (season, kmlName))
+            try:
+                row = self.cur.fetchone()
+            except: 
+                row = [season, None]
+            urls.append(row) 
+        self.dbcon.commit()
         # Using json.dumps because of embedded quotes in 2D array.
-        return json.dumps(self.cur.fetchall())
+        return json.dumps(urls)
 
     #
     # *** HIT-Related Functions ***
