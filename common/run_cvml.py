@@ -8,10 +8,14 @@ def main():
     # sets up .terraform/
     mapc = MappingCommon()
     os.chdir(mapc.projectRoot + "/terraform")
-    subprocess.Popen(mapc.projectRoot + "/terraform/terraform init", shell=True).wait()
+    tf_init = subprocess.Popen(mapc.projectRoot + "/terraform/terraform init", shell=True, cwd = mapc.projectRoot + "/terraform").wait()
     # starts cvml cluster and a single iteration
-    subprocess.Popen(mapc.projectRoot + "/terraform/terraform apply -auto-approve", shell=True).wait()
-    return True
+    os.chdir(mapc.projectRoot + "/terraform")
+    tf_apply =  subprocess.Popen(mapc.projectRoot + "/terraform/terraform apply -auto-approve", shell=True, cwd = mapc.projectRoot + "/terraform").wait()
+    if tf_init == 0 and tf_apply == 0:
+        return True
+    else:
+        return False
 
 
 if __name__ == "__main__":
