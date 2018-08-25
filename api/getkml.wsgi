@@ -16,7 +16,6 @@ def application(environ, start_response):
     kmlGenScript = mapc.getConfiguration('KMLGenScript')
     kmlGenUrl = "%s/%s" % (apiUrl, kmlGenScript)
     mapUrl = mapc.getConfiguration('MapUrl')
-    wmsUrl = mapc.getConfiguration('WMSUrl')
     instructions = mapc.getConfiguration('KMLInstructions')
     snapTolerance = mapc.getConfiguration('SnapTolerance')
     select = mapc.buildSelect()
@@ -28,7 +27,7 @@ def application(environ, start_response):
     if len(kmlName) > 0:
         (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
         mapHint = mapc.querySingleValue("select hint from kml_data where name = '%s'" % kmlName)
-        wmsAttributes = mapc.getWMSAttributes(kmlName)
+        xyzAttributes = mapc.getXYZAttributes(kmlName)
 
         # Training and field mapping cases.
         # These have an assignmentId.
@@ -129,9 +128,9 @@ def application(environ, start_response):
                     <script type="text/javascript" src="/OL/MAcontrolbar.js"></script>
                     <script type="text/javascript" src="/OL/showkml.js"></script>
                 </head>
-                <!-- Note: Don't add double quotes around wmsAttributes argument. -->
-                <!-- If we ever need to pass an empty list use: wmsAttributes = '[]' -->
-                <body onload='init("%(kmlPath)s", "%(kmlName)s", "%(assignmentId)s", "%(tryNum)s", "%(resultsAccepted)s", "%(mapPath)s", "%(workerId)s", "%(wmsUrl)s", %(wmsAttributes)s, "%(snapTolerance)s")'>
+                <!-- Note: Don't add double quotes around xyzAttributes argument. -->
+                <!-- If we ever need to pass an empty list use: xyzAttributes = '[]' -->
+                <body onload='init("%(kmlPath)s", "%(kmlName)s", "%(assignmentId)s", "%(tryNum)s", "%(resultsAccepted)s", "%(mapPath)s", "%(workerId)s", %(xyzAttributes)s, "%(snapTolerance)s")'>
                     <form style='width:100%%;' name='mappingform' action='%(submitTo)s' method='POST' target='%(target)s'>
                         <div class='instructions'>
                             %(instructions)s
@@ -184,8 +183,7 @@ def application(environ, start_response):
             'workerId': workerId,
             'select': select,
             'csrfToken': csrfToken,
-            'wmsUrl': wmsUrl,
-            'wmsAttributes': wmsAttributes,
+            'xyzAttributes': xyzAttributes,
             'snapTolerance': snapTolerance
         }
         res.text = mainText
