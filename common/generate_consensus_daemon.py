@@ -217,13 +217,10 @@ while True:
             # call register_f_sites to generate F sites for the next
             # iteration
             while True:
-                session = boto3.Session(aws_access_key_id=params['cvml']['aws_secret'],
-                                        aws_secret_access_key=params['cvml']['aws_access'],
-                                        region_name=params['cvml']['aws_region'])
-                client = session.client('emr', region_name='us-east-1')
-                response = client.list_clusters()
+                emr_client = aws_session.client('emr', region_name='us-east-1')
+                emr_clusters = emr_client.list_clusters()
 
-                if response["Clusters"]["Id" == id_cluster]["Status"]["State"] == "TERMINATED":
+                if emr_clusters["Clusters"]["Id" == id_cluster]["Status"]["State"] == "TERMINATED":
                     if register_f_sites.main():
                         k.write("\ngenerateConsensus: the iteration_%s register_f_sites "
                                 "succeed\n"
