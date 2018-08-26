@@ -4,23 +4,22 @@
 # and trigger cvml when all fsites have been processed
 # Author: Su Ye
 
-from MappingCommon import MappingCommon
-from datetime import datetime
-import psycopg2
-import time
-import os
 import csv
-import boto3
+import os
+import sys
+import time
+from datetime import datetime
 import boto3.session
-import run_cvml
+import psycopg2
 import register_f_sites
+import run_cvml
+from MappingCommon import MappingCommon
 
 # the below is for debugging under SuYe's project root
 # mapc = MappingCommon(projectRoot='/home/sye/mapper/')
 # mapc = MappingCommon('/media/su/DataFactory/MappingAfrica/mapper')
 
 mapc = MappingCommon()
-
 
 logFilePath = mapc.projectRoot + "/log"
 k = open(logFilePath + "/generateConsensus.log", "a+")
@@ -50,23 +49,22 @@ while True:
                          "FROM incoming_names "
                          "INNER JOIN iteration_metrics USING (run, iteration) "
                          "WHERE processed = false")
-                         
+
     # if not initial iteration, query only train type
-    else: 
+    else:
         mapc.cur.execute("SELECT name, run, iteration, usage, iteration_time "
-                     "FROM incoming_names "
-                     "INNER JOIN iteration_metrics USING (run, iteration) "
-                     "WHERE processed = false and usage = 'train'") 
-                     
+                         "FROM incoming_names "
+                         "INNER JOIN iteration_metrics USING (run, iteration) "
+                         "WHERE processed = false and usage = 'train'")
+
     fkml_row = mapc.cur.fetchall()
-    mapc.dbcon.commit();
+    mapc.dbcon.commit()
     n_notprocessed = len(fkml_row)
     index_name = 0
     index_run = 1
     index_iteration = 2
     index_usage = 3
     index_iteration_time = 4
-    
 
     # check if any new incoming kmls that is not processed
     if n_notprocessed != 0:
@@ -80,13 +78,13 @@ while True:
             if (all(first[index_run] == rest[index_run] and
                     first[index_iteration] == rest[index_iteration] for rest in
                     it) == False):
-                    mapc.createAlertIssue("Iterations of F kmls are not identical", 
-                                          "generateConsensusDaemon: runs or "
-                                          "iterations of incoming F kmls "
-                                          "for iteration_%s "
-                                          "are not identical"
-                                          % iteration_counter)
-                    exit(1)
+                mapc.createAlertIssue("Iterations of F kmls are not identical",
+                                      "generateConsensusDaemon: runs or "
+                                      "iterations of incoming F kmls "
+                                      "for iteration_%s "
+                                      "are not identical"
+                                      % iteration_counter)
+                exit(1)
 
         # check if it is a new iteration
         # if it is a new iteration, initialize counter variables
@@ -98,15 +96,14 @@ while True:
                     (iteration_counter, first[index_iteration_time]))
 
         # check if the iteration of all kmls from cvml is just greater than 
-        # interation_counter by 1 when they are not equal
-        if first[index_iteration] != iteration_counter and first[
-            index_iteration] - iteration_counter != 1:
-           mapc.createAlertIssue("Iterations of cvml and mapper are not idential",
-                                 "generateConsensusDaemon: cvml outputs "
-                                 "iterations_%s, but generate_consensus_daemon "
-                                 "is awaiting for iterations_%s"
-                                 % (first[index_iteration], iteration_counter+1
-                                    ))
+        # iteration_counter by 1 when they are not equal
+        if first[index_iteration] != iteration_counter and first[index_iteration] - iteration_counter != 1:
+            mapc.createAlertIssue("Iterations of cvml and mapper are not identical",
+                                  "generateConsensusDaemon: cvml outputs "
+                                  "iterations_%s, but generate_consensus_daemon "
+                                  "is awaiting for iterations_%s"
+                                  % (first[index_iteration], iteration_counter + 1
+                                     ))
 
         # record kmls that are actually processed among kml to be processed
         # for this processing time
@@ -114,21 +111,21 @@ while True:
 
         for i in range(n_notprocessed):
 
-            mapc.cur.execute("SELECT name, mapped_count, mappers_needed " 
+            mapc.cur.execute("SELECT name, mapped_count, mappers_needed "
                              "FROM kml_data WHERE kml_type = '%s' and name = '%s'"
-                             %(mapc.KmlFQAQC, fkml_row[i][index_name]))
+                             % (mapc.KmlFQAQC, fkml_row[i][index_name]))
             kmldata_row = mapc.cur.fetchall()
-            mapc.dbcon.commit();
+            mapc.dbcon.commit()
             index_mappedcount = 1
             index_mappersneeded = 2
 
-            # check if kml has been succussfully retrieved from kml_data
+            # check if kml has been successfully retrieved from kml_data
             if len(kmldata_row) == 0:
-                 mapc.createAlertIssue("Consensus generation fails",
-                                       "generateConsensusDaemon: fail to retrieve "
-                                       "kml %s in the kml_data table"
-                                           % fkml_row[i][index_name])
-                                           
+                mapc.createAlertIssue("Consensus generation fails",
+                                      "generateConsensusDaemon: fail to retrieve "
+                                      "kml %s in the kml_data table"
+                                      % fkml_row[i][index_name])
+
             # check if not processed kmls has enough mappers
             if kmldata_row[0][index_mappersneeded] is not None and kmldata_row[
                 0][index_mappedcount] == kmldata_row[0][index_mappersneeded]:
@@ -140,7 +137,6 @@ while True:
                     n_success = n_success + 1
                 else:
                     n_fail = n_fail + 1
-            
 
                 n_processed = n_processed + 1
 
@@ -172,7 +168,7 @@ while True:
             # output incoming_names to csv table
             mapc.cur.execute("""SELECT * From incoming_names """)
             incoming_rows = mapc.cur.fetchall()
-            mapc.dbcon.commit();
+            mapc.dbcon.commit()
 
             fieldnames = ['name', 'run', 'iteration', 'processed', 'usage']
 
@@ -191,8 +187,8 @@ while True:
             params = mapc.parseYaml("config.yaml")
 
             s3_client = aws_session.client('s3', aws_access_key_id=params['cvml']['aws_secret'],
-                                                 aws_secret_access_key=params['cvml']['aws_access'],
-                                                 region_name=params['cvml']['aws_region'])
+                                           aws_secret_access_key=params['cvml']['aws_access'],
+                                           region_name=params['cvml']['aws_region'])
 
             bucket = str(mapc.getConfiguration('S3BucketDir'))
 
@@ -218,19 +214,31 @@ while True:
 
             # call register_f_sites to generate F sites for the next
             # iteration
-            if register_f_sites.main():
-                k.write("\ngenerateConsensus: the iteration_%s register_f_sites "
-                        "succeed\n"
-                        % iteration_counter)
-            else:
-                mapc.createAlertIssue("f sites generation fails",
-                                      "generateConsensus: the iteration_%s "
-                                      "register_f_sites fails" %
-                                      iteration_counter)
-                k.write("\ngenerateConsensus: fail to trigger cvml\n"
-                        % iteration_counter)
-                break
+            while True:
+                session = boto3.Session(aws_access_key_id=params['cvml']['aws_secret'],
+                                        aws_secret_access_key=params['cvml']['aws_access'],
+                                        region_name=params['cvml']['aws_region'])
 
+                client = session.client('emr', region_name='us-east-1')
+
+                response = client.list_clusters(
+                    ClusterStates=["RUNNING", "WAITING"]
+                )
+
+                if not response["Clusters"]:
+                    if register_f_sites.main():
+                        k.write("\ngenerateConsensus: the iteration_%s register_f_sites "
+                                "succeed\n"
+                                % iteration_counter)
+                    else:
+                        mapc.createAlertIssue("f sites generation fails",
+                                              "generateConsensus: the iteration_%s "
+                                              "register_f_sites fails" %
+                                              iteration_counter)
+                        k.write("\ngenerateConsensus: fail to trigger cvml\n"
+                                % iteration_counter)
+                        sys.exit("Errors in register_f_sites")
+                    break
 
     # Release serialization lock.
     mapc.releaseSerializationLock()

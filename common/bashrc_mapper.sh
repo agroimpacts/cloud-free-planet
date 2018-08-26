@@ -1,4 +1,3 @@
-#!/bin/bash
 ## This needs to be sourced from the account's .bashrc file
 # Mapper Terraform vars
 export TF_VAR_subnet=subnet-638f0c39
