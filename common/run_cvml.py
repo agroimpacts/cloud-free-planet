@@ -13,7 +13,7 @@ def main():
                                cwd=mapc.projectRoot + "/terraform").wait()
     # starts cvml cluster and a single iteration
     os.chdir(mapc.projectRoot + "/terraform")
-    rf_apply = subprocess.Popen(mapc.projectRoot + "/common/bashrc_mapper.sh ; " +
+    rf_apply = subprocess.Popen("source " + mapc.projectRoot + "/common/bashrc_mapper.sh ; " +
                                 mapc.projectRoot + "/terraform/terraform apply -auto-approve",
                                 cwd=mapc.projectRoot + "/terraform", shell=True).wait()
     if rf_init == 0 and rf_apply == 0:
