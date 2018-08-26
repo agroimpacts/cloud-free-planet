@@ -16,7 +16,7 @@ from webapp import csrf_protect
 from MappingCommon import MappingCommon
 
 hist_blueprint = Blueprint('hist_blueprint', __name__)
-# *** NOTE: This exempts this blueprint from CSRF protection, when we only need to exempt the jQuesry POST ***
+# *** NOTE: This exempts this blueprint from CSRF protection, when we only need to exempt the jQuery POST ***
 # *** This did not appear to be working so I had to disable CSRF globally for the app ***
 csrf_protect.exempt(hist_blueprint)
 
