@@ -32,7 +32,9 @@ k.write("\ngenerateConsensus: Daemon starting up at %s\n" % now)
 k.close()
 
 # record the ongoing iteration time in the daemon, and initial iteration is 0
-iteration_counter = 0
+mapc.cur.execute("select value from system_data where key = 'IterationCounter';")
+iteration_counter = int(mapc.cur.fetchone()[0])
+mapc.dbcon.commit()
 
 n_success = 0
 n_fail = 0
@@ -238,6 +240,10 @@ while True:
                         sys.exit("Errors in register_f_sites")
                     break
                 time.sleep(10)
+
+    # Update the IterationCounter value in system_data table
+    mapc.cur.execute("update system_data set value='%s' where key='IterationCounter'" % iteration_counter)
+    mapc.dbcon.commit()
 
     # Release serialization lock.
     mapc.releaseSerializationLock()
