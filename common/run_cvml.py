@@ -16,7 +16,7 @@ def main():
     id_cluster = subprocess.Popen("source " + mapc.projectRoot + "/common/bashrc_mapper.sh ; " +
                                 mapc.projectRoot + "/terraform/terraform apply -auto-approve",
                                 cwd=mapc.projectRoot + "/terraform", shell=True, stdout=subprocess.PIPE, 
-                                stderr=subprocess.STDOUT)..communicate()[0]
+                                stderr=subprocess.STDOUT).communicate()[0]
     if rf_init == 0 and (not not id_cluster):
         return str.split(str.split(id_cluster, "\n")[-3], " = ")[1]
     else:
