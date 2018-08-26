@@ -9,6 +9,7 @@ import os
 import sys
 import time
 from datetime import datetime
+import boto3
 import boto3.session
 import psycopg2
 import register_f_sites
@@ -200,7 +201,8 @@ while True:
             os.remove(logFilePath + "/incoming_names.csv")
 
             # wake up cvml
-            if run_cvml.main():
+            id_cluster = run_cvml.main()
+            if (not not id_cluster):
                 k.write("\ngenerateConsensus: the iteration_%s triggering cvml "
                         "succeed\n"
                         % iteration_counter)
@@ -218,14 +220,10 @@ while True:
                 session = boto3.Session(aws_access_key_id=params['cvml']['aws_secret'],
                                         aws_secret_access_key=params['cvml']['aws_access'],
                                         region_name=params['cvml']['aws_region'])
-
                 client = session.client('emr', region_name='us-east-1')
+                response = client.list_clusters()
 
-                response = client.list_clusters(
-                    ClusterStates=["RUNNING", "WAITING", "TERMINATING"]
-                )
-
-                if not response["Clusters"]:
+                if response["Clusters"]["Id" == id_cluster]["Status"]["State"] == "TERMINATED":
                     if register_f_sites.main():
                         k.write("\ngenerateConsensus: the iteration_%s register_f_sites "
                                 "succeed\n"
