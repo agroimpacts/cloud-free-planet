@@ -95,7 +95,7 @@ def main():
         mapc.createAlertIssue("None incoming names from cvml",
                               "Alert: Check if there is something wrong with cvml, there should be incoming names "
                               "always.")
-        return False
+        return True
 
 
 if __name__ == "__main__":
