@@ -222,7 +222,7 @@ while True:
                 client = session.client('emr', region_name='us-east-1')
 
                 response = client.list_clusters(
-                    ClusterStates=["RUNNING", "WAITING"]
+                    ClusterStates=["RUNNING", "WAITING", "TERMINATING"]
                 )
 
                 if not response["Clusters"]:
