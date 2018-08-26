@@ -24,8 +24,8 @@ if(!is.na(args[4])) {
 coninfo <- mapper_connect(host = host)
 
 initial_options <- commandArgs(trailingOnly = FALSE)
-kml_path <- paste0(coninfo$dinfo["project.root"], "/maps/")
-kml_root <- strsplit(coninfo$dinfo["project.root"], "/")[[1]][3]
+kml_path <- paste0(coninfo$dinfo$project_root, "/maps/")
+kml_root <- strsplit(coninfo$dinfo$project_root, "/")[[1]][3]
 
 if(test_root == "Y") {
   print(paste("database =", coninfo$dinfo["db.name"], "; kml.root =", kml_root, 
