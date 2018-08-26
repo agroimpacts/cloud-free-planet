@@ -15,6 +15,7 @@ import psycopg2
 import register_f_sites
 import run_cvml
 from MappingCommon import MappingCommon
+from botocore.config import Config
 
 # the below is for debugging under SuYe's project root
 # mapc = MappingCommon(projectRoot='/home/sye/mapper/')
@@ -216,8 +217,9 @@ while True:
 
             # call register_f_sites to generate F sites for the next
             # iteration
+            config = Config(retries=dict(max_attempts=100))  # Change the max of attempts for AWS
             while True:
-                emr_client = aws_session.client('emr', region_name='us-east-1')
+                emr_client = aws_session.client('emr', region_name='us-east-1', config=config)
                 emr_clusters = emr_client.list_clusters()
 
                 if emr_clusters["Clusters"]["Id" == id_cluster]["Status"]["State"] == "TERMINATED":
@@ -234,6 +236,7 @@ while True:
                                 % iteration_counter)
                         sys.exit("Errors in register_f_sites")
                     break
+                time.sleep(10)
 
     # Release serialization lock.
     mapc.releaseSerializationLock()
