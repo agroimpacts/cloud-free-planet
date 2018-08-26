@@ -184,13 +184,12 @@ while True:
                     csvOutputWriter.writerow(csvOutputDic)
 
             # Set up AWS and upload csv to /activermapper/planet
-            aws_session = boto3.session.Session()
+            aws_session = boto3.session.Session(aws_access_key_id=params['cvml']['aws_access'],
+                                                aws_secret_access_key=params['cvml']['aws_secret'])
 
             params = mapc.parseYaml("config.yaml")
 
-            s3_client = aws_session.client('s3', aws_access_key_id=params['cvml']['aws_secret'],
-                                           aws_secret_access_key=params['cvml']['aws_access'],
-                                           region_name=params['cvml']['aws_region'])
+            s3_client = aws_session.client('s3', region_name=params['cvml']['aws_region'])
 
             bucket = str(mapc.getConfiguration('S3BucketDir'))
 
@@ -203,7 +202,7 @@ while True:
 
             # wake up cvml
             id_cluster = run_cvml.main()
-            if (not not id_cluster):
+            if not not id_cluster:
                 k.write("\ngenerateConsensus: the iteration_%s triggering cvml "
                         "succeed\n"
                         % iteration_counter)
@@ -219,7 +218,9 @@ while True:
             # iteration
             config = Config(retries=dict(max_attempts=100))  # Change the max of attempts for AWS
             while True:
-                emr_client = aws_session.client('emr', region_name='us-east-1', config=config)
+                emr_client = aws_session.client('emr',
+                                                region_name=params['cvml']['aws_region'],
+                                                config=config)
                 emr_clusters = emr_client.list_clusters()
 
                 if emr_clusters["Clusters"]["Id" == id_cluster]["Status"]["State"] == "TERMINATED":
