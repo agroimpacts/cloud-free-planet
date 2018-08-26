@@ -4,23 +4,25 @@
 # __init__.py is a special Python file that allows a directory to become
 # a Python package so it can be accessed using the 'import' statement.
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from urllib import quote_plus
 
-from flask import Flask
+from flask import Flask, session
 from flask_mail import Mail
 from flask_migrate import Migrate, MigrateCommand
 from flask_sqlalchemy import SQLAlchemy
 from flask_user import UserManager, SQLAlchemyAdapter
 from flask_wtf.csrf import CSRFProtect
+#from flask_wtf.csrf import CSRFError
+
+from MappingCommon import MappingCommon
 
 # Instantiate Flask extensions
 db = SQLAlchemy()
 csrf_protect = CSRFProtect()
 mail = Mail()
 migrate = Migrate()
-
 
 def create_app(extra_config_settings={}):
     """Create a Flask applicaction.
@@ -83,8 +85,10 @@ def create_app(extra_config_settings={}):
                                register_view_function=register,
                                user_profile_view_function=user_profile
     )
-    return app
+    # Function that gets called before every request.
+    app.before_request(before_request)
 
+    return app
 
 def init_email_error_handler(app):
     """
@@ -122,6 +126,24 @@ def init_email_error_handler(app):
 
     # Log errors using: app.logger.error('Some error message')
 
+# Run this function to reset the session expiration before every request.
+def before_request():
+    from flask import current_app
+    from flask_user import current_user
+    mapc = MappingCommon()
 
+    # Don't end the session when browser window is closed.
+    session.permanent = True
+    # Session inactivity time limit in minutes.
+    sessionLifetime = int(mapc.getConfiguration('SessionLifetime'))
+    # Set server session expiration.
+    current_app.permanent_session_lifetime = timedelta(minutes=sessionLifetime)
+    # Set client session expiration.
+    current_user.sessionLifetime = sessionLifetime * 60
+    # Update the server session expiration.
+    session.modified = True
 
-
+# CSRF error handler.
+#@app.errorhandler(CSRFError)
+#def handle_csrf_error(e):
+#    return render_template('csrf_error.html', reason=e.description), 400
