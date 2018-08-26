@@ -1,4 +1,4 @@
-function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId, wmsUrl, wmsAttributes, snapTolerance) {
+function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, workerId, xyzAttributes, snapTolerance) {
 
     var saveStrategyActive = false;
     var workerFeedback = false;
@@ -29,7 +29,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
         }),
         // NOTE: the zIndex convention (higher number = higher layer) is as follows:
         // 0-9: Base layers (only one at a time is visible)
-        // 10-99: WMS layers (zIndex specified in DB)
+        // 10-99: XYZ layers (zIndex determined by code below)
         // 100: KML layer (not visible in layer switcher)
         // 101: Fields layer (mapped by worker)
         // 102: Reference map layer (worker feedback case)
@@ -68,35 +68,54 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     });
     
     //
-    //*** Create the WMS layers  based on wms_data table ***
+    //*** Create the XYZ layers based on scenes_data table ***
     //
-    // Named constants (must match order in getWMSAttributes()).
-    var PROVIDER = 0;
-    var IMAGE_NAME = 1;
-    var STYLE = 2;
-    var ZINDEX = 3;
-    var VISIBLE = 4;
-    var DESCRIPTION = 5;
+    // Named constants (must match order in getXYZAttributes()).
+    var SEASON = 0;
+    var URL = 1;
 
-    // Array is assumed to be in ascending zIndex order, so process in reverse.
-    var wmsLayer = [];
-    for (var i = wmsAttributes.length - 1; i >= 0; i--) {
-        wmsAttribute = wmsAttributes[i];
-        wmsLayer[i] = new ol.layer.Image({
-            zIndex: wmsAttribute[ZINDEX],
-            visible: wmsAttribute[VISIBLE],
-            title: wmsAttribute[DESCRIPTION],
-            source: new ol.source.ImageWMS({
-                url: wmsUrl,
-                params: {
-                    VERSION: '1.1.1',
-                    LAYERS: wmsAttribute[PROVIDER] + ':' + wmsAttribute[IMAGE_NAME],
-                    STYLES: wmsAttribute[PROVIDER] + ':' + wmsAttribute[STYLE]
-                }
-            })
-        });    
-        // Add new WMS layer to Satellite Image Overlays in Layer Switcher.
-        map.getLayers().getArray()[1].getLayers().push(wmsLayer[i]);
+    var ZINDEX_BASE = 10;
+    var DESCRIPTION = ['Growing season false color', 
+                        'Growing season true color', 
+                        'Off-season false color', 
+                        'Off-season true color'];
+    var COLOR = ['false', 'true'];
+
+    // Desired order is: GS false, GS true, OS false, OS true.
+    // Array is assumed to be in GS/OS season order, one row for each.
+    // URL is None if no overlay for that season.
+    var xyzLayer = [];
+    var visible = true;
+    for (var i = 0; i < xyzAttributes.length; i++) {
+        xyzAttribute = xyzAttributes[i];
+        // URL is null if no overlay for that season.
+        if (xyzAttribute[URL] === null) {
+            continue;
+        }
+        // Create a false/true layer for this season.
+        for (var j = 0; j < COLOR.length; j++) {
+            index = (i * 2) + j
+            // If false,
+            if (j == 0) {
+            }
+            // If true,
+            else {
+            }
+            xyzLayer[index] = new ol.layer.Tile({
+                zIndex: ZINDEX_BASE + (3 - index),
+                visible:  visible,
+                title: DESCRIPTION[index],
+                source: new ol.source.XYZ({
+                    url: xyzAttribute[URL]
+                    // NOTE: color handling will be added later.
+                    //params: {
+                    //}
+                })
+            });    
+            // Add new XYZ layer to Satellite Image Overlays in Layer Switcher.
+            map.getLayers().getArray()[1].getLayers().push(xyzLayer[index]);
+            visible = false;
+        }
     }
 
     // *** Create grid cell ***
@@ -133,7 +152,7 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
     });
     kmlLayer.setMap(map);
 
-    // *** If not a worker feedback case, add mapped fields and WMS layers ***
+    // *** If not a worker feedback case, add mapped fields and XYZ layers ***
     if (!workerFeedback) {
         var fieldsLayer = new ol.layer.Vector({
             title: "Mapped Fields",
