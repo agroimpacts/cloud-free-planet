@@ -126,3 +126,4 @@ CREATE TABLE scenes_data (
 - `make run-task` to start planet downloader task
 - `make stop-task` to stop task
 - `make cluster-down` to kill the cluster
+- `make run-local` to run docker-compose locally
