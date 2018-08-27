@@ -75,6 +75,7 @@ def assignment_history():
                 WHERE event_type IN ('%s', '%s') AND worker_id = %s ORDER BY event_time DESC""" %
                 (histForm.timeZone.data / 60, MappingCommon.EVTQualityBonus, MappingCommon.EVTTrainingBonus, workerId))
         histForm.bonusData.data = mapc.cur.fetchall()
+        mapc.dbcon.commit()
 
         k.write("history: Worker requested history.\n")
 
