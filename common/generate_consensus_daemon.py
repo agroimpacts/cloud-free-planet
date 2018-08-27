@@ -96,6 +96,9 @@ while True:
             n_success = 0
             n_fail = 0
             iteration_counter = iteration_counter + 1
+            # Update the IterationCounter value in system_data table
+            mapc.cur.execute("update system_data set value='%s' where key='IterationCounter'" % iteration_counter)
+            mapc.dbcon.commit()
             k.write("\ngenerateConsensus: iteration_%s starting up at %s\n" %
                     (iteration_counter, first[index_iteration_time]))
 
@@ -240,10 +243,6 @@ while True:
                         sys.exit("Errors in register_f_sites")
                     break
                 time.sleep(10)
-
-    # Update the IterationCounter value in system_data table
-    mapc.cur.execute("update system_data set value='%s' where key='IterationCounter'" % iteration_counter)
-    mapc.dbcon.commit()
 
     # Release serialization lock.
     mapc.releaseSerializationLock()
