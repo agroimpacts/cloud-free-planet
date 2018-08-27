@@ -9,7 +9,7 @@ cluster-down:
 
 cluster-up:
 	ecs-cli up --keypair daunnc \
-	           --capability-iam \
+			   --instance-role PlanetDownloaderECSRole \
 			   --size 1 \
 			   --instance-type c4.large \
 			   --cluster-config planet-downloader-config \
