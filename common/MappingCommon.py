@@ -188,6 +188,7 @@ class MappingCommon(object):
     def getKmlType(self, kmlName):
         self.cur.execute("select kml_type from kml_data where name = '%s'" % kmlName)
         kmlType = self.cur.fetchone()[0]
+        self.dbcon.commit()
         if kmlType == MappingCommon.KmlQAQC:
             kmlTypeDescr = 'QAQC'
         elif kmlType == MappingCommon.KmlFQAQC:
@@ -209,7 +210,9 @@ class MappingCommon(object):
     # Retrieve circular buffer from specified column for specified worker.
     def getCB(self, dbField, workerId):
         self.cur.execute("select %s from worker_data where worker_id = %s" % (dbField,'%s'), (workerId,))
-        return self.cur.fetchone()[0]
+        cb = self.cur.fetchone()[0]
+        self.dbcon.commit()
+        return cb
 
     # Add new value to circular buffer for scores.
     def pushScore(self, workerId, value):
@@ -228,6 +231,7 @@ class MappingCommon(object):
         # Get the worker ID for this assignment.
         self.cur.execute("select worker_id from assignment_data where assignment_id = '%s'" % assignmentId)
         workerId = self.cur.fetchone()[0]
+        self.dbcon.commit()
         depth = int(self.getConfiguration('Quality_ReturnHistDepth'))
         returns = self.getCB(self.ReturnsCol, workerId)
         if returns is None:
@@ -304,6 +308,7 @@ class MappingCommon(object):
         select = '<select id="categLabel" title="Select a category for this field">\n'
         self.cur.execute("select category, categ_description, categ_default from categories order by sort_id")
         categories = self.cur.fetchall()
+        self.dbcon.commit()
         for category in categories:
             categName = category[0]
             categDesc = category[1]
@@ -371,6 +376,7 @@ class MappingCommon(object):
             order by k.gid
             limit 1""" % (kmlType, maxAssignments, gid))
         row = self.cur.fetchone()
+        self.dbcon.commit()
         if row:
             kmlName = row[0]
             mappedCount = row[1]
@@ -386,7 +392,6 @@ class MappingCommon(object):
             mappedCount = None
             fwts = None
             gid = None
-        self.dbcon.commit()
         return kmlName, mappedCount, fwts, gid
 
     # Return a HIT type based on specified probablilties.
@@ -539,6 +544,7 @@ class MappingCommon(object):
                     'assignmentsPending': assignmentsPending, 'assignmentsCompleted': assignmentsCompleted,
                     'assignmentsRemaining': assignmentsRemaining, 'status': status, 
                     'assignments': assignments }
+        self.dbcon.commit()
         if len(hits) == 0:
             return None
         else:
@@ -557,6 +563,7 @@ class MappingCommon(object):
         assignments = {}
         for asgmt in self.cur.fetchall():
             assignments[asgmt[0]] = {'workerId': asgmt[1], 'completionTime': asgmt[2], 'status': asgmt[3]}
+        self.dbcon.commit()
         return assignments
         
     # Create a HIT for the specified KML ID.
@@ -943,6 +950,7 @@ class MappingCommon(object):
             where worker_id = %s and status = %s order by completion_time""", 
             (workerId, MappingCommon.HITPending,))
         assignments = self.cur.fetchall()
+        self.dbcon.commit()
 
         # If none then there's nothing to do.
         if len(assignments) == 0:
