@@ -32,9 +32,7 @@ k.write("\ngenerateConsensus: Daemon starting up at %s\n" % now)
 k.close()
 
 # record the ongoing iteration time in the daemon, and initial iteration is 0
-mapc.cur.execute("select value from system_data where key = 'IterationCounter';")
-iteration_counter = int(mapc.cur.fetchone()[0])
-mapc.dbcon.commit()
+iteration_counter = int(mapc.getSystemData('IterationCounter'))
 
 n_success = 0
 n_fail = 0
@@ -93,8 +91,7 @@ while True:
             n_fail = 0
             iteration_counter = iteration_counter + 1
             # Update the IterationCounter value in system_data table
-            mapc.cur.execute("update system_data set value='%s' where key='IterationCounter'" % iteration_counter)
-            mapc.dbcon.commit()
+            mapc.setSystemData('IterationCounter', iteration_counter)
             k.write("\ngenerateConsensus: iteration_%s starting up at %s\n" %
                     (iteration_counter, first[index_iteration_time]))
 
