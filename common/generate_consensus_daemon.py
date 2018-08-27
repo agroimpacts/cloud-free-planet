@@ -41,11 +41,7 @@ n_fail = 0
 
 # Execute loop based on FKMLCheckingInterval
 while True:
-
-    # Obtain serialization lock to allow the daemon to access Sandbox and
-    # database records without interfering with daemon.
-    mapc.getSerializationLock()
-
+    
     # for initial iteration, query holdout, validate and training sites that 
     # are not processed from incoming_names table
     if iteration_counter == 0:
@@ -243,9 +239,6 @@ while True:
                         sys.exit("Errors in register_f_sites")
                     break
                 time.sleep(10)
-
-    # Release serialization lock.
-    mapc.releaseSerializationLock()
 
     # Sleep for specified checking interval
     time.sleep(int(mapc.getConfiguration('FKMLCheckingInterval')))
