@@ -163,6 +163,7 @@ def main_csv():
                         scene_id = ''
                         output_file = ''
                         output_localfile = ''
+                        tms_uri = ''
 
                         # planet analytic_sr stores imagery starting from 2016 year
                         years = list(range(2016, current_year_start + 1))
@@ -211,7 +212,7 @@ def main_csv():
                             tms_uri = rfclient.create_tms_uri(scene_id, output_file)
                             base_row = [cell_id, scene_id, c, r, season_type, output_file, tms_uri]
                             writer.writerow(base_row)
-                            psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, tms_uri))
+                            psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(c), str(r), output_file, tms_uri))
                                 
                             # logger.debug(base_row)
                             # extent of a polygon to query neighbours
@@ -259,7 +260,6 @@ def main_csv():
                                                             
                                             if sub_valid:
                                                 sub_global_row, sub_global_col = master_grid.index(sx, sy)
-                                                tms_uri = rfclient.create_tms_uri(scene_id, output_file)
                                                 base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file, tms_uri]
                                                 writer.writerow(base_sub_row)
                                                 psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, tms_uri))
@@ -397,6 +397,7 @@ def main_json():
                             scene_id = ''
                             output_file = ''
                             output_localfile = ''
+                            tms_uri = ''
 
                             # planet analytic_sr stores imagery starting from 2016 year
                             years = list(range(2016, current_year_start + 1))
@@ -447,7 +448,6 @@ def main_json():
                                 valid_band[season_type][r, c] = True
 
                                 global_row, global_col = master_grid.index(x, y)
-                                tms_uri = rfclient.create_tms_uri(scene_id, output_file)
                                 base_row = [cell_id, scene_id, global_col, global_row, season_type, output_file, tms_uri]
                                 writer.writerow(base_row)
                                 psql_rows.append(('planet', scene_id, str(cell_id), season_type, str(global_col), str(global_row), output_file, tms_uri))
@@ -508,7 +508,6 @@ def main_json():
                                                             
                                                 if sub_valid:
                                                     sub_global_row, sub_global_col = master_grid.index(sx, sy)
-                                                    tms_uri = rfclient.create_tms_uri(scene_id, output_file)
                                                     base_sub_row = [sub_cell_id, scene_id, sub_global_col, sub_global_row, season_type, output_file, tms_uri]
                                                     writer.writerow(base_sub_row)
                                                     psql_rows.append(('planet', scene_id, str(sub_cell_id), season_type, str(sub_global_col), str(sub_global_row), output_file, tms_uri))
