@@ -19,15 +19,19 @@ geometric_accuracy <- function(qaqc.polys, user.polys, buf) {
         if (as.numeric(st_area(tmp) / st_area(qaqc.single)) > 0.5 &
             as.numeric(st_area(tmp) / st_area(user.single)) > 0.5) {
           match.num <- match.num + 1 
-          boundary_qaqc.single <- st_difference(st_buffer(qaqc.single, buf),
+          boundary.qaqc.single <- st_difference(st_buffer(qaqc.single, buf),
                                                 st_buffer(qaqc.single, -buf))
           boundary.user.single <- st_difference(st_buffer(user.single, 0.1),
                                                 st_buffer(user.single, -0.1))
           # edge accuracy is equal to the intersect length divided by the 
           # perimeter of the qaqc polygon
-          intsect <- st_intersection(boundary_qaqc.single, boundary.user.single)
-          intsect_ratio <- st_area(intsect) / st_area(boundary.user.single)
-          acc.edge.single <- as.numeric(intsect_ratio)
+          intersect <- st_intersection(boundary.qaqc.single, boundary.user.single)
+          intersect_area <- ifelse(length(intersect) > 0, 
+                                    st_area(intersect),
+                                    0)
+          
+          intersect_ratio <- intersect_area / st_area(boundary.qaqc.single)
+          acc.edge.single <- as.numeric(intersect_ratio)
           acc.edge.sum <- acc.edge.sum + acc.edge.single
           break
         }
