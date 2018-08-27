@@ -25,9 +25,9 @@ pngout <- TRUE
 
 
 #### Test codes ####
-# mtype <- 'tr'
-# assignmentid <- '280'
-# kmlid <- 'ZA0649200'
+# mtype <- 'qa'
+# assignmentid <- '1085'
+# kmlid <- 'ZA2149801'
 # tryid <- '1'
 # host <- NULL
 
