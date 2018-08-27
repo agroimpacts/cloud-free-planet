@@ -115,6 +115,14 @@ CREATE TABLE scenes_data (
 
 ### AWS
 
-A set of terraform scripts...
+- Install and confgiure AWS ECS CLI.
+  - https://github.com/aws/amazon-ecs-cli
+  - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_tutorial_EC2.html 
 
-TODO...
+- `make login-aws-registry` to authorize in ECS AWS Registry to push docker image
+- `docker-compose build` to build docker image and after that push it via `docker push 554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader`
+- `make configure-cluster` to configure cluster
+- `make cluster-up` to run ECS cluster
+- `make run-task` to start planet downloader task
+- `make stop-task` to stop task
+- `make cluster-down` to kill the cluster
