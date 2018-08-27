@@ -1,0 +1,11 @@
+version: '3'
+services:
+  planet-downloader:
+    image: 554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader
+    command: python planet_download_tiff.py
+    logging:
+      driver: awslogs
+      options: 
+        awslogs-group: ecs
+        awslogs-region: us-east-1
+        awslogs-stream-prefix: planet-downloader

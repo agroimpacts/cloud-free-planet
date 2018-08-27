@@ -10,6 +10,8 @@ ENV CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
 COPY ./* /opt/planet/
 
+COPY ./cfg /opt/planet/cfg
+
 WORKDIR /opt/planet/
 
 VOLUME /opt/planet/cfg
