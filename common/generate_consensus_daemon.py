@@ -189,10 +189,10 @@ while True:
                     csvOutputWriter.writerow(csvOutputDic)
 
             # Set up AWS and upload csv to /activermapper/planet
+            params = mapc.parseYaml("config.yaml")
             aws_session = boto3.session.Session(aws_access_key_id=params['cvml']['aws_access'],
                                                 aws_secret_access_key=params['cvml']['aws_secret'])
 
-            params = mapc.parseYaml("config.yaml")
 
             s3_client = aws_session.client('s3', region_name=params['cvml']['aws_region'])
 
