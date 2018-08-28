@@ -110,7 +110,7 @@ def application(environ, start_response):
                     <link rel="stylesheet" href="/OL/ol.css" type="text/css">
                     <link rel="stylesheet" href="/OL/ol-ext.min.css" type="text/css">
                     <link rel="stylesheet" href="/OL/ol3-layerswitcher.css" type="text/css">
-                    <link rel="stylesheet" href="/OL/fontello-2cc19da7/css/fontello.css" type="text/css" />
+                    <link rel="stylesheet" href="/OL/fontello-88e97ad9/css/fontello.css" type="text/css" />
                     <link rel="stylesheet" href="/OL/controlbar.css" type="text/css">
                     <link rel="stylesheet" href="/OL/showkml.css" type="text/css">
                     <script src="/OL/ol.js" type="text/javascript"></script>
