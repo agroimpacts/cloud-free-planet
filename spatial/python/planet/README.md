@@ -109,7 +109,8 @@ CREATE TABLE scenes_data (
     global_row INTEGER NULL,
     url VARCHAR(255) NULL,
     tms_url TEXT NULL,
-    PRIMARY KEY(provider, scene_id, cell_id, season)
+    date_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    PRIMARY KEY(provider, cell_id, season)
 );
 ```
 

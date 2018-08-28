@@ -446,7 +446,7 @@ def main_json():
                             # mark the current cell grid as already seen
                             if(scene_id != ''):
                                 valid_band[season_type][r, c] = True
-
+                                tms_uri = rfclient.create_tms_uri(scene_id, output_file)
                                 global_row, global_col = master_grid.index(x, y)
                                 base_row = [cell_id, scene_id, global_col, global_row, season_type, output_file, tms_uri]
                                 writer.writerow(base_row)
