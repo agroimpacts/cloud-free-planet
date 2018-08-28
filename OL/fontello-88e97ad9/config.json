@@ -87,6 +87,18 @@
       "css": "bullseye",
       "code": 61760,
       "src": "fontawesome"
+    },
+    {
+      "uid": "d2c6b59d9a239140cb76be0627480855",
+      "css": "dot",
+      "code": 59399,
+      "src": "entypo"
+    },
+    {
+      "uid": "fa2a253fba2da626ef08edcc62d1e4b6",
+      "css": "stop-circled",
+      "code": 59400,
+      "src": "elusive"
     }
   ]
 }
