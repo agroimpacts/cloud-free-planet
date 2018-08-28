@@ -79,7 +79,11 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
                         'Growing season true color', 
                         'Off-season false color', 
                         'Off-season true color'];
-    var COLOR = ['false', 'true'];
+    // First indices are for false color.
+    // Second indices are for true color.
+    var REDCOLOR = ['3', '2'];
+    var GREENCOLOR = ['2', '1'];
+    var BLUECOLOR = ['1', '0'];
 
     // Desired order is: GS false, GS true, OS false, OS true.
     // Array is assumed to be in GS/OS season order, one row for each.
@@ -93,23 +97,17 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             continue;
         }
         // Create a false/true layer for this season.
-        for (var j = 0; j < COLOR.length; j++) {
+        for (var j = 0; j < REDCOLOR.length; j++) {
             index = (i * 2) + j
-            // If false,
-            if (j == 0) {
-            }
-            // If true,
-            else {
-            }
             xyzLayer[index] = new ol.layer.Tile({
                 zIndex: ZINDEX_BASE + (3 - index),
                 visible:  visible,
                 title: DESCRIPTION[index],
                 source: new ol.source.XYZ({
-                    url: xyzAttribute[URL]
-                    // NOTE: color handling will be added later.
-                    //params: {
-                    //}
+                    url: xyzAttribute[URL] + 
+                            '&redBand=' + REDCOLOR[j] + 
+                            '&greenBand=' + GREENCOLOR[j] + 
+                            '&blueBand=' + BLUECOLOR[j]
                 })
             });    
             // Add new XYZ layer to Satellite Image Overlays in Layer Switcher.
