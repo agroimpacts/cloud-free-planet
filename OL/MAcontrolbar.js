@@ -625,7 +625,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
     var holeGeom = undefined;
     var holeGeomDone = false;
     drawBar.addControl( new ol.control.Toggle({
-        html: '<i class="icon-polygon-o" ></i>',
+        html: '<i class="icon-stop-circled" ></i>',
         title: 'Polygon Hole creation: Click at each corner of field; press ESC key to remove most recent corner. Double-click to complete field.',
         interaction: new ol.interaction.DrawHole({
             // Use a layer filter to select the fieldsLayer only.
@@ -703,7 +703,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         })
     }));
     drawBar.addControl( new ol.control.Toggle({
-        html: '<i class="icon-bullseye" ></i>',
+        html: '<i class="icon-dot" ></i>',
         title: 'Point creation: Click on map at desired location.',
         interaction: new ol.interaction.Draw({
             type: 'Point',
