@@ -62,7 +62,10 @@ bayes_model_averaging <- function(bayes.polys, rasterextent, threshold) {
                                fun = function(x, y) (x * y))
       
     } else {
-      weight.acc <- weight.acc + weight 
+      # only count weight for posterior probably = 1
+      if(bayes.polys[t,]$posterior.field == 1){
+        weight.acc <- weight.acc + weight 
+      }
       posterior.acc <- posterior.acc + overlay(posterior.field.rst, weight, 
                                                fun = function(x, y) (x * y)) 
     }

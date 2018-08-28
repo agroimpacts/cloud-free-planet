@@ -77,7 +77,7 @@ consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam,
     }
     
     # query all valid likelihood and score from history assignments
-    userhistories <- lapply(c(1:length(historyassignmentid)), function(x) {
+    userhistories <- lapply(c(1:length(historyassignmentid)), function(x){
    
       # query likelihood and scores
       likelihood.sql <- paste0("select new_score, field_skill, nofield_skill",
@@ -112,26 +112,37 @@ consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam,
       qual_userhistories <- NA
     }
     else{
-      # read all valid likelihood and score from history qual_assignments
-      qual_userhistories <- lapply(c(1:length(qual_historyassignmentid)), 
-                                   function(x) {
-        # query likelihood and scores
-        likelihood.sql <- paste0("select new_score, field_skill, nofield_skill",
-                                 " from qual_accuracy_data where assignment_id='",
-                                 qual_historyassignmentid[x], "'") 
-        measurements <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
-                                                         likelihood.sql))
-        
-        # field_skill and nofield_skill are alias of max.field.lklh 
-        # and max.nofield.lklh 
-        if (nrow(measurements) != 0){
-          c('ml.field' = as.numeric(measurements$field_skill), 
-            'ml.nofield' = as.numeric(measurements$nofield_skill), 
-            'score.hist' = as.numeric(measurements$new_score))
-        }
-        else{
-          NA
-        }
+        # read all valid likelihood and score from history qual_assignments
+       qual_userhistories <- lapply(c(1:length(qual_historyassignmentid)), function(x){
+            try.sql <- paste0("select try from qual_accuracy_data where assignment_id='",
+                              qual_historyassignmentid[x], "'")
+            trys <- suppressWarnings(DBI::dbGetQuery(coninfo$con, try.sql))
+              
+            if (nrow(trys) == 0){
+              likelihood.sql <- paste0("select new_score, field_skill, nofield_skill",
+                                       " from qual_accuracy_data where assignment_id='",
+                                       qual_historyassignmentid[x], "'") 
+            } else{
+              # query likelihood and scores
+              likelihood.sql <- paste0("select new_score, field_skill, nofield_skill",
+                                       " from qual_accuracy_data where assignment_id='",
+                                       qual_historyassignmentid[x], "' and try='",
+                                       max(trys),"'") 
+            }                            
+            
+            measurements <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+                                                               likelihood.sql))
+              
+            # field_skill and nofield_skill are alias of max.field.lklh 
+            # and max.nofield.lklh 
+            if (nrow(measurements) != 0){
+              c('ml.field' = as.numeric(measurements$field_skill), 
+                'ml.nofield' = as.numeric(measurements$nofield_skill), 
+                'score.hist' = as.numeric(measurements$new_score))
+            }
+            else{
+                NA
+            }
       })
     }
     
@@ -173,7 +184,7 @@ consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam,
     user.sql <- paste0("select name, geom_clean ",
                        "FROM user_maps INNER JOIN categories ", 
                        "USING (category) where assignment_id='",  
-                       assignmentid, "' ",
+                        x, "' ",
                        "AND categ_group ='field'")
     user.polys <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
                                                      gsub(", geom_clean", 
@@ -208,7 +219,11 @@ consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam,
         user.poly <- suppressMessages(st_intersection(user.poly, grid.poly))
       }
       
-      geometry.user = user.poly
+      if(length(user.poly) == 0){
+        geometry.user = st_polygon()
+      }else{
+        geometry.user = user.poly
+      }
     }
     else {
       # if users do not map field, set geometry as empty polygon
@@ -222,7 +237,7 @@ consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam,
                                                     geom_column = 'geom_clean'))
       
       # select only polygons
-      user.polys.unsure <- user.polys %>% filter(st_is(. , "POLYGON"))
+      user.polys.unsure <- user.polys.unsure  %>% filter(st_is(. , "POLYGON"))
       
       # union user unsure polygons
       user.poly.unsure <- st_union(user.polys.unsure)
@@ -233,8 +248,12 @@ consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam,
         user.poly.unsure <- suppressMessages(st_intersection(user.poly.unsure, 
                                                              grid.poly))
       }
+      if(length(user.poly.unsure) == 0){
+        geometry.user.unsure = st_polygon()
+      }else{
+        geometry.user.unsure = user.poly.unsure
+      }
       
-      geometry.user.unsure = user.poly.unsure
     }
     else {
       # if users do not map field, set geometry as empty polygon
