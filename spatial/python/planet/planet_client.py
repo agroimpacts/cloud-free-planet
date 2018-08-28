@@ -279,7 +279,7 @@ class PClientV1():
 
             item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(item_type, scene_id)
             result = requests.get(item_url, auth = HTTPBasicAuth(self.api_key, ''))
-            download_url = result.json()[self.asset_type]['location']
+            download_url = result.json()[asset_type]['location']
 
             # upload on s3 directly from the response
             with urllib.request.urlopen(download_url) as response:
