@@ -9,6 +9,8 @@ A set of scripts to download a minimal `master_gird` coverage of cloudless plane
 - [scripts description](#scripts-description)
 - [PSQL table description](#psql-table-description)
 - [AWS](#aws)
+- [Local workflow example](#local-workflow-example)
+- [AWS ECS workflow example](#aws-ecs-workflow-example)
 
 ### Environment
 
@@ -116,10 +118,11 @@ CREATE TABLE scenes_data (
 
 ### AWS
 
-- Install and confgiure AWS ECS CLI.
+Install and confgiure AWS ECS CLI
   - https://github.com/aws/amazon-ecs-cli
   - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_tutorial_EC2.html 
 
+Usual commands descriptions you would have to use:
 - `make login-aws-registry` to authorize in ECS AWS Registry to push docker image
 - `docker-compose build` to build docker image and after that push it via `docker push 554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader`
 - `make configure-cluster` to configure cluster
@@ -128,3 +131,53 @@ CREATE TABLE scenes_data (
 - `make stop-task` to stop task
 - `make cluster-down` to kill the cluster
 - `make run-local` to run docker-compose locally
+
+### Local workflow example
+
+Don't forget to introdcue all the changes into config files before building the image or running the script!
+
+```bash
+# build an image
+docker-compose build
+
+# run through docker
+make run-local
+
+# OR
+# in case you want to run it without docker
+python planet_download_tiff.py
+```
+
+### AWS ECS workflow example
+
+Don't forget to introdcue all the changes into config files before building the image or running the script!
+
+```bash
+# login into AWS ECS registry
+make login-aws-registry
+
+# build an image
+docker-compose build
+
+# tag latest image with any tag you want
+docker tag 554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:latest 554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:my-fancy-tag
+
+# push it into AWS ECS registry
+docker push 554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:my-fancy-tag
+
+# introduce changes into deployment/docker-compose.yml file
+# change the tag of the image
+
+# run cluster
+make cluster-up
+
+# run ECS task
+make run-task
+
+# find logs here (AWS CloudWatch): 
+# https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logEventViewer:group=ecs;stream=planet-downloader/planet-downloader/e677ac0d-2440-4ab3-bc1e-a45280476bae;start=2018-08-27T15:38:08Z
+# WARN: this is the example URL
+
+# after finishing your work kill the cluster
+make cluster-down
+```
