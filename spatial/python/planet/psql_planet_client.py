@@ -5,7 +5,7 @@ import logging
 import multiprocessing
 
 # scenes_data
-# PK [provider | scene_id | cell_id | season] | global_col | global_row | url | tms_url
+# PK [provider] | scene_id | [cell_id | season] | global_col | global_row | url | tms_url | date_time
 # 
 # CREATE TABLE scenes_data (
 #   provider VARCHAR(24) NOT NULL,
@@ -16,7 +16,8 @@ import multiprocessing
 #   global_row INTEGER NULL,
 #   url VARCHAR(255) NULL,
 #   tms_url TEXT NULL,
-#   PRIMARY KEY(provider, scene_id, cell_id, season)
+#   date_time TIMESTAMP WITH TIME ZONE NOT NULL,
+#   PRIMARY KEY(provider, cell_id, season)
 # );
 
 class PSQLPClient():
@@ -77,20 +78,20 @@ class PSQLPClient():
 
     def insert_row(self, row, curs):
         if self.enabled:
-            # [provider | scene_id | cell_id | season] | global_col | global_row | url | tms_url
+            # [provider] | scene_id | [cell_id | season] | global_col | global_row | url | tms_url | date_time
             curs.execute(
-                """INSERT INTO {} VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""".format(self.scene_data_table), 
+                """INSERT INTO {} VALUES (%s, %s, %s, %s, %s, %s, %s, %s, now())""".format(self.scene_data_table), 
                 (row['provider'], row['scene_id'], row['cell_id'], row['season'], row.get('global_col'), row.get('global_row'), row.get('url'), row.get('tms_url'))
             )
 
     def insert_rows_by_one(self, rows):
         if self.enabled:
-            # [provider | scene_id | cell_id | season] | global_col | global_row | url | tms_url
+            # [provider] | scene_id | [cell_id | season] | global_col | global_row | url | tms_url | date_time
                 curs = self.conn.cursor()
                 for row in rows:
                     try:
                         curs.execute(
-                            """INSERT INTO {} VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""".format(self.scene_data_table), 
+                            """INSERT INTO {} VALUES (%s, %s, %s, %s, %s, %s, %s, %s, now())""".format(self.scene_data_table), 
                             (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7])
                         )
                     except psycopg2.IntegrityError:
@@ -98,10 +99,10 @@ class PSQLPClient():
                         try:
                             curs.execute(
                                 """
-                                UPDATE {} SET global_col = %s, global_row = %s, url = %s, tms_url = %s
-                                WHERE provider = %s AND scene_id = %s AND cell_id = %s AND season = %s
+                                UPDATE {} SET scene_id = %s, global_col = %s, global_row = %s, url = %s, tms_url = %s, date_time = now()
+                                WHERE provider = %s AND cell_id = %s AND season = %s
                                 """.format(self.scene_data_table),
-                                (row[4], row[5], row[6], row[7], row[0], row[1], row[2], row[3])
+                                (row[1], row[4], row[5], row[6], row[7], row[0], row[2], row[3])
                             )
                         except psycopg2.IntegrityError:
                             self.conn.rollback()
@@ -117,7 +118,7 @@ class PSQLPClient():
         if self.enabled:
             try:
                 curs = self.conn.cursor()
-                # [provider | scene_id | cell_id | season] | global_col | global_row | url | tms_url
+                # [provider] | scene_id | [cell_id | season] | global_col | global_row | url | tms_url | date_time
                 args_str = ','.join(curs.mogrify("%s", (row, )).decode('utf8') for row in rows)
                 curs.execute("INSERT INTO {} VALUES {}".format(self.scene_data_table, args_str)) #  ON CONFLICT DO NOTHING PSQL 9.5 only
                 self.conn.commit()
