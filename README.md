@@ -10,4 +10,6 @@ The crowdsourcing platform for the active learning framework, as adapted from th
 
 - A description of `mapper`'s [database](docs/database.md).
 
+- How `mapper` and `cvml` [interact](docs/) in the active learning process. 
+
 - [Old build notes](docs/build.md)
