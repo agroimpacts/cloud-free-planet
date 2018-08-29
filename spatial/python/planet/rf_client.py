@@ -126,6 +126,13 @@ class RFClient():
             scenes = [scene.id for scene in scenes]
         ).future.result()
 
+    def delete_project(self, project):
+        self.api.client.Imagery.delete_projects_uuid(uuid = project.id)
+
+    def delete_all_projects(self):
+        for project in self.api.projects:
+            self.delete_project(project)
+
     def create_scene_project(self, scene_id, scene_uri):
         if self.enabled:
             new_project = self.create_project("Project {}".format(scene_id), self.visibility, self.tileVisibility)
@@ -154,13 +161,16 @@ def main():
     config.read('cfg/config.ini')
 
     rfclient = RFClient(config)
+
+    # delete all projects
+    rfclient.delete_all_projects()
     
-    scene_uri = "s3://activemapper/planet/analytic_sr/GS/20161011_073242_0e0e.tif"
-    scene_id = "20161011_073242_0e0e"
+    # scene_uri = "s3://activemapper/planet/analytic_sr/GS/20161011_073242_0e0e.tif"
+    # scene_id = "20161011_073242_0e0e"
 
-    tms_uri = rfclient.create_tms_uri(scene_id, scene_uri)
+    # tms_uri = rfclient.create_tms_uri(scene_id, scene_uri)
 
-    print(tms_uri)
+    # print(tms_uri)
 
 if __name__ == "__main__":
     main()
