@@ -418,14 +418,16 @@ class PClientV1():
     def cleanup_catalog(self):
         self.logger.info("Catalog cleanup...")
         if self.with_immediate_cleanup & (not self.s3_only):
-            for season in ['OS', 'GS']:
-                try:
-                    for the_file in os.listdir(self.catalog_path + season):
-                        file_path = os.path.join(folder, the_file)
-                        if os.path.isfile(file_path):
-                            os.unlink(file_path)
-                except:
-                    self.logger("Could not remove a folder.")
+            for product_type in ['analytic', 'analytic_sr', 'analytic_xml', 'visual']:
+                for season in ['OS', 'GS']:
+                    lpath = "{}{}/{}".format(self.catalog_path, product_type, season)
+                    try:
+                        for the_file in os.listdir(lpath):
+                            file_path = os.path.join(folder, the_file)
+                            if os.path.isfile(file_path):
+                                os.unlink(file_path)
+                    except:
+                        self.logger.info("Could not remove a folder: {}".format(lpath))
 
 
     def close(self):
