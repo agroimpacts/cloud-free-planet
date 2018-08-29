@@ -181,3 +181,12 @@ make run-task
 # after finishing your work kill the cluster
 make cluster-down
 ```
+
+### Docker
+
+List of published docker images:
+
+- test docker image (with enabled test mode): `554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:test`
+- csv only docker image: `554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:csv_only`
+- geojson Ghana only docker image: `554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:ghana_geojson_only`
+- both csv and Ghana json download `554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:ghana`

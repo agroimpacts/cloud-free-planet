@@ -54,6 +54,22 @@ class RFClient():
                 }
         ]
 
+    def tms_with_map_token(self, project):
+        url = ''
+        try:
+            tile_path = '/tiles/{id}/{{z}}/{{x}}/{{y}}/'.format(id = project.id)
+            token = project.get_map_token()
+            url = '{scheme}://{host}{tile_path}?mapToken={token}'.format(
+                scheme=self.api.api.scheme, host=self.api.api.tile_host,
+                tile_path=tile_path, token=self.apit.api.api_token
+            )
+        except:
+            self.logger.info("Oops, could not get mapToken, using a common uri with token...")
+            url = project.tms()
+        
+        return url
+
+
     def create_project(self, project_name, visibility = 'PRIVATE', tileVisibility = 'PRIVATE'):
         return self.api.client.Imagery.post_projects(
             project = {
@@ -122,9 +138,10 @@ class RFClient():
         if self.enabled:
             try:
                 new_scene, new_project = self.create_scene_project(scene_id, scene_uri)
-                tms_uri = new_project.tms()
+                tms_uri = self.tms_with_map_token(new_project)
             except:
-                self.logger.info("An error happend during RF TMS URI creation, scene_id: {}, scene_uri: {}".format(scene_id, scene_uri))
+                self.logger.info("An error happened during RF TMS URI creation, scene_id: {}, scene_uri: {}".format(scene_id, scene_uri))
+
         return tms_uri
 
 # example main function        
