@@ -11,4 +11,4 @@ services:
       - ${PWD}/catalog:/opt/planet/catalog # mount local catalog
       - ${PWD}/cfg:/opt/planet/cfg # mount script configs
       - ${HOME}/.aws:/root/.aws # mount aws credentials
-    #  - ${HOME}/Downloads/:/opt/mg # mount master gird to speed up processing
+      # - ${HOME}/Downloads/:/opt/mg # mount master gird to speed up processing
