@@ -4,7 +4,7 @@ api_key: <none>
 [imagery]
 local_mode: False
 s3_only: False
-test: false
+test: False
 aoi: cfg/ghana_aoi.geojson
 with_csv: True
 csv_only: True
@@ -27,7 +27,9 @@ s3_catalog_prefix: planet
 with_analytic: False
 with_analytic_xml: False
 with_visual: False
+with_immediate_cleanup: True
 
+# ip-172-31-39-38.ec2.internal
 [database]
 host: <none>
 dbname: AfricaSandbox
