@@ -275,6 +275,8 @@ def main_csv():
                             pclient.drain()
                             # insert everything into psql
                             psqlclient.insert_rows_by_one_async(psql_rows)
+                            # cleanup local catalog
+                            pclient.cleanup_catalog()
 
     # await threadpool to stop
     neighbours_executor.close()
@@ -522,6 +524,8 @@ def main_json():
                                 pclient.drain()
                                 # insert everything into psql
                                 psqlclient.insert_rows_by_one_async(psql_rows)
+                                # cleanup local catalog
+                                pclient.cleanup_catalog()
 
                             # base_row = [cell_id, scene_id, season_type, ""]
                             # writer.writerow(base_row)
