@@ -1,5 +1,6 @@
 from rasterfoundry.api import API
 from rasterfoundry.models import Project
+from rasterfoundry.models import MapToken
 
 import logging
 import configparser
@@ -58,17 +59,17 @@ class RFClient():
         url = ''
         try:
             tile_path = '/tiles/{id}/{{z}}/{{x}}/{{y}}/'.format(id = project.id)
-            token = project.get_map_token()
+            token = self.create_map_token(project).id
+
             url = '{scheme}://{host}{tile_path}?mapToken={token}'.format(
-                scheme=self.api.api.scheme, host=self.api.api.tile_host,
-                tile_path=tile_path, token=self.apit.api.api_token
+                scheme=self.api.scheme, host=self.api.tile_host,
+                tile_path=tile_path, token=token
             )
         except:
             self.logger.info("Oops, could not get mapToken, using a common uri with token...")
             url = project.tms()
         
         return url
-
 
     def create_project(self, project_name, visibility = 'PRIVATE', tileVisibility = 'PRIVATE'):
         return self.api.client.Imagery.post_projects(
@@ -125,6 +126,12 @@ class RFClient():
             uuid = project.id, 
             scenes = [scene.id for scene in scenes]
         ).future.result()
+
+    def create_map_token(self, project):
+        return self.api.client.Imagery.post_map_tokens(MapToken = {
+            'name': 'planet_downloader generated token', 
+            'project': project.id
+        }).result()
 
     def delete_project(self, project):
         self.api.client.Imagery.delete_projects_uuid(uuid = project.id)
