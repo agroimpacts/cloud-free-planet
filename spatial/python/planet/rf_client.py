@@ -138,7 +138,11 @@ class RFClient():
 
     def delete_all_projects(self):
         for project in self.api.projects:
-            self.delete_project(project)
+            try:
+                self.delete_project(project)
+                self.logger.info("Project {} deleted".format(project.id))
+            except:
+                self.logger.info("Project {} can't be deleted".format(project.id))
 
     def create_scene_project(self, scene_id, scene_uri):
         if self.enabled:
@@ -162,6 +166,9 @@ class RFClient():
 def main():
     # disable ssl
     ssl._create_default_https_context = ssl._create_unverified_context
+
+    # logging format
+    logging.basicConfig(format = '%(message)s', datefmt = '%m-%d %H:%M')
 
     # read config
     config = configparser.ConfigParser()
