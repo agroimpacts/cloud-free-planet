@@ -134,7 +134,7 @@ class RFClient():
         }).result()
 
     def delete_project(self, project):
-        self.api.client.Imagery.delete_projects_uuid(uuid = project.id)
+        return self.api.client.Imagery.delete_projects_uuid(uuid = project.id).result()
 
     def delete_all_projects(self):
         for project in self.api.projects:
