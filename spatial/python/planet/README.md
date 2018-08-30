@@ -50,7 +50,7 @@ with_csv: True # to use ot not to use csv_points as an extra area of intrest
 csv_only: True # to use input csv file as the only aoi
 csv_mode: a # mode to open the output csv file (for instane a - append, w - write, etc.)
 csv_points: cfg/individual_sites_needing_images.csv # path to an extra AOI file
-resolution: 0.025 # master_grid cells resolution
+cellgrid_buffer: 0.05 # cellgrids extent buffer
 master_grid_path: s3://activemapper/grid/master_grid.tif # path to a master_grid, can be S3 or local
 max_clouds: 0.01 # max clouds perc 
 max_shadows: 0.01 # max shadows perc
