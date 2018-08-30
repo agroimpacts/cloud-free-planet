@@ -24,11 +24,13 @@ class GeoUtils():
 
     # returns extent by centroid and cellgrid resolution
     @classmethod
-    def define_extent(self, x, y, buffer = 0.005 / 2):
-        xmin = x - buffer
-        xmax = x + buffer
-        ymin = y - buffer
-        ymax = y + buffer
+    def define_extent(self, x, y, cellSize):
+        xSize, ySize = cellSize
+
+        xmin = x - xSize
+        xmax = x + xSize
+        ymin = y - ySize
+        ymax = y + ySize
 
         return {
             "xmin": xmin,
@@ -51,8 +53,8 @@ class GeoUtils():
         return BoundingBox(extent['xmin'], extent['ymin'], extent['xmax'], extent['ymax'])
 
     @classmethod
-    def define_BoundingBox(self, x, y, buffer = 0.005 / 2):
-        return self.extent_to_BoundingBox(self.define_extent(x, y, buffer))
+    def define_BoundingBox(self, x, y, cellSize):
+        return self.extent_to_BoundingBox(self.define_extent(x, y, cellSize))
 
     @classmethod
     def polygon_to_extent(self, polygon):
@@ -101,12 +103,12 @@ class GeoUtils():
         }
 
     @classmethod
-    def define_polygon(self, x, y, buffer = 0.005 / 2):
-        return self.extent_to_polygon(self.define_extent(x, y, buffer))
+    def define_polygon(self, x, y, cellSize):
+        return self.extent_to_polygon(self.define_extent(x, y, cellSize))
 
     @classmethod
-    def define_aoi(self, x, y, buffer = 0.005 / 2):
-        extent = self.define_extent(x, y, buffer)
+    def define_aoi(self, x, y, cellSize):
+        extent = self.define_extent(x, y, cellSize)
         xmin = extent['xmin']
         xmax = extent['xmax']
         ymin = extent['ymin']
