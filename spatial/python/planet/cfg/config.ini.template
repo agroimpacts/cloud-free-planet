@@ -10,7 +10,7 @@ with_csv: True
 csv_only: True
 csv_mode: a
 csv_points: cfg/individual_sites_needing_images.csv
-resolution: 0.025
+cellgrid_buffer: 0.05
 master_grid_path: s3://activemapper/grid/master_grid.tif
 max_clouds: 0.01
 max_shadows: 0.01
@@ -37,7 +37,7 @@ user: <none>
 password: <none>
 master_grid_table: master_grid
 scene_data_table: scenes_data
-enabled: Flase
+enabled: False
 
 [cloud_shadow]
 cloud_val: 1500
