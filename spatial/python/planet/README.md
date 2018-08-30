@@ -39,7 +39,8 @@ api_key: <none> # planet API key
 
 [imagery] # imagery settings
 local_mode: False # local mode means to donwload everything into local catalog without S3 uploads
-test: false # use a small test AOI
+s3_only: False # use only S3 without local files download, WARN: this may lead to data corruption on S3
+test: False # use a small test AOI
 aoi: cfg/ghana_aoi.geojson # path to a desired AOI
 with_csv: True # to use ot not to use csv_points as an extra area of intrest
 csv_only: True # to use input csv file as the only aoi
@@ -62,6 +63,7 @@ s3_catalog_prefix: planet # s3 target prefix
 with_analytic: False # download analytic product in addition to a default analytic_sr
 with_analytic_xml: False # download analytic_xml product in addition to a default analytic_sr
 with_visual: False # download visual product in addition to a default analytic_sr
+with_immediate_cleanup: True # cleanup local catalog after performing all operations on the local file
 
 [database] # database settings
 host: <none> # address of the PSQL database
@@ -70,7 +72,7 @@ user: <none> # user
 password: <none> # password
 master_grid_table: master_grid # master_grid table name (optional)
 scene_data_table: scenes_data # scenes data table
-enabled: Flase # to write output into PSQL or not
+enabled: True # to write output into PSQL or not
 
 [cloud_shadow] # cloud detection function settings
 cloud_val: 1500
@@ -122,6 +124,9 @@ Install and confgiure AWS ECS CLI
   - https://github.com/aws/amazon-ecs-cli
   - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_tutorial_EC2.html 
 
+Install and configure AWS CLI and Docker
+  - TIP: don't forget to add your user into `docker` user group after its installation: `sudo usermod -aG docker your-user`
+
 Usual commands descriptions you would have to use:
 - `make login-aws-registry` to authorize in ECS AWS Registry to push docker image
 - `docker-compose build` to build docker image and after that push it via `docker push 554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader`
@@ -167,6 +172,9 @@ docker push 554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:my-fa
 
 # introduce changes into deployment/docker-compose.yml file
 # change the tag of the image
+
+# only needs to be run once per user
+make configure-cluster
 
 # run cluster
 make cluster-up
