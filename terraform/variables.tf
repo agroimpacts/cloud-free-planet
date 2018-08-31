@@ -84,25 +84,25 @@ variable "bs_prefix" {
 variable "geopyspark_jars" {
   type        = "string"
   description = "Comma-separated list of URIs pointing to GeoPySpark jars"
-  default     = "s3://geopyspark-dependency-jars/geotrellis-backend-assembly-0.4.2.jar"
+  default     = "s3://geopyspark-resources/jars/geotrellis-backend-assembly-0.4.2.jar"
 }
 
 variable "geopyspark_uri" {
   type        = "string"
   description = "URI from which the GeoPySpark Python code is to be obtained"
-  default     = "https://github.com/locationtech-labs/geopyspark/archive/cfe5a5b7ce8ef9b1961bb4144f4efced2ed0c652.zip"
+  default     = "https://github.com/locationtech-labs/geopyspark/archive/6f617b712eab74c2fd0de8d7f82c45d4ee5a5ba7.zip"
 }
 
 variable "rasterframes_sha" {
   type = "string"
   description = "Rasterframes Github SHA"
-  default = "92c70f27cb48e167bb204886f5d5360b6c253d15"
+  default = "0ccf2e4f953e6658b0d30d487a8b912bbed12649"
 }
 
 variable "rasterframes_version" {
   type = "string"
   description = "Version of Rasterframes artifacts"
-  default = "0.7.1-SNAPSHOT"
+  default = "0.7.3-GT2"
 }
 
 variable "user_defined_sg" {

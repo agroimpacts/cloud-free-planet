@@ -1,5 +1,6 @@
 mapper:
-    DEBUG: True
+    DEBUG: 
+    SECRET_KEY: 
     # Key connection parameters.
     db_production_name: 
     db_sandbox_name: 
@@ -19,8 +20,9 @@ mapper:
     MAIL_PASSWORD: 
 
     # Planet Settings
-    PL_API_KEY:
+    PL_API_KEY: 
 
 cvml:
     aws_access: 
-    aws_secret:
+    aws_secret: 
+    aws_region: 

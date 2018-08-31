@@ -1,8 +1,12 @@
-# This email address has been configured on trac.princeton.edu in
-# /etc/aliases and /usr/local/etc/email2trac to create a ticket
-# under the Internal Alert component.
-MAILTO=lestes@clarku.edu,dmcr@princeton.edu
+# This MAILTO email address has been configured on user sandbox to create an Internal Alert GitHub issue.
+# See common/procmail_crontab_issue_rc under user sandbox.
+# This crontab script can run from any user account (including root) on crowdmapper.org .
+MAILTO=sandbox@crowdmapper.org
 SHELL=/bin/bash
 # Min Hour(0-23) Day Month DOW Command
-15 01 * * * PGDIR=/home/mapper/afmap/pgsql;export PGPASSFILE=$PGDIR/pgpassfile_mapper;$PGDIR/daily_backup.sh
-15 02 * * * PGDIR=/home/sandbox/afmap/pgsql;export PGPASSFILE=$PGDIR/pgpassfile_sandbox;$PGDIR/daily_backup.sh
+15 23 * * * PGDIR=/home/mapper/mapper/pgsql;export PGPASSFILE=$PGDIR/pgpassfile_mapper;$PGDIR/daily_backup.sh
+45 23 * * * PGDIR=/home/sandbox/mapper/pgsql;export PGPASSFILE=$PGDIR/pgpassfile_sandbox;$PGDIR/daily_backup.sh
+
+# Renew Let's Encrypt certs for mapper an sandbox if expiring soon.
+15 00 * * Sun /bin/certbot renew
+30 00 * * Sun /sbin/service httpd restart

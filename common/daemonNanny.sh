@@ -8,37 +8,39 @@ if [ -z "$COMMAND" ]; then
     echo "`date`: Usage: $0 <full_daemon_path>"
     exit 1
 fi
-if [ ! -x "$COMMAND" ]; then
-    echo "`date`: $COMMAND does not exist or is not executable"
-    exit 2
-fi
-
 # Notification skip count: set this to the number of crontab intervals to skip
 # before reporting the same notification again. E.g., setting notifSkipCount to 12
 # would imply that identical notifications would be generated only once an hour
 # assuming 5-minute crontab check intervals.
 NotifSkipCount=144          # 12 hours
 
-AFMAP_HOME=`dirname $0`/..
+MAPPER_HOME=`dirname $0`/..
 PROGRAM=`basename $COMMAND`
 BASEPROGRAM=${PROGRAM%.*}
-PIDFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.pid
-LOGFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.oe.log
-VARFILE=${AFMAP_HOME}/log/${BASEPROGRAM}.var
+PIDFILE=${MAPPER_HOME}/log/${BASEPROGRAM}.pid
+LOGFILE=${MAPPER_HOME}/log/${BASEPROGRAM}.oe.log
+VARFILE=${MAPPER_HOME}/log/${BASEPROGRAM}.var
 
 NOW=`/bin/date '+%m/%d/%Y %H:%M:%S'`
 
-# This email address has been configured on trac.princeton.edu in
-# /etc/aliases and /usr/local/etc/email2trac.conf to create a ticket
-# under the Internal Alert component.
-TO="lestes@clarku.edu,dmcr@princeton.edu"
-
-# Utility functions
-email() {
-    /bin/mail -s "$SUBJECT" "$TO" << EOEMAIL
-$emailBody
-EOEMAIL
+# Generate a GitHub issue when an unexpected event occurs.
+createIssue() {
+    ${MAPPER_HOME}/common/tools/create_alert_issue.py "$SUBJECT" "$alertBody"
 }
+
+if [ ! -x "$COMMAND" ]; then
+    echo "`date`: $COMMAND does not exist or is not executable"
+    SUBJECT="Daemon nanny cannot start non-existent or non-executable $PROGRAM daemon"
+    alertBody=`/bin/cat <<EOF
+$SUBJECT
+
+Daemon $PROGRAM could not be started at $NOW.
+Check to make sure it exists and is executable.
+EOF`
+    createIssue
+
+    exit 2
+fi
 
 checkrestart() {
     restart=0
@@ -49,6 +51,11 @@ checkrestart() {
     else
         restart=1
     fi
+}
+
+checkuptime() {
+    uptime=(`cat /proc/uptime`)
+    upseconds=${uptime[0]%.*}
 }
 
 # Retrieve the variable values:
@@ -62,53 +69,60 @@ else
     varArray=(0 0 0)
 fi
 
-
 # Main path starts here
 checkrestart
-if [ $restart == 1 ]; then
+# Daemon not running: System startup, or we killed it, or it failed.
+# We need to start the daemon.
+if [[ $restart -eq 1 ]]; then
     nohup $COMMAND >>$LOGFILE 2>&1 &
     echo $! >$PIDFILE
     sleep 20
     checkrestart
-    if [ $restart == 1 ]; then
-        if [[ ${varArray[0]} == 0 ]]; then
+    # Daemon still not running after 20 seconds. Report problem periodically.
+    if [[ $restart -eq 1 ]]; then
+        if [[ ${varArray[0]} -eq 0 ]]; then
             varArray[1]=0
             varArray[2]=0
             echo "`date`: Failed to restart $PROGRAM"
-            SUBJECT="Daemon nanny has failed to restart a daemon"
-            emailBody=`/bin/cat <<EOF
+            SUBJECT="Daemon nanny has failed to restart $PROGRAM daemon"
+            alertBody=`/bin/cat <<EOF
 $SUBJECT
 
 Daemon $PROGRAM failed to restart at $NOW.
 Please check $LOGFILE for details.
 EOF`
-            email
+            createIssue
         fi
         let varArray[0]=${varArray[0]}+1
         if [[ ${varArray[0]} -ge $NotifSkipCount ]]; then
             varArray[0]=0
         fi
+    # Daemon still running after 20 seconds. Report change of state periodically.
+    # NOTE: Normal case when system starts up.
     else
-        if [[ ${varArray[1]} == 0 ]]; then
+        # Don't create alert if daemon start is within 10 minutes of system boot.
+        checkuptime
+        if [[ ${varArray[1]} -eq 0 && $upseconds -gt 600 ]]; then
             varArray[0]=0
             varArray[2]=0
             echo "`date`: $PROGRAM restarted"
-            SUBJECT="Daemon nanny has restarted a daemon"
-            emailBody=`/bin/cat <<EOF
+            SUBJECT="Daemon nanny has restarted $PROGRAM daemon"
+            alertBody=`/bin/cat <<EOF
 $SUBJECT
 
 Daemon $PROGRAM restarted at $NOW.
 Please check $LOGFILE for details.
 EOF`
-            email
+            createIssue
         fi
         let varArray[1]=${varArray[1]}+1
         if [[ ${varArray[1]} -ge $NotifSkipCount ]]; then
             varArray[1]=0
         fi
     fi
+# Daemon already running. Just increment the already-running count.
 else
-    if [[ ${varArray[2]} == 0 ]]; then
+    if [[ ${varArray[2]} -eq 0 ]]; then
         varArray[0]=0
         varArray[1]=0
         echo "`date`: $PROGRAM already running"
