@@ -1,7 +1,7 @@
 version: '3'
 services:
   planet-downloader:
-    image: 554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:test
+    image: 554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:ghana
     command: python planet_download_tiff.py
     logging:
       driver: awslogs
