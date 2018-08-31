@@ -1,6 +1,7 @@
 # Must be run from same dir as terraform variables
 # terraform binary must be callable from shell
 import os
+import re
 from MappingCommon import MappingCommon
 import subprocess
 
@@ -14,11 +15,17 @@ def main():
     # starts cvml cluster and a single iteration
     os.chdir(mapc.projectRoot + "/terraform")
     id_cluster = subprocess.Popen("source " + mapc.projectRoot + "/common/bashrc_mapper.sh ; " +
-                                mapc.projectRoot + "/terraform/terraform apply -auto-approve",
-                                cwd=mapc.projectRoot + "/terraform", shell=True, stdout=subprocess.PIPE, 
-                                stderr=subprocess.STDOUT).communicate()[0]
+                                  mapc.projectRoot + "/terraform/terraform apply -auto-approve",
+                                  stderr=subprocess.STDOUT).communicate()[0]
     if rf_init == 0 and (not not id_cluster):
-        return str.split(str.split(id_cluster, "\n")[-3], " = ")[1]
+        try:
+            if bool(re.match("^[a-z]-[a-zA-Z0-9]{13}$", str.split(str.split(id_cluster, "\n")[-3], " = ")[1])):
+                return str.split(str.split(id_cluster, "\n")[-3], " = ")[1]
+            else:
+                return False
+        except IndexError, error:
+            print error
+            return False
     else:
         return False
 
