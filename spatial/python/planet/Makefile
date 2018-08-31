@@ -1,25 +1,35 @@
+CONFIG_NAME := planet-downloader-config-${USER}
+CLUSTER_NAME := planet-downloader-cluster-${USER}
+INSTANCE_TYPE := c4.large
+INSTANCE_ROLE := PlanetDownloaderECSRole
+SIZE := 1
+KEYPAIR := daunnc
+SUBNETS := subnet-638f0c39
+VPC := vpc-e48b1a9d
+SECURITY_GROUP := sg-ac924ee6
+
 login-aws-registry: 
 	eval `aws ecr get-login --no-include-email --region us-east-1`
 
 configure-cluster:
-	ecs-cli configure --cluster planet-downloader-cluster --region us-east-1 --config-name planet-downloader-config
+	ecs-cli configure --cluster ${CLUSTER_NAME} --region us-east-1 --config-name ${CONFIG_NAME}
 
 cluster-down:
-	ecs-cli down --cluster-config planet-downloader-config
+	ecs-cli down --cluster-config ${CONFIG_NAME}
 
 cluster-up:
-	ecs-cli up --keypair daunnc \
-			   --instance-role PlanetDownloaderECSRole \
-			   --size 1 \
-			   --instance-type c4.large \
-			   --cluster-config planet-downloader-config \
-			   --subnets subnet-638f0c39 \
-			   --vpc vpc-e48b1a9d \
-			   --security-group sg-ac924ee6 \
+	ecs-cli up --keypair ${KEYPAIR} \
+			   --instance-role ${INSTANCE_ROLE} \
+			   --size ${SIZE} \
+			   --instance-type ${INSTANCE_TYPE} \
+			   --cluster-config ${CONFIG_NAME} \
+			   --subnets ${SUBNETS} \
+			   --vpc ${VPC} \
+			   --security-group ${SECURITY_GROUP} \
 			   --force
 
 run-task:
-	cd deployment; ecs-cli compose up --create-log-groups --cluster-config planet-downloader-config
+	cd deployment; ecs-cli compose up --create-log-groups --cluster-config ${CONFIG_NAME}
 
 stop-task:
 	cd deployment; ecs-cli compose down
