@@ -19,6 +19,7 @@ def application(environ, start_response):
     mapc.cur.execute("""select x, y from kml_data inner join master_grid using (name) 
             where name = '%s'""" % kmlName)
     (lon, lat) = mapc.cur.fetchone()
+    mapc.dbcon.commit()
     lon = float(lon)
     lat = float(lat)
     

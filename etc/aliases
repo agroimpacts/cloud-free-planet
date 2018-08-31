@@ -2,12 +2,12 @@
 # --------------------------------------
 # mapper.princeton.edu traffic routing
 
-mturk_notification: "| /home/mapper/afmap/processmail/bin/processmail --user mapper --umask 007 --script /home/mapper/afmap/mturk/process_notifications.py"
-mturk_sandbox_notification: "| /home/sandbox/afmap/processmail/bin/processmail --user sandbox --umask 007 --script /home/sandbox/afmap/mturk/process_notifications.py"
+mturk_notification: "| /home/mapper/mapper/processmail/bin/processmail --user mapper --umask 007 --script /home/mapper/mapper/mturk/process_notifications.py"
+mturk_sandbox_notification: "| /home/sandbox/mapper/processmail/bin/processmail --user sandbox --umask 007 --script /home/sandbox/mapper/mturk/process_notifications.py"
 
-worker_inquiry: "| /home/mapper/afmap/processmail/bin/processmail --user mapper --umask 007 --script /home/mapper/afmap/mturk/worker_inquiry.py"
-worker_sandbox_inquiry: "| /home/sandbox/afmap/processmail/bin/processmail --user sandbox --umask 007 --script /home/sandbox/afmap/mturk/worker_inquiry.py"
+worker_inquiry: "| /home/mapper/mapper/processmail/bin/processmail --user mapper --umask 007 --script /home/mapper/mapper/mturk/worker_inquiry.py"
+worker_sandbox_inquiry: "| /home/sandbox/mapper/processmail/bin/processmail --user sandbox --umask 007 --script /home/sandbox/mapper/mturk/worker_inquiry.py"
 
 # --------------------------------------
-processmail_test1: "| /home/sandbox/afmap/processmail/src/processmail_test.sh"
-processmail_test2: "| /home/sandbox/afmap/processmail/bin/processmail --user sandbox --umask 007 --script /home/sandbox/afmap/processmail/src/processmail_test.sh"
+processmail_test1: "| /home/sandbox/mapper/processmail/src/processmail_test.sh"
+processmail_test2: "| /home/sandbox/mapper/processmail/bin/processmail --user sandbox --umask 007 --script /home/sandbox/mapper/processmail/src/processmail_test.sh"

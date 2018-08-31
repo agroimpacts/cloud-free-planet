@@ -152,5 +152,3 @@ qfn_ids <- qfn_ids[order(id)]
 f <- "../data/processed/individual_sites_needing_images.csv"
 if(!file.exists(f)) fwrite(qfn_ids, file = f, row.names = FALSE)
 ```
-
-

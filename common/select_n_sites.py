@@ -46,16 +46,13 @@ k.close()
 
 while True:
     # Query polling interval
-    mapc.cur.execute("select value from configuration where key = 'KMLPollingInterval';")
-    kml_polling_interval = int(mapc.cur.fetchone()[0])
+    kml_polling_interval = int(mapc.getConfiguration('KMLPollingInterval'))
 
     # Target batch size: should be at least 500
-    mapc.cur.execute("select value from configuration where key = 'NKMLBatchSize';")
-    kml_batch_size = int(mapc.cur.fetchone()[0])
+    kml_batch_size = int(mapc.getConfiguration('NKMLBatchSize'))
 
     # how many unmapped kmls should there be, at a minimum
-    mapc.cur.execute("select value from configuration where key = 'MinAvailNKMLTarget';")
-    min_avail_kml = int(mapc.cur.fetchone()[0])
+    min_avail_kml = int(mapc.getConfiguration('MinAvailNKMLTarget'))
 
     # how many unmapped kmls are there?
     mapc.cur.execute(
@@ -64,20 +61,21 @@ while True:
         "and delete_time is null) and (kml_type = 'N' or kml_type = 'F') "
         "and mapped_count = 0")
     avail_kml_count = int(mapc.cur.fetchone()[0])
+    mapc.dbcon.commit()
 
     # Get the anchor of loading data
-    mapc.cur.execute("select value from system_data where key = 'firstAvailLine';")
-    first_avail_line = int(mapc.cur.fetchone()[0])
+    first_avail_line = int(mapc.getSystemData('firstAvailLine'))
 
     # Select new grid cells for conversion to kmls if N unmapped < min_avail_kml
     if avail_kml_count < min_avail_kml:
         # Step 1. Poll the database to see which grid IDs are still available
         # Including fwts >= 5, there might be less than 500 once.
-        mapc.cur.execute("select id, name from master_grid where avail = 'T' and gid >= " +
+        mapc.cur.execute("select name from master_grid where avail = 'T' and gid >= " +
                          str(first_avail_line) + " and gid <= " +
                          str(first_avail_line + kml_batch_size - 1) +
                          " and fwts >= " + str(fwt))
         xy_tabs = mapc.cur.fetchall()
+        mapc.dbcon.commit()
 
         try:
             # Step 2. Update database tables
@@ -85,15 +83,14 @@ while True:
             # Update master to show grid is no longer available for selecting/writing
             for row in xy_tabs:
                 xy_tab = row + (kml_type, 0)
-                insert_query = "insert into kml_data (gid, name, kml_type, mapped_count) values (%s, %s, %s, %s);"
+                insert_query = "insert into kml_data (name, kml_type, mapped_count) values (%s, %s, %s);"
                 mapc.cur.execute(insert_query, xy_tab)
                 mapc.cur.execute("update master_grid set avail='%s' where name = '%s'" % (kml_type, row[1]))
             mapc.dbcon.commit()
 
             # Update the first_avail_line in configuration
             new_line = first_avail_line + kml_batch_size
-            mapc.cur.execute("update system_data set value='%s' where key='firstAvailLine'" % new_line)
-            mapc.dbcon.commit()
+            mapc.setSystemData('firstAvailLine', new_line)
 
             end_time = str(DT.now())
 

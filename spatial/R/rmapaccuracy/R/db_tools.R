@@ -1,68 +1,58 @@
 #' Find correct root path and database name 
-#' @param db.sandbox.name Name of development server/database
-#' @param db.production.name Name of production server/database
-#' @param db.tester.name Name of non-sandbox user, for testing
-#' @param alt.root An alternative root, for testing off of mapper VM
 #' @return Root path and database name in named vector 
 #' @note The function arguments currently default to Africa*, so expect 
 #' these to change with project upgrades
 #' @export
-get_db_name <- function(db.sandbox.name = 'AfricaSandbox', 
-                        db.production.name = 'Africa', 
-                        db.tester.name = NULL, alt.root = NULL) {
+get_db_name <- function() {
   info <- Sys.info()
   euser <- unname(info["effective_user"])
-  if(euser == "sandbox") {
-    sandbox <- TRUE
-    uname <- "sandbox"
-  } else if(euser == "mapper") {
+  if(euser == "mapper") {
     sandbox <- FALSE
     uname <- "mapper"
-  } else if(!is.null(db.tester.name)) {
-    if(euser == db.tester.name) {
-      sandbox <- TRUE
-      uname <- "sandbox"
-    }
-  }
-  else {
-    stop("Any R script must run under sandbox or mapper user")
-  }
-
-  # Project root path  
-  if(!is.null(alt.root)) {
-    project.root <- alt.root
   } else {
-    project.root <- paste("/home/", uname, "/afmap", sep = "")  
+    sandbox <- TRUE
+    uname <- euser
   }
   
+  # Project root
+  project_root <- file.path(Sys.getenv("HOME"), "mapper")
+  
+  # Parse config
+  common_path <- file.path(project_root, "common")
+  params <- yaml::yaml.load_file(file.path(common_path, 'config.yaml'))
+
   # DB Names
   if(sandbox == TRUE) {
-    db.name <- db.sandbox.name
+    db_name <- params$mapper$db_sandbox_name
   } else {
-    db.name <- db.production.name
+    db_name <- params$mapper$db_production_name
   }
-  return(c("db.name" = db.name, "project.root" = project.root))
+  
+  # # credentials
+  # params <- yaml::yaml.load_file(file.path(project.root, 'common/config.yaml'))
+  olist <- list("db_name" = db_name, "project_root" = project_root, 
+                "user" = params$mapper$db_username, 
+                "password" = params$mapper$db_password)
+  return(olist)
 }
 
 #' Find correct root path and database name 
-#' @param user User name for mapper database
-#' @param password Password for mapper database
 #' @param host NULL is running on crowdmapper, else crowdmapper.org for remote
-#' @param db.tester.name Name of non-sandbox user, for testing
-#' @param alt.root An alternative root, for testing off of mapper VM
 #' @return Database connection, root path, and database name in list
 #' @note The function arguments currently default to SouthAfrica*, so expect 
 #' these to change with project upgrades
 #' @import DBI
 #' @export
-mapper_connect <- function(user, password, host = NULL, 
-                           db.tester.name = NULL, alt.root = NULL) {
-  # pull working environment
-  dinfo <- get_db_name(db.tester.name = db.tester.name, alt.root = alt.root)
+mapper_connect <- function(host = NULL) {
+  dinfo <- get_db_name()  # pull working environment
+  # common_path <- file.path(dinfo["project.root"], "common")
+  # params <- yaml::yaml.load_file(file.path(common_path, 'config.yaml'))
+  
   # Paths and connections
   con <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), host = host, 
-                        dbname = dinfo["db.name"],   
-                        user = user, password = password)
+                        dbname = dinfo$db_name,   
+                        user = dinfo$user, 
+                        password = dinfo$password)
   return(list("con" = con, "dinfo" = dinfo))
 }
 

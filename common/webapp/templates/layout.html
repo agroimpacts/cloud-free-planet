@@ -5,6 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- These 3 meta tags MUST come first -->
+        <meta http-equiv="refresh" content="{{ current_user.sessionLifetime }}; url={{ url_for('user.logout') }}">
 
         <title>{{ user_manager.app_name }}</title>
 

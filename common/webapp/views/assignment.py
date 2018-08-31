@@ -117,6 +117,7 @@ def assignment():
                 WHERE worker_id = '%s' AND status = '%s' LIMIT 1""" % 
                 (workerId, MappingCommon.HITAssigned))
         row = mapc.cur.fetchone()
+        mapc.dbcon.commit()
         if row is not None:
             kmlName = row[0]
             hitId = row[1]

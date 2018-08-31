@@ -9,7 +9,9 @@ APP_NAME = "Agricultural Mapping Platform"
 APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
 
 # Flask settings
-CSRF_ENABLED = True
+WTF_CSRF_ENABLED = True
+# Set CSRF time limit to the life of the session
+WTF_CSRF_TIME_LIMIT = None
 
 # Flask-SQLAlchemy settings
 SQLALCHEMY_TRACK_MODIFICATIONS = False
