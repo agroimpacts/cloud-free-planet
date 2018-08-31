@@ -2,6 +2,7 @@
 
 A set of scripts to download a minimal `master_grid` coverage of cloudless planet scenes.
 
+#### TOC
 - [Environment](#environment)
 - [Usage](#usage)
 - [Docker](#docker)
@@ -11,6 +12,7 @@ A set of scripts to download a minimal `master_grid` coverage of cloudless plane
 - [AWS](#aws)
 - [Local workflow example](#local-workflow-example)
 - [AWS ECS workflow example](#aws-ecs-workflow-example)
+- [Test downloading for a small area](#test-downloading-for-a-small-area)
 
 ### Environment
 
@@ -32,6 +34,8 @@ Be sure that all neccesary changes were introduced into the [cfg/config.ini](./c
 NOTES: 
 - It may also be required to introduce all necessary changes into `docker-compose.yml` file. 
 - You will have to install docker locally if you don't already have it. 
+
+[Back to TOC](#toc) 
 
 ### config.ini description
 
@@ -94,6 +98,8 @@ visibility: PRIVATE # project visibility
 tileVisibility: PRIVATE # tile visibility
 ```
 
+[Back to TOC](#toc) 
+
 ### Scripts description
 
 - [filter_callable.py](./filter-callable.py) - cloud detection function implementation
@@ -121,6 +127,8 @@ CREATE TABLE scenes_data (
     PRIMARY KEY(provider, cell_id, season)
 );
 ```
+
+[Back to TOC](#toc) 
 
 ### AWS
 
@@ -156,6 +164,7 @@ make run-local
 # in case you want to run it without docker
 python planet_download_tiff.py
 ```
+[Back to TOC](#toc) 
 
 ### AWS ECS workflow example
 
@@ -193,8 +202,9 @@ make run-task
 # after finishing your work kill the cluster
 make cluster-down
 ```
+[Back to TOC](#toc) 
 
-### Running a Small Test
+### Test downloading for a small area
 
 You might find it beneficial to run a small test area.  This can be achieved in several ways: 
 
@@ -203,9 +213,14 @@ You might find it beneficial to run a small test area.  This can be achieved in 
     - Go [here](https://github.com/agroimpacts/mapperAL/blob/a938547c2404eb470038e8ec379d6005b0d35231/spatial/python/planet/planet_download_tiff.py#L303) and set the test extent you want (provide the x, y coordinates of the centerpoint and then the buffer size in decimal degrees, e.g. 0.05, 0.1)
     - In `config.ini`, change the [test](https://github.com/agroimpacts/mapperAL/blob/a938547c2404eb470038e8ec379d6005b0d35231/spatial/python/planet/cfg/config.ini.template#L7) and [with_csv](https://github.com/agroimpacts/mapperAL/blob/a938547c2404eb470038e8ec379d6005b0d35231/spatial/python/planet/cfg/config.ini.template#L9) parameters to `False`.  
     - Also in `config.ini`, change the name of the [output_filename](https://github.com/agroimpacts/mapperAL/blob/a938547c2404eb470038e8ec379d6005b0d35231/spatial/python/planet/cfg/config.ini.template#L21) to something intelligible indicating that you are making a test catalog, e.g. planet_catalog_test.csv.  Note that you cannot use the [csv_only](https://github.com/agroimpacts/mapperAL/blob/a938547c2404eb470038e8ec379d6005b0d35231/spatial/python/planet/cfg/config.ini.template#L10) if you have set `test: False`. 
-    
-2. Provide your own AOI, or list of cell IDs in a csv.  Example in 
+  
+2. Provide your own AOI, or list of cell IDs in a csv.  
+    - Example files: `ghana_aoi.geojson`; `individual_sites_needing_images.csv`
+    - The second two steps above apply here. 
 
+A note about test mode: you can only write your test output to a csv. It will not write to _scenes_data_. This helps avoid conflicts between jobs run by multiple users.
+
+[Back to TOC](#toc) 
 
 ### Docker
 
@@ -215,3 +230,5 @@ List of published docker images:
 - csv only docker image: `554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:csv_only`
 - geojson Ghana only docker image: `554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:ghana_geojson_only`
 - both csv and Ghana json download `554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:ghana`
+
+[Back to TOC](#toc) 
