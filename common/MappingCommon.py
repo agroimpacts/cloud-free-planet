@@ -80,7 +80,18 @@ class MappingCommon(object):
 
     def __init__(self, projectRoot=None):
         
-        params = self.parse_yaml("config.yaml")
+        # Determine sandbox/mapper based on effective user name.
+        self.euser = pwd.getpwuid(os.getuid()).pw_name
+        self.home = os.environ['HOME']
+        self.projectRoot = '%s/mapper' % self.home
+        if self.euser == 'mapper':
+            self.mapper = True
+        else:
+            self.mapper = False
+            if projectRoot is not None:
+                self.projectRoot = projectRoot
+
+        params = self.parseYaml("config.yaml")
 
         db_production_name = params['mapper']['db_production_name']
         db_sandbox_name = params['mapper']['db_sandbox_name']
@@ -89,24 +100,7 @@ class MappingCommon(object):
         # GitHub user maphelp's token
         github_token = params['mapper']['github_token']
         github_repo = params['mapper']['github_repo']
-
-        # Determine sandbox/mapper based on effective user name.
-        self.euser = pwd.getpwuid(os.getuid()).pw_name
-        if self.euser == 'mapper':
-            self.mapper = True
-            self.projectRoot = '/home/mapper/afmap'
-        else:
-            if projectRoot is None:
-                if self.euser == 'sandbox':
-                    self.mapper = False
-                    self.projectRoot = '/home/sandbox/afmap'
-                else:
-                    self.mapper = False
-                    self.projectRoot = '/home/%s/afmap_private' % self.euser
-            else:
-                self.mapper = False
-                self.projectRoot = projectRoot
-
+        
         if self.mapper:
             self.db_name = db_production_name
         else:
@@ -129,36 +123,37 @@ class MappingCommon(object):
     #
 
     # Parse yaml file of configuration parameters.
-    def parse_yaml(self, input_file):
-        input_file = self.findProjectFile(input_file)
+    def parseYaml(self, input_file):
+        input_file = "%s/common/%s" % (self.projectRoot, input_file)
         with open(input_file, 'r') as yaml_file:
             params = yaml.load(yaml_file)
         return params
-
-    # Project files are non-python files stored under the PYTHONPATH directory.
-    # PYTHONPATH env var not defined when running under apache. Need to look in sys.path instead.
-    def findProjectFile(self, filename):
-        for dirname in sys.path:
-            candidate = os.path.join(dirname, filename)
-            if os.path.isfile(candidate):
-                return candidate
-        raise Error("Can't find file %s" % filename)
 
     # Retrieve a tunable parameter from the configuration table.
     def getConfiguration(self, key):
         self.cur.execute("select value from configuration where key = '%s'" % key)
         try:
-            return self.cur.fetchone()[0]
+            value = self.cur.fetchone()[0]
         except TypeError as e:
             if str(e).startswith("'NoneType'"):
-                return None
+                value = None
             else:
                 raise
+        self.dbcon.commit();
+        return value
 
     # Retrieve a runtime parameter from the system_data table.
     def getSystemData(self, key):
         self.cur.execute("select value from system_data where key = '%s'" % key)
-        return self.cur.fetchone()[0]
+        try:
+            value = self.cur.fetchone()[0]
+        except TypeError as e:
+            if str(e).startswith("'NoneType'"):
+                value = None
+            else:
+                raise
+        self.dbcon.commit();
+        return value
 
     # Set a runtime parameter in the system_data table.
     def setSystemData(self, key, value):
@@ -180,17 +175,20 @@ class MappingCommon(object):
     def querySingleValue(self, sql):
         self.cur.execute(sql)
         try:
-            return self.cur.fetchone()[0]
+            value = self.cur.fetchone()[0]
         except TypeError as e:
             if str(e).startswith("'NoneType'"):
-                return None
+                value = None
             else:
                 raise
+        self.dbcon.commit();
+        return value
 
     # Retrieve the KML type and its description for a  given KML name.
     def getKmlType(self, kmlName):
         self.cur.execute("select kml_type from kml_data where name = '%s'" % kmlName)
         kmlType = self.cur.fetchone()[0]
+        self.dbcon.commit()
         if kmlType == MappingCommon.KmlQAQC:
             kmlTypeDescr = 'QAQC'
         elif kmlType == MappingCommon.KmlFQAQC:
@@ -212,7 +210,9 @@ class MappingCommon(object):
     # Retrieve circular buffer from specified column for specified worker.
     def getCB(self, dbField, workerId):
         self.cur.execute("select %s from worker_data where worker_id = %s" % (dbField,'%s'), (workerId,))
-        return self.cur.fetchone()[0]
+        cb = self.cur.fetchone()[0]
+        self.dbcon.commit()
+        return cb
 
     # Add new value to circular buffer for scores.
     def pushScore(self, workerId, value):
@@ -231,6 +231,7 @@ class MappingCommon(object):
         # Get the worker ID for this assignment.
         self.cur.execute("select worker_id from assignment_data where assignment_id = '%s'" % assignmentId)
         workerId = self.cur.fetchone()[0]
+        self.dbcon.commit()
         depth = int(self.getConfiguration('Quality_ReturnHistDepth'))
         returns = self.getCB(self.ReturnsCol, workerId)
         if returns is None:
@@ -307,6 +308,7 @@ class MappingCommon(object):
         select = '<select id="categLabel" title="Select a category for this field">\n'
         self.cur.execute("select category, categ_description, categ_default from categories order by sort_id")
         categories = self.cur.fetchall()
+        self.dbcon.commit()
         for category in categories:
             categName = category[0]
             categDesc = category[1]
@@ -321,14 +323,25 @@ class MappingCommon(object):
         select += "</select>\n"
         return select
 
-    # Get WMS attribute array for specified KML name.
-    def getWMSAttributes(self, kmlName):
-        self.cur.execute("""SELECT provider, image_name, style, zindex, visible, description
-                FROM wms_data
-                WHERE enabled AND name = '%s'
-                ORDER BY zindex""" % kmlName)
+    # Create XYZ attribute array for specified KML name.
+    # First row is for growing season, and 2nd row is for off-season.
+    # Only select the first DB row for each.
+    # If no row, specify None as the url.
+    def getXYZAttributes(self, kmlName):
+        urls = []
+        for season in ['GS', 'OS']:
+            self.cur.execute("""SELECT season, tms_url 
+                    FROM scenes_data sd INNER JOIN master_grid mg
+                    ON (sd.cell_id = mg.id)
+                    WHERE season = '%s' AND name = '%s'
+                    LIMIT 1""" % (season, kmlName))
+            row = self.cur.fetchone()
+            if row is None:
+                row = [season, None]
+            urls.append(row) 
+        self.dbcon.commit()
         # Using json.dumps because of embedded quotes in 2D array.
-        return json.dumps(self.cur.fetchall())
+        return json.dumps(urls)
 
     #
     # *** HIT-Related Functions ***
@@ -363,6 +376,7 @@ class MappingCommon(object):
             order by k.gid
             limit 1""" % (kmlType, maxAssignments, gid))
         row = self.cur.fetchone()
+        self.dbcon.commit()
         if row:
             kmlName = row[0]
             mappedCount = row[1]
@@ -530,6 +544,7 @@ class MappingCommon(object):
                     'assignmentsPending': assignmentsPending, 'assignmentsCompleted': assignmentsCompleted,
                     'assignmentsRemaining': assignmentsRemaining, 'status': status, 
                     'assignments': assignments }
+        self.dbcon.commit()
         if len(hits) == 0:
             return None
         else:
@@ -548,6 +563,7 @@ class MappingCommon(object):
         assignments = {}
         for asgmt in self.cur.fetchall():
             assignments[asgmt[0]] = {'workerId': asgmt[1], 'completionTime': asgmt[2], 'status': asgmt[3]}
+        self.dbcon.commit()
         return assignments
         
     # Create a HIT for the specified KML ID.
@@ -597,17 +613,11 @@ class MappingCommon(object):
     # Return floating point score (0.0-1.0), or None if could not be scored.
     def kmlAccuracyCheck(self, kmlType, kmlName, assignmentId, tryNum=None):
         if kmlType == MappingCommon.KmlTraining:
-            # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum)],
-            # Replace the 2 instances of "dmcr" in the next line with your user name.
-            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "tr", kmlName, str(assignmentId), str(tryNum), "dmcr", "/home/dmcr/afmap_private"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         elif kmlType == MappingCommon.KmlQAQC:
             # Note: "None" must be passed as a string here.
-            # Uncomment the next line and comment the following one for release.
             scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None"],
-            # Replace the 2 instances of "dmcr" in the next line with your user name.
-            #scoreString = subprocess.Popen(["Rscript", "%s/spatial/R/KMLAccuracyCheck.R" % self.projectRoot, "qa", kmlName, str(assignmentId), "None", "dmcr", "/home/dmcr/afmap_private"],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
         else:
             assert False
@@ -619,11 +629,10 @@ class MappingCommon(object):
         
     # generate ConsensusMap
     # Return true or false
-    def generateConsensusMap(self, k, kmlName, minMapCount, kmlusage):
-        
+    def generateConsensusMap(self, k, kmlName, kmlusage):
         try:
            riskPixelPercentage = float(subprocess.Popen(["Rscript",
-                                                "%s/spatial/R/consensus_map_generator.R" % self.projectRoot, kmlName, kmlusage, str(minMapCount)],
+                                                "%s/spatial/R/consensus_map_generator.R" % self.projectRoot, kmlName, kmlusage, "FALSE"],
                                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0])
         except Exception as e:
            k.write("generateConsensusMap fails for %s: \n %s \n" % (kmlName, e))  
@@ -631,7 +640,7 @@ class MappingCommon(object):
         else:
            # using 10% as risk threshold for warning, if risky pixel percentage is larger
            # than 10% for a kml, the system will yield a warning (but won't stop)
-           riskWarningThres = float(self.getConfiguration('Consensus_RiskWarningThreshold'))
+           riskWarningThres = float(self.getConfiguration('Consensus_WarningThreshold'))
            if riskPixelPercentage is None:
                k.write(
                    "generateConsensusMap: consensus creation fails for %s\n" % kmlName)
@@ -941,6 +950,7 @@ class MappingCommon(object):
             where worker_id = %s and status = %s order by completion_time""", 
             (workerId, MappingCommon.HITPending,))
         assignments = self.cur.fetchall()
+        self.dbcon.commit()
 
         # If none then there's nothing to do.
         if len(assignments) == 0:

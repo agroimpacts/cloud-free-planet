@@ -13,10 +13,11 @@ s3_upload <- function(proj.root, bucketname, local.object, s3.dst, s3.filename){
     tm <- format(Sys.time(), "%Y%m%d%H%M%OS2")
     
     # Set up AWS keys and region here.
-    # The better way is set the aws credentials in "~/.aws/credentials" file
-    Sys.setenv("AWS_ACCESS_KEY_ID" = "AKIAIGOJBD5GZDQ7UY5A",
-               "AWS_SECRET_ACCESS_KEY" = "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",
-               "AWS_DEFAULT_REGION" = "us-east-1")
+    common_path <- file.path(proj.root, "common")
+    params <- yaml::yaml.load_file(file.path(common_path, 'config.yaml'))
+    Sys.setenv("AWS_ACCESS_KEY_ID" = params$cvml$aws_access,
+               "AWS_SECRET_ACCESS_KEY" = params$cvml$aws_secret,
+               "AWS_DEFAULT_REGION" = params$cvml$aws_region)
     
     # create a local temp file
     localfile <- paste0(proj.root, "/spatial/R/tmp_consensus_map/", 

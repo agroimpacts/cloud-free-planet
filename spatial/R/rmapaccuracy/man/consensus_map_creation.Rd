@@ -4,28 +4,19 @@
 \alias{consensus_map_creation}
 \title{Control the output of label maps, risk maps, and heat maps}
 \usage{
-consensus_map_creation(kmlid, min.mappedcount, kml.usage, output.riskmap,
-  riskpixelthres, diam, user, password, db.tester.name, alt.root, host,
+consensus_map_creation(kmlid, kml.usage, output.riskmap, diam, host,
   qsite = FALSE)
 }
 \arguments{
 \item{kmlid}{}
 
-\item{min.mappedcount}{the minimum approved assignment count}
-
 \item{kml.usage}{the use of kml, could be 'train, 'validate' or 'holdout';
 This parameter will determine the directory of S3 folder to store consensus 
 maps.}
 
-\item{user}{User name for database connection}
-
-\item{password}{Password for database connection}
-
-\item{db.tester.name}{User name for testing (default NULL)}
-
-\item{alt.root}{Alternative location for writing out maps (default NULL)}
-
 \item{host}{NULL or "crowdmapper.org", if testing from remote location}
+
+\item{qsite}{Q ir F site?  Default is FALSE}
 
 \item{riskthres}{the threshold to select 'risk' pixels}
 }

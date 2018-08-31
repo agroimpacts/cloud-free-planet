@@ -1,28 +1,19 @@
 #' Control the output of label maps, risk maps, and heat maps 
 #' @param kmlid 
-#' @param min.mappedcount the minimum approved assignment count
 #' @param kml.usage the use of kml, could be 'train, 'validate' or 'holdout';
 #' This parameter will determine the directory of S3 folder to store consensus 
 #' maps.
 #' @param riskthres the threshold to select 'risk' pixels
-#' @param user User name for database connection
-#' @param password Password for database connection
-#' @param db.tester.name User name for testing (default NULL)
-#' @param alt.root Alternative location for writing out maps (default NULL)
 #' @param host NULL or "crowdmapper.org", if testing from remote location
+#' @param qsite Q ir F site?  Default is FALSE
 #' @return Sticks conflict/risk percentage pixels into database (kml_data) and
 #' writes rasterized labels to S3 bucket.
 #' @importFrom raster ncell
 #' @export
-#' 
-consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
-                                   output.riskmap, riskpixelthres, diam, 
-                                   user, password, db.tester.name, alt.root, 
+consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam, 
                                    host, qsite = FALSE) {
   
-  coninfo <- mapper_connect(user = user, password = password,
-                            db.tester.name = db.tester.name, 
-                            alt.root = alt.root, host = host)
+  coninfo <- mapper_connect(host = host)
   # prjstr <- as.character(tbl(coninfo$con, "spatial_ref_sys") %>% 
   #                          filter(srid == prjsrid) %>% 
   #                          select(proj4text) %>% collect())
@@ -41,12 +32,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
                             kmlid, "'")
   mappedcount <- as.numeric((DBI::dbGetQuery(coninfo$con, 
                                              mappedcount.sql))$mapped_count)
- 
-  if (mappedcount < min.mappedcount) {
-    stop("there is not enough approved assignment for creating consensus maps")
-  }
 
-  
   # query assignmentid flagged as 'approved'
   assignment.sql <- paste0("select assignment_id from assignment_data", 
                            " where hit_id ='", hitid, 
@@ -91,7 +77,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
     }
     
     # query all valid likelihood and score from history assignments
-    userhistories <- lapply(c(1:length(historyassignmentid)), function(x) {
+    userhistories <- lapply(c(1:length(historyassignmentid)), function(x){
    
       # query likelihood and scores
       likelihood.sql <- paste0("select new_score, field_skill, nofield_skill",
@@ -126,32 +112,43 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
       qual_userhistories <- NA
     }
     else{
-      # read all valid likelihood and score from history qual_assignments
-      qual_userhistories <- lapply(c(1:length(qual_historyassignmentid)), 
-                                   function(x) {
-        # query likelihood and scores
-        likelihood.sql <- paste0("select new_score, field_skill, nofield_skill",
-                                 " from qual_accuracy_data where assignment_id='",
-                                 qual_historyassignmentid[x], "'") 
-        measurements <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
-                                                         likelihood.sql))
-        
-        # field_skill and nofield_skill are alias of max.field.lklh 
-        # and max.nofield.lklh 
-        if (nrow(measurements) != 0){
-          c('ml.field' = as.numeric(measurements$field_skill), 
-            'ml.nofield' = as.numeric(measurements$nofield_skill), 
-            'score.hist' = as.numeric(measurements$new_score))
-        }
-        else{
-          NA
-        }
+        # read all valid likelihood and score from history qual_assignments
+       qual_userhistories <- lapply(c(1:length(qual_historyassignmentid)), function(x){
+            try.sql <- paste0("select try from qual_accuracy_data where assignment_id='",
+                              qual_historyassignmentid[x], "'")
+            trys <- suppressWarnings(DBI::dbGetQuery(coninfo$con, try.sql))
+              
+            if (nrow(trys) == 0){
+              likelihood.sql <- paste0("select new_score, field_skill, nofield_skill",
+                                       " from qual_accuracy_data where assignment_id='",
+                                       qual_historyassignmentid[x], "'") 
+            } else{
+              # query likelihood and scores
+              likelihood.sql <- paste0("select new_score, field_skill, nofield_skill",
+                                       " from qual_accuracy_data where assignment_id='",
+                                       qual_historyassignmentid[x], "' and try='",
+                                       max(trys),"'") 
+            }                            
+            
+            measurements <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
+                                                               likelihood.sql))
+              
+            # field_skill and nofield_skill are alias of max.field.lklh 
+            # and max.nofield.lklh 
+            if (nrow(measurements) != 0){
+              c('ml.field' = as.numeric(measurements$field_skill), 
+                'ml.nofield' = as.numeric(measurements$nofield_skill), 
+                'score.hist' = as.numeric(measurements$new_score))
+            }
+            else{
+                NA
+            }
       })
     }
     
     
     ##########################################################################
-    # combine assignment and qual assignment and delete NA values
+    # combine regular assignment hisotry for the user and delete NA values
     if (length(userhistories[!is.na(userhistories)]) != 0){
       userhistories <- data.frame(do.call(rbind, 
                                           userhistories[!is.na(userhistories)]))
@@ -162,7 +159,8 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
                                   'score.hist' = NA)
     }
     
-    if (length(userhistories[!is.na(userhistories)]) != 0){
+    # combine qual assignment hisotry for the user
+    if (length(qual_userhistories[!is.na(qual_userhistories)]) != 0){
       qual_userhistories <- data.frame(do.call(rbind,
                                                qual_userhistories[
                                                  !is.na(qual_userhistories)]))
@@ -186,7 +184,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
     user.sql <- paste0("select name, geom_clean ",
                        "FROM user_maps INNER JOIN categories ", 
                        "USING (category) where assignment_id='",  
-                       assignmentid, "' ",
+                        x, "' ",
                        "AND categ_group ='field'")
     user.polys <- suppressWarnings(DBI::dbGetQuery(coninfo$con, 
                                                      gsub(", geom_clean", 
@@ -216,12 +214,16 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
       user.poly <- st_union(user.polys)
         
       # if for F sites, we need to first intersection user maps by grid 
-      # to remain those within-grid parts for calculation
+      # to retain those within-grid parts for calculation
       if(qsite == FALSE) {
         user.poly <- suppressMessages(st_intersection(user.poly, grid.poly))
       }
       
-      geometry.user = user.poly
+      if(length(user.poly) == 0){
+        geometry.user = st_polygon()
+      }else{
+        geometry.user = user.poly
+      }
     }
     else {
       # if users do not map field, set geometry as empty polygon
@@ -235,7 +237,7 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
                                                     geom_column = 'geom_clean'))
       
       # select only polygons
-      user.polys.unsure <- user.polys %>% filter(st_is(. , "POLYGON"))
+      user.polys.unsure <- user.polys.unsure  %>% filter(st_is(. , "POLYGON"))
       
       # union user unsure polygons
       user.poly.unsure <- st_union(user.polys.unsure)
@@ -246,8 +248,12 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
         user.poly.unsure <- suppressMessages(st_intersection(user.poly.unsure, 
                                                              grid.poly))
       }
+      if(length(user.poly.unsure) == 0){
+        geometry.user.unsure = st_polygon()
+      }else{
+        geometry.user.unsure = user.poly.unsure
+      }
       
-      geometry.user.unsure = user.poly.unsure
     }
     else {
       # if users do not map field, set geometry as empty polygon
@@ -306,13 +312,20 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
                                        rasterextent = rasterextent,
                                        threshold = 0.5)
   
+  # call risky pixel threshold from configuration table
+  riskthreshold.sql <- paste0("SELECT value ",
+                              "FROM configuration WHERE ",
+                              "key='Consensus_RiskyPixelThreshold'")
+  
+  riskpixelthres <- as.numeric(dbFetch(DBI::dbSendQuery(coninfo$con, 
+                                                        riskthreshold.sql))$value)
+  
   riskpixelpercentage <- round(ncell(bayesoutput$riskmap
                                    [bayesoutput$riskmap > riskpixelthres]) /
                              (nrow(bayesoutput$riskmap) * 
                                 ncol(bayesoutput$riskmap)), 2)
-  # need add riskpixelpercentage column into kml_data tables
+  
   # insert risk pixel percentage into kml_data table
-  # UPDATE Student SET NAME = 'PRATIK', ADDRESS = 'SIKKIM' WHERE ROLL_NO = 1;
   risk.sql <- paste0("update kml_data set consensus_conflict = '", 
                     riskpixelpercentage, "' where name = '", kmlid, "'")
   dbSendQuery(coninfo$con, risk.sql) 
@@ -339,23 +352,25 @@ consensus_map_creation <- function(kmlid, min.mappedcount, kml.usage,
   #                                              provider.sql))
   
   # set provider as planet, and will change once provider table is complete
-  provider <- "planet"
+  # provider <- "planet"
   
-  s3.dst.train <- paste0(s3.dst, provider, '/', kml.usage, '/')
+  s3.dst.train <- paste0(s3.dst, '/labels/')
   
-  bucketname <- unlist(strsplit(s3.dst, '/'))[1]
+  bucketname <- unlist(strsplit(s3.dst.train, '/'))[1]
   
-  # s3.dst <- paste0("activemapper/sources/train/")  
+  # s3.dst <- paste0(":activemapper/sources/train/")  
   s3.filename <- paste0(kmlid, '_', rowcol[1, 'col'], '_', rowcol[1, 'row'])
-  s3_upload(coninfo$dinfo["project.root"], bucketname, 
+  s3_upload(coninfo$dinfo["project_root"], bucketname, 
             bayesoutput$labelmap, 
             substr(s3.dst.train, nchar(bucketname) + 1, nchar(s3.dst.train)),
             s3.filename)
   
   if(output.riskmap == TRUE) { 
     s3.filename <- paste(kmlid + "_risk")
-    s3_upload(coninfo$dinfo["project.root"], bucketname, bayesoutput$riskmap, 
-              s3.dst, s3.filename)
+    s3_upload(coninfo$dinfo["project_root"], bucketname, 
+              bayesoutput$riskmap, 
+              substr(s3.dst.train, nchar(bucketname) + 1, nchar(s3.dst.train)),
+              s3.filename)
   }
    
   #######################################################
