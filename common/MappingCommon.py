@@ -334,7 +334,7 @@ class MappingCommon(object):
                     FROM scenes_data sd INNER JOIN master_grid mg
                     ON (sd.cell_id = mg.id)
                     WHERE season = '%s' AND name = '%s'
-                    LIMIT 1""" % (season, kmlName))
+                    ORDER BY date_time DESC""" % (season, kmlName))
             row = self.cur.fetchone()
             if row is None:
                 row = [season, None]
