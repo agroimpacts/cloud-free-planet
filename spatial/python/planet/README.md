@@ -126,6 +126,8 @@ Install and confgiure AWS ECS CLI
 
 Install and configure AWS CLI and Docker
   - TIP: don't forget to add your user into `docker` user group after its installation: `sudo usermod -aG docker your-user`
+  - if you still run into permissions issues it is because of past `sudo` use. Run the following and then log in/log out
+  -  `sudo chown -R user:usergroup /home/user/.docker` and `sudo chown -R user:usergroup /home/user/mapperAL/spatial/python/planet`
 
 Usual commands descriptions you would have to use:
 - `make login-aws-registry` to authorize in ECS AWS Registry to push docker image
