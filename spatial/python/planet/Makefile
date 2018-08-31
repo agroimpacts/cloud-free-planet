@@ -1,6 +1,6 @@
 CONFIG_NAME := planet-downloader-config-${USER}
 CLUSTER_NAME := planet-downloader-cluster-${USER}
-INSTANCE_TYPE := c4.large
+INSTANCE_TYPE := c4.2xlarge
 INSTANCE_ROLE := PlanetDownloaderECSRole
 SIZE := 1
 KEYPAIR := daunnc
