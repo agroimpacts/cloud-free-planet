@@ -4,13 +4,13 @@ api_key: <none>
 [imagery]
 local_mode: False
 s3_only: False
-test: false
+test: False
 aoi: cfg/ghana_aoi.geojson
 with_csv: True
 csv_only: True
 csv_mode: a
 csv_points: cfg/individual_sites_needing_images.csv
-resolution: 0.025
+cellgrid_buffer: 0.05
 master_grid_path: s3://activemapper/grid/master_grid.tif
 max_clouds: 0.01
 max_shadows: 0.01
@@ -27,7 +27,9 @@ s3_catalog_prefix: planet
 with_analytic: False
 with_analytic_xml: False
 with_visual: False
+with_immediate_cleanup: True
 
+# ip-172-31-39-38.ec2.internal
 [database]
 host: <none>
 dbname: AfricaSandbox
@@ -35,7 +37,7 @@ user: <none>
 password: <none>
 master_grid_table: master_grid
 scene_data_table: scenes_data
-enabled: Flase
+enabled: False
 
 [cloud_shadow]
 cloud_val: 1500

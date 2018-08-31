@@ -1,23 +1,25 @@
 # Planet downloader scripts
 
-A set of scripts to download a minimal `master_gird` coverage of cloudless planet scenes.
+A set of scripts to download a minimal `master_grid` coverage of cloudless planet scenes.
 
+#### TOC
 - [Environment](#environment)
 - [Usage](#usage)
 - [Docker](#docker)
-- [config.ini description](#configini-description)
+- [config.ini description](#config.ini-description)
 - [scripts description](#scripts-description)
 - [PSQL table description](#psql-table-description)
 - [AWS](#aws)
 - [Local workflow example](#local-workflow-example)
 - [AWS ECS workflow example](#aws-ecs-workflow-example)
+- [Test downloading for a small area](#test-downloading-for-a-small-area)
 
 ### Environment
 
 You'd need to have installed `Python 3` on your machine and installed `AWS` credentials, 
 or is is possible run eveyrthing through `Docker`.
 
-Be sure that all neccesary changes were introduced into the [cfg/confing.ini](./cfg/config.ini.template) file.
+Be sure that all neccesary changes were introduced into the [cfg/config.ini](./cfg/config.ini.template) file.
 
 ### Usage
 
@@ -29,9 +31,15 @@ Be sure that all neccesary changes were introduced into the [cfg/confing.ini](./
 - Build a local docker image: `docker-compose build`
 - Run downloader script: `docker-compose run planet-downloader`
 
-NOTICE: It can be also required to introduce all necessary changes into `docker-compose.yml` file.
+NOTES: 
+- It may also be required to introduce all necessary changes into `docker-compose.yml` file. 
+- You will have to install docker locally if you don't already have it. 
+
+[Back to TOC](#toc) 
 
 ### config.ini description
+
+A [template](https://github.com/agroimpacts/mapperAL/blob/devel/spatial/python/planet/cfg/config.ini.template) for the `config.ini` file is provided in cfg/. You will have to rename this from `config.ini.template` to `config.ini`, save it to the same location, and fill in/change the necessary parameter values. *Do not commit config.ini*, as this can expose private credentials to the public.    
 
 ```ini
 [planet] # planet settings
@@ -39,13 +47,14 @@ api_key: <none> # planet API key
 
 [imagery] # imagery settings
 local_mode: False # local mode means to donwload everything into local catalog without S3 uploads
-test: false # use a small test AOI
+s3_only: False # use only S3 without local files download, WARN: this may lead to data corruption on S3
+test: False # use a small test AOI
 aoi: cfg/ghana_aoi.geojson # path to a desired AOI
 with_csv: True # to use ot not to use csv_points as an extra area of intrest
 csv_only: True # to use input csv file as the only aoi
 csv_mode: a # mode to open the output csv file (for instane a - append, w - write, etc.)
 csv_points: cfg/individual_sites_needing_images.csv # path to an extra AOI file
-resolution: 0.025 # master_grid cells resolution
+cellgrid_buffer: 0.05 # cellgrids extent buffer
 master_grid_path: s3://activemapper/grid/master_grid.tif # path to a master_grid, can be S3 or local
 max_clouds: 0.01 # max clouds perc 
 max_shadows: 0.01 # max shadows perc
@@ -62,6 +71,7 @@ s3_catalog_prefix: planet # s3 target prefix
 with_analytic: False # download analytic product in addition to a default analytic_sr
 with_analytic_xml: False # download analytic_xml product in addition to a default analytic_sr
 with_visual: False # download visual product in addition to a default analytic_sr
+with_immediate_cleanup: True # cleanup local catalog after performing all operations on the local file
 
 [database] # database settings
 host: <none> # address of the PSQL database
@@ -70,7 +80,7 @@ user: <none> # user
 password: <none> # password
 master_grid_table: master_grid # master_grid table name (optional)
 scene_data_table: scenes_data # scenes data table
-enabled: Flase # to write output into PSQL or not
+enabled: True # to write output into PSQL or not
 
 [cloud_shadow] # cloud detection function settings
 cloud_val: 1500
@@ -87,6 +97,8 @@ api_uri: app.rasterfoundry.com # uri to rf
 visibility: PRIVATE # project visibility 
 tileVisibility: PRIVATE # tile visibility
 ```
+
+[Back to TOC](#toc) 
 
 ### Scripts description
 
@@ -116,11 +128,18 @@ CREATE TABLE scenes_data (
 );
 ```
 
+[Back to TOC](#toc) 
+
 ### AWS
 
 Install and confgiure AWS ECS CLI
   - https://github.com/aws/amazon-ecs-cli
   - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_tutorial_EC2.html 
+
+Install and configure AWS CLI and Docker
+  - TIP: don't forget to add your user into `docker` user group after its installation: `sudo usermod -aG docker your-user`
+  - if you still run into permissions issues it is because of past `sudo` use. Run the following and then log in/log out
+  -  `sudo chown -R user:usergroup /home/user/.docker` and `sudo chown -R user:usergroup /home/user/mapperAL/spatial/python/planet`
 
 Usual commands descriptions you would have to use:
 - `make login-aws-registry` to authorize in ECS AWS Registry to push docker image
@@ -147,6 +166,7 @@ make run-local
 # in case you want to run it without docker
 python planet_download_tiff.py
 ```
+[Back to TOC](#toc) 
 
 ### AWS ECS workflow example
 
@@ -168,6 +188,9 @@ docker push 554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:my-fa
 # introduce changes into deployment/docker-compose.yml file
 # change the tag of the image
 
+# only needs to be run once per user
+make configure-cluster
+
 # run cluster
 make cluster-up
 
@@ -181,3 +204,33 @@ make run-task
 # after finishing your work kill the cluster
 make cluster-down
 ```
+[Back to TOC](#toc) 
+
+### Test downloading for a small area
+
+You might find it beneficial to run a small test area.  This can be achieved in several ways: 
+
+1. Define the test extent within the code itself: 
+
+    - Go [here](https://github.com/agroimpacts/mapperAL/blob/a938547c2404eb470038e8ec379d6005b0d35231/spatial/python/planet/planet_download_tiff.py#L303) and set the test extent you want (provide the x, y coordinates of the centerpoint and then the buffer size in decimal degrees, e.g. 0.05, 0.1)
+    - In `config.ini`, change the [test](https://github.com/agroimpacts/mapperAL/blob/a938547c2404eb470038e8ec379d6005b0d35231/spatial/python/planet/cfg/config.ini.template#L7) and [with_csv](https://github.com/agroimpacts/mapperAL/blob/a938547c2404eb470038e8ec379d6005b0d35231/spatial/python/planet/cfg/config.ini.template#L9) parameters to `False`.  
+    - Also in `config.ini`, change the name of the [output_filename](https://github.com/agroimpacts/mapperAL/blob/a938547c2404eb470038e8ec379d6005b0d35231/spatial/python/planet/cfg/config.ini.template#L21) to something intelligible indicating that you are making a test catalog, e.g. planet_catalog_test.csv.  Note that you cannot use the [csv_only](https://github.com/agroimpacts/mapperAL/blob/a938547c2404eb470038e8ec379d6005b0d35231/spatial/python/planet/cfg/config.ini.template#L10) if you have set `test: False`. 
+  
+2. Provide your own AOI, or list of cell IDs in a csv.  
+    - Example files: `ghana_aoi.geojson`; `individual_sites_needing_images.csv`
+    - The second two steps above apply here. 
+
+A note about test mode: you can only write your test output to a csv. It will not write to _scenes_data_. This helps avoid conflicts between jobs run by multiple users.
+
+[Back to TOC](#toc) 
+
+### Docker
+
+List of published docker images:
+
+- test docker image (with enabled test mode): `554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:test`
+- csv only docker image: `554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:csv_only`
+- geojson Ghana only docker image: `554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:ghana_geojson_only`
+- both csv and Ghana json download `554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:ghana`
+
+[Back to TOC](#toc) 
