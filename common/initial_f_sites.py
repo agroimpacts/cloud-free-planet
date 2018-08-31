@@ -8,14 +8,14 @@ from MappingCommon import MappingCommon
 
 
 def main():
-    # Hardcoded
-    n_f = 100
-    pro_hd = 0.5
-    pro_hd1 = 0.5
-
     # Connect to the database
     mapc = MappingCommon()
     log_file_path = mapc.projectRoot + "/log"
+    
+    # Get the parameters
+    n_f = int(mapc.getConfiguration('InitialFnum'))
+    pro_hd = float(mapc.getConfiguration('ProportionHoldout'))
+    pro_hd1 = float(mapc.getConfiguration('ProportionHoldout1'))
 
     rlog_hdr = "Log of initial f sites start, ids written & times" + \
                os.linesep
