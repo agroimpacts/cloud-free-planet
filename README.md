@@ -14,7 +14,7 @@ Documentation is in the process of being updated. Here are a few pointers to som
 
 - How `mapper` and `cvml` [interact](docs/) in the active learning process. 
 
-- Image acquisition is currently provided by a [Planet downloader client](spatial/planet/README.md).
+- Image acquisition is currently provided by a [Planet downloader client](spatial/python/planet/README.md).
 
 ## Miscellaneous
 
