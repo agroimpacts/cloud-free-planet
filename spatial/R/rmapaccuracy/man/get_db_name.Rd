@@ -4,17 +4,7 @@
 \alias{get_db_name}
 \title{Find correct root path and database name}
 \usage{
-get_db_name(db.sandbox.name = "AfricaSandbox",
-  db.production.name = "Africa", db.tester.name = NULL, alt.root = NULL)
-}
-\arguments{
-\item{db.sandbox.name}{Name of development server/database}
-
-\item{db.production.name}{Name of production server/database}
-
-\item{db.tester.name}{Name of non-sandbox user, for testing}
-
-\item{alt.root}{An alternative root, for testing off of mapper VM}
+get_db_name()
 }
 \value{
 Root path and database name in named vector

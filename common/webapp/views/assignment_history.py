@@ -16,7 +16,7 @@ from webapp import csrf_protect
 from MappingCommon import MappingCommon
 
 hist_blueprint = Blueprint('hist_blueprint', __name__)
-# *** NOTE: This exempts this blueprint from CSRF protection, when we only need to exempt the jQuesry POST ***
+# *** NOTE: This exempts this blueprint from CSRF protection, when we only need to exempt the jQuery POST ***
 # *** This did not appear to be working so I had to disable CSRF globally for the app ***
 csrf_protect.exempt(hist_blueprint)
 
@@ -51,10 +51,7 @@ def assignment_history():
             k.write("worker inquiry: inquiryMessage = %s\n" % histForm.inquiryMessage.data)
             hitId = mapc.querySingleValue("SELECT hit_id FROM assignment_data WHERE assignment_id = %s" % 
                     histForm.inquiryId.data)
-            # Uncomment the next line and comment the following one for release.
             url = subprocess.Popen(["Rscript", "%s/spatial/R/check_worker_assignment.R" % mapc.projectRoot, str(hitId), str(workerId), "N"], 
-            # Replace the 2 instances of "dmcr" in the next line with your user name.
-            #url = subprocess.Popen(["Rscript", "%s/spatial/R/check_worker_assignment.R" % mapc.projectRoot, str(hitId), str(workerId), "N", "dmcr", "/home/dmcr/afmap_private"], 
                     stdout=subprocess.PIPE).communicate()[0]
             url = url.rstrip()
             inquiryResponse = "Thank you for your inquiry regarding:<br/>HIT ID: %s<br/>Your inquiry message was:<br/>%s<br/><br/>This has been sent to our administrators, who review all inquiries. Though we cannot individually respond to all inquiries, please click on the URL below, which shows your map in relation to ours. We hope this comparison will help address your question.<br/><br/>Map URL: <a href='%s' target='_blank'>Map Comparison</a>" % \
@@ -78,6 +75,7 @@ def assignment_history():
                 WHERE event_type IN ('%s', '%s') AND worker_id = %s ORDER BY event_time DESC""" %
                 (histForm.timeZone.data / 60, MappingCommon.EVTQualityBonus, MappingCommon.EVTTrainingBonus, workerId))
         histForm.bonusData.data = mapc.cur.fetchall()
+        mapc.dbcon.commit()
 
         k.write("history: Worker requested history.\n")
 

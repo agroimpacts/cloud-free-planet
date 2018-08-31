@@ -69,10 +69,10 @@ This script is no longer used. It supports a REST notifications via HTTP request
 ## Other scripts
 ### `process_notifications.py`
 This script is called by the postfix email management subsystem on the mapper server. The postfix hook is configured by an entry in the /etc/aliases file: 
-mturk_notification: "| /u/mapper/afmap/processmail/bin/processmail --user mapper --umask 007 --script /u/mapper/afmap/mturk/process_notifications.py"
+mturk_notification: "| /u/mapper/mapper/processmail/bin/processmail --user mapper --umask 007 --script /u/mapper/mapper/mturk/process_notifications.py"
 This intercepts emails addressed to mturk_notification@mapper.princeton.edu. (There is a corresponding entry for mail addressed to mturk_sandbox_notification@mapper.princeton.edu.) The above “aliases” entry passes the email to processmail, which performs security checks to ensure that it is being called from postfix as user root, and then passes the email to process_notifications.py as the specified user (e.g., mapper) with the specified umask (e.g., 007).
 
-Note that processmail needs to be rebuilt on a new server or if the mailer (e.g., postfix) is changed. This can be done by following the instructions in …/afmap/README.
+Note that processmail needs to be rebuilt on a new server or if the mailer (e.g., postfix) is changed. This can be done by following the instructions in …/mapper/README.
 
 After parsing the email body, `process_notifications.py`, like `process_notifications.wsgi`, calls `ProcessNotifications.py` to do the actual work.
 
@@ -112,7 +112,7 @@ It is sometimes sufficient to search by assignment ID, but it is often more usef
 
 Also, note that not all events report all HIT-related information: e.g., PREVIEW events only report a HIT ID, but not assignment or worker ID. And AssignmentReturned and AssignmentAbandoned events provide the HIT and assignment IDs, but not the worker ID. In this latter case, looking for this assignment ID in OL.log will tell you the worker ID that accepted the HIT before returning or abandoning it.
 
-It is usually helpful to search for a specific HIT ID in all log files: ‘grep <HIT_ID>  ~/afmap/log/*’.
+It is usually helpful to search for a specific HIT ID in all log files: ‘grep <HIT_ID>  ~/mapper/log/*’.
 
 Then the order of appearance for simple cases is: a creation event in createHit.log, followed by PREVIEW and ACCEPT requests in OL.log, followed by an AssignmentSubmitted event in notifications.log. However, in more complex cases where an assignment was returned or abandoned, the same KML under the same or different assignment ID will reappear in OL.log to be worked on by a different worker. This would then be followed by another submit, return, or abandonment event in notifications.log. Especially in these cases, it is necessary to look at the timestamps associated with all the events to develop a time trace of the order in which these actions happened.
 

@@ -8,14 +8,14 @@ from MappingCommon import MappingCommon
 
 
 def main():
-    # Hardcoded
-    n_f = 100
-    pro_hd = 0.5
-    pro_hd1 = 0.5
-
     # Connect to the database
     mapc = MappingCommon()
     log_file_path = mapc.projectRoot + "/log"
+    
+    # Get the parameters
+    n_f = int(mapc.getConfiguration('InitialFnum'))
+    pro_hd = float(mapc.getConfiguration('ProportionHoldout'))
+    pro_hd1 = float(mapc.getConfiguration('ProportionHoldout1'))
 
     rlog_hdr = "Log of initial f sites start, ids written & times" + \
                os.linesep
@@ -39,6 +39,7 @@ def main():
     # Randomly get n_f F sites of Ghana from f sites pool as initial F sites
     mapc.cur.execute("select setseed(0.5); select name from master_grid where avail = 'F' ORDER BY RANDOM() limit {}".format(n_f))
     names_f = mapc.cur.fetchall()
+    mapc.dbcon.commit()
 
     # Split all into holdout, validate and train.
     random.seed(10)

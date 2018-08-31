@@ -47,23 +47,22 @@ def main():
     # how many new incoming names so far
     mapc.cur.execute("select count(*) from incoming_names where processed = false")
     count_incoming_names = int(mapc.cur.fetchone()[0])
+    mapc.dbcon.commit()
 
     # Add the incoming names from cvml
     if count_incoming_names > 0:
         # Step 1. Get the new incoming names
         mapc.cur.execute("select name from incoming_names where processed = false")
         rows = mapc.cur.fetchall()
+        mapc.dbcon.commit()
         incoming_names = ', '.join("'{}'".format(row[0]) for row in rows)
-        mapc.cur.execute("select id, name from master_grid where name in (%s)"
-                         % incoming_names)
-        rows = mapc.cur.fetchall()
 
         try:
             # Step 2. Update database tables
             # Update kml_data to show new names added and their kml_type
             for row in rows:
                 xy_tab = row + (kml_type, 0)
-                insert_query = "insert into kml_data (gid, name, kml_type, mapped_count) values (%s, %s, %s, %s);"
+                insert_query = "insert into kml_data (name, kml_type, mapped_count) values (%s, %s, %s);"
                 mapc.cur.execute(insert_query, xy_tab)
                 mapc.dbcon.commit()
 
@@ -96,7 +95,7 @@ def main():
         mapc.createAlertIssue("None incoming names from cvml",
                               "Alert: Check if there is something wrong with cvml, there should be incoming names "
                               "always.")
-        return False
+        return True
 
 
 if __name__ == "__main__":
