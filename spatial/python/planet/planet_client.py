@@ -67,6 +67,7 @@ class PClientV1():
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         self.secondary_uploads_executor = FixedThreadPoolExecutor(size = 5)
+        self.with_immediate_cleanup = False
 
     def __init__(self, api_key, config):
         imagery_config = config['imagery']
@@ -108,6 +109,7 @@ class PClientV1():
         self.with_analytic = json.loads(imagery_config['with_analytic'].lower())
         self.with_analytic_xml = json.loads(imagery_config['with_analytic_xml'].lower())
         self.with_visual = json.loads(imagery_config['with_visual'].lower())
+        self.with_immediate_cleanup = json.loads(imagery_config['with_immediate_cleanup'].lower())
         self.local_mode = json.loads(imagery_config['local_mode'].lower())
         self.s3_only = json.loads(imagery_config['s3_only'].lower())
         self.transfer = S3Transfer(self.s3client)
@@ -413,8 +415,25 @@ class PClientV1():
     def drain(self):
         self.secondary_uploads_executor.drain()
 
+    def cleanup_catalog(self):
+        self.logger.info("Catalog cleanup...")
+        if self.with_immediate_cleanup & (not self.s3_only):
+            for product_type in ['analytic', 'analytic_sr', 'analytic_xml', 'visual']:
+                for season in ['OS', 'GS']:
+                    lpath = "{}{}/{}".format(self.catalog_path, product_type, season)
+                    try:
+                        for the_file in os.listdir(lpath):
+                            file_path = os.path.join(folder, the_file)
+                            if os.path.isfile(file_path):
+                                os.unlink(file_path)
+                    except:
+                        self.logger.info("Could not remove a folder: {}".format(lpath))
+
+
     def close(self):
         self.secondary_uploads_executor.close()
+        self.cleanup_catalog()
+
 
 if __name__ == "__main__":
     # disable ssl

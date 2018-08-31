@@ -1,5 +1,6 @@
 from rasterfoundry.api import API
 from rasterfoundry.models import Project
+from rasterfoundry.models import MapToken
 
 import logging
 import configparser
@@ -53,6 +54,22 @@ class RFClient():
                     "wavelength": [780, 860]
                 }
         ]
+
+    def tms_with_map_token(self, project):
+        url = ''
+        try:
+            tile_path = '/tiles/{id}/{{z}}/{{x}}/{{y}}/'.format(id = project.id)
+            token = self.create_map_token(project).id
+
+            url = '{scheme}://{host}{tile_path}?mapToken={token}'.format(
+                scheme=self.api.scheme, host=self.api.tile_host,
+                tile_path=tile_path, token=token
+            )
+        except:
+            self.logger.info("Oops, could not get mapToken, using a common uri with token...")
+            url = project.tms()
+        
+        return url
 
     def create_project(self, project_name, visibility = 'PRIVATE', tileVisibility = 'PRIVATE'):
         return self.api.client.Imagery.post_projects(
@@ -110,6 +127,23 @@ class RFClient():
             scenes = [scene.id for scene in scenes]
         ).future.result()
 
+    def create_map_token(self, project):
+        return self.api.client.Imagery.post_map_tokens(MapToken = {
+            'name': 'planet_downloader generated token', 
+            'project': project.id
+        }).result()
+
+    def delete_project(self, project):
+        return self.api.client.Imagery.delete_projects_uuid(uuid = project.id).result()
+
+    def delete_all_projects(self):
+        for project in self.api.projects:
+            try:
+                self.delete_project(project)
+                self.logger.info("Project {} deleted".format(project.id))
+            except:
+                self.logger.info("Project {} can't be deleted".format(project.id))
+
     def create_scene_project(self, scene_id, scene_uri):
         if self.enabled:
             new_project = self.create_project("Project {}".format(scene_id), self.visibility, self.tileVisibility)
@@ -122,9 +156,10 @@ class RFClient():
         if self.enabled:
             try:
                 new_scene, new_project = self.create_scene_project(scene_id, scene_uri)
-                tms_uri = new_project.tms()
+                tms_uri = self.tms_with_map_token(new_project)
             except:
-                self.logger.info("An error happend during RF TMS URI creation, scene_id: {}, scene_uri: {}".format(scene_id, scene_uri))
+                self.logger.info("An error happened during RF TMS URI creation, scene_id: {}, scene_uri: {}".format(scene_id, scene_uri))
+
         return tms_uri
 
 # example main function        
@@ -132,18 +167,24 @@ def main():
     # disable ssl
     ssl._create_default_https_context = ssl._create_unverified_context
 
+    # logging format
+    logging.basicConfig(format = '%(message)s', datefmt = '%m-%d %H:%M')
+
     # read config
     config = configparser.ConfigParser()
     config.read('cfg/config.ini')
 
     rfclient = RFClient(config)
+
+    # delete all projects
+    rfclient.delete_all_projects()
     
-    scene_uri = "s3://activemapper/planet/analytic_sr/GS/20161011_073242_0e0e.tif"
-    scene_id = "20161011_073242_0e0e"
+    # scene_uri = "s3://activemapper/planet/analytic_sr/GS/20161011_073242_0e0e.tif"
+    # scene_id = "20161011_073242_0e0e"
 
-    tms_uri = rfclient.create_tms_uri(scene_id, scene_uri)
+    # tms_uri = rfclient.create_tms_uri(scene_id, scene_uri)
 
-    print(tms_uri)
+    # print(tms_uri)
 
 if __name__ == "__main__":
     main()

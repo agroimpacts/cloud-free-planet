@@ -65,7 +65,7 @@ logger.setLevel(logging.INFO)
 logging.basicConfig(format = '%(message)s', datefmt = '%m-%d %H:%M')
 
 api_key = planet_config['api_key']
-resolution = float(imagery_config['resolution']) # 0.005 / 2
+cellgrid_buffer = 1 + float(imagery_config['cellgrid_buffer'])
 master_grid_path = imagery_config['master_grid_path'] # EPSG:4326
 GS = "GS" # growing, wet season
 OS = "OS" # off, dry season
@@ -94,6 +94,10 @@ features = geojson.load(open(imagery_config['aoi']))['features']
 actual_aoi = shape(MultiPolygon([Polygon(f['geometry']) for f in features]))
 
 def main_csv():
+    master_grid = rasterio.open(master_grid_path)
+    # (xsize, ysize)
+    cellSize = [s * cellgrid_buffer for s in master_grid.res]
+
     # sequence of cellgrids to walkthrough
     cell_grids = [ ]
 
@@ -104,11 +108,10 @@ def main_csv():
     for line in reader:
         (cell_id, x, y, cell_name) = line
         typed_line = (int(cell_id), float(x), float(y), cell_name)
-        extent = GeoUtils.define_extent(float(x), float(y))
+        extent = GeoUtils.define_extent(float(x), float(y), cellSize)
         idx.insert(int(cell_id), (extent['xmin'], extent['ymin'], extent['xmax'], extent['ymax']), obj = typed_line)
         cell_grids.append(typed_line)
 
-    master_grid = rasterio.open(master_grid_path)
     actual_extent = GeoUtils.BoundingBox_to_extent(master_grid.bounds)
 
     # split bands into separate numpy arrays
@@ -152,7 +155,7 @@ def main_csv():
 
                 logger.info("Processing cell_id {}...".format(cell_id))
                     
-                aoi = GeoUtils.define_aoi(x, y)  # aoi by a cell grid x, y
+                aoi = GeoUtils.define_aoi(x, y, cellSize)  # aoi by a cell grid x, y
 
                 psql_rows = []
                 for (season_type, m_start, m_end) in seasons:
@@ -192,7 +195,7 @@ def main_csv():
                                 # it should be sync, to allow async check of neighbours
                                 output_localfile, output_file = pclient.download_localfs_s3(scene_id, season = season_type)
                                 # use custom cloud detection function to calculate clouds and shadows
-                                cloud_perc, shadow_perc = cloud_shadow_stats_config(output_localfile, GeoUtils.define_BoundingBox(x, y), cloud_config)
+                                cloud_perc, shadow_perc = cloud_shadow_stats_config(output_localfile, GeoUtils.define_BoundingBox(x, y, cellSize), cloud_config)
                                 # check if cell grid is good enough
                                 if (cloud_perc <= pclient.max_clouds):
                                     break
@@ -226,7 +229,7 @@ def main_csv():
                                 global_sub_row, global_sub_col = master_grid.index(sx, sy)
 
                                 # polygon to check would it intersect initial AOI
-                                sub_poly = GeoUtils.define_polygon(sx, sy)
+                                sub_poly = GeoUtils.define_polygon(sx, sy, cellSize)
 
                                 skip_sub_row = valid_cell_grids[season_type][sr, sc]
                                 
@@ -241,14 +244,14 @@ def main_csv():
                                     if(seasons == sub_seasons):
                                         logger.info("Processing sub cell_id {}...".format(sub_cell_id))
 
-                                        sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
+                                        sub_aoi = GeoUtils.define_aoi(sx, sy, cellSize)  # aoi by a cell grid x, y
                                                     
                                         # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
                                         sub_planet_filters = pclient.set_filters_sr(sub_aoi, start_date = dt_construct(month = m_start, year = current_year_start), end_date = dt_construct(month = m_end, year = current_year_end), id = scene_id)
                                         res = pclient.request_intersecting_scenes(sub_planet_filters)
 
                                         # use custom cloud detection function to calculate clouds and shadows
-                                        sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config(output_localfile, GeoUtils.define_BoundingBox(sx, sy), cloud_config)
+                                        sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config(output_localfile, GeoUtils.define_BoundingBox(sx, sy, cellSize), cloud_config)
                                         # check if cell grid is good enough
                                         if (sub_cloud_perc <= pclient.max_clouds):
                                             # flag to avoid extra lookup into array
@@ -275,6 +278,8 @@ def main_csv():
                             pclient.drain()
                             # insert everything into psql
                             psqlclient.insert_rows_by_one_async(psql_rows)
+                            # cleanup local catalog
+                            pclient.cleanup_catalog()
 
     # await threadpool to stop
     neighbours_executor.close()
@@ -297,8 +302,8 @@ def main_json():
     ext = GeoUtils.polygon_to_extent(actual_aoi)
 
     if test:
-        # ext = GeoUtils.define_extent(30, -2, 0.03) # some test AOI to select a subset of extent from the master_grid.tiff
-        ext = GeoUtils.define_extent(27.03, -25.98, 0.05)
+        # ext = GeoUtils.define_extent(30, -2, (0.03, 0.03)) # some test AOI to select a subset of extent from the master_grid.tiff
+        ext = GeoUtils.define_extent(27.03, -25.98, (0.05, 0.05))
         # ext = {
         #     "xmin": 27.03,
         #     "ymin": -25.97,
@@ -315,6 +320,8 @@ def main_json():
     # 7. wet season end month
     # 2 and 3 combined link to the unique name field in the current ***REMOVED*** database
     master_grid = rasterio.open(master_grid_path)
+    # (xsize, ysize)
+    cellSize = [s * cellgrid_buffer for s in master_grid.res]
     rows, cols = master_grid.shape # all pixels of initial master grid
     bounds = master_grid.bounds
     # left = xmin, bottom = ymin, right = xmax, top = ymax
@@ -363,7 +370,7 @@ def main_json():
             x, y = transform.xy(actual_transform, r, c)
 
             # polygon to check would it intersect initial AOI
-            poly = GeoUtils.define_polygon(x, y)
+            poly = GeoUtils.define_polygon(x, y, cellSize)
 
             skip_row = skip_gs & skip_os & (actual_aoi.intersects(poly) | test)
 
@@ -386,7 +393,7 @@ def main_json():
 
                     logger.info("Processing cell_id {}...".format(cell_id))
                     
-                    aoi = GeoUtils.define_aoi(x, y)  # aoi by a cell grid x, y
+                    aoi = GeoUtils.define_aoi(x, y, cellSize)  # aoi by a cell grid x, y
 
                     psql_rows = []
                     for (season_type, m_start, m_end) in seasons:
@@ -426,7 +433,7 @@ def main_json():
                                     # it should be sync, to allow async check of neighbours
                                     output_localfile, output_file = pclient.download_localfs_s3(scene_id, season = season_type)
 
-                                    bbox_local = GeoUtils.define_BoundingBox(x, y)
+                                    bbox_local = GeoUtils.define_BoundingBox(x, y, cellSize)
                                     # nodata percentage
                                     nodata_perc = nodata_stats(output_localfile, bbox_local)
                                     # use custom cloud detection function to calculate clouds and shadows
@@ -470,7 +477,7 @@ def main_json():
                                     sx, sy = transform.xy(actual_transform, sr, sc)
 
                                     # polygon to check would it intersect initial AOI
-                                    sub_poly = GeoUtils.define_polygon(sx, sy)
+                                    sub_poly = GeoUtils.define_polygon(sx, sy, cellSize)
 
                                     skip_sub_row = valid_band[season_type][sr, sc] & (actual_aoi.intersects(sub_poly) | test)
 
@@ -486,17 +493,17 @@ def main_json():
                                         if(seasons == sub_seasons):
                                             logger.info("Processing sub cell_id {}...".format(sub_cell_id))
 
-                                            sub_aoi = GeoUtils.define_aoi(sx, sy)  # aoi by a cell grid x, y
+                                            sub_aoi = GeoUtils.define_aoi(sx, sy, cellSize)  # aoi by a cell grid x, y
                                                     
                                             # query planet api and check would this cell grid have good enough cloud coverage for this cell grid
                                             sub_planet_filters = pclient.set_filters_sr(sub_aoi, start_date = dt_construct(month = m_start, year = current_year_start), end_date = dt_construct(month = m_end, year = current_year_end), id = scene_id)
                                             res = pclient.request_intersecting_scenes(sub_planet_filters)
                                             
-                                            sub_bbox_local = GeoUtils.define_BoundingBox(sx, sy)
+                                            sub_bbox_local = GeoUtils.define_BoundingBox(sx, sy, cellSize)
                                             # nodata percentage
                                             sub_nodata_perc = nodata_stats(output_localfile, sub_bbox_local)
                                             # use custom cloud detection function to calculate clouds and shadows
-                                            sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config(output_localfile, GeoUtils.define_BoundingBox(sx, sy), cloud_config)
+                                            sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config(output_localfile, GeoUtils.define_BoundingBox(sx, sy, cellSize), cloud_config)
                                             # check if cell grid is good enough
                                             if (sub_cloud_perc <= pclient.max_clouds and sub_nodata_perc <= pclient.max_nodata):
                                                 # flag to avoid extra lookup into array
@@ -522,6 +529,8 @@ def main_json():
                                 pclient.drain()
                                 # insert everything into psql
                                 psqlclient.insert_rows_by_one_async(psql_rows)
+                                # cleanup local catalog
+                                pclient.cleanup_catalog()
 
                             # base_row = [cell_id, scene_id, season_type, ""]
                             # writer.writerow(base_row)

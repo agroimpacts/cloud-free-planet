@@ -12,6 +12,15 @@ COPY ./* /opt/planet/
 
 COPY ./cfg /opt/planet/cfg
 
+RUN mkdir -p /opt/planet/catalog/analytic/OS && \ 
+    mkdir -p /opt/planet/catalog/analytic/GS && \
+    mkdir -p /opt/planet/catalog/analytic_sr/OS && \ 
+    mkdir -p /opt/planet/catalog/analytic_sr/GS && \
+    mkdir -p /opt/planet/catalog/analytic_xml/OS && \ 
+    mkdir -p /opt/planet/catalog/analytic_xml/GS && \
+    mkdir -p /opt/planet/catalog/visual/OS && \ 
+    mkdir -p /opt/planet/catalog/visual/GS
+
 WORKDIR /opt/planet/
 
 VOLUME /opt/planet/cfg
