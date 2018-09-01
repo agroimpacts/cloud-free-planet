@@ -7,6 +7,5 @@ SHELL=/bin/bash
 15 23 * * * PGDIR=/home/mapper/mapper/pgsql;export PGPASSFILE=$PGDIR/pgpassfile_mapper;$PGDIR/daily_backup.sh
 45 23 * * * PGDIR=/home/sandbox/mapper/pgsql;export PGPASSFILE=$PGDIR/pgpassfile_sandbox;$PGDIR/daily_backup.sh
 
-# Renew Let's Encrypt certs for mapper an sandbox if expiring soon.
-15 00 * * Sun /bin/certbot renew
-30 00 * * Sun /sbin/service httpd restart
+# Renew Let's Encrypt certs for mapper an sandbox if expiring soon. Restart apache afterward.
+15 00 * * Sun (/bin/certbot renew; /sbin/service httpd restart) >>/home/sandbox/mapper/log/crontabSetup.root.log 2>&1
