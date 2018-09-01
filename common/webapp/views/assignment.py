@@ -59,39 +59,45 @@ def assignment():
 
         (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
 
-        # If worker saved their results...
-        if savedMaps:
-            # If no kmlData, then no fields were mapped.
-            if len(kmlData) == 0:
-                k.write("assignment: OL reported 'save' without mappings for %s kml = %s\n" % (kmlTypeDescr, kmlName))
-                k.write("assignment: Worker ID %s, HIT ID = %s, Assignment ID = %s\n" % (workerId, hitId, assignmentId))
-                resultsSaved = True                 # Can't fail since no maps posted.
+        # Check if this is a re-POST as a result of a browser refresh.
+        # Assignment should be in the HITAssigned status.
+        assignmentStatus = mapc.querySingleValue("select status from assignment_data where assignment_id = %s" % assignmentId)
+        if assignmentStatus == MappingCommon.HITAssigned:
+            # If worker saved their results...
+            if savedMaps:
+                # If no kmlData, then no fields were mapped.
+                if len(kmlData) == 0:
+                    k.write("assignment: OL reported 'save' without mappings for %s kml = %s\n" % (kmlTypeDescr, kmlName))
+                    k.write("assignment: Worker ID %s, HIT ID = %s, Assignment ID = %s\n" % (workerId, hitId, assignmentId))
+                    resultsSaved = True                 # Can't fail since no maps posted.
+                else:
+                    k.write("assignment: OL saved mapping(s) for %s kml = %s\n" % (kmlTypeDescr, kmlName))
+                    k.write("assignment: Worker ID %s, HIT ID = %s, Assignment ID = %s\n" % (workerId, hitId, assignmentId))
+
+                    # Save all drawn maps.
+                    resultsSaved = mapc.saveWorkerMaps(k, kmlData, workerId, assignmentId)
+
+                # If we have at least one valid mapping.
+                if resultsSaved:
+                    # Post-process this worker's results.
+                    mapc.assignmentSubmitted(k, hitId, assignmentId, workerId, now, kmlName, kmlType, comment)
+                    mapForm.resultsAccepted.data = 0   # Display no results alert in showkml
+                else:
+                    mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
+
+            # Else, worker returned the assigned KML.
             else:
-                k.write("assignment: OL saved mapping(s) for %s kml = %s\n" % (kmlTypeDescr, kmlName))
-                k.write("assignment: Worker ID %s, HIT ID = %s, Assignment ID = %s\n" % (workerId, hitId, assignmentId))
-
-                # Save all drawn maps.
-                resultsSaved = mapc.saveWorkerMaps(k, kmlData, workerId, assignmentId)
-
-            # If we have at least one valid mapping.
-            if resultsSaved:
-                # Post-process this worker's results.
-                mapc.assignmentSubmitted(k, hitId, assignmentId, workerId, now, kmlName, kmlType, comment)
-                mapForm.resultsAccepted.data = 0   # Display no results alert in showkml
-            else:
-                mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
-
-        # Else, worker returned the assigned KML.
+                mapc.assignmentReturned(k, hitId, assignmentId, now, comment)
         else:
-            mapc.assignmentReturned(k, hitId, assignmentId, now, comment)
+            k.write("assignment: Worker refreshed their browser causing a re-POST. POST request ignored.\n")
+            k.write("assignment: Worker ID %s, HIT ID = %s, Assignment ID = %s\n" % (workerId, hitId, assignmentId))
 
     # If GET request, tell showkml.js to not issue any alerts.
     else:
         mapForm.resultsAccepted.data = 0   # Indicate GET (i.e., no results alert in showkml)
 
     # Check if new or returning worker.
-    qualified = mapc.querySingleValue("""select qualified from worker_data 
-            where worker_id = '%s'""" % workerId)
+    qualified = mapc.querySingleValue("""select qualified from worker_data where worker_id = '%s'""" % workerId)
 
     # Check if worker is qualified.
     if qualified is None or not qualified:
