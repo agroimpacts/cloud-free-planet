@@ -45,7 +45,12 @@ USER_REQUIRE_INVITATION = True
 USER_INVITE_EXPIRATION = 3*24*3600
 USER_AFTER_INVITE_ENDPOINT = 'user.invite'
 
+USER_ENABLE_REMEMBER_ME = False
+
+# Flask_User defaults.
 #USER_INVITE_URL = '/user/invite'
 #USER_INVITE_TEMPLATE = 'flask_user/invite.html'
 #USER_INVITE_EMAIL_TEMPLATE = 'flask_user/emails/invite'
 #USER_INVITE_ACCEPT_TEMPLATE = 'flask_user/register.html'
+#USER_LOGIN_URL = '/user/sign-in'
+#USER_LOGIN_TEMPLATE = 'flask_user/login.html'
