@@ -335,6 +335,15 @@ function init(kmlPath, kmlName, assignmentId, tryNum, resultsAccepted, mapPath, 
             // Hide the labeling block, in case visible.
             document.getElementById("labelBlock").style.display = "none";
         });
+        selectButton.getInteraction().on('change:active', function(e) {
+            console.log("SELECT interaction changed active state: " + e.target.getActive());
+            if (!e.target.getActive()) {
+                // Clear all shape selections.
+                selectButton.getInteraction().getFeatures().clear();
+                // Hide the labeling block, in case visible.
+                document.getElementById("labelBlock").style.display = "none";
+            }
+        });
         // Add event handler to clear selection and hide labeling block when layerswitcher makes layer invisible.
         fieldsLayer.on('propertychange', function(event) {
             if (event.key == 'visible' && !fieldsLayer.getVisible()) {
