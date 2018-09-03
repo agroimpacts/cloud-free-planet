@@ -401,24 +401,24 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             type: 'Polygon',
             features: fieldsLayer.getSource().getFeaturesCollection(),
             // Store the geometry being currently drawn for use by the finishCondition.
-            geometryFunction: function(coords, geom) {
-                if (!geom) {
-                    geom = new ol.geom.Polygon(null);
+            geometryFunction: function(coords, intPolyGeom) {
+                if (!intPolyGeom) {
+                    intPolyGeom = new ol.geom.Polygon(null);
                 }
                 // Close the polygon each time we come through here.
                 drawCoords = coords[0].slice();
                 if (drawCoords.length > 0) {
                     drawCoords.push(drawCoords[0].slice());
                 }
-                geom.setCoordinates([drawCoords]);
+                intPolyGeom.setCoordinates([drawCoords]);
                 // If we're done with a shape, undefine polyGeom.
                 if (polyGeomDone) {
                     polyGeom = undefined;
                     polyGeomDone = false;
                 } else{
-                    polyGeom = geom;
+                    polyGeom = intPolyGeom;
                 }
-                return geom;
+                return intPolyGeom;
             },
             // Check for feature overlap on each click.
             condition: function(event) {
@@ -444,7 +444,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                     ctrl.getInteraction().removeLastPoint();
                     return false;
                 }
-                // Prepare for re-use. 'geom' is undefined the first time 'condition'
+                // Prepare for re-use. 'intPolyGeom' is undefined the first time 'condition'
                 // is called, so polyGeom will not get reset until afterward.
                 polyGeomDone = true;
                 return true;
@@ -466,6 +466,12 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             })
         })
     }));
+    drawBar.getControls()[POLYGON].getInteraction().on('change:active', function(e) {
+        console.log("POLYGON interaction changed active state: " + e.target.getActive());
+        if (!e.target.getActive()) {
+            polyGeom = undefined;
+        }
+    });
     var circleGeom = undefined;
     var circleGeomDone = false;
     drawBar.addControl( new ol.control.Toggle({
@@ -474,17 +480,17 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         interaction: new ol.interaction.Draw({
             type: 'Circle',
             features: fieldsLayer.getSource().getFeaturesCollection(),
-            geometryFunction: function(coords, geom) {
+            geometryFunction: function(coords, intCircleGeom) {
                 func = ol.interaction.Draw.createRegularPolygon();
-                geom = func(coords, geom);
+                intCircleGeom = func(coords, intCircleGeom);
                 // If we're done with a shape, undefine circleGeom.
                 if (circleGeomDone) {
                     circleGeom = undefined;
                     circleGeomDone = false;
                 } else{
-                    circleGeom = geom;
+                    circleGeom = intCircleGeom;
                 }
-                return geom;
+                return intCircleGeom;
             },
             // Check for feature overlap on each click.
             condition: function(event) {
@@ -496,7 +502,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                 if (hasOverlap(circleGeom)) {
                     return false;
                 }
-                // Prepare for re-use. 'geom' is undefined the first time 'condition'
+                // Prepare for re-use. 'intCircleGeom' is undefined the first time 'condition'
                 // is called, so circleGeom will not get reset until afterward.
                 circleGeomDone = true;
                 return true;
@@ -518,6 +524,12 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             })
         })
     }));
+    drawBar.getControls()[CIRCLE].getInteraction().on('change:active', function(e) {
+        console.log("CIRCLE interaction changed active state: " + e.target.getActive());
+        if (!e.target.getActive()) {
+            circleGeom = undefined;
+        }
+    });
     var rectGeom = undefined;
     var rectGeomDone = false;
     drawBar.addControl( new ol.control.Toggle({
@@ -526,17 +538,17 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         interaction: new ol.interaction.Draw({
             type: 'Circle',
             features: fieldsLayer.getSource().getFeaturesCollection(),
-            geometryFunction: function(coords, geom) {
+            geometryFunction: function(coords, intRectGeom) {
                 func = ol.interaction.Draw.createBox();
-                geom = func(coords, geom);
+                intRectGeom = func(coords, intRectGeom);
                 // If we're done with a shape, undefine rectGeom.
                 if (rectGeomDone) {
                     rectGeom = undefined;
                     rectGeomDone = false;
                 } else{
-                    rectGeom = geom;
+                    rectGeom = intRectGeom;
                 }
-                return geom;
+                return intRectGeom;
             },
             // Check for feature overlap on each click.
             condition: function(event) {
@@ -548,7 +560,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                 if (hasOverlap(rectGeom)) {
                     return false;
                 }
-                // Prepare for re-use. 'geom' is undefined the first time 'condition'
+                // Prepare for re-use. 'intRectGeom' is undefined the first time 'condition'
                 // is called, so rectGeom will not get reset until afterward.
                 rectGeomDone = true;
                 return true;
@@ -570,6 +582,12 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             })
         })
     }));
+    drawBar.getControls()[RECTANGLE].getInteraction().on('change:active', function(e) {
+        console.log("RECTANGLE interaction changed active state: " + e.target.getActive());
+        if (!e.target.getActive()) {
+            rectGeom = undefined;
+        }
+    });
     var squareGeom = undefined;
     var squareGeomDone = false;
     drawBar.addControl( new ol.control.Toggle({
@@ -578,17 +596,17 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
         interaction: new ol.interaction.Draw({
             type: 'Circle',
             features: fieldsLayer.getSource().getFeaturesCollection(),
-            geometryFunction: function(coords, geom) {
+            geometryFunction: function(coords, intSquareGeom) {
                 func = ol.interaction.Draw.createRegularPolygon(4);
-                geom = func(coords, geom);
+                intSquareGeom = func(coords, intSquareGeom);
                 // If we're done with a shape, undefine squareGeom.
                 if (squareGeomDone) {
                     squareGeom = undefined;
                     squareGeomDone = false;
                 } else{
-                    squareGeom = geom;
+                    squareGeom = intSquareGeom;
                 }
-                return geom;
+                return intSquareGeom;
             },
             // Check for feature overlap on each click.
             condition: function(event) {
@@ -600,7 +618,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                 if (hasOverlap(squareGeom)) {
                     return false;
                 }
-                // Prepare for re-use. 'geom' is undefined the first time 'condition'
+                // Prepare for re-use. 'intSquareGeom' is undefined the first time 'condition'
                 // is called, so squareGeom will not get reset until afterward.
                 squareGeomDone = true;
                 return true;
@@ -622,6 +640,12 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             })
         })
     }));
+    drawBar.getControls()[SQUARE].getInteraction().on('change:active', function(e) {
+        console.log("SQUARE interaction changed active state: " + e.target.getActive());
+        if (!e.target.getActive()) {
+            squareGeom = undefined;
+        }
+    });
     var holeGeom = undefined;
     var holeGeomDone = false;
     drawBar.addControl( new ol.control.Toggle({
@@ -636,24 +660,30 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                 return false;
             },
             // Store the geometry being currently drawn for use by condition and  finishCondition.
-            geometryFunction: function(coords, geom) {
-                if (!geom) {
-                    geom = new ol.geom.Polygon(null);
+            geometryFunction: function(coords, intHoleGeom) {
+                // Unlike the OL draw tools, this ol-ext DrawHole tool does not undefine intHoleGeom
+                // when this interaction is deactivated. So we undefine it here when the
+                // external holeGeom is undefined by the listener below.
+                if (!holeGeom) {
+                    intHoleGeom = undefined;
+                }
+                if (!intHoleGeom) {
+                    intHoleGeom = new ol.geom.Polygon(null);
                 }
                 // Close the polygon each time we come through here.
                 drawCoords = coords[0].slice();
                 if (drawCoords.length > 0) {
                     drawCoords.push(drawCoords[0].slice());
                 }
-                geom.setCoordinates([drawCoords]);
+                intHoleGeom.setCoordinates([drawCoords]);
                 // If we're done with a shape, undefine holeGeom.
                 if (holeGeomDone) {
                     holeGeom = undefined;
                     holeGeomDone = false;
                 } else{
-                    holeGeom = geom;
+                    holeGeom = intHoleGeom;
                 }
-                return geom;
+                return intHoleGeom;
             },
             // Check for feature overlap on each click.
             condition: function(event) {
@@ -680,7 +710,7 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
                 if (hasInternalOverlap(origPolygon, holeGeom)) {
                     return false;
                 }
-                // Prepare for re-use. 'geom' is undefined the first time 'condition'
+                // Prepare for re-use. 'intHoleGeom' is undefined the first time 'condition'
                 // is called, so holeGeom will not get reset until afterward.
                 holeGeomDone = true;
                 return true;
@@ -702,6 +732,12 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             })
         })
     }));
+    drawBar.getControls()[HOLE].getInteraction().on('change:active', function(e) {
+        console.log("HOLE interaction changed active state: " + e.target.getActive());
+        if (!e.target.getActive()) {
+            holeGeom = undefined;
+        }
+    });
     drawBar.addControl( new ol.control.Toggle({
         html: '<i class="icon-dot" ></i>',
         title: 'Point creation: Click on map at desired location.',
