@@ -58,28 +58,36 @@ def qualification():
 
         (kmlType, kmlTypeDescr) = mapc.getKmlType(kmlName)
 
-        # If no kmlData, then no fields were mapped.
-        if len(kmlData) == 0:
-            k.write("qualification: OL reported 'save' without mappings for %s kml = %s\n" % (kmlTypeDescr, kmlName))
-            k.write("qualification: Worker ID %s; training assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
-            resultsSaved = True                 # Can't fail since no maps posted.
-        else:
-            k.write("qualification: OL saved mapping(s) for %s kml %s\n" % (kmlTypeDescr, kmlName))
-            k.write("qualification: Worker ID %s; training assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
-
-            # Save all drawn maps.
-            resultsSaved = mapc.saveWorkerMaps(k, kmlData, workerId, assignmentId, tryNum)
-
-        # If we have at least one valid mapping.
-        if resultsSaved:
-            # Post-process this worker's results.
-            approved = mapc.trainingAssignmentSubmitted(k, assignmentId, tryNum, workerId, now, kmlName, kmlType)
-            if approved:
-                mapForm.resultsAccepted.data = 1   # Indicate approved results.
+        # Check if this is a re-POST as a result of a browser refresh.
+        # Assignment should not be in the HITApproved status or have a mis-matched try count.
+        mapc.cur.execute("select status, tries from qual_assignment_data where assignment_id = %s" % assignmentId)
+        assignmentStatus, triesCur = mapc.cur.fetchone()
+        if not (assignmentStatus == MappingCommon.HITApproved or triesCur > int(tryNum)):
+            # If no kmlData, then no fields were mapped.
+            if len(kmlData) == 0:
+                k.write("qualification: OL reported 'save' without mappings for %s kml = %s\n" % (kmlTypeDescr, kmlName))
+                k.write("qualification: Worker ID %s; training assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
+                resultsSaved = True                 # Can't fail since no maps posted.
             else:
-                mapForm.resultsAccepted.data = 2   # Indicate rejected results.
+                k.write("qualification: OL saved mapping(s) for %s kml %s\n" % (kmlTypeDescr, kmlName))
+                k.write("qualification: Worker ID %s; training assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
+
+                # Save all drawn maps.
+                resultsSaved = mapc.saveWorkerMaps(k, kmlData, workerId, assignmentId, tryNum)
+
+            # If we have at least one valid mapping.
+            if resultsSaved:
+                # Post-process this worker's results.
+                approved = mapc.trainingAssignmentSubmitted(k, assignmentId, tryNum, workerId, now, kmlName, kmlType)
+                if approved:
+                    mapForm.resultsAccepted.data = 1   # Indicate approved results.
+                else:
+                    mapForm.resultsAccepted.data = 2   # Indicate rejected results.
+            else:
+                mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
         else:
-            mapForm.resultsAccepted.data = 3   # Indicate unsaved results.
+            k.write("qualification: Worker refreshed their browser causing a re-POST. POST request ignored.\n")
+            k.write("qualification: Worker ID %s; training assignment ID = %s; try %s\n" % (workerId, assignmentId, tryNum))
 
     # If GET request, tell showkml.js to not issue any alerts.
     else:
