@@ -191,6 +191,8 @@ def main_csv():
                                 # each item is a GeoJSON feature
                                 geom = shape(geojson.loads(json.dumps(item["geometry"])))
                                 scene_id = item["id"]
+                                # cleanup local catalog to remove previous iterations files
+                                pclient.cleanup_catalog()
                                 # activation & download
                                 # it should be sync, to allow async check of neighbours
                                 output_localfile, output_file = pclient.download_localfs_s3(scene_id, season = season_type)
@@ -429,6 +431,8 @@ def main_json():
                                     # each item is a GeoJSON feature
                                     geom = shape(geojson.loads(json.dumps(item["geometry"])))
                                     scene_id = item["id"]
+                                    # cleanup local catalog to remove previous iterations files
+                                    pclient.cleanup_catalog()
                                     # activation & download
                                     # it should be sync, to allow async check of neighbours
                                     output_localfile, output_file = pclient.download_localfs_s3(scene_id, season = season_type)

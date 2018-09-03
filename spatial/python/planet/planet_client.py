@@ -422,10 +422,7 @@ class PClientV1():
                 for season in ['OS', 'GS']:
                     lpath = "{}{}/{}".format(self.catalog_path, product_type, season)
                     try:
-                        for the_file in os.listdir(lpath):
-                            file_path = os.path.join(folder, the_file)
-                            if os.path.isfile(file_path):
-                                os.unlink(file_path)
+                        shutil.rmtree(lpath, ignore_errors = Flase)
                     except:
                         self.logger.info("Could not remove a folder: {}".format(lpath))
 
