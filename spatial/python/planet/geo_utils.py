@@ -82,7 +82,7 @@ class GeoUtils():
 
     @classmethod
     def extents_intersects(self, ext1, ext2):
-        return !((ext2['xmax'] < ext1['xmin']) | (ext2['xmin'] > ext1['xmax'])) & !((ext2['ymax'] < ext1['ymin']) | (ext2['ymin'] > ext1['ymax']))
+        return (not ((ext2['xmax'] < ext1['xmin']) | (ext2['xmin'] > ext1['xmax']))) & (not ((ext2['ymax'] < ext1['ymin']) | (ext2['ymin'] > ext1['ymax'])))
 
     @classmethod
     def extent_intersection(self, ext1, ext2):
