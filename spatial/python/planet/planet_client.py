@@ -426,7 +426,8 @@ class PClientV1():
                 for season in ['OS', 'GS']:
                     lpath = "{}{}/{}".format(self.catalog_path, product_type, season)
                     try:
-                        shutil.rmtree(lpath, ignore_errors = Flase)
+                        shutil.rmtree(lpath, ignore_errors = False)
+                        os.makedirs(lpath)
                     except:
                         self.logger.info("Could not remove a folder: {}".format(lpath))
 
