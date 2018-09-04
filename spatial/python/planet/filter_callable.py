@@ -41,6 +41,10 @@ def nodata_stats(in_name, bounds):
     # calculate window to read from the input tiff
     actual_window = GeoUtils.bounds_to_windows(transformed_bounds, src)
 
+    # check if the generated window is inside the image
+    if not GeoUtils.window_inside_bounds(actual_window, (src.width, src.height)):
+        return 1
+
     bands = src.read(window = actual_window)
     
     return sum([np.count_nonzero(band == nodata) for band in bands]) / src.count
@@ -76,6 +80,10 @@ def cloud_shadow_stats_old(in_name, bounds, cloud_val = 1500, shadow_val = 2000,
 
     # calculate window to read from the input tiff
     actual_window = GeoUtils.bounds_to_windows(transformed_bounds, src)
+
+    # check if the generated window is inside the image
+    if not GeoUtils.window_inside_bounds(actual_window, (src.width, src.height)):
+        return 1, 1
 
     # 1 open the tif, take 4 bands, and read them as arrays
     b1_array, b2_array, b3_array, b4_array = src.read(window = actual_window)
@@ -221,6 +229,10 @@ def cloud_shadow_stats(in_name, bounds, cloud_val = 1500, object_size_thresh = 2
 
     # calculate window to read from the input tiff
     actual_window = GeoUtils.bounds_to_windows(transformed_bounds, src)
+    
+    # check if the generated window is inside the image
+    if not GeoUtils.window_inside_bounds(actual_window, (src.width, src.height)):
+        return 1, 1
 
     # 1 open the tif, take 4 bands, and read them as arrays
     b1_array, b2_array, b3_array, b4_array = src.read(window = actual_window)
