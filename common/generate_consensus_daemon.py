@@ -34,8 +34,22 @@ k.close()
 # record the ongoing iteration time in the daemon, and initial iteration is 0
 iteration_counter = int(mapc.getSystemData('IterationCounter'))
 
+# stopping criterion 1: maximum iteration
+maximum_iteration = int(mapc.getSystemData('StoppingFunc_MaxIterations'))
+
+# stopping criterion 2: gain threshold per iteration
+accgain_threshold = int(mapc.getSystemData('StoppingFunc_AccGainThres'))
+
 n_success = 0
 n_fail = 0
+
+# the accuracy gains for the last three iterations
+lastfirst_accgain = 100
+lastsecond_accgain = 100
+lastthird_accgain = 100
+
+# a boolean variable to monitor if the loop is finished
+IsFinished = False
 
 # Execute loop based on FKMLCheckingInterval
 while True:
@@ -156,7 +170,7 @@ while True:
                     exit(1)
 
         # when all fkml are processed, write processing info into log, 
-        # wake up cvml, and call register_f_sites
+        # check stopping criteria, wake up cvml, and call register_f_sites
         if n_processed == n_notprocessed:
             k.write("\ngenerateConsensus: the iteration_%s has %s successful "
                     "and %s failed consensus creation\n" %
@@ -222,6 +236,35 @@ while True:
                 emr_clusters = emr_client.list_clusters()
 
                 if emr_clusters["Clusters"]["Id" == id_cluster]["Status"]["State"] == "TERMINATED":
+                    # criterion 1
+                    if iteration_counter == maximum_iteration:
+                        IsFinished = True
+                        break
+                    else:
+                        # query accuracy metrics when iteration times is at least 3
+                        if iteration_counter > 1:
+                            mapc.cur.execute("SELECT accuracy "
+                                 "FROM iteration_metrics WHERE iteration_time = '%s'"
+                                 % (iteration_counter))
+                            lastfirst_accgain = mapc.cur.fetchall()
+                            
+                            mapc.cur.execute("SELECT accuracy "
+                                 "FROM iteration_metrics WHERE iteration_time = '%s'"
+                                 % (iteration_counter-1))
+                            lastsecond_accgain = mapc.cur.fetchall()
+                            
+                            mapc.cur.execute("SELECT accuracy "
+                                 "FROM iteration_metrics WHERE iteration_time = '%s'"
+                                 % (iteration_counter-2))
+                            lastthird_accgain = mapc.cur.fetchall()
+                        
+                        # criterion 2
+                        if abs(lastfirst_accgain-lastsecond_accgain)<accgain_threshold and 
+                           abs(lastsecond_accgain_accgain-lastthird_accgain)<accgain_threshold and 
+                           abs(lastthird_accgain_accgain-lastfirst_accgain)<accgain_threshold:
+                             IsFinished = True
+                             break
+                    
                     if register_f_sites.main():
                         k.write("\ngenerateConsensus: the iteration_%s register_f_sites "
                                 "succeed\n"
@@ -236,6 +279,10 @@ while True:
                         sys.exit("Errors in register_f_sites")
                     break
                 time.sleep(10)
+    
+    # check if the active learning loop has been stopped
+    if IsFinished == True:
+        break
 
     # Sleep for specified checking interval
     time.sleep(int(mapc.getConfiguration('FKMLCheckingInterval')))
