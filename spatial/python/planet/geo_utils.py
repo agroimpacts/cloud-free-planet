@@ -5,6 +5,12 @@ from shapely.geometry import box
 
 class GeoUtils():
     @classmethod
+    def window_inside_bounds(self, window, bounds):
+        w, h = bounds
+        ((start_row, stop_row), (start_col, stop_col)) = window
+        return ((start_col <= w) and (stop_col <= w)) and ((start_row <= h) and (stop_row <= h))
+
+    @classmethod
     def window_transform(self, window_min, window_max):
         start_row, stop_row = sorted([window_min[0], window_max[0]])
         start_col, stop_col = sorted([window_min[1], window_max[1]])
