@@ -370,8 +370,11 @@ class PClientV1():
             if not os.path.exists(local_result):
                 if not self.local_mode:
                     try:
+                        # if we have file in our s3 bucket, let's pull it down from the S3 (faster)
                         self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
-                        filepath = s3_result
+                        self.logger.info("Downloading {} from the internal S3 storage...".format(scene_id))
+                        self.transfer.download_file(self.s3_catalog_bucket, output_key, local_result)
+                        filepath = local_result # filepath = s3_result
                     except botocore.exceptions.ClientError:
                         filepath = self.download_localfs_product(product_type, scene_id, season)
                         self.logger.info("Uploading {}...".format(scene_id))
