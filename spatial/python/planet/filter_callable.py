@@ -22,6 +22,13 @@ from rasterio.warp import transform_bounds
 from rasterio.coords import BoundingBox
 import configparser
 
+def nodata_stats_wraped(in_name, bounds):
+    try:
+        return nodata_stats(in_name, bounds)
+    except IOError:
+        print("rasterio.IOError arised...")
+        return 1
+
 # returns nodata percentage
 def nodata_stats(in_name, bounds):
     src = rasterio.open(in_name)
@@ -40,10 +47,6 @@ def nodata_stats(in_name, bounds):
 
     # calculate window to read from the input tiff
     actual_window = GeoUtils.bounds_to_windows(transformed_bounds, src)
-
-    # check if the generated window is inside the image
-    if not GeoUtils.window_inside_bounds(actual_window, (src.width, src.height)):
-        return 1
 
     bands = src.read(window = actual_window)
     
@@ -80,10 +83,6 @@ def cloud_shadow_stats_old(in_name, bounds, cloud_val = 1500, shadow_val = 2000,
 
     # calculate window to read from the input tiff
     actual_window = GeoUtils.bounds_to_windows(transformed_bounds, src)
-
-    # check if the generated window is inside the image
-    if not GeoUtils.window_inside_bounds(actual_window, (src.width, src.height)):
-        return 1, 1
 
     # 1 open the tif, take 4 bands, and read them as arrays
     b1_array, b2_array, b3_array, b4_array = src.read(window = actual_window)
@@ -200,6 +199,13 @@ def initial_shadow_filter(stacked, shadow_reflectance_thresh = 1500, land_reflec
     del nir, max_img
     return shadow_array_initial
 
+def cloud_shadow_stats_config_wraped(in_name, bounds, config):
+    try:
+        return cloud_shadow_stats_config(in_name, bounds, config)
+    except IOError:
+        print("rasterio.IOError arised...")
+        return 1, 1
+
 def cloud_shadow_stats_config(in_name, bounds, config):
     return cloud_shadow_stats(in_name, bounds, int(config['cloud_val']), int(config['area_val']), float(config['eccentricity_val']), float(config['peri_to_area_val']), int(config['shadow_val']), int(config['land_val']))
 
@@ -229,10 +235,6 @@ def cloud_shadow_stats(in_name, bounds, cloud_val = 1500, object_size_thresh = 2
 
     # calculate window to read from the input tiff
     actual_window = GeoUtils.bounds_to_windows(transformed_bounds, src)
-    
-    # check if the generated window is inside the image
-    if not GeoUtils.window_inside_bounds(actual_window, (src.width, src.height)):
-        return 1, 1
 
     # 1 open the tif, take 4 bands, and read them as arrays
     b1_array, b2_array, b3_array, b4_array = src.read(window = actual_window)
