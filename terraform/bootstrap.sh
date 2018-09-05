@@ -31,6 +31,7 @@ if is_master; then
     sudo ln -s /usr/local/bin/pip3 /usr/bin/
     sudo ln -s /usr/local/bin/pip3.4 /usr/bin/
     (cd /tmp/blobs ; sudo pip3.4 install *.whl)
+    sudo pip3 install --upgrade rasterio
 
     # Linkage
     echo '/usr/local/lib' > /tmp/local.conf
@@ -77,6 +78,11 @@ if is_master; then
     # Environment setup
     cat <<EOF > /tmp/oauth_profile.sh
 export AWS_DNS_NAME=$(aws ec2 describe-network-interfaces --filters Name=private-ip-address,Values=$(hostname -i) | jq -r '.[] | .[] | .Association.PublicDnsName')
+export PYSPARK_DRIVER_PYTHON=/usr/bin/python3.4
+export PYSPARK_PYTHON=/usr/bin/python3.4
+export SPARK_HOME=/usr/lib/spark
+export PYTHONPATH=/usr/lib/spark/python/lib/pyspark.zip:/usr/lib/spark/python/lib/py4j-0.10.4-src.zip
+export GEOPYSPARK_JARS_PATH=/opt/jars
 
 alias launch_hub='sudo -u hublauncher -E env "PATH=/usr/local/bin:$PATH" jupyterhub --JupyterHub.spawner_class=sudospawner.SudoSpawner --SudoSpawner.sudospawner_path=/usr/local/bin/sudospawner --Spawner.notebook_dir=/home/{username}'
 EOF
@@ -147,6 +153,10 @@ EOF
     popd && \
     sudo rm -rf /tmp/rasterframes.zip /tmp/rasterframes-${RASTERFRAMESSHA}
 
+    # Make Scala packages available to hadoop
+    sudo cp -r ~jupyteruser/.ivy2 ~hadoop
+    sudo chown -R hadoop:hadoop ~/.ivy2
+
     # Install extra software
     sudo pip3 install psycopg2
 
@@ -167,6 +177,7 @@ else
     sudo ln -s /usr/local/bin/pip3 /usr/bin/
     sudo ln -s /usr/local/bin/pip3.4 /usr/bin/
     (cd /tmp/blobs ; sudo pip3.4 install *.whl)
+    sudo pip3 install --upgrade rasterio
 
     # Install GeoPySpark
     if [[ $GEOPYSPARKURI == s3* ]]; then
@@ -180,6 +191,9 @@ else
     unzip -d /tmp /tmp/rasterframes.zip && \
     sudo pip3 install /tmp/rasterframes-${RASTERFRAMESSHA}/pyrasterframes/python && \
     rm -rf /tmp/rasterframes.zip /tmp/rasterframes-${RASTERFRAMESSHA}
+
+    # Install extra software
+    sudo pip3 install psycopg2
 
     # Linkage
     echo '/usr/local/lib' > /tmp/local.conf
