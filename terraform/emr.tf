@@ -12,7 +12,16 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
     hadoop_jar_step {
     jar="command-runner.jar"
     args = ["aws","s3","sync","s3://activemapper/cvmlAL/","/home/hadoop/cvmlAL"]
-  }} 
+  }}
+
+  step {
+    name="Copy cvmapper_config.yaml"
+    action_on_failure = "CONTINUE"
+    hadoop_jar_step {
+    jar="command-runner.jar"
+    args = ["aws","s3","cp","s3://activemapper/cvmapper_config.yaml","/home/hadoop/cvmlAL/run_it/cvmapper_config.yaml"]
+  }}
+ 
 
   step {
     name="Run CVML"
@@ -23,7 +32,7 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
   }}
   
   termination_protection = false
-  keep_job_flow_alive_when_no_steps = false
+  keep_job_flow_alive_when_no_steps = true
 
   ec2_attributes {
     subnet_id        = "${var.subnet}"
