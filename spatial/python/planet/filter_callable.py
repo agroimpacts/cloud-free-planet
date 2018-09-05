@@ -22,20 +22,28 @@ from rasterio.warp import transform_bounds
 from rasterio.coords import BoundingBox
 import configparser
 
+def nodata_stats_wraped(in_name, bounds):
+    try:
+        return nodata_stats(in_name, bounds)
+    except IOError:
+        print("rasterio.IOError arised...")
+        return 1
+
 # returns nodata percentage
 def nodata_stats(in_name, bounds):
     src = rasterio.open(in_name)
     nodata = src.nodata
 
+    src_ext = GeoUtils.BoundingBox_to_extent(src.bounds)
+    bounds_ext = GeoUtils.BoundingBox_to_extent(BoundingBox(*transform_bounds("EPSG:4326", src.crs, *bounds)))
+
+    if not GeoUtils.extents_intersects(src_ext, bounds_ext):
+        return 1
+
     # bounds in the src crs projection
     # (left, bottom, right, top)
     # double check that bounds belong to image
-    transformed_bounds = GeoUtils.extent_to_BoundingBox(
-        GeoUtils.extent_intersection(
-            GeoUtils.BoundingBox_to_extent(src.bounds),
-            GeoUtils.BoundingBox_to_extent(BoundingBox(*transform_bounds("EPSG:4326", src.crs, *bounds)))
-        )
-    )
+    transformed_bounds = GeoUtils.extent_to_BoundingBox(GeoUtils.extent_intersection(src_ext, bounds_ext))
 
     # calculate window to read from the input tiff
     actual_window = GeoUtils.bounds_to_windows(transformed_bounds, src)
@@ -191,6 +199,13 @@ def initial_shadow_filter(stacked, shadow_reflectance_thresh = 1500, land_reflec
     del nir, max_img
     return shadow_array_initial
 
+def cloud_shadow_stats_config_wraped(in_name, bounds, config):
+    try:
+        return cloud_shadow_stats_config(in_name, bounds, config)
+    except IOError:
+        print("rasterio.IOError arised...")
+        return 1, 1
+
 def cloud_shadow_stats_config(in_name, bounds, config):
     return cloud_shadow_stats(in_name, bounds, int(config['cloud_val']), int(config['area_val']), float(config['eccentricity_val']), float(config['peri_to_area_val']), int(config['shadow_val']), int(config['land_val']))
 
@@ -207,15 +222,16 @@ def cloud_shadow_stats(in_name, bounds, cloud_val = 1500, object_size_thresh = 2
 
     src = rasterio.open(in_name)
 
+    src_ext = GeoUtils.BoundingBox_to_extent(src.bounds)
+    bounds_ext = GeoUtils.BoundingBox_to_extent(BoundingBox(*transform_bounds("EPSG:4326", src.crs, *bounds)))
+
+    if not GeoUtils.extents_intersects(src_ext, bounds_ext):
+        return 1, 1
+
     # bounds in the src crs projection
     # (left, bottom, right, top)
     # double check that bounds belong to image
-    transformed_bounds = GeoUtils.extent_to_BoundingBox(
-        GeoUtils.extent_intersection(
-            GeoUtils.BoundingBox_to_extent(src.bounds),
-            GeoUtils.BoundingBox_to_extent(BoundingBox(*transform_bounds("EPSG:4326", src.crs, *bounds)))
-        )
-    )
+    transformed_bounds = GeoUtils.extent_to_BoundingBox(GeoUtils.extent_intersection(src_ext, bounds_ext))
 
     # calculate window to read from the input tiff
     actual_window = GeoUtils.bounds_to_windows(transformed_bounds, src)
