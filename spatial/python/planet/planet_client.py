@@ -12,7 +12,7 @@ import time
 import urllib.request
 import shutil
 import boto3
-from boto3.s3.transfer import S3Transfer
+from boto3.s3.transfer import S3Transfer, TransferConfig
 import botocore
 import concurrent
 import logging
@@ -63,7 +63,8 @@ class PClientV1():
         self.with_visual = False
         self.local_mode = False
         self.s3_only = False
-        self.transfer = S3Transfer(self.s3client)
+        self.transfer = S3Transfer(self.s3client, TransferConfig(use_threads = False))
+        self.transfer_config = TransferConfig(use_threads = False)
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         self.secondary_uploads_executor = FixedThreadPoolExecutor(size = 5)
@@ -112,7 +113,7 @@ class PClientV1():
         self.with_immediate_cleanup = json.loads(imagery_config['with_immediate_cleanup'].lower())
         self.local_mode = json.loads(imagery_config['local_mode'].lower())
         self.s3_only = json.loads(imagery_config['s3_only'].lower())
-        self.transfer = S3Transfer(self.s3client)
+        self.transfer = S3Transfer(self.s3client, TransferConfig(use_threads = False))
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         # planet has limitation 5 sec per key (search queries)
@@ -258,6 +259,7 @@ class PClientV1():
         try:
             self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
         except botocore.exceptions.ClientError:
+            self.logger.exception('Error Encountered')
             self.logger.info("Downloading {}...".format(scene_id))
 
             # activation & download
@@ -377,6 +379,7 @@ class PClientV1():
                         # self.transfer.download_file(self.s3_catalog_bucket, output_key, local_result)
                         # filepath = local_result # filepath = s3_result
                     except botocore.exceptions.ClientError:
+                        self.logger.exception('Error Encountered')
                         filepath = self.download_localfs_product(product_type, scene_id, season)
                         self.logger.info("Uploading {}...".format(scene_id))
                         self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
@@ -391,6 +394,7 @@ class PClientV1():
                     try:
                         self.s3client.head_object(Bucket = self.s3_catalog_bucket, Key = output_key)
                     except botocore.exceptions.ClientError:
+                        self.logger.exception('Error Encountered')
                         self.logger.info("Uploading {}...".format(scene_id))
                         self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
         else:
@@ -429,6 +433,7 @@ class PClientV1():
                         shutil.rmtree(lpath, ignore_errors = False)
                         os.makedirs(lpath)
                     except:
+                        self.logger.exception('Error Encountered')
                         self.logger.info("Could not remove a folder: {}".format(lpath))
 
 
