@@ -26,6 +26,7 @@ def nodata_stats_wraped(in_name, bounds):
     try:
         return nodata_stats(in_name, bounds)
     except IOError:
+        self.logger.exception('Error Encountered')
         print("rasterio.IOError arised...")
         return 1
 
@@ -203,6 +204,7 @@ def cloud_shadow_stats_config_wraped(in_name, bounds, config):
     try:
         return cloud_shadow_stats_config(in_name, bounds, config)
     except IOError:
+        self.logger.exception('Error Encountered')
         print("rasterio.IOError arised...")
         return 1, 1
 
