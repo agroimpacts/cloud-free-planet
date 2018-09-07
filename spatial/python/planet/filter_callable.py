@@ -21,13 +21,18 @@ import rasterio
 from rasterio.warp import transform_bounds
 from rasterio.coords import BoundingBox
 import configparser
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logging.basicConfig(format = '%(message)s', datefmt = '%m-%d %H:%M')
 
 def nodata_stats_wraped(in_name, bounds):
     try:
         return nodata_stats(in_name, bounds)
     except IOError:
-        self.logger.exception('Error Encountered')
-        print("rasterio.IOError arised...")
+        logger.exception('Error Encountered')
+        logger.info("rasterio.IOError arised...")
         return 1
 
 # returns nodata percentage
@@ -204,8 +209,8 @@ def cloud_shadow_stats_config_wraped(in_name, bounds, config):
     try:
         return cloud_shadow_stats_config(in_name, bounds, config)
     except IOError:
-        self.logger.exception('Error Encountered')
-        print("rasterio.IOError arised...")
+        logger.exception('Error Encountered')
+        logger.warn("rasterio.IOError arised...")
         return 1, 1
 
 def cloud_shadow_stats_config(in_name, bounds, config):
