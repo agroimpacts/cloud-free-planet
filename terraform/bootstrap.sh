@@ -170,7 +170,7 @@ else
     aws s3 sync $RPM_URI /tmp/blobs/
 
     # Install packages
-    (cd /tmp/blobs; sudo yum localinstall -y gdal213-lib-2.1.3-33.x86_64.rpm hdf5-1.8.20-33.x86_64.rpm netcdf-4.5.0-33.x86_64.rpm proj493-lib-4.9.3-33.x86_64.rpm)
+    (cd /tmp/blobs; sudo yum localinstall -y gdal213-2.1.3-33.x86_64.rpm hdf5-1.8.20-33.x86_64.rpm netcdf-4.5.0-33.x86_64.rpm proj493-lib-4.9.3-33.x86_64.rpm)
 
     # Install Python packages
     sudo pip-3.4 install --upgrade pip
