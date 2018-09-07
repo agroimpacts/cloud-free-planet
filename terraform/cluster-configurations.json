@@ -6,6 +6,19 @@
         }
     },
     {
+        "Classification": "spark-env",
+        "Configurations": [
+            {
+                "Classification": "export",
+                "Properties": {
+                    "PYSPARK_DRIVER_PYTHON": "/usr/bin/python3.4",
+                    "PYSPARK_PYTHON": "/usr/bin/python3.4",
+                    "GEOPYSPARK_JARS_PATH": "/opt/jars"
+                }
+            }
+        ]
+    },
+    {
         "Classification": "spark-defaults",
         "Properties": {
             "spark.driver.maxResultSize": "3G",
