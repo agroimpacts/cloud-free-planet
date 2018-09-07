@@ -66,6 +66,7 @@ class RFClient():
                 tile_path=tile_path, token=token
             )
         except:
+            self.logger.exception('Error Encountered')
             self.logger.info("Oops, could not get mapToken, using a common uri with token...")
             url = project.tms()
         
@@ -142,6 +143,7 @@ class RFClient():
                 self.delete_project(project)
                 self.logger.info("Project {} deleted".format(project.id))
             except:
+                self.logger.exception('Error Encountered')
                 self.logger.info("Project {} can't be deleted".format(project.id))
 
     def create_scene_project(self, scene_id, scene_uri):
@@ -158,6 +160,7 @@ class RFClient():
                 new_scene, new_project = self.create_scene_project(scene_id, scene_uri)
                 tms_uri = self.tms_with_map_token(new_project)
             except:
+                self.logger.exception('Error Encountered')
                 self.logger.info("An error happened during RF TMS URI creation, scene_id: {}, scene_uri: {}".format(scene_id, scene_uri))
 
         return tms_uri
