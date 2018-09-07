@@ -5,6 +5,12 @@ from shapely.geometry import box
 
 class GeoUtils():
     @classmethod
+    def window_inside_bounds(self, window, bounds):
+        w, h = bounds
+        ((start_row, stop_row), (start_col, stop_col)) = window
+        return ((start_col <= w) and (stop_col <= w)) and ((start_row <= h) and (stop_row <= h))
+
+    @classmethod
     def window_transform(self, window_min, window_max):
         start_row, stop_row = sorted([window_min[0], window_max[0]])
         start_col, stop_col = sorted([window_min[1], window_max[1]])
@@ -79,6 +85,10 @@ class GeoUtils():
             "ymin": bounds[1],
             "ymax": bounds[3]
         }
+
+    @classmethod
+    def extents_intersects(self, ext1, ext2):
+        return (not ((ext2['xmax'] < ext1['xmin']) | (ext2['xmin'] > ext1['xmax']))) & (not ((ext2['ymax'] < ext1['ymin']) | (ext2['ymin'] > ext1['ymax'])))
 
     @classmethod
     def extent_intersection(self, ext1, ext2):
