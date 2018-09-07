@@ -31,7 +31,7 @@ if is_master; then
     sudo ln -s /usr/local/bin/pip3 /usr/bin/
     sudo ln -s /usr/local/bin/pip3.4 /usr/bin/
     (cd /tmp/blobs ; sudo pip3.4 install *.whl)
-    sudo pip3 install --upgrade rasterio
+    sudo -E env PATH="/usr/local/bin:$PATH" pip3 install --upgrade 'rasterio==1.0.3'
 
     # Linkage
     echo '/usr/local/lib' > /tmp/local.conf
@@ -177,7 +177,7 @@ else
     sudo ln -s /usr/local/bin/pip3 /usr/bin/
     sudo ln -s /usr/local/bin/pip3.4 /usr/bin/
     (cd /tmp/blobs ; sudo pip3.4 install *.whl)
-    sudo pip3 install --upgrade rasterio
+    sudo -E env PATH="/usr/local/bin:$PATH" pip3 install --upgrade 'rasterio==1.0.3'
 
     # Install GeoPySpark
     if [[ $GEOPYSPARKURI == s3* ]]; then
