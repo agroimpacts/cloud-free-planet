@@ -19,6 +19,7 @@ import logging
 import configparser
 import json
 import multiprocessing
+from retry import retry
 
 # PClientV1, class to simplify querying & downloading planet scenes using planet API V1
 # We need to consider usage of a new API
@@ -207,6 +208,7 @@ class PClientV1():
 
         return query
 
+    @retry(tries = 10, delay = 2, backoff = 2)
     def request_intersecting_scenes(self, query):
         # build the request
         item_types = ['PSScene4Band']  # params["lst_item_types"]
