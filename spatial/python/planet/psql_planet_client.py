@@ -47,6 +47,10 @@ class PSQLPClient():
         if self.enabled:
             self.conn = psycopg2.connect('host={} dbname={} user={} password={}'.format(self.host, self.dbname, self.user, self.password))
 
+    def connection_close(self):
+        if self.enabled:
+            self.conn.close()
+
     def get_cursor(self):
         return self.conn.cursor()
 
@@ -124,6 +128,19 @@ class PSQLPClient():
                 self.conn.commit()
             except:
                 self.conn.rollback()
+
+    def query_without_tms_url(self, limit = None):
+        curs = self.get_cursor()
+        query = ""
+ 
+        if limit == None:
+            query = """SELECT * FROM %s WHERE tms_url = ''""" % (self.master_grid_table)
+        else: 
+            query = """SELECT * FROM %s WHERE tms_url = '' LIMIT %s""" % (self.master_grid_table, limit)
+
+        curs.execute(query)
+
+        return curs
 
     def drain(self):
         self.query_executor.drain()
