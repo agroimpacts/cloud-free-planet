@@ -59,7 +59,6 @@ class PClientV1():
         self.output_filename = "output.csv"
         self.output_encoding = "utf-8"
         self.s3client = boto3.client('s3')
-        self.s3resource = boto3.resource('s3')
         self.with_analytic = False
         self.with_analytic_xml = False
         self.with_visual = False
@@ -109,7 +108,6 @@ class PClientV1():
         }
         self.client = api.ClientV1(api_key = self.api_key)
         self.s3client = boto3.client('s3')
-        self.s3resource = boto3.resource('s3')
         self.with_analytic = json.loads(imagery_config['with_analytic'].lower())
         self.with_analytic_xml = json.loads(imagery_config['with_analytic_xml'].lower())
         self.with_visual = json.loads(imagery_config['with_visual'].lower())
@@ -386,7 +384,7 @@ class PClientV1():
                         self.logger.exception('Error Encountered')
                         filepath = self.download_localfs_product(product_type, scene_id, season)
                         self.logger.info("Uploading {}...".format(scene_id))
-                        self.s3resource.put_object(Bucket = self.s3_catalog_bucket, Key = output_key, Body = open(filepath, 'rb'))
+                        self.s3client.put_object(Bucket = self.s3_catalog_bucket, Key = output_key, Body = open(filepath, 'rb'))
                         # self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
                 else:
                     filepath = self.download_localfs_product(product_type, scene_id, season)
@@ -401,7 +399,7 @@ class PClientV1():
                     except botocore.exceptions.ClientError:
                         self.logger.exception('Error Encountered')
                         self.logger.info("Uploading {}...".format(scene_id))
-                        self.s3resource.put_object(Bucket = self.s3_catalog_bucket, Key = output_key, Body = open(filepath, 'rb'))
+                        self.s3client.put_object(Bucket = self.s3_catalog_bucket, Key = output_key, Body = open(filepath, 'rb'))
                         # self.transfer.upload_file(filepath, self.s3_catalog_bucket, output_key)
         else:
             s3_result = self.download_s3_product('analytic_sr', scene_id, season)
