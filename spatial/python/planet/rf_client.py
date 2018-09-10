@@ -55,6 +55,12 @@ class RFClient():
                 }
         ]
 
+    def refresh(self):
+        if self.enabled:
+            self.api = API(refresh_token = self.api_key, host = self.api_uri)
+            self.api_token_decoded = jwt.decode(self.api.api_token, algorithms = ['RS256'], verify = False)
+            self.owner = self.api_token_decoded['sub']
+
     def tms_with_map_token(self, project):
         url = ''
         try:
