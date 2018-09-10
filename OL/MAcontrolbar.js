@@ -401,7 +401,10 @@ function addControlBar(map, fieldsLayer, checkSaveStrategy, checkReturnStrategy,
             type: 'Polygon',
             features: fieldsLayer.getSource().getFeaturesCollection(),
             // Store the geometry being currently drawn for use by the finishCondition.
+            // NOTE: 'geometryFunction' is always called *after* 'condition' and 'finishCondition'.
             geometryFunction: function(coords, intPolyGeom) {
+                // intPolyGeom is undefined initially, after the completion of the finishCondition, 
+                // and when this interaction is deactivated.
                 if (!intPolyGeom) {
                     intPolyGeom = new ol.geom.Polygon(null);
                 }

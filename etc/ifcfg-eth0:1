@@ -1,0 +1,8 @@
+DEVICE="eth0:1"
+IPADDR="172.31.36.159"
+BOOTPROTO="static"
+ONBOOT="yes"
+TYPE="Ethernet"
+USERCTL="yes"
+PEERDNS="yes"
+IPV6INIT="no"
