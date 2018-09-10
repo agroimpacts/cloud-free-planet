@@ -290,7 +290,7 @@ def main_csv():
                             # cleanup local catalog
                             pclient.cleanup_catalog()
                             # refresh RF token
-                            pclient.refresh()
+                            rfclient.refresh()
 
     # await threadpool to stop
     neighbours_executor.close()
@@ -545,7 +545,7 @@ def main_json():
                                 # cleanup local catalog
                                 pclient.cleanup_catalog()
                                 # refresh RF token
-                                pclient.refresh()
+                                rfclient.refresh()
 
                             # base_row = [cell_id, scene_id, season_type, ""]
                             # writer.writerow(base_row)
