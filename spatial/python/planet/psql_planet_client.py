@@ -32,6 +32,7 @@ class PSQLPClient():
         self.scene_data_table = db_config['scene_data_table']
         self.enabled = db_config['enabled']
         self.conn = None
+        self.skip_existing = eval(imagery_config['skip_existing'])
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
         # planet has limitation 5 sec per key (search queries)
@@ -87,6 +88,14 @@ class PSQLPClient():
                 """INSERT INTO {} VALUES (%s, %s, %s, %s, %s, %s, %s, %s, now())""".format(self.scene_data_table), 
                 (row['provider'], row['scene_id'], row['cell_id'], row['season'], row.get('global_col'), row.get('global_row'), row.get('url'), row.get('tms_url'))
             )
+
+    def exists_row(self, cell_id, season, provider = 'planet'):
+        if self.enabled and self.skip_existing:
+            curs = self.conn.cursor()
+            curs.execute("""SELECT FROM %s WHERE provider = '%s' AND cell_id = %s AND season = '%s'""" % (self.scene_data_table, provider, cell_id, season))
+            return curs.fetchone() is not None
+        else:
+            return False
 
     def insert_rows_by_one(self, rows):
         if self.enabled:

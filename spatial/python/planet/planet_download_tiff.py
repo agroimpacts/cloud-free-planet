@@ -136,6 +136,15 @@ def main_csv():
         (cell_id, x, y, cell_name) = line
         r, c = master_grid.index(x, y)
 
+        # check if we have already processes this cell_id
+        if not valid_cell_grids[GS][r, c]:
+            if psqlclient.exists_row(cell_id = cell_id, season = GS):
+                valid_cell_grids[GS][r, c] = True
+
+        if not valid_cell_grids[OS][r, c]:
+            if psqlclient.exists_row(cell_id = cell_id, seaspn = OS):
+                valid_cell_grids[OS][r, c] = True
+
         skip_gs, skip_os = valid_cell_grids[GS][r, c], valid_cell_grids[OS][r, c]
         skip_row = skip_gs & skip_os
 
@@ -375,6 +384,17 @@ def main_json():
 
     for r in range(actual_window_height):
         for c in range(actual_window_width):
+            cell_id = cell_id_band[r, c]
+
+            # check if we have already processes this cell_id
+            if not valid_band[GS][r, c]:
+                if psqlclient.exists_row(cell_id = cell_id, season = GS):
+                    valid_band[GS][r, c] = True
+
+            if not valid_band[OS][r, c]:
+                if psqlclient.exists_row(cell_id = cell_id, season = OS):
+                    valid_band[OS][r, c] = True
+
             skip_gs, skip_os = valid_band[GS][r, c], valid_band[OS][r, c]
 
             # cell grid centroid 
@@ -387,7 +407,6 @@ def main_json():
 
             if not skip_row:
                 # read all metadata
-                cell_id = cell_id_band[r, c]
                 country_code, country_id = country_code_band[r, c], country_id_band[r, c]
                 ds_start, ds_end = ds_s_band[r, c], ds_e_band[r, c]
                 ws_start, ws_end = ws_s_band[r, c], ws_e_band[r, c]
