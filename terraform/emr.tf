@@ -41,7 +41,7 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
 
 
   termination_protection = false
-  keep_job_flow_alive_when_no_steps = true
+  keep_job_flow_alive_when_no_steps = false
 
   ec2_attributes {
     subnet_id        = "${var.subnet}"
