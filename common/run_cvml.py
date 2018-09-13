@@ -19,7 +19,7 @@ def main():
                                   stderr=subprocess.STDOUT, shell=True).communicate()[0]
     if rf_init == 0 and (not not id_cluster):
         try:
-            if bool(re.match("^[a-z]-[a-zA-Z0-9]{13}$", str.split(str.split(id_cluster, "\n")[-3], " = ")[1])):
+            if bool(re.match("^[a-z]-[a-zA-Z0-9]+$", str.split(str.split(id_cluster, "\n")[-3], " = ")[1])):
                 return str.split(str.split(id_cluster, "\n")[-3], " = ")[1]
             else:
                 return False
