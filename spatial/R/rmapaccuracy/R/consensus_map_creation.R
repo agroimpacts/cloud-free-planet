@@ -5,12 +5,15 @@
 #' maps.
 #' @param riskthres the threshold to select 'risk' pixels
 #' @param host NULL or "crowdmapper.org", if testing from remote location
+#' @param highestscore using highest score instead of bayes model averaging to
+#' generate consensus map so as to keep the best geometric quality. 
 #' @param qsite Q ir F site?  Default is FALSE
 #' @return Sticks conflict/risk percentage pixels into database (kml_data) and
 #' writes rasterized labels to S3 bucket.
 #' @importFrom raster ncell
 #' @export
-consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam, 
+consensus_map_creation <- function(kmlid, kml.usage, highestscore,
+                                   output.riskmap, diam, 
                                    host, qsite = FALSE) {
   
   coninfo <- mapper_connect(host = host)
@@ -308,9 +311,16 @@ consensus_map_creation <- function(kmlid, kml.usage, output.riskmap, diam,
   
   # Threshold here for determine field pixels in heat maps (not threshold for risk
   # pixels )
+  
+  if(highestscore == TRUE){
+    tmp <- bayes.polys%>%filter(posterior.field == 1)
+    bayes.polys <- tmp %>% filter(prior==max(tmp$prior))
+  }
+  # using 0.50000001 can avoid identifying unsure polygon when only single user
+  # or using highestscore to generate consensus maps
   bayesoutput <- bayes_model_averaging(bayes.polys = bayes.polys,
                                        rasterextent = rasterextent,
-                                       threshold = 0.5)
+                                       threshold = 0.5000001)
   
   # call risky pixel threshold from configuration table
   riskthreshold.sql <- paste0("SELECT value ",
