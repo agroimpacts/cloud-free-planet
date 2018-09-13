@@ -35,10 +35,10 @@ k.close()
 iteration_counter = int(mapc.getSystemData('IterationCounter'))
 
 # stopping criterion 1: maximum iteration
-maximum_iteration = int(mapc.getSystemData('StoppingFunc_MaxIterations'))
+maximum_iteration = int(mapc.getConfiguration('StoppingFunc_MaxIterations'))
 
 # stopping criterion 2: gain threshold per iteration
-accgain_threshold = int(mapc.getSystemData('StoppingFunc_AccGainThres'))
+accgain_threshold = int(mapc.getConfiguration('StoppingFunc_AccGainThres'))
 
 n_success = 0
 n_fail = 0
