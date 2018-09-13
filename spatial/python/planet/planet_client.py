@@ -359,11 +359,12 @@ class PClientV1():
         self.transfer.upload_file(self.output_filename_csv, self.s3_catalog_bucket, output_key)
         return result
 
+    @retry(tries = 10, delay = 2, backoff = 2)
     def download_localfs_s3_product(self, scene_id, season = '', product_type = 'analytic_sr'):
         cfg = self.products[product_type]
         asset_type = cfg['asset_type'] 
         ext = cfg['ext']
-        item_type= cfg['item_type']
+        item_type = cfg['item_type']
 
         filepath = ''
         output_key = "{}/{}/{}/{}.{}".format(self.s3_catalog_prefix, asset_type, season, scene_id, ext)
