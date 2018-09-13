@@ -91,9 +91,13 @@ class PSQLPClient():
 
     def exists_row(self, cell_id, season, provider = 'planet'):
         if self.enabled and self.skip_existing:
-            curs = self.conn.cursor()
-            curs.execute("""SELECT FROM %s WHERE provider = '%s' AND cell_id = %s AND season = '%s'""" % (self.scene_data_table, provider, cell_id, season))
-            return curs.fetchone() is not None
+            try:
+                curs = self.conn.cursor()
+                curs.execute("""SELECT FROM %s WHERE provider = '%s' AND cell_id = %s AND season = '%s' and tms_url <> ''""" % (self.scene_data_table, provider, cell_id, season))
+                return curs.fetchone() is not None
+            except:
+                self.logger.exception('Error Encountered') 
+                return False
         else:
             return False
 
