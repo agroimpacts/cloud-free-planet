@@ -146,7 +146,7 @@ def main_csv():
                 valid_cell_grids[OS][r, c] = True
 
         skip_gs, skip_os = valid_cell_grids[GS][r, c], valid_cell_grids[OS][r, c]
-        skip_row = skip_gs & skip_os
+        skip_row = skip_gs and skip_os
 
         if not skip_row:
             country_code, country_id = country_code_band[r, c], country_id_band[r, c]
@@ -403,7 +403,7 @@ def main_json():
             # polygon to check would it intersect initial AOI
             poly = GeoUtils.define_polygon(x, y, cellSize)
 
-            skip_row = skip_gs & skip_os & (actual_aoi.intersects(poly) | test)
+            skip_row = skip_gs and skip_os and ((not actual_aoi.contains(poly)) or test)
 
             if not skip_row:
                 # read all metadata
@@ -511,7 +511,7 @@ def main_json():
                                     # polygon to check would it intersect initial AOI
                                     sub_poly = GeoUtils.define_polygon(sx, sy, cellSize)
 
-                                    skip_sub_row = valid_band[season_type][sr, sc] & (actual_aoi.intersects(sub_poly) | test)
+                                    skip_sub_row = valid_band[season_type][sr, sc] and ((not actual_aoi.contains(sub_poly)) or test)
 
                                     if not skip_sub_row:
                                         # read all metadata
