@@ -242,8 +242,12 @@ class PClientV1():
                 response.status_code = response.status_code
                 self.logger.info(response.status_code)
 
-            item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(item_type, scene_id)
+            item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets/'.format(item_type, scene_id)
             result = requests.get(item_url, auth = HTTPBasicAuth(self.api_key, ''))
+            
+            if result.status_code != 200:
+                self.logger.info(result.content.decode('utf-8'))
+
             download_url = result.json()[asset_type]['location']
 
             # download
@@ -283,8 +287,12 @@ class PClientV1():
                 response.status_code = response.status_code
                 self.logger.info(response.status_code)
 
-            item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets'.format(item_type, scene_id)
+            item_url = 'https://api.planet.com/data/v1/item-types/{}/items/{}/assets/'.format(item_type, scene_id)
             result = requests.get(item_url, auth = HTTPBasicAuth(self.api_key, ''))
+
+            if result.status_code != 200:
+                self.logger.info(result.content.decode('utf-8'))
+
             download_url = result.json()[asset_type]['location']
 
             # upload on s3 directly from the response
@@ -359,7 +367,6 @@ class PClientV1():
         self.transfer.upload_file(self.output_filename_csv, self.s3_catalog_bucket, output_key)
         return result
 
-    @retry(tries = 10, delay = 2, backoff = 2)
     def download_localfs_s3_product(self, scene_id, season = '', product_type = 'analytic_sr'):
         cfg = self.products[product_type]
         asset_type = cfg['asset_type'] 
