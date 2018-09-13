@@ -16,7 +16,7 @@ def main():
     os.chdir(mapc.projectRoot + "/terraform")
     id_cluster = subprocess.Popen("source " + mapc.projectRoot + "/common/bashrc_mapper.sh ; " +
                                   mapc.projectRoot + "/terraform/terraform apply -auto-approve",
-                                  stderr=subprocess.STDOUT).communicate()[0]
+                                  stderr=subprocess.STDOUT, shell=True).communicate()[0]
     if rf_init == 0 and (not not id_cluster):
         try:
             if bool(re.match("^[a-z]-[a-zA-Z0-9]{13}$", str.split(str.split(id_cluster, "\n")[-3], " = ")[1])):
