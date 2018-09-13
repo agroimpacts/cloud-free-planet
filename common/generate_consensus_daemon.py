@@ -259,8 +259,8 @@ while True:
                             lastthird_accgain = mapc.cur.fetchall()
                         
                         # criterion 2
-                        if abs(lastfirst_accgain-lastsecond_accgain)<accgain_threshold and 
-                           abs(lastsecond_accgain_accgain-lastthird_accgain)<accgain_threshold:
+                        if abs(lastfirst_accgain-lastsecond_accgain)<accgain_threshold and \
+                                abs(lastsecond_accgain_accgain-lastthird_accgain)<accgain_threshold:
                              IsFinished = True
                              break
                     
