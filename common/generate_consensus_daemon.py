@@ -148,6 +148,11 @@ while True:
                 if mapc.generateConsensusMap(k=k,
                                              kmlName=kmldata_row[0][index_name],
                                              kmlusage=fkml_row[i][index_usage]):
+                # The below is when highestscore map is used for generating consensus for spatial collective
+                # if mapc.generateConsensusMap(k=k,
+                #                              kmlName=kmldata_row[0][index_name],
+                #                              kmlusage=fkml_row[i][index_usage],
+                #                              highestscore="TRUE"): 
                     n_success = n_success + 1
                 else:
                     n_fail = n_fail + 1
