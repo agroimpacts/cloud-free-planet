@@ -386,17 +386,6 @@ def main_json():
         for c in range(actual_window_width):
             cell_id = cell_id_band[r, c]
 
-            # check if we have already processes this cell_id
-            if not valid_band[GS][r, c]:
-                if psqlclient.exists_row(cell_id = cell_id, season = GS):
-                    valid_band[GS][r, c] = True
-
-            if not valid_band[OS][r, c]:
-                if psqlclient.exists_row(cell_id = cell_id, season = OS):
-                    valid_band[OS][r, c] = True
-
-            skip_gs, skip_os = valid_band[GS][r, c], valid_band[OS][r, c]
-
             # cell grid centroid 
             x, y = transform.xy(actual_transform, r, c)
 
@@ -406,6 +395,17 @@ def main_json():
             # skip row conditions
             skip_row = False
             if actual_aoi.contains(poly) or test:
+                # check if we have already processes this cell_id
+                if not valid_band[GS][r, c]:
+                    if psqlclient.exists_row(cell_id = cell_id, season = GS):
+                        valid_band[GS][r, c] = True
+
+                if not valid_band[OS][r, c]:
+                    if psqlclient.exists_row(cell_id = cell_id, season = OS):
+                        valid_band[OS][r, c] = True
+
+                skip_gs, skip_os = valid_band[GS][r, c], valid_band[OS][r, c]
+
                 skip_row = skip_gs and skip_os
             else: 
                 skip_row = True
