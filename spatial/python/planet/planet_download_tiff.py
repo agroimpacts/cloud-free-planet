@@ -403,7 +403,12 @@ def main_json():
             # polygon to check would it intersect initial AOI
             poly = GeoUtils.define_polygon(x, y, cellSize)
 
-            skip_row = skip_gs and skip_os and ((not actual_aoi.contains(poly)) or test)
+            # skip row conditions
+            skip_row = False
+            if actual_aoi.contains(poly) or test:
+                skip_row = skip_gs and skip_os
+            else: 
+                skip_row = True
 
             if not skip_row:
                 # read all metadata
@@ -511,7 +516,12 @@ def main_json():
                                     # polygon to check would it intersect initial AOI
                                     sub_poly = GeoUtils.define_polygon(sx, sy, cellSize)
 
-                                    skip_sub_row = valid_band[season_type][sr, sc] and ((not actual_aoi.contains(sub_poly)) or test)
+                                    # skip sub_row conditions
+                                    skip_sub_row = False
+                                    if actual_aoi.contains(sub_poly) or test:
+                                        skip_sub_row = valid_band[season_type][sr, sc]
+                                    else: 
+                                        skip_sub_row = True
 
                                     if not skip_sub_row:
                                         # read all metadata
