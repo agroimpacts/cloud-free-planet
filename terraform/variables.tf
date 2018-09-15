@@ -52,7 +52,7 @@ variable "jupyterhub_port" {
 variable "worker_count" {
     type        = "string"
     description = "The number of worker nodes"
-    default     = "1"
+    default     = "12"
 }
 
 variable "bid_price" {
