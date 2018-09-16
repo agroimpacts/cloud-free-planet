@@ -41,7 +41,7 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
 
 
   termination_protection = false
-  keep_job_flow_alive_when_no_steps = false
+  keep_job_flow_alive_when_no_steps = true
 
   ec2_attributes {
     subnet_id        = "${var.subnet}"
@@ -64,7 +64,7 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
     bid_price      = "${var.bid_price}"
     instance_count = "${var.worker_count}"
     instance_role  = "CORE"
-    instance_type  = "m3.xlarge"
+    instance_type  = "${var.worker_type}"
     name           = "geopyspark-core"
   }
 
