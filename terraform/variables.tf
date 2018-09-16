@@ -52,13 +52,19 @@ variable "jupyterhub_port" {
 variable "worker_count" {
     type        = "string"
     description = "The number of worker nodes"
-    default     = "12"
+    default     = "4"
+}
+
+variable "worker_type" {
+    type        = "string"
+    description = "instance type for all worker nodes"
+    default     = "c4.4xlarge"
 }
 
 variable "bid_price" {
   type        = "string"
-  description = "Bid Price"
-  default     = "0.07"
+  description = "Bid Price, change depending on instance type"
+  default     = "0.30"
 }
 
 variable "s3_rpm_uri" {
