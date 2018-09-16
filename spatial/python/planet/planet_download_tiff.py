@@ -386,24 +386,29 @@ def main_json():
         for c in range(actual_window_width):
             cell_id = cell_id_band[r, c]
 
-            # check if we have already processes this cell_id
-            if not valid_band[GS][r, c]:
-                if psqlclient.exists_row(cell_id = cell_id, season = GS):
-                    valid_band[GS][r, c] = True
-
-            if not valid_band[OS][r, c]:
-                if psqlclient.exists_row(cell_id = cell_id, season = OS):
-                    valid_band[OS][r, c] = True
-
-            skip_gs, skip_os = valid_band[GS][r, c], valid_band[OS][r, c]
-
             # cell grid centroid 
             x, y = transform.xy(actual_transform, r, c)
 
             # polygon to check would it intersect initial AOI
             poly = GeoUtils.define_polygon(x, y, cellSize)
 
-            skip_row = skip_gs and skip_os and ((not actual_aoi.contains(poly)) or test)
+            # skip row conditions
+            skip_row = False
+            if actual_aoi.contains(poly) or test:
+                # check if we have already processes this cell_id
+                if not valid_band[GS][r, c]:
+                    if psqlclient.exists_row(cell_id = cell_id, season = GS):
+                        valid_band[GS][r, c] = True
+
+                if not valid_band[OS][r, c]:
+                    if psqlclient.exists_row(cell_id = cell_id, season = OS):
+                        valid_band[OS][r, c] = True
+
+                skip_gs, skip_os = valid_band[GS][r, c], valid_band[OS][r, c]
+
+                skip_row = skip_gs and skip_os
+            else: 
+                skip_row = True
 
             if not skip_row:
                 # read all metadata
@@ -511,7 +516,12 @@ def main_json():
                                     # polygon to check would it intersect initial AOI
                                     sub_poly = GeoUtils.define_polygon(sx, sy, cellSize)
 
-                                    skip_sub_row = valid_band[season_type][sr, sc] and ((not actual_aoi.contains(sub_poly)) or test)
+                                    # skip sub_row conditions
+                                    skip_sub_row = False
+                                    if actual_aoi.contains(sub_poly) or test:
+                                        skip_sub_row = valid_band[season_type][sr, sc]
+                                    else: 
+                                        skip_sub_row = True
 
                                     if not skip_sub_row:
                                         # read all metadata
