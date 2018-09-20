@@ -265,7 +265,7 @@ while True:
                         
                         # criterion 2
                         if abs(lastfirst_accgain-lastsecond_accgain)<accgain_threshold and \
-                                abs(lastsecond_accgain_accgain-lastthird_accgain)<accgain_threshold:
+                                abs(lastsecond_accgain-lastthird_accgain)<accgain_threshold:
                              IsFinished = True
                              break
                     
