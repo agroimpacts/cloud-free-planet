@@ -28,7 +28,7 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
     action_on_failure = "CONTINUE"
     hadoop_jar_step {
     jar="command-runner.jar"
-    args = ["spark-submit", "--master", "yarn", "--packages", "io.astraea:pyrasterframes:0.7.3-GT2,org.apache.hadoop:hadoop-aws:2.7.3,org.apache.logging.log4j:log4j-core:2.11.1", "--jars", "/opt/jars/geotrellis-backend-assembly-0.4.2.jar", "--conf", "spark.executorEnv.GDAL_DATA=/usr/local/share/gdal", "/home/hadoop/cvmlAL/run_it/run_geopyspark.py", "--probability-images", "10", "--random-seed", "42", "activemapper", "0", "ghana-test"]
+    args = ["spark-submit", "--master", "yarn", "--packages", "io.astraea:pyrasterframes:0.7.3-GT2,org.apache.hadoop:hadoop-aws:2.7.3,org.apache.logging.log4j:log4j-core:2.11.1", "--jars", "/opt/jars/geotrellis-backend-assembly-0.4.2.jar", "--conf", "spark.executorEnv.GDAL_DATA=/usr/local/share/gdal", "--conf", "spark.sql.shuffle.partitions=192", "/home/hadoop/cvmlAL/run_it/run_geopyspark.py", "--probability-images", "10", "--random-seed", "42", "activemapper", "0", "ghana-test"]
   }}
 
   step {
@@ -41,7 +41,7 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
 
 
   termination_protection = false
-  keep_job_flow_alive_when_no_steps = true
+  keep_job_flow_alive_when_no_steps = false
 
   ec2_attributes {
     subnet_id        = "${var.subnet}"
