@@ -142,7 +142,7 @@ def main_csv():
                 valid_cell_grids[GS][r, c] = True
 
         if not valid_cell_grids[OS][r, c]:
-            if psqlclient.exists_row(cell_id = cell_id, seaspn = OS):
+            if psqlclient.exists_row(cell_id = cell_id, season = OS):
                 valid_cell_grids[OS][r, c] = True
 
         skip_gs, skip_os = valid_cell_grids[GS][r, c], valid_cell_grids[OS][r, c]
@@ -594,11 +594,14 @@ def main_json():
 
 def main():
     if csv_only and with_csv:
+        print("csv_only")
         main_csv()
     elif with_csv:
-        main_csv() 
+        print("with_csv")
+        main_csv()
         main_json()
     else:
+        print("aoi_only")
         main_json()
 
 if __name__ == "__main__":
