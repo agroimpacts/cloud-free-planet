@@ -20,9 +20,33 @@ mapper:
     MAIL_PASSWORD: 
 
     # Planet Settings
-    PL_API_KEY: 
+    PL_API_KEY:
 
+    # s3 connection params
+    aws_access:
+    aws_secret:
+    aws_region:
+ 
 cvml:
-    aws_access: 
-    aws_secret: 
-    aws_region: 
+    # below 3 should be removed, source params from mapper section in mapper codes. see template
+    aws_access:
+    aws_secret:
+    aws_region:
+
+    #temporary solutions, because aoiid and runid are supplied as command line args to
+    #run_geopyspark step they are inaccessible to the next step except for being in this
+    #config, which is redundant
+    runid: 0
+    aoiid: ghana-test
+
+    # s3 params
+    bucket: activemapper
+    prefix: planet
+    pool: f_pool_ZA.csv
+    incoming_names: incoming_names_ZA.csv
+    metrics: incoming_metrics.csv
+    image_catalog: planet-test/planet_catalog.csv
+    image_output_pattern: s3://azavea-africa-test/images/image_c{}_r{}.tif
+    outgoing: s3://azavea-africa-test/tmp/outgoing_names.csv
+
+ 

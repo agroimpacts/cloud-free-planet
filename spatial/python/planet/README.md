@@ -13,11 +13,11 @@ A set of scripts to download a minimal `master_grid` coverage of cloudless plane
 - [Local workflow example](#local-workflow-example)
 - [AWS ECS workflow example](#aws-ecs-workflow-example)
 - [Test downloading for a small area](#test-downloading-for-a-small-area)
+- [ A csv only, no database write example](#a-csv-only-no-database-write-example)
 
 ### Environment
 
-You'd need to have installed `Python 3` on your machine and installed `AWS` credentials, 
-or is is possible run eveyrthing through `Docker`.
+You'll need to have installed `Python 3` on your machine and installed `AWS` credentials, or it is possible run eveyrthing through `Docker`.
 
 Be sure that all neccesary changes were introduced into the [cfg/config.ini](./cfg/config.ini.template) file.
 
@@ -46,13 +46,13 @@ A [template](https://github.com/agroimpacts/mapperAL/blob/devel/spatial/python/p
 api_key: <none> # planet API key
 
 [imagery] # imagery settings
-local_mode: False # local mode means to donwload everything into local catalog without S3 uploads
+local_mode: False # local mode means to download everything into local catalog without S3 uploads
 s3_only: False # use only S3 without local files download, WARN: this may lead to data corruption on S3
 test: False # use a small test AOI
 aoi: cfg/ghana_aoi.geojson # path to a desired AOI
 with_csv: True # to use ot not to use csv_points as an extra area of intrest
 csv_only: True # to use input csv file as the only aoi
-csv_mode: a # mode to open the output csv file (for instane a - append, w - write, etc.)
+csv_mode: a # mode to open the output csv file (for instance a - append, w - write, etc.)
 csv_points: cfg/individual_sites_needing_images.csv # path to an extra AOI file
 cellgrid_buffer: 0.05 # cellgrids extent buffer
 master_grid_path: s3://activemapper/grid/master_grid.tif # path to a master_grid, can be S3 or local
@@ -221,6 +221,26 @@ You might find it beneficial to run a small test area.  This can be achieved in 
     - The second two steps above apply here. 
 
 A note about test mode: you can only write your test output to a csv. It will not write to _scenes_data_. This helps avoid conflicts between jobs run by multiple users.
+
+[Back to TOC](#toc) 
+
+### A csv only, no database write example
+
+Say you have small number of sites for which you want imagery.  These sites are not contiguous, so defining a geojson AOI is tricky, so a csv of cell id, name, and coordinates is the way to go. Let's also say that there is another downloader running concurrently that is writing its outputs to the `scenes_data` table in the database. In this case, you will want to avoid having this new job also write to the database to prevent race conditions. Such up your `config.ini` to have these options:
+
+```
+...
+[imagery]
+with_csv: True
+csv_only: True
+csv_points: cfg/<your-csv-name>.csv
+...
+[database]
+host: ip-172-31-39-38.ec2.internal
+enabled: False
+```
+
+Then run your job. After it runs, you can transfer the contents of your CSV to `scenes_data`. 
 
 [Back to TOC](#toc) 
 

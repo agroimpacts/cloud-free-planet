@@ -47,7 +47,8 @@ dbExecute(coninfo$con, sql)
 ```{r csv, message=FALSE, warning=FALSE, eval = TRUE}
 library(aws.s3)
 coors <- coninfo$con %>% tbl("master_grid") %>% filter(id %in% aois_grid) %>% select(x, y, name) %>% collect()
-rowcol <- cbind("name" = coors$name, rmapaccuracy:::rowcol_from_xy(x = coors$x, y = coors$y))
+rowcol <- cbind("name" = coors$name, 
+                rmapaccuracy:::rowcol_from_xy(x = coors$x, y = coors$y))
 name_col_row <- lapply(c(1:nrow(rowcol)), function(x) {
         paste0(rowcol[x, 1], "_", rowcol[x, 2], "_", rowcol[x, 3])
 })
