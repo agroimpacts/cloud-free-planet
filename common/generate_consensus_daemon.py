@@ -247,21 +247,21 @@ while True:
                         break
                     else:
                         # query accuracy metrics when iteration times is at least 3
-                        if iteration_counter > 1:
+                        if iteration_counter > 2:
                             mapc.cur.execute("SELECT accuracy "
-                                 "FROM iteration_metrics WHERE iteration_time = '%s'"
+                                 "FROM iteration_metrics WHERE iteration = %s"
                                  % (iteration_counter))
-                            lastfirst_accgain = mapc.cur.fetchall()
+                            lastfirst_accgain = mapc.cur.fetchone()[0]
                             
                             mapc.cur.execute("SELECT accuracy "
-                                 "FROM iteration_metrics WHERE iteration_time = '%s'"
+                                 "FROM iteration_metrics WHERE iteration = %s"
                                  % (iteration_counter-1))
-                            lastsecond_accgain = mapc.cur.fetchall()
+                            lastsecond_accgain = mapc.cur.fetchone()[0]
                             
                             mapc.cur.execute("SELECT accuracy "
-                                 "FROM iteration_metrics WHERE iteration_time = '%s'"
+                                 "FROM iteration_metrics WHERE iteration = %s"
                                  % (iteration_counter-2))
-                            lastthird_accgain = mapc.cur.fetchall()
+                            lastthird_accgain = mapc.cur.fetchone()[0]
                         
                         # criterion 2
                         if abs(lastfirst_accgain-lastsecond_accgain)<accgain_threshold and \
