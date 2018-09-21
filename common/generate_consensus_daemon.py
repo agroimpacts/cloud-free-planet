@@ -35,10 +35,10 @@ k.close()
 iteration_counter = int(mapc.getSystemData('IterationCounter'))
 
 # stopping criterion 1: maximum iteration
-maximum_iteration = int(mapc.getSystemData('StoppingFunc_MaxIterations'))
+maximum_iteration = int(mapc.getConfiguration('StoppingFunc_MaxIterations'))
 
 # stopping criterion 2: gain threshold per iteration
-accgain_threshold = int(mapc.getSystemData('StoppingFunc_AccGainThres'))
+accgain_threshold = float(mapc.getConfiguration('StoppingFunc_AccGainThres'))
 
 n_success = 0
 n_fail = 0
@@ -148,6 +148,11 @@ while True:
                 if mapc.generateConsensusMap(k=k,
                                              kmlName=kmldata_row[0][index_name],
                                              kmlusage=fkml_row[i][index_usage]):
+                # The below is when highestscore map is used for generating consensus for spatial collective
+                # if mapc.generateConsensusMap(k=k,
+                #                              kmlName=kmldata_row[0][index_name],
+                #                              kmlusage=fkml_row[i][index_usage],
+                #                              highestscore="TRUE"): 
                     n_success = n_success + 1
                 else:
                     n_fail = n_fail + 1
@@ -242,25 +247,25 @@ while True:
                         break
                     else:
                         # query accuracy metrics when iteration times is at least 3
-                        if iteration_counter > 1:
+                        if iteration_counter > 2:
                             mapc.cur.execute("SELECT accuracy "
-                                 "FROM iteration_metrics WHERE iteration_time = '%s'"
+                                 "FROM iteration_metrics WHERE iteration = %s"
                                  % (iteration_counter))
-                            lastfirst_accgain = mapc.cur.fetchall()
+                            lastfirst_accgain = mapc.cur.fetchone()[0]
                             
                             mapc.cur.execute("SELECT accuracy "
-                                 "FROM iteration_metrics WHERE iteration_time = '%s'"
+                                 "FROM iteration_metrics WHERE iteration = %s"
                                  % (iteration_counter-1))
-                            lastsecond_accgain = mapc.cur.fetchall()
+                            lastsecond_accgain = mapc.cur.fetchone()[0]
                             
                             mapc.cur.execute("SELECT accuracy "
-                                 "FROM iteration_metrics WHERE iteration_time = '%s'"
+                                 "FROM iteration_metrics WHERE iteration = %s"
                                  % (iteration_counter-2))
-                            lastthird_accgain = mapc.cur.fetchall()
+                            lastthird_accgain = mapc.cur.fetchone()[0]
                         
                         # criterion 2
-                        if abs(lastfirst_accgain-lastsecond_accgain)<accgain_threshold and 
-                           abs(lastsecond_accgain_accgain-lastthird_accgain)<accgain_threshold:
+                        if abs(lastfirst_accgain-lastsecond_accgain)<accgain_threshold and \
+                                abs(lastsecond_accgain-lastthird_accgain)<accgain_threshold:
                              IsFinished = True
                              break
                     
