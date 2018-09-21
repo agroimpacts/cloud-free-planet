@@ -1,4 +1,9 @@
 ## This needs to be sourced from the account's .bashrc file
+
+# These values needed to develop mapper and execute python scripts.
+umask 0007
+export PYTHONPATH="$HOME/mapper/common"
+
 # Mapper Terraform vars
 export TF_VAR_subnet=subnet-638f0c39
 export TF_VAR_s3_log_uri=s3://azavea-africa-test/logs
