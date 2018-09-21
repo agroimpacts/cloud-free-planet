@@ -25,16 +25,13 @@ export PATH="/usr/pgsql-9.4/bin:$PATH"
 5) Append changes from the .../mapper/etc/aliases file into the system's aliases file.
 
 6) Add the following lines to .bashrc for sandbox and mapper users:
-a) For sandbox user:
-export PYTHONPATH="/u/sandbox/mapper/common"
-umask 0007
-b) For mapper user:
-export PYTHONPATH="/u/mapper/mapper/common"
-umask 0007
-NOTE: This allows MTurkMappingAfrica.py to be imported from scripts running in 
+source $HOME/mapper/common/bashrc_mapper.sh
+
+NOTE: This allows MappingCommon.py to be imported from scripts running in 
       other than the .../mapper/common directory, during an *interactive* session.
       Cron daemons always need to run from the .../mapper/common directory
       because crontab ignores the .bashrc settings.
+      Also defines the TF_* env vars needed by terraform.
 
 7) This step is only needed if incoming emails need to be parsed and automatically processed.
    This is not currently the case.
