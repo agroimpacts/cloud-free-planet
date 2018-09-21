@@ -629,10 +629,11 @@ class MappingCommon(object):
         
     # generate ConsensusMap
     # Return true or false
-    def generateConsensusMap(self, k, kmlName, kmlusage):
+    # Note: "FALSE" is a boolean value in R, different with False in python
+    def generateConsensusMap(self, k, kmlName, kmlusage,highestscore="FALSE"):
         try:
            riskPixelPercentage = float(subprocess.Popen(["Rscript",
-                                                "%s/spatial/R/consensus_map_generator.R" % self.projectRoot, kmlName, kmlusage, "FALSE"],
+                                                "%s/spatial/R/consensus_map_generator.R" % self.projectRoot, kmlName, kmlusage, highestscore, "FALSE"],
                                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0])
         except Exception as e:
            k.write("generateConsensusMap fails for %s: \n %s \n" % (kmlName, e))  
