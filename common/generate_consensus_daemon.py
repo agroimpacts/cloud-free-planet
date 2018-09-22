@@ -278,7 +278,7 @@ while True:
                                               "generateConsensus: the iteration_%s "
                                               "register_f_sites fails" %
                                               iteration_counter)
-                        k.write("\ngenerateConsensus: fail to trigger cvml\n"
+                        k.write("\ngenerateConsensus: for the iteration_%s, register_f_sites fails\n"
                                 % iteration_counter)
                         sys.exit("Errors in register_f_sites")
                     break
@@ -286,6 +286,9 @@ while True:
     
     # check if the active learning loop has been stopped
     if IsFinished == True:
+        mapc.createAlertIssue("Iteration is stopped",
+                              "generateConsensus: iteration is stopped because of satisfactory result.")
+        k.write("\ngenerateConsensus: iteration is stopped because of satisfactory result.\n")
         break
 
     # Sleep for specified checking interval
