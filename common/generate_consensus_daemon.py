@@ -247,7 +247,7 @@ while True:
                         break
                     else:
                         # query accuracy metrics when iteration times is at least 3
-                        if iteration_counter > 2:
+                        if iteration_counter > 1:
                             mapc.cur.execute("SELECT accuracy "
                                  "FROM iteration_metrics WHERE iteration = %s"
                                  % (iteration_counter))
@@ -263,11 +263,11 @@ while True:
                                  % (iteration_counter-2))
                             lastthird_accgain = mapc.cur.fetchone()[0]
                         
-                        # criterion 2
-                        if abs(lastfirst_accgain-lastsecond_accgain)<accgain_threshold and \
-                                abs(lastsecond_accgain-lastthird_accgain)<accgain_threshold:
-                             IsFinished = True
-                             break
+                            # criterion 2
+                            if abs(lastfirst_accgain-lastsecond_accgain)<accgain_threshold and \
+                                    abs(lastsecond_accgain-lastthird_accgain)<accgain_threshold:
+                                 IsFinished = True
+                                 break
                     
                     if register_f_sites.main():
                         k.write("\ngenerateConsensus: the iteration_%s register_f_sites "
@@ -286,10 +286,12 @@ while True:
     
     # check if the active learning loop has been stopped
     if IsFinished == True:
+        mapc.cur.execure("DELETE FROM incoming_names WHERE processed='FALSE'")
+        mapc.dbcon.commit()
         mapc.createAlertIssue("Iteration is stopped",
                               "generateConsensus: iteration is stopped because of satisfactory result.")
         k.write("\ngenerateConsensus: iteration is stopped because of satisfactory result.\n")
-        break
+        sys.exit("Iteration is stopped")
 
     # Sleep for specified checking interval
     time.sleep(int(mapc.getConfiguration('FKMLCheckingInterval')))
