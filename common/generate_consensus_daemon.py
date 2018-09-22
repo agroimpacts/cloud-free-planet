@@ -250,17 +250,17 @@ while True:
                         if iteration_counter > 1:
                             mapc.cur.execute("SELECT accuracy "
                                  "FROM iteration_metrics WHERE iteration = %s"
-                                 % (iteration_counter))
+                                 % (iteration_counter+1))
                             lastfirst_accgain = mapc.cur.fetchone()[0]
                             
                             mapc.cur.execute("SELECT accuracy "
                                  "FROM iteration_metrics WHERE iteration = %s"
-                                 % (iteration_counter-1))
+                                 % (iteration_counter))
                             lastsecond_accgain = mapc.cur.fetchone()[0]
                             
                             mapc.cur.execute("SELECT accuracy "
                                  "FROM iteration_metrics WHERE iteration = %s"
-                                 % (iteration_counter-2))
+                                 % (iteration_counter-1))
                             lastthird_accgain = mapc.cur.fetchone()[0]
                         
                             # criterion 2
