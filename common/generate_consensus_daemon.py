@@ -242,7 +242,7 @@ while True:
 
                 if emr_clusters["Clusters"]["Id" == id_cluster]["Status"]["State"] == "TERMINATED":
                     # criterion 1
-                    if iteration_counter == maximum_iteration:
+                    if iteration_counter == maximum_iteration - 1:
                         IsFinished = True
                         break
                     else:
@@ -287,6 +287,8 @@ while True:
     # check if the active learning loop has been stopped
     if IsFinished == True:
         mapc.cur.execure("DELETE FROM incoming_names WHERE processed='FALSE'")
+        iteration_counter = iteration_counter + 1
+        mapc.setSystemData('IterationCounter', iteration_counter)
         mapc.dbcon.commit()
         mapc.createAlertIssue("Iteration is stopped",
                               "generateConsensus: iteration is stopped because of satisfactory result.")
