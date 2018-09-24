@@ -286,7 +286,7 @@ while True:
     
     # check if the active learning loop has been stopped
     if IsFinished == True:
-        mapc.cur.execure("DELETE FROM incoming_names WHERE processed='FALSE'")
+        mapc.cur.execute("DELETE FROM incoming_names WHERE processed='FALSE'")
         iteration_counter = iteration_counter + 1
         mapc.setSystemData('IterationCounter', iteration_counter)
         mapc.dbcon.commit()
