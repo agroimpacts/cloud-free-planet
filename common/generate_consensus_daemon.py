@@ -16,6 +16,7 @@ import register_f_sites
 import run_cvml
 from MappingCommon import MappingCommon
 from botocore.config import Config
+import subprocess
 
 # the below is for debugging under SuYe's project root
 # mapc = MappingCommon(projectRoot='/home/sye/mapper/')
@@ -37,8 +38,11 @@ iteration_counter = int(mapc.getSystemData('IterationCounter'))
 # stopping criterion 1: maximum iteration
 maximum_iteration = int(mapc.getConfiguration('StoppingFunc_MaxIterations'))
 
-# stopping criterion 2: gain threshold per iteration
+# stopping criterion 2.2: gain threshold per iteration
 accgain_threshold = float(mapc.getConfiguration('StoppingFunc_AccGainThres'))
+
+# stopping criterion 2.1: gain threshold per iteration
+acc_threshold = float(mapc.getConfiguration('StoppingFunc_AccThres'))
 
 n_success = 0
 n_fail = 0
@@ -53,7 +57,7 @@ IsFinished = False
 
 # Execute loop based on FKMLCheckingInterval
 while True:
-    
+
     # for initial iteration, query holdout, validate and training sites that 
     # are not processed from incoming_names table
     if iteration_counter == 0:
@@ -148,11 +152,11 @@ while True:
                 if mapc.generateConsensusMap(k=k,
                                              kmlName=kmldata_row[0][index_name],
                                              kmlusage=fkml_row[i][index_usage]):
-                # The below is when highestscore map is used for generating consensus for spatial collective
-                # if mapc.generateConsensusMap(k=k,
-                #                              kmlName=kmldata_row[0][index_name],
-                #                              kmlusage=fkml_row[i][index_usage],
-                #                              highestscore="TRUE"): 
+                    # The below is when highestscore map is used for generating consensus for spatial collective
+                    # if mapc.generateConsensusMap(k=k,
+                    #                              kmlName=kmldata_row[0][index_name],
+                    #                              kmlusage=fkml_row[i][index_usage],
+                    #                              highestscore="TRUE"):
                     n_success = n_success + 1
                 else:
                     n_fail = n_fail + 1
@@ -205,7 +209,6 @@ while True:
             aws_session = boto3.session.Session(aws_access_key_id=params['cvml']['aws_access'],
                                                 aws_secret_access_key=params['cvml']['aws_secret'])
 
-
             s3_client = aws_session.client('s3', region_name=params['cvml']['aws_region'])
 
             bucket = str(mapc.getConfiguration('S3BucketDir'))
@@ -249,26 +252,29 @@ while True:
                         # query accuracy metrics when iteration times is at least 3
                         if iteration_counter > 1:
                             mapc.cur.execute("SELECT accuracy "
-                                 "FROM iteration_metrics WHERE iteration = %s"
-                                 % (iteration_counter+1))
+                                             "FROM iteration_metrics WHERE iteration = %s"
+                                             % (iteration_counter + 1))
                             lastfirst_accgain = mapc.cur.fetchone()[0]
-                            
+
                             mapc.cur.execute("SELECT accuracy "
-                                 "FROM iteration_metrics WHERE iteration = %s"
-                                 % (iteration_counter))
+                                             "FROM iteration_metrics WHERE iteration = %s"
+                                             % (iteration_counter))
                             lastsecond_accgain = mapc.cur.fetchone()[0]
-                            
+
                             mapc.cur.execute("SELECT accuracy "
-                                 "FROM iteration_metrics WHERE iteration = %s"
-                                 % (iteration_counter-1))
+                                             "FROM iteration_metrics WHERE iteration = %s"
+                                             % (iteration_counter - 1))
                             lastthird_accgain = mapc.cur.fetchone()[0]
-                        
+
                             # criterion 2
-                            if abs(lastfirst_accgain-lastsecond_accgain)<accgain_threshold and \
-                                    abs(lastsecond_accgain-lastthird_accgain)<accgain_threshold:
-                                 IsFinished = True
-                                 break
-                    
+                            if (lastfirst_accgain > acc_threshold and
+                                lastfirst_accgain > acc_threshold and
+                                lastfirst_accgain > acc_threshold) and \
+                                    (abs(lastfirst_accgain - lastsecond_accgain) < accgain_threshold and
+                                     abs(lastsecond_accgain - lastthird_accgain) < accgain_threshold):
+                                IsFinished = True
+                                break
+
                     if register_f_sites.main():
                         k.write("\ngenerateConsensus: the iteration_%s register_f_sites "
                                 "succeed\n"
@@ -283,16 +289,25 @@ while True:
                         sys.exit("Errors in register_f_sites")
                     break
                 time.sleep(10)
-    
+
     # check if the active learning loop has been stopped
-    if IsFinished == True:
+    if IsFinished:
         mapc.cur.execute("DELETE FROM incoming_names WHERE processed='FALSE'")
         iteration_counter = iteration_counter + 1
         mapc.setSystemData('IterationCounter', iteration_counter)
         mapc.dbcon.commit()
-        mapc.createAlertIssue("Iteration is stopped",
-                              "generateConsensus: iteration is stopped because of satisfactory result.")
-        k.write("\ngenerateConsensus: iteration is stopped because of satisfactory result.\n")
+        stop_daemons = subprocess.Popen("crontab -r ;" + mapc.projectRoot +
+                                        "/common/daemonKiller.sh", shell=True).wait()
+        if stop_daemons == 0:
+            mapc.createAlertIssue("Iteration is stopped",
+                                  "generateConsensus: iteration is stopped because of satisfactory result.")
+            k.write("\ngenerateConsensus: iteration is stopped because of satisfactory result.\n")
+        else:
+            mapc.createAlertIssue("Iteration is stopped but fails to stop daemons",
+                                  "generateConsensus: iteration is stopped because of satisfactory result. But it "
+                                  "fails to stop daemons")
+            k.write("\ngenerateConsensus: iteration is stopped because of satisfactory result. But it "
+                    "fails to stop daemons\n")
         sys.exit("Iteration is stopped")
 
     # Sleep for specified checking interval
