@@ -268,8 +268,8 @@ while True:
 
                             # criterion 2
                             if (lastfirst_accgain > acc_threshold and
-                                lastfirst_accgain > acc_threshold and
-                                lastfirst_accgain > acc_threshold) and \
+                                lastsecond_accgain > acc_threshold and
+                                lastthird_accgain > acc_threshold) and \
                                     (abs(lastfirst_accgain - lastsecond_accgain) < accgain_threshold and
                                      abs(lastsecond_accgain - lastthird_accgain) < accgain_threshold):
                                 IsFinished = True
