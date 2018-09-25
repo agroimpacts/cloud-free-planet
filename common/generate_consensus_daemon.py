@@ -110,8 +110,10 @@ while True:
             iteration_counter = iteration_counter + 1
             # Update the IterationCounter value in system_data table
             mapc.setSystemData('IterationCounter', iteration_counter)
+            k = open(logFilePath + "/generateConsensus.log", "a+")
             k.write("\ngenerateConsensus: iteration_%s starting up at %s\n" %
                     (iteration_counter, first[index_iteration_time]))
+            k.close()
 
         # check if the iteration of all kmls from cvml is just greater than 
         # iteration_counter by 1 when they are not equal
@@ -181,12 +183,14 @@ while True:
         # when all fkml are processed, write processing info into log, 
         # check stopping criteria, wake up cvml, and call register_f_sites
         if n_processed == n_notprocessed:
+            k = open(logFilePath + "/generateConsensus.log", "a+")
             k.write("\ngenerateConsensus: the iteration_%s has %s successful "
                     "and %s failed consensus creation\n" %
                     (iteration_counter, n_success, n_fail))
             k.write("\ngenerateConsensus: the iteration_%s finishing up at "
                     "%s\n" %
                     (iteration_counter, datetime.now()))
+            k.close()
 
             # output incoming_names to csv table
             mapc.cur.execute("""SELECT * From incoming_names """)
@@ -223,15 +227,19 @@ while True:
             # wake up cvml
             id_cluster = run_cvml.main()
             if not not id_cluster:
+                k = open(logFilePath + "/generateConsensus.log", "a+")
                 k.write("\ngenerateConsensus: the iteration_%s triggering cvml "
                         "succeed\n"
                         % iteration_counter)
+                k.close()
             else:
                 mapc.createAlertIssue("Fail to trigger cvml",
                                       "\ngenerateConsensusDaemon: the iteration_%s "
                                       "fails in waking up cvml\n" %
                                       iteration_counter)
+                k = open(logFilePath + "/generateConsensus.log", "a+")
                 k.write("\ngenerateConsensus: fail to trigger cvml\n")
+                k.close()
                 break
 
             # call register_f_sites to generate F sites for the next
@@ -276,16 +284,20 @@ while True:
                                 break
 
                     if register_f_sites.main():
+                        k = open(logFilePath + "/generateConsensus.log", "a+")
                         k.write("\ngenerateConsensus: the iteration_%s register_f_sites "
                                 "succeed\n"
                                 % iteration_counter)
+                        k.close()
                     else:
                         mapc.createAlertIssue("f sites generation fails",
                                               "generateConsensus: the iteration_%s "
                                               "register_f_sites fails" %
                                               iteration_counter)
+                        k = open(logFilePath + "/generateConsensus.log", "a+")
                         k.write("\ngenerateConsensus: for the iteration_%s, register_f_sites fails\n"
                                 % iteration_counter)
+                        k.close()
                         sys.exit("Errors in register_f_sites")
                     break
                 time.sleep(10)
@@ -293,21 +305,25 @@ while True:
     # check if the active learning loop has been stopped
     if IsFinished:
         mapc.cur.execute("DELETE FROM incoming_names WHERE processed='FALSE'")
+        mapc.dbcon.commit()
         iteration_counter = iteration_counter + 1
         mapc.setSystemData('IterationCounter', iteration_counter)
-        mapc.dbcon.commit()
         stop_daemons = subprocess.Popen("sleep 5; crontab -r ;" + mapc.projectRoot +
                                         "/common/daemonKiller.sh", shell=True)
         if not not stop_daemons:
             mapc.createAlertIssue("Iteration is stopped",
                                   "generateConsensus: iteration is stopped because of satisfactory result.")
+            k = open(logFilePath + "/generateConsensus.log", "a+")
             k.write("\ngenerateConsensus: iteration is stopped because of satisfactory result.\n")
+            k.close()
         else:
             mapc.createAlertIssue("Iteration is stopped but fails to stop daemons",
                                   "generateConsensus: iteration is stopped because of satisfactory result. But it "
                                   "fails to stop daemons")
+            k = open(logFilePath + "/generateConsensus.log", "a+")
             k.write("\ngenerateConsensus: iteration is stopped because of satisfactory result. But it "
                     "fails to stop daemons\n")
+            k.close()
         time.sleep(5)
         sys.exit("Iteration is stopped")
 
