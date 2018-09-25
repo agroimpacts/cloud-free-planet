@@ -296,9 +296,9 @@ while True:
         iteration_counter = iteration_counter + 1
         mapc.setSystemData('IterationCounter', iteration_counter)
         mapc.dbcon.commit()
-        stop_daemons = subprocess.Popen("crontab -r ;" + mapc.projectRoot +
-                                        "/common/daemonKiller.sh", shell=True).wait()
-        if stop_daemons == 0:
+        stop_daemons = subprocess.Popen("sleep 5; crontab -r ;" + mapc.projectRoot +
+                                        "/common/daemonKiller.sh", shell=True)
+        if not not stop_daemons:
             mapc.createAlertIssue("Iteration is stopped",
                                   "generateConsensus: iteration is stopped because of satisfactory result.")
             k.write("\ngenerateConsensus: iteration is stopped because of satisfactory result.\n")
@@ -308,6 +308,7 @@ while True:
                                   "fails to stop daemons")
             k.write("\ngenerateConsensus: iteration is stopped because of satisfactory result. But it "
                     "fails to stop daemons\n")
+        time.sleep(5)
         sys.exit("Iteration is stopped")
 
     # Sleep for specified checking interval
