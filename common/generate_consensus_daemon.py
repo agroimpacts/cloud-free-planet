@@ -263,16 +263,19 @@ while True:
                                              "FROM iteration_metrics WHERE iteration = %s"
                                              % (iteration_counter + 1))
                             lastfirst_accgain = mapc.cur.fetchone()[0]
+                            mapc.dbcon.commit()
 
                             mapc.cur.execute("SELECT accuracy "
                                              "FROM iteration_metrics WHERE iteration = %s"
                                              % (iteration_counter))
                             lastsecond_accgain = mapc.cur.fetchone()[0]
+                            mapc.dbcon.commit()
 
                             mapc.cur.execute("SELECT accuracy "
                                              "FROM iteration_metrics WHERE iteration = %s"
                                              % (iteration_counter - 1))
                             lastthird_accgain = mapc.cur.fetchone()[0]
+                            mapc.dbcon.commit()
 
                             # criterion 2
                             if (lastfirst_accgain > acc_threshold and
@@ -304,8 +307,19 @@ while True:
 
     # check if the active learning loop has been stopped
     if IsFinished:
-        mapc.cur.execute("DELETE FROM incoming_names WHERE processed='FALSE'")
-        mapc.dbcon.commit()
+        try:
+            mapc.cur.execute("DELETE FROM incoming_names WHERE processed='FALSE'")
+            mapc.dbcon.commit()
+        except psycopg2.DatabaseError, err:
+            print "Error in deleting incoming names from the last loop, rollback"
+            mapc.cur.execute("ROLLBACK")
+            mapc.dbcon.commit()
+            k = open(logFilePath + "/generateConsensus.log", "a+")
+            k.write(err + os.linesep)
+            k.close()
+            mapc.createAlertIssue("Error in deleting incoming names from the last loop",
+                                  "generateConsensus: To delete the incoming name from the last iteration manually." +
+                                  os.linesep + str(err))
         iteration_counter = iteration_counter + 1
         mapc.setSystemData('IterationCounter', iteration_counter)
         stop_daemons = subprocess.Popen("sleep 5; crontab -r ;" + mapc.projectRoot +
