@@ -14,8 +14,7 @@ def main():
                                cwd=mapc.projectRoot + "/terraform").wait()
     # starts cvml cluster and a single iteration
     os.chdir(mapc.projectRoot + "/terraform")
-    id_cluster = subprocess.Popen("source " + mapc.projectRoot + "/common/bashrc_mapper.sh ; " +
-                                  mapc.projectRoot + "/terraform/terraform apply -auto-approve",
+    id_cluster = subprocess.Popen(mapc.projectRoot + "/terraform/terraform apply -auto-approve",
                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True).communicate()[0]
     if rf_init == 0 and (not not id_cluster):
         try:
