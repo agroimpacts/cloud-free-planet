@@ -30,7 +30,7 @@ class PSQLPClient():
         self.password = db_config['password']
         self.master_grid_table = db_config['master_grid_table']
         self.scene_data_table = db_config['scene_data_table']
-        self.enabled = db_config['enabled']
+        self.enabled = eval(db_config['enabled'])
         self.conn = None
         self.skip_existing = eval(imagery_config['skip_existing'])
         self.logger = logging.getLogger(__name__)
@@ -47,7 +47,7 @@ class PSQLPClient():
     def connect(self):
         if self.enabled:
             self.conn = psycopg2.connect('host={} dbname={} user={} password={}'.format(self.host, self.dbname, self.user, self.password))
-
+                
     def connection_close(self):
         if self.enabled:
             self.conn.close()
