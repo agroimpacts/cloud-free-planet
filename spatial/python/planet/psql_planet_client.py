@@ -30,7 +30,7 @@ class PSQLPClient():
         self.password = db_config['password']
         self.master_grid_table = db_config['master_grid_table']
         self.scene_data_table = db_config['scene_data_table']
-        self.enabled = db_config['enabled']
+        self.enabled = eval(db_config['enabled'])
         self.conn = None
         self.skip_existing = eval(imagery_config['skip_existing'])
         self.logger = logging.getLogger(__name__)
@@ -45,11 +45,11 @@ class PSQLPClient():
         self.query_executor = FixedThreadPoolExecutor(size = threads_number)
 
     def connect(self):
-        if self.enabled == 'True':
+        if self.enabled:
             self.conn = psycopg2.connect('host={} dbname={} user={} password={}'.format(self.host, self.dbname, self.user, self.password))
-
+                
     def connection_close(self):
-        if self.enabled == 'True':
+        if self.enabled:
             self.conn.close()
 
     def get_cursor(self):
@@ -73,7 +73,7 @@ class PSQLPClient():
         return curs
 
     def insert_row_with_commit(self, row):
-        if self.enabled == 'True':
+        if self.enabled:
             try:
                 curs = self.conn.cursor()
                 self.insert_row(row, curs)
@@ -82,7 +82,7 @@ class PSQLPClient():
                 conn.rollback()
 
     def insert_row(self, row, curs):
-        if self.enabled == 'True':
+        if self.enabled:
             # [provider] | scene_id | [cell_id | season] | global_col | global_row | url | tms_url | date_time
             curs.execute(
                 """INSERT INTO {} VALUES (%s, %s, %s, %s, %s, %s, %s, %s, now())""".format(self.scene_data_table), 
@@ -102,7 +102,7 @@ class PSQLPClient():
             return False
 
     def insert_rows_by_one(self, rows):
-        if self.enabled == 'True':
+        if self.enabled:
             # [provider] | scene_id | [cell_id | season] | global_col | global_row | url | tms_url | date_time
                 curs = self.conn.cursor()
                 for row in rows:
@@ -128,11 +128,11 @@ class PSQLPClient():
                         self.conn.commit()
 
     def insert_rows_by_one_async(self, rows):
-        if self.enabled == 'True':
+        if self.enabled:
             self.query_executor.submit(self.insert_rows_by_one, rows)
 
     def insert_rows(self, rows):
-        if self.enabled == 'True':
+        if self.enabled:
             try:
                 curs = self.conn.cursor()
                 # [provider] | scene_id | [cell_id | season] | global_col | global_row | url | tms_url | date_time
