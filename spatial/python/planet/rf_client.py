@@ -129,8 +129,8 @@ class RFClient():
         ).result()
 
     def add_scenes_to_project(self, scenes, project):
-        return self.api.client.Imagery.post_projects_uuid_scenes(
-            uuid = project.id, 
+        return self.api.client.Imagery.post_projects_projectID_scenes(
+            projectID = project.id, 
             scenes = [scene.id for scene in scenes]
         ).future.result()
 
@@ -141,7 +141,7 @@ class RFClient():
         }).result()
 
     def delete_project(self, project):
-        return self.api.client.Imagery.delete_projects_uuid(uuid = project.id).result()
+        return self.api.client.Imagery.delete_projects_projectID(projectID = project.id).result()
 
     def delete_all_projects(self):
         for project in self.api.projects:
