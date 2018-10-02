@@ -201,4 +201,7 @@ else
     sudo cp /tmp/local.conf /etc/ld.so.conf.d/local.conf
     sudo ldconfig
     rm -f /tmp/local.conf
+
+    # Clone CVML tip of devel branch without git history. This is secret and should be removed once open sourced
+    git clone --depth 1 -b devel https://***REMOVED***:***REMOVED***@github.com/agroimpacts/cvmlAL.git
 fi
