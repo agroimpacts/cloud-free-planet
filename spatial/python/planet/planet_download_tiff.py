@@ -212,7 +212,7 @@ def main_csv():
                                 # use custom cloud detection function to calculate clouds and shadows
                                 cloud_perc, shadow_perc = cloud_shadow_stats_config_wraped(output_localfile, bbox_local, cloud_config)
                                 # check if cell grid is good enough
-                                if (cloud_perc <= pclient.max_clouds and nodata_perc <= pclient.max_nodata):
+                                if (cloud_perc <= pclient.max_clouds and shadow_perc <= pclient.max_shadows and nodata_perc <= pclient.max_nodata):
                                     break
                                 else: 
                                     scene_id = ''
@@ -271,7 +271,7 @@ def main_csv():
                                         # use custom cloud detection function to calculate clouds and shadows
                                         sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config_wraped(output_localfile, bbox_local, cloud_config)
                                         # check if cell grid is good enough
-                                        if (sub_cloud_perc <= pclient.max_clouds and sub_nodata_perc <= pclient.max_nodata):
+                                        if (sub_cloud_perc <= pclient.max_clouds and sub_shadow_perc <= pclient.max_shadows and sub_nodata_perc <= pclient.max_nodata):
                                             # flag to avoid extra lookup into array
                                             sub_valid = False
                                             # select the only one image as it's the only one
@@ -476,7 +476,7 @@ def main_json():
                                     # use custom cloud detection function to calculate clouds and shadows
                                     cloud_perc, shadow_perc = cloud_shadow_stats_config_wraped(output_localfile, bbox_local, cloud_config)
                                     # check if cell grid is good enough
-                                    if (cloud_perc <= pclient.max_clouds and nodata_perc <= pclient.max_nodata):
+                                    if (cloud_perc <= pclient.max_clouds and shadow_perc <= pclient.max_shadows and nodata_perc <= pclient.max_nodata):
                                         break
                                     else: 
                                         scene_id = ''
@@ -547,7 +547,7 @@ def main_json():
                                             # use custom cloud detection function to calculate clouds and shadows
                                             sub_cloud_perc, sub_shadow_perc = cloud_shadow_stats_config_wraped(output_localfile, GeoUtils.define_BoundingBox(sx, sy, cellSize), cloud_config)
                                             # check if cell grid is good enough
-                                            if (sub_cloud_perc <= pclient.max_clouds and sub_nodata_perc <= pclient.max_nodata):
+                                            if (sub_cloud_perc <= pclient.max_clouds and sub_shadow_perc <= pclient.max_shadows and sub_nodata_perc <= pclient.max_nodata):
                                                 # flag to avoid extra lookup into array
                                                 sub_valid = False
                                                 # select the only one image as it's the only one
