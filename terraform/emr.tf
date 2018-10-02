@@ -7,19 +7,21 @@ resource "aws_emr_cluster" "emr-spark-cluster" {
   service_role  = "${var.emr_service_role}"
 
   step {
+    name="Clone CVML"
+    action_on_failure = "CONTINUE"
+    hadoop_jar_step {
+    jar="command-runner.jar"
+    args = ["git", "clone", "--depth", "1", "-b", "devel", "https://***REMOVED***:***REMOVED***@github.com/agroimpacts/cvmlAL.git", "/home/hadoop/cvmlAL"]
+  }}
+
+
+
+  step {
     name="run_geopyspark.py"
     action_on_failure = "CONTINUE"
     hadoop_jar_step {
     jar="command-runner.jar"
     args = ["spark-submit", "--master", "yarn", "--packages", "io.astraea:pyrasterframes:0.7.3-GT2,org.apache.hadoop:hadoop-aws:2.7.3,org.apache.logging.log4j:log4j-core:2.11.1", "--jars", "/opt/jars/geotrellis-backend-assembly-0.4.2.jar", "--conf", "spark.executorEnv.GDAL_DATA=/usr/local/share/gdal", "--conf", "spark.sql.shuffle.partitions=192", "/home/hadoop/cvmlAL/run_it/run_geopyspark.py", "--probability-images", "10", "--random-seed", "42", "activemapper", "0", "ghana-test"]
-  }}
-
-  step {
-    name="run_DB_insert.py"
-    action_on_failure = "CONTINUE"
-    hadoop_jar_step {
-    jar="command-runner.jar"
-    args = ["python3","/home/hadoop/cvmlAL/run_it/run_DB_insert.py"]
   }}
 
 
