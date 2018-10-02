@@ -203,5 +203,5 @@ else
     rm -f /tmp/local.conf
 
     # Clone CVML tip of devel branch without git history. This is secret and should be removed once open sourced
-    git clone --depth 1 -b devel https://***REMOVED***:***REMOVED***@github.com/agroimpacts/cvmlAL.git
+    git clone --depth 1 -b devel https://***REMOVED***:Stoker1\!@github.com/agroimpacts/cvmlAL.git
 fi
