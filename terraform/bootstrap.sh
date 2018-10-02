@@ -33,6 +33,9 @@ if is_master; then
     (cd /tmp/blobs ; sudo pip3.4 install *.whl)
     sudo -E env PATH="/usr/local/bin:$PATH" pip3 install --upgrade 'rasterio==1.0.3'
 
+    # Install Git so we can clone cvml
+    sudo apt-get install -y git
+    
     # Linkage
     echo '/usr/local/lib' > /tmp/local.conf
     echo '/usr/local/lib64' >> /tmp/local.conf
@@ -195,13 +198,13 @@ else
     # Install extra software
     sudo pip3 install psycopg2
 
+    # Clone CVML tip of devel branch without git history. This is secret and should be removed once open sourced
+    git clone --depth 1 -b devel https://***REMOVED***:Stoker1\!@github.com/agroimpacts/cvmlAL.git /home/hadoop/cvmlAL/
+
     # Linkage
     echo '/usr/local/lib' > /tmp/local.conf
     echo '/usr/local/lib64' >> /tmp/local.conf
     sudo cp /tmp/local.conf /etc/ld.so.conf.d/local.conf
     sudo ldconfig
     rm -f /tmp/local.conf
-
-    # Clone CVML tip of devel branch without git history. This is secret and should be removed once open sourced
-    git clone --depth 1 -b devel https://***REMOVED***:Stoker1\!@github.com/agroimpacts/cvmlAL.git
 fi
