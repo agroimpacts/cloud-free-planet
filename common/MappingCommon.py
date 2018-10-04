@@ -546,7 +546,7 @@ class MappingCommon(object):
                     'assignments': assignments }
         self.dbcon.commit()
         if len(hits) == 0:
-            return None
+            return hits
         else:
             if hitId is not None:
                 return hits[hitId]
