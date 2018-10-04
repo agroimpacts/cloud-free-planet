@@ -16,12 +16,10 @@ DEBUG = params['mapper']['DEBUG']
 SECRET_KEY = params['mapper']['SECRET_KEY']
 
 # SQLAlchemy settings
-db_production_name = params['mapper']['db_production_name']
-db_name = params['mapper']['db_sandbox_name']
 db_user = params['mapper']['db_username']
 db_password = params['mapper']['db_password']
 db_url= params['mapper']['db_url']
-DB_URL = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user=db_user,pw=db_password,url=db_url,db=db_name)
+DB_URL = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user=db_user,pw=db_password,url=db_url,db=mapc.db_name)
 SQLALCHEMY_DATABASE_URI = DB_URL
 SQLALCHEMY_TRACK_MODIFICATIONS = False    # Avoids a SQLAlchemy Warning
 
