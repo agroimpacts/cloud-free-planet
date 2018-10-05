@@ -56,8 +56,9 @@ csv_mode: a # mode to open the output csv file (for instance a - append, w - wri
 csv_points: cfg/individual_sites_needing_images.csv # path to an extra AOI file
 cellgrid_buffer: 0.05 # cellgrids extent buffer
 master_grid_path: s3://activemapper/grid/master_grid.tif # path to a master_grid, can be S3 or local
-max_clouds: 0.01 # max clouds perc 
-max_shadows: 0.01 # max shadows perc
+max_clouds_initial: 0.2 # max clouds in total scene, for initial Planet query
+max_clouds: 0.01 # max clouds perc in cell
+max_shadows: 0.01 # max shadows perc in cell
 max_bad_pixels: 0.03 # max bad pixels perc
 max_nodata: 0.01 # max nodata perc
 maximgs: 10 # max images to try per cell grid
