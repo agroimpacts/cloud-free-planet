@@ -1,0 +1,67 @@
+# Setting Up Africa/`mapper` 
+
+The following are post-migration tweaks to set up mapper's Africa database so that SpatialCollective can start developing reference maps.  
+
+
+## Database changes
+The following changes need to be made: 
+
+- `scenes_data` needs to be updated to have the latest records
+- `kml_data` needs to be updated to reflect the Q sites (which will be listed as F sites) that they should map. 
+    - `master_grid` needs to be edited accordingly, so that Qs are Qs, and Q sites to map are Fs. 
+- The 15 Q sites in question need to be added into kml_data
+    - They might also still need Planet scenes for them
+
+## `mapper` changes
+
+- Run in standalone mode, only turning on `create_hit_daemon`. 
+
+## Database changes
+### `scenes_data`
+```{r, eval=FALSE}
+library(rmapaccuracy)
+library(dplyr)
+
+coninfo <- mapper_connect(host = "crowdmapper.org")
+sdcon <- coninfo$con
+
+afcon <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), host = "crowdmapper.org", 
+                        dbname = "Africa", user = coninfo$dinfo$user, 
+                        password = coninfo$dinfo$password)
+
+# Pull in Sandbox's scenes_data
+scenes <- tbl(coninfo$con, "scenes_data") %>% collect()
+# scenes %>% filter(tms_url == "")
+afscenes <- tbl(afcon, "scenes_data") %>% collect()
+
+dsql <- "delete from scenes_data"
+DBI::dbSendQuery(afcon, dsql)
+
+pgsql <- paste0("PGPASSWORD=", coninfo$dinfo$password, 
+                "pg_dump -a -t scenes_data > .sql")
+pg_dump -a -t my_table my_db > my_file.sql
+"pg_dump -Fc -f $SDIR/migration/$SDB.pgdump -U ***REMOVED*** $SDB"
+
+# scenes <- scenes %>% arrange(cell_id)
+# cnter <- seq(1, nrow(scenes), 1000)
+# for(i in 1:nrow(scenes)) {  # i <- 1
+#   if(i %in% cnter) print(i)
+#   d <- scenes[i, ]
+#   sqls <- paste0("insert into scenes_data (provider, scene_id, cell_id,",
+#                  "season, global_col, global_row, url, tms_url, date_time)",
+#                  " values", 
+#                  " ('", d$provider, "', '", d$scene_id, "', '", d$cell_id, 
+#                  "', '", d$season, "', '", d$global_col, "', '", d$global_row, 
+#                  "', '", d$url, "', '",  d$tms_url, "', '", d$date_time, "')")
+#   # print(i)
+#   
+#   ret <- DBI::dbSendQuery(afcon, sqls)
+# }
+
+```
+
+
+
+
+    
+    
