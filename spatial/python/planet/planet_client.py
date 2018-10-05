@@ -26,7 +26,9 @@ from retry import retry
 class PClientV1():
     def __init__(self, api_key):
         self.api_key = api_key
-        self.max_clouds = 0.25
+        self.max_clouds_initial = 0.25
+        self.max_clouds = 0.01
+        self.max_shadows = 0.01
         self.max_bad_pixels = 0.25
         self.max_nodata = 0.25
         self.maximgs = 1
@@ -74,7 +76,9 @@ class PClientV1():
     def __init__(self, api_key, config):
         imagery_config = config['imagery']
         self.api_key = api_key
-        self.max_clouds = float(imagery_config['max_clouds'])  # max proportion of pixels that are clouds
+        self.max_clouds_initial = float(imagery_config['max_clouds_initial'])  # max initial proportion of pixels that are clouds
+        self.max_clouds = float(imagery_config['max_clouds'])  # max proportion of clouds detected by filter
+        self.max_shadows = float(imagery_config['max_shadows'])  # max proportion of cloud shaodws detected by filter
         self.max_bad_pixels = float(imagery_config['max_bad_pixels']) # max proportion of bad pixels (transmission errors, etc.)
         self.max_nodata = float(imagery_config['max_nodata']) # max nodata values per cellgrid
         self.maximgs = int(imagery_config['maximgs'])  # 15 #10 #20
@@ -142,7 +146,7 @@ class PClientV1():
             'type': 'RangeFilter',
             'field_name': 'cloud_cover',
             'config': {
-                'lte': self.max_clouds
+                'lte': self.max_clouds_initial   # only for UDM-detected clouds
             }
         }
 

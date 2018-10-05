@@ -12,6 +12,7 @@ csv_mode: a
 csv_points: cfg/individual_sites_needing_images.csv
 cellgrid_buffer: 0.05
 master_grid_path: s3://activemapper/grid/master_grid.tif
+max_clouds_initial: 0.2
 max_clouds: 0.01
 max_shadows: 0.01
 max_bad_pixels: 0.03
