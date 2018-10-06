@@ -24,12 +24,12 @@ Clear out scenes_data on Africa
 library(rmapaccuracy)
 library(dplyr)
 
-# coninfo <- mapper_connect(host = "crowdmapper.org")
-coninfo <- mapper_connect()
+coninfo <- mapper_connect(host = "crowdmapper.org")
+# coninfo <- mapper_connect()
 sdcon <- coninfo$con
 
-# afcon <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), host = "crowdmapper.org",
-afcon <- DBI::dbConnect(RPostgreSQL::PostgreSQL(),
+afcon <- DBI::dbConnect(RPostgreSQL::PostgreSQL(), host = "crowdmapper.org",
+# afcon <- DBI::dbConnect(RPostgreSQL::PostgreSQL(),
                         dbname = "Africa", user = coninfo$dinfo$user, 
                         password = coninfo$dinfo$password)
 
@@ -157,6 +157,17 @@ f <- "individual_sites_needing_images7.csv"
 mgchk3[!id %in% kml_scenes$cell_id][, .(id, x, y, name)] %>% 
   fwrite(., file = file.path("spatial/data/processed", f))
 # kml_scenes %>% filter(tms_url == '')
+
+```
+
+## Update Configuration Parameters
+```{r, eval = FALSE}
+# Standalone mode
+sqls <- "update configuration set value='true' where key='Hit_StandAlone'" 
+DBI::dbExecute(afcon, sqls)
+
+sqls <- "update configuration set value='true' where key='Hit_StandAlone'" 
+DBI::dbExecute(afcon, sqls)
 
 ```
 
