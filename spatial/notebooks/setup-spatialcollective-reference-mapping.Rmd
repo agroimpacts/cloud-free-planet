@@ -44,6 +44,14 @@ DBI::dbSendQuery(afcon, dsql)
 
 Migrate scenes data. Note this can only be run locally on mapper, not remote, because of ssl being off for psql
 ```{r, eval = FALSE}
+library(rmapaccuracy)
+library(dplyr)
+coninfo <- mapper_connect()
+sdcon <- coninfo$con
+afcon <- DBI::dbConnect(RPostgreSQL::PostgreSQL(),
+                        dbname = "Africa", user = coninfo$dinfo$user, 
+                        password = coninfo$dinfo$password)
+
 # migrate pgsql 
 pgsql <- paste0("PGPASSWORD=", coninfo$dinfo$password, 
                 " pg_dump -U ***REMOVED*** -a -t scenes_data", 
@@ -157,8 +165,9 @@ f <- "individual_sites_needing_images7.csv"
 mgchk3[!id %in% kml_scenes$cell_id][, .(id, x, y, name)] %>% 
   fwrite(., file = file.path("spatial/data/processed", f))
 # kml_scenes %>% filter(tms_url == '')
-
 ```
+
+Was missing for some older Q sites, so re-ran downloader.
 
 ## Update Configuration Parameters
 ```{r, eval = FALSE}
@@ -168,6 +177,10 @@ DBI::dbExecute(afcon, sqls)
 
 sqls <- "update configuration set value='true' where key='Hit_StandAlone'" 
 DBI::dbExecute(afcon, sqls)
+
+sqls <- "update configuration set value='3' where key='Hit_MaxAssignmentsF'" 
+DBI::dbExecute(afcon, sqls)
+
 
 ```
 
