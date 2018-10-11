@@ -38,7 +38,7 @@ cvml:
     #config, which is redundant
     runid: 0
     aoiid: ghana-test
-
+    
     # s3 params
     bucket: activemapper
     prefix: planet
@@ -48,5 +48,5 @@ cvml:
     image_catalog: planet-test/planet_catalog.csv
     image_output_pattern: s3://azavea-africa-test/images/image_c{}_r{}.tif
     outgoing: s3://azavea-africa-test/tmp/outgoing_names.csv
-
+    number_outgoing_names: 5
  
