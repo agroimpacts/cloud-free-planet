@@ -2,13 +2,12 @@ version: '3'
 services:
   planet-downloader:
     build: .
-    image: 554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:latest
+    image: local-test-pl-downloader
     command: python planet_download_tiff.py
     # set a proper default profile
     environment:
       AWS_PROFILE: clark
     volumes:
       - ${PWD}/catalog:/opt/planet/catalog # mount local catalog
-      - ${PWD}/cfg:/opt/planet/cfg # mount script configs
+      - ${PWD}/cfg:/opt/planet/cfg # mount script configs. place your master_grid.tif file in cfg.
       - ${HOME}/.aws:/root/.aws # mount aws credentials
-      # - ${HOME}/Downloads/:/opt/mg # mount master gird to speed up processing
