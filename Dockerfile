@@ -4,7 +4,7 @@ RUN apt-get update \
   && apt-get install -y python3-pip python3-dev libspatialindex-dev ca-certificates \
   && cd /usr/local/bin \
   && ln -s /usr/bin/python3 python \
-  && pip install --upgrade pip
+  && pip3 install --upgrade pip
 
 ENV CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
@@ -27,4 +27,4 @@ VOLUME /opt/planet/cfg
 
 VOLUME /opt/planet/catalog
 
-RUN cd /opt/planet/; pip install awscli --upgrade && pip install -r requirements.txt
+RUN cd /opt/planet/; pip3 install awscli && pip3 install -r requirements.txt

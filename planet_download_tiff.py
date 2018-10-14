@@ -323,7 +323,7 @@ def main_json():
 
     if test:
         # ext = GeoUtils.define_extent(30, -2, (0.03, 0.03)) # some test AOI to select a subset of extent from the master_grid.tiff
-        ext = GeoUtils.define_extent(0.292392, 36.897016, (0.05, 0.05))
+        ext = GeoUtils.define_extent(36.897016, 0.292392, (0.05, 0.05))
         # ext = {
         #     "xmin": 27.03,
         #     "ymin": -25.97,
