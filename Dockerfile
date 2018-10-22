@@ -27,4 +27,4 @@ VOLUME /opt/planet/cfg
 
 VOLUME /opt/planet/catalog
 
-RUN cd /opt/planet/; pip install awscli && pip install -r requirements.txt
+RUN cd /opt/planet/; pip3 install awscli && pip3 install -r requirements.txt
