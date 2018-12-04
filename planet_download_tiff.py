@@ -338,7 +338,7 @@ def main_json():
     # 5. dry season end month
     # 6. wet season start month
     # 7. wet season end month
-    # 2 and 3 combined link to the unique name field in the current ***REMOVED*** database
+    # 2 and 3 combined link to the unique name field in the current postgis database
     master_grid = rasterio.open(master_grid_path)
     # (xsize, ysize)
     cellSize = [s * cellgrid_buffer for s in master_grid.res]

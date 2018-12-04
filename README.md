@@ -14,7 +14,7 @@ A set of scripts to download a minimal `master_grid` coverage of cloudless plane
 - [AWS ECS workflow example](#aws-ecs-workflow-example)
 - [Test downloading for a small area](#test-downloading-for-a-small-area)
 - [ A csv only, no database write example](#a-csv-only-no-database-write-example)
-- [Build COG Overviews](#building-cog-overviews)
+- [Build COG Overviews](#build-cog-overviews)
 
 ### Environment
 
