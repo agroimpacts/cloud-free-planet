@@ -14,7 +14,7 @@ A set of scripts to download a minimal `master_grid` coverage of cloudless plane
 - [AWS ECS workflow example](#aws-ecs-workflow-example)
 - [Test downloading for a small area](#test-downloading-for-a-small-area)
 - [ A csv only, no database write example](#a-csv-only-no-database-write-example)
-- [Build rasterfoundry overviews for COGs (for imagery other than Planet)](#building-cog-overviews)
+- [Build COG Overviews](#building-cog-overviews)
 
 ### Environment
 
@@ -255,18 +255,21 @@ List of published docker images:
 - geojson Ghana only docker image: `554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:ghana_geojson_only`
 - both csv and Ghana json download `554330630998.dkr.ecr.us-east-1.amazonaws.com/planet-downloader:ghana`
 
-### Build rasterfoundry overviews for COGs (for imagery other than Planet)
+[Back to TOC](#toc) 
+
+### Build COG Overviews
 COGs that are created from a machine learning process will need to make a seperate call to the rfclient to create
 rasterfoundry projects for the COGs and make tms uris for each COG. The program `tms_uri_from_cog.py` wraps the rfclient
 to process an s3 prefix that contains COGs. Call `python tms_uri_from_cog.py --help` for a description:
-    ```
-    Takes as inputs a bucket and prefix that specify
-    the location on s3 that contains COGs that can be 
-    used to make overviews, allowing COGs to be visualized 
-    on rasterfoundry next to planet imagery and other COGs. 
-    Suffix is specified as the ending chracters to filter files 
-    by like 'iteration12.tif'.
-    Example: python tms_uri_from_cog.py activemapper classified-images/GH0421189_GH0493502 iteration12.tif
-    ```
+
+```
+Takes as inputs a bucket and prefix that specify
+the location on s3 that contains COGs that can be 
+used to make overviews, allowing COGs to be visualized 
+on rasterfoundry next to planet imagery and other COGs. 
+Suffix is specified as the ending chracters to filter files 
+by like 'iteration12.tif'.
+Example: python tms_uri_from_cog.py activemapper classified-images/GH0421189_GH0493502 iteration12.tif
+```
     
 [Back to TOC](#toc) 
