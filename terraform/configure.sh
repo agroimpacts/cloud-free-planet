@@ -16,11 +16,20 @@ c.NotebookApp.password = 'sha1:bf975db4a3d2:aa513de53c368b6365c6c1e433e7ad07d952
 
 export CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
+
 mkdir ~/planet/
 cd ~/planet/
 
-pip3 install -U setuptools
-sudo -H pip3 install awscli
-pip3 install -U numpy shapely pprint geojson planet requests boto3 scipy scikit-image rasterfoundry pyjwt retry porder
-pip3 install -U rasterio==1.0.7
+#pip3 install -U setuptools
+#sudo -H pip3 install awscli
+#pip3 install -U numpy shapely pprint geojson planet requests boto3 scipy scikit-image rasterfoundry$
+#pip3 install -U rasterio==1.0.7
 
+cd /tmp
+curl -O https://repo.anaconda.com/archive/Anaconda3-5.2.0-Linux-x86_64.sh
+bash Anaconda3-5.2.0-Linux-x86_64.sh -b
+source ~/.bashrc
+conda create --name porder_env python=2.7.15
+source activate my_env
+conda install -y Shapely-1.6.4.post1-cp27-cp27m-win32.whl numpy shapely pprint geojson planet requests boto3 scipy scikit-image
+sudo pip2 install -y  porder
