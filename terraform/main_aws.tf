@@ -3,43 +3,19 @@ provider "aws" {
     version = "~> 0.1"
 }
 
-resource "aws_security_group" "downloader_jupyter_notebook_sg" {
-    name = "downloader_jupyter_notebook_sg"
-    # Open up incoming ssh port
-    ingress {
-        from_port = 22
-        to_port = 22
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    # Open up incoming traffic to port 8888 used by Jupyter Notebook
-    ingress {
-        from_port   = 8888
-        to_port     = 8888
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    # Open up outbound internet access
-    egress {
-        from_port   = 0
-        to_port     = 0
-        protocol    = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-}
+# removed definition of security group because of duplicate error, see this 
+# link for the definition and guide to setup 
+# https://tsaprailis.com/2017/09/11/How-to-automate-creating-a-virtual-machine-for-data-science/
 
 resource "aws_instance" "Node" {
     count = 1
-    ami = "ami-0f9cf087c1f27d9b1"
+    ami = "ami-3657fe4c"
     instance_type = "${var.instance_type}"
     key_name = "${var.test_key_name}"
+    security_groups = ["jupyterhub"]
     tags {
         Name = "Jupyter Notebook Planet Download Test Env"
-    }
-    
-    vpc_security_group_ids = ["${aws_security_group.downloader_jupyter_notebook_sg.id}"]    
+    }   
 
     provisioner "file" {
         source      = "configure.sh"
@@ -55,7 +31,7 @@ resource "aws_instance" "Node" {
     provisioner "remote-exec" {
         inline = [
             "chmod +x /tmp/configure.sh",
-            "/tmp/configure.sh",
+            "bash /tmp/configure.sh",
         ]
         connection {
             type     = "ssh"
@@ -75,6 +51,31 @@ resource "aws_instance" "Node" {
             private_key = "${file("${var.test_key_path}")}"
         }
     }
+
+    provisioner "file" {
+        source      = "configure_env_manually.sh"
+        destination = "/tmp/configure_env_manually.sh"
+
+        connection {
+            type     = "ssh"
+            user     = "ubuntu"
+            private_key = "${file("${var.test_key_path}")}"
+        }
+    }
+
+    provisioner "remote-exec" {
+        inline = [
+            "chmod +x /tmp/configure_env_manually.sh",
+            "bash /tmp/configure_env_manually.sh",
+        ]
+        connection {
+            type     = "ssh"
+            user     = "ubuntu"
+            private_key = "${file("${var.test_key_path}")}"
+        }
+
+    }
+
 
 }
 
