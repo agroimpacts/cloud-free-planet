@@ -62,19 +62,19 @@ resource "aws_instance" "Node" {
             private_key = "${file("${var.test_key_path}")}"
         }
     }
-
-    provisioner "remote-exec" {
-        inline = [
-            "chmod +x /tmp/configure_env_manually.sh",
-            "bash /tmp/configure_env_manually.sh",
-        ]
-        connection {
-            type     = "ssh"
-            user     = "ubuntu"
-            private_key = "${file("${var.test_key_path}")}"
-        }
-
-    }
+# remote exec fails because conda and source can't be run from a bash script, run manually
+#    provisioner "remote-exec" {
+#        inline = [
+#            "chmod +x /tmp/configure_env_manually.sh",
+#            "bash /tmp/configure_env_manually.sh",
+#        ]
+#        connection {
+#            type     = "ssh"
+#            user     = "ubuntu"
+#            private_key = "${file("${var.test_key_path}")}"
+#        }
+#
+#    }
 
 
 }
