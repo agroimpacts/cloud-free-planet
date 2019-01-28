@@ -7,7 +7,8 @@ export CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
 mkdir ~/planet/
 cd ~/planet/
-
+sudo mkdir /dev/data # makes dir on this volume because other is full of anaconda stuff
+sudo chmod 777 /dev/data # makes directory read and writeable
 #conda create --yes --name porder_env --channel conda-forge python=2.7.15 pip planet geojson shapely $
 #source activate porder_env
 #yes | pip install porder
