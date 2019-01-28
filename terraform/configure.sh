@@ -1,3 +1,4 @@
+sudo apt-get install -y -q xclip # dependency of porder
 mkdir ~/.jupyter
 echo "c.NotebookApp.allow_origin = '*'
 c.NotebookApp.ip = '0.0.0.0'
