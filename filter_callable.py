@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logging.basicConfig(format = '%(message)s', datefmt = '%m-%d %H:%M')
 
-def nodata_stats_wraped(in_name, bounds):
+def nodata_stats_wrapped(in_name, bounds):
     try:
         return nodata_stats(in_name, bounds)
     except IOError:
@@ -58,79 +58,6 @@ def nodata_stats(in_name, bounds):
     
     return sum([np.count_nonzero(band == nodata) for band in bands]) / src.count
 
-def cloud_shadow_stats_config_old(in_name, bounds, config):
-    return cloud_shadow_stats_old(in_name, bounds, int(config['cloud_val']), int(config['shadow_val']), int(config['land_val']))
-
-def cloud_shadow_stats_old(in_name, bounds, cloud_val = 1500, shadow_val = 2000, land_val = 1000):
-    """
-    Input parameter:
-    in_name    - The full path of a Geotiff format image. e.g., r"D:\test_image\planet.tif"
-    bounds     - lat lon bounds to read data from
-    cloud_val  - The threshold of cloud in the min image(for more about "min image", see #2 in the following); default = 2500;  
-    shadow_val - The threshold of shadow in the max image; default = 1500;
-    land_val   - The threshold of land in the Near Infrared image (band 4); defalt = 1000
-    Output: cloud_perc, shadow_perc
-    The output is a tuple with two float numbers:  
-    cloud_perc  - cloud pixels percentage in that image, 
-    shadow_perc - shadow percentage in that image.
-    """
-
-    src = rasterio.open(in_name)
-
-    # bounds in the src crs projection
-    # (left, bottom, right, top)
-    # double check that bounds belong to image
-    transformed_bounds = GeoUtils.extent_to_BoundingBox(
-        GeoUtils.extent_intersection(
-            GeoUtils.BoundingBox_to_extent(src.bounds),
-            GeoUtils.BoundingBox_to_extent(BoundingBox(*transform_bounds("EPSG:4326", src.crs, *bounds)))
-        )
-    )
-
-    # calculate window to read from the input tiff
-    actual_window = GeoUtils.bounds_to_windows(transformed_bounds, src)
-
-    # 1 open the tif, take 4 bands, and read them as arrays
-    b1_array, b2_array, b3_array, b4_array = src.read(window = actual_window)
-
-    # 2. make max image and min image from four input bands.
-    # np.dstack() takes a list of bands and makes a band stack
-    # np.amax() find the max along the axis, here 2 means the axis that penetrates through bands in each pixel.
-    band_list = [b1_array ,b2_array, b3_array, b4_array]
-    stacked = np.dstack(band_list)
-    max_img = np.amax(stacked,2)
-    min_img = np.amin(stacked,2)
-
-    del b1_array, b2_array, b3_array, band_list
-
-    # 3. make max 7x7 filtered max and min image
-    max7x7_img = ndimage.maximum_filter(max_img, 7)
-    min7x7_img = ndimage.minimum_filter(min_img, 7)
-
-    del max_img, min_img
-
-    # 4. extract cloud, shadow&water, land
-    # The threshold here is based on Sitian and Tammy's test on 11 planet scenes.  It may not welly work for every AOI.
-    # Apparently np.where() method will change or lost the datatype, so .astype(np.int16) is used to make sure the datatype is the same as original
-    cloud_array = np.where(min7x7_img > cloud_val, 1, 0).astype(np.int16)
-    shadow_and_water_array = np.where(max7x7_img < shadow_val, 1, 0).astype(np.int16)
-    land_array = np.where(b4_array > land_val, 1, 0).astype(np.int16)
-
-    del max7x7_img, min7x7_img, b4_array
-
-    # 5. get shadow by masking 
-    shadow_array = np.where(land_array == 1, shadow_and_water_array, 0).astype(np.int16)
-
-    # 6. Calculate Statistics
-    grid_count = np.ma.count(shadow_array) # acutally count all pixels 
-    cloud_count = np.count_nonzero(cloud_array ==1)
-    shadow_count = np.count_nonzero(shadow_array ==1)
-
-    cloud_perc = cloud_count / grid_count
-    shadow_perc = shadow_count / grid_count
-
-    del cloud_array, shadow_and_water_array, land_array, shadow_array
-    return cloud_perc, shadow_perc
 
 def cloud_size_shape_filter(cloud_array_initial, object_size_thresh = 200, eccentricity_thresh=.95):
 
@@ -140,7 +67,7 @@ def cloud_size_shape_filter(cloud_array_initial, object_size_thresh = 200, eccen
         # identify objects, label each with unique id
         possible_cloud_labels = measure.label(cloud_array_initial)
         # get metrics
-        cloud_info = measure.regionprops(possible_cloud_labels)
+        cloud_info = measure.regionprops(possible_cloud_labels, coordinates='rc')
         
         #iterate objects in the cloud_info
         j = 0
@@ -171,7 +98,7 @@ def shadow_size_shape_filter(shadow_array_initial, object_size_thresh = 200, ecc
         # identify objects, label each with unique id
         possible_shadow_labels = measure.label(shadow_array_initial)
         # get metrics
-        shadow_info = measure.regionprops(possible_shadow_labels)
+        shadow_info = measure.regionprops(possible_shadow_labels, coordinates='rc')
         
         #iterate objects in the cloud_info
         j = 0
@@ -205,7 +132,7 @@ def initial_shadow_filter(stacked, shadow_reflectance_thresh = 1500, land_reflec
     del nir, max_img
     return shadow_array_initial
 
-def cloud_shadow_stats_config_wraped(in_name, bounds, config):
+def cloud_shadow_stats_config_wrapped(in_name, bounds, config):
     try:
         return cloud_shadow_stats_config(in_name, bounds, config)
     except IOError:
@@ -216,7 +143,7 @@ def cloud_shadow_stats_config_wraped(in_name, bounds, config):
 def cloud_shadow_stats_config(in_name, bounds, config):
     return cloud_shadow_stats(in_name, bounds, int(config['cloud_val']), int(config['area_val']), float(config['eccentricity_val']), float(config['peri_to_area_val']), int(config['shadow_val']), int(config['land_val']))
 
-def cloud_shadow_stats(in_name, bounds, cloud_val = 1500, object_size_thresh = 200, eccentricity_thresh = 0.95, peri_to_area_ratio = 0.3, shadow_reflectance_thresh = 1500, land_reflectance_thresh = 1000):
+def cloud_shadow_stats(in_name, cloud_val = 1500, object_size_thresh = 200, eccentricity_thresh = 0.95, peri_to_area_ratio = 0.3, shadow_reflectance_thresh = 1500, land_reflectance_thresh = 1000):
     """
     Input parameter:
     in_name    - The full path of a Geotiff format image. e.g., r"D:\test_image\planet.tif"
@@ -229,22 +156,8 @@ def cloud_shadow_stats(in_name, bounds, cloud_val = 1500, object_size_thresh = 2
 
     src = rasterio.open(in_name)
 
-    src_ext = GeoUtils.BoundingBox_to_extent(src.bounds)
-    bounds_ext = GeoUtils.BoundingBox_to_extent(BoundingBox(*transform_bounds("EPSG:4326", src.crs, *bounds)))
-
-    if not GeoUtils.extents_intersects(src_ext, bounds_ext):
-        return 1, 1
-
-    # bounds in the src crs projection
-    # (left, bottom, right, top)
-    # double check that bounds belong to image
-    transformed_bounds = GeoUtils.extent_to_BoundingBox(GeoUtils.extent_intersection(src_ext, bounds_ext))
-
-    # calculate window to read from the input tiff
-    actual_window = GeoUtils.bounds_to_windows(transformed_bounds, src)
-
     # 1 open the tif, take 4 bands, and read them as arrays
-    b1_array, b2_array, b3_array, b4_array = src.read(window = actual_window)
+    b1_array, b2_array, b3_array, b4_array = src.read()
 
     # 2. make max image and min image from four input bands.
     # np.dstack() takes a list of bands and makes a band stack
@@ -270,5 +183,5 @@ def cloud_shadow_stats(in_name, bounds, cloud_val = 1500, object_size_thresh = 2
     shadow_count = np.count_nonzero(shadow_array == 1)
     cloud_perc = cloud_count / grid_count
     shadow_perc = shadow_count / grid_count
-    del cloud_array, shadow_array
-    return cloud_perc, shadow_perc
+    print("Percentage of scene that is cloudy: " + str(cloud_perc), "Percentage of scene with shadows" + str(shadow_perc))
+    return cloud_array, shadow_array
