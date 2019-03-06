@@ -1,3 +1,4 @@
+atsa-idl/data/
 terraform/*tfstate*
 notebooks/aws.yaml
 */.DS_Store

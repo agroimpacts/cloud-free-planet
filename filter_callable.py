@@ -15,6 +15,7 @@ from geo_utils import GeoUtils
 
 import numpy as np
 from scipy import ndimage
+from scipy.signal import medfilt
 from skimage import measure
 import sys
 import rasterio
@@ -143,7 +144,7 @@ def cloud_shadow_stats_config_wrapped(in_name, bounds, config):
 def cloud_shadow_stats_config(in_name, bounds, config):
     return cloud_shadow_stats(in_name, bounds, int(config['cloud_val']), int(config['area_val']), float(config['eccentricity_val']), float(config['peri_to_area_val']), int(config['shadow_val']), int(config['land_val']))
 
-def cloud_shadow_stats(in_name, cloud_val = 1500, object_size_thresh = 200, eccentricity_thresh = 0.95, peri_to_area_ratio = 0.3, shadow_reflectance_thresh = 1500, land_reflectance_thresh = 1000):
+def cloud_shadow_stats(in_name, cloud_val = 1500, object_size_thresh = 400, eccentricity_thresh = 0.95, peri_to_area_ratio = 0.3, shadow_reflectance_thresh = 1500, land_reflectance_thresh = 1000):
     """
     Input parameter:
     in_name    - The full path of a Geotiff format image. e.g., r"D:\test_image\planet.tif"
@@ -185,3 +186,84 @@ def cloud_shadow_stats(in_name, cloud_val = 1500, object_size_thresh = 200, ecce
     shadow_perc = shadow_count / grid_count
     print("Percentage of scene that is cloudy: " + str(cloud_perc), "Percentage of scene with shadows" + str(shadow_perc))
     return cloud_array, shadow_array
+
+def cloud_stats_zhen(in_name, ci_thresh_one = .01, ci_coef_two = 1/7, med_kernel=5, object_size_thresh = 400, eccentricity_thresh = 0.90, peri_to_area_ratio = 0.3):
+    
+    """
+    Input parameter:
+    in_name    - The full path of a Geotiff format image. e.g., r"D:\test_image\planet.tif"
+    bounds     - lat lon bounds to read data from
+    cloud_thesh_one  - The threshold of cloud index one from Zhen et al. 2018 {0.01, 0.1, 1, 10, 100};
+    ci_coef_two  - The coefficient for cloud index two from Zhen et al. 2018, it ranges from 0 to 1 and suggested values are {1/10, 1/9, 1/8, 1/7, 1/6, 1/5, 1/4, 1/3,1/2}; 
+    Print Output: cloud_perc
+    Return Output: cloud_array - cloud pixels (bool?)
+    """
+
+    src = rasterio.open(in_name)
+
+    # 1 open the tif, take 4 bands, and read them as arrays
+    b1_array, b2_array, b3_array, b4_array = src.read()
+
+    # 2. compute index 1 and 2 and use conditional to create cloud mask
+    
+    ci_one_arr = (b4_array*3)/(b1_array+b2_array+b3_array)
+    ci_two_arr = (b4_array+b1_array+b2_array+b3_array)/4
+    # authors suggest range for coef of 
+    ci_thresh_two = np.mean(ci_two_arr) + ci_coef_two*(np.max(ci_two_arr)-np.mean(ci_two_arr))
+    cloud_array_initial = np.logical_or(np.less_equal(ci_one_arr-1, ci_thresh_one),
+                  np.greater_equal(ci_two_arr, ci_thresh_two))
+    
+    cloud_array_initial = medfilt(cloud_array_initial, med_kernel)
+    
+    cloud_array = cloud_size_shape_filter(cloud_array_initial, object_size_thresh, eccentricity_thresh)
+    
+    # 6. Calculate Statistics
+    grid_count = np.ma.count(cloud_array) # acutally count all pixels 
+    cloud_count = np.count_nonzero(cloud_array == 1)
+    #shadow_count = np.count_nonzero(shadow_array == 1)
+    cloud_perc = cloud_count / grid_count
+    #shadow_perc = shadow_count / grid_count
+    print("Percentage of scene that is cloudy: " + str(cloud_perc))
+    return cloud_array
+
+def shadow_stats_zhen(in_name, cloud_mask, csi_coef_three = .5, csi_thresh_three = 1, object_size_thresh = 200, eccentricity_thresh = 0.95, peri_to_area_ratio = 0.3, shadow_reflectance_thresh = 1500, land_reflectance_thresh = 1000):
+    """
+    Input parameter:
+    in_name    - The full path of a Geotiff format image. e.g., r"D:\test_image\planet.tif"
+    bounds     - lat lon bounds to read data from
+    cloud_thesh_one  - The threshold of cloud index one from Zhen et al. 2018;
+    cloud_thesh_two  - The threshold of cloud index two from Zhen et al. 2018; 
+    Output: cloud_perc
+    The output is a tuple with two arrays:  
+    cloud_array - cloud pixels (bool?), 
+    shadow_array - shadow pixels (bool?)
+    """
+
+    src = rasterio.open(in_name)
+
+    # 1 open the tif, take 4 bands, and read them as arrays
+    b1_array, b2_array, b3_array, b4_array = src.read()
+
+    # 2. compute index 1 and 2 and use conditional to create cloud mask
+    
+    csi_three_arr = b4_array
+    csi_four_arr = b1_array
+    
+    csi_thresh_three = np.min(csi_three_arr) + csi_coef_three*(np.mean(csi_three_arr)-np.min(csi_three_arr))
+    
+    csi_thresh_four = np.min(csi_four_arr) + csi_coef_four*(np.mean(csi_four_arr)-np.min(csi_four_arr))
+    
+    shadow_array_initial = np.logical_and(np.less_equal(csi_three_arr, ci_thresh_three),
+                  np.less_equal(csi_four_arr, csi_thresh_four))
+
+    shadow_array = shadow_size_shape_filter(shadow_array_initial, object_size_thresh, eccentricity_thresh)
+
+    # 6. Calculate Statistics
+    grid_count = np.ma.count(shadow_array) # count all pixels 
+    shadow_count = np.count_nonzero(shadow_array == 1)
+    #shadow_count = np.count_nonzero(shadow_array == 1)
+    shadow_perc = shadow_count / grid_count
+    #shadow_perc = shadow_count / grid_count
+    print("Percentage of scene that is shadowy: " + str(shadow_perc))
+    return shadow_array
+
