@@ -77,50 +77,76 @@ t_series = np.reshape(img,(img.shape[0],img.shape[1],n_band,int(n_image)), order
 
 #Computing the Clear Sky Line for Planet Images in T Series
 #need to implement checks for when there are not enough histogram bins satisfied to compute clear sky line and for when the slope is wrong (Zhu set to 1.5 if it was less than 1.5 but this might not be a good idea for Planet due to poorer calibration?)
+def reject_outliers_by_med(data, m = 2.):
+    """
+    Reject outliers based on median deviation
+    https://stackoverflow.com/questions/11686720/is-there-a-numpy-builtin-to-reject-outliers-from-a-list
+    """
+    d = np.abs(data - np.median(data))
+    mdev = np.median(d)
+    s = d/mdev if mdev else 0.
+    return data[s<m].flatten()
 
-def get_clear_skyline(img):
-    # make #D arrays for blue and red bands to compute clear sky lines
+def get_clear_skyline(img, rmin, rmax, nbins=50):
+    # make 3D arrays for blue and red bands to compute clear sky lines
     blue = img[:,:,0]
     red = img[:,:,2]
-
-
-    # computes the histogram for a single blue image
-    (means, edges, numbers)=stats.binned_statistic(blue.flatten(), blue.flatten(), statistic='mean', bins=50, range=(rmin,rmax))
-
-    histo_numbers_reshaped = np.reshape(numbers,(blue.shape[0],blue.shape[1]))
-
-    red_means=[]
-    blue_means=[]
-    for i in np.unique(histo_numbers_reshaped):
-        red_vals = red[histo_numbers_reshaped==i]
-        blue_vals = blue[histo_numbers_reshaped==i]
-        n = 20
-        #finds the 20 highest red values and takes mean
-        red_means.append(
-            np.mean(
-                red_vals[np.argsort(red_vals)[-n:]]
+    # finding samples, there should be at least 500 values to 
+    # compute clear sky line
+    good_histo_values = np.where((blue<rmax)&(blue>rmin), 0, blue)
+    if np.count_nonzero(good_histo_values) > 500:
+        # computes the histogram for a single blue image
+        (means, edges, numbers)=stats.binned_statistic(blue.flatten(), 
+                blue.flatten(), statistic='mean', 
+                bins=50, range=(int(rmin),int(rmax)))
+        
+        histo_numbers_reshaped = np.reshape(numbers, (blue.shape[0],blue.shape[1]))
+        red_means=[]
+        blue_means=[]
+        # don't include 0 values in the mean calculations
+        for i in np.unique(histo_numbers_reshaped)[1:]:
+            
+            red_vals = red[histo_numbers_reshaped==i]
+            blue_vals = blue[histo_numbers_reshaped==i]
+            #before selecting top 20, reject outliers
+            red_vals = reject_outliers_by_med(red_vals)
+            blue_vals = reject_outliers_by_med(blue_vals)
+            n = 20
+            #finds the 20 highest red values and takes mean
+            red_means.append(
+                np.mean(
+                    red_vals[np.argsort(red_vals)[-n:]]
+                )
             )
-        )
-        blue_means.append(
-            np.mean(
-                blue_vals[np.argsort(blue_vals)[-n:]]
+            blue_means.append(
+                np.mean(
+                    blue_vals[np.argsort(blue_vals)[-n:]]
+                )
             )
-        )
-    print(red_means)
-    #followed structure of this example: https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.OLS.html
-    model = statsmodels.formula.api.quantreg('reds~blues', {'reds':red_means, 'blues':blue_means})
+        
+        if len(np.unique(histo_numbers_reshaped)[1:]) > .5*nbins:
+            
+            #followed structure of this example: https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.OLS.html
+            model = statsmodels.formula.api.quantreg('reds~blues', {'reds':red_means, 'blues':blue_means})
 
-    result = model.fit()
+            result = model.fit()
 
-    intercept = result.params[0]
-    slope = result.params[1]
+            intercept = result.params[0]
+            slope = result.params[1]
+
+            return (intercept,slope)
+        # many cases will have too few bins to compute clear sky line
+        # assume slope and use available data to compute intercept. this changes results
+        # substantially, might need to tweak
+        else: 
+            slope = 1.5
+            intercept = np.mean(red_means)-slope*np.mean(blue_means)
+            return (intercept, slope)
+    else:
+        # we return nan here to signal that we need to use the 
+        # mean slope and intercept for the good clear skylines
+        return (np.nan,np.nan) 
     
-#     # correct abnormal slope according to idl code
-#     if slope < 1.5:
-#         slope=1.5
-#         intercept = mean(y)-slope*mean(x)
-    
-    return (intercept,slope)
 
 def compute_hot_series(t_series, rmin, rmax, n_bin=50):
     """Haze Optimized Transformation (HOT) test
@@ -143,8 +169,19 @@ def compute_hot_series(t_series, rmin, rmax, n_bin=50):
     """
     blues = t_series[:,:,0,:]
     reds = t_series[:,:, 2,:]
-    intercepts_slopes = list(map(get_clear_skyline,np.moveaxis(t_series,3,0)))
-    
+    intercepts_slopes = np.array(
+        list(map(lambda x: get_clear_skyline(x,rmin,rmax),
+                np.moveaxis(t_series,3,0)))
+        )
+    # assigns slope and intercept if an image is too cloudy (doesn't have 500 pixels in rmin, rmax range)
+    if np.isnan(intercepts_slopes).all():
+        # extreme case where no images can get a clear sky line
+        intercepts_slopes[:,1] = 1.5
+        intercepts_slopes[:,0] = 0
+    if np.isnan(intercepts_slopes).any():
+        # case where some images can't get a clear skyline
+        intercepts_slopes[:,1][np.isnan(intercepts_slopes[:,1])] = np.nanmean(intercepts_slopes[:,1])
+        intercepts_slopes[:,0][np.isnan(intercepts_slopes[:,0])] = np.nanmean(intercepts_slopes[:,0])
     def helper(blue, red, ba):
         b,a = ba
         return abs(a*blue - (b*red))/np.sqrt(1+a**2)
