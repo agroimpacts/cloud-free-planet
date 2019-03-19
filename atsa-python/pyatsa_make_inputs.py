@@ -6,13 +6,13 @@ import os
 from rasterio.plot import reshape_as_raster
 import json
 
-def keep_imgs_with_meta(img_paths, meta_paths):
+def keep_imgs_with_meta(img_paths, meta_paths, DIR):
     imgs_with_meta = []
     for im in list(map(os.path.basename, sorted(img_paths))):
         for meta in list(map(os.path.basename, sorted(meta_paths))):
             if meta[0:15] == im[0:15]:
                 imgs_with_meta.append(im)
-    return ['/home/rave/cloud-free-planet/notebooks/jan_april_2018_100ovp_50maxcloud/'+name for name in imgs_with_meta]
+    return [os.path.join(DIR,name) for name in imgs_with_meta]
 
 def get_sun_elevation_azimuth(path):
     with open(path) as f:
@@ -46,21 +46,22 @@ def stack_t_series(paths, stackname):
     print("Saved Time Series with " + str(len(arrs)) + " images and " + str(arrs[0].shape[2]) + " bands each")
 
 if __name__ == '__main__':
-
-    sr_pattern = "/home/rave/cloud-free-planet/notebooks/jan_april_2018_100ovp_50maxcloud/*SR*.tif"
+    DIR = "/home/rave/cloud-free-planet/notebooks/jan-september/"
+    sr_pattern = "/home/rave/cloud-free-planet/notebooks/jan-september/*SR*.tif"
     img_paths = glob.glob(sr_pattern)
     img_paths = sorted(img_paths)
-    meta_pattern = "/home/rave/cloud-free-planet/notebooks/jan-may/*metadata.json"
+    meta_pattern = "/home/rave/cloud-free-planet/notebooks/jan-september/*metadata.json"
     meta_paths = glob.glob(meta_pattern)
     meta_paths = sorted(meta_paths)
-
+    img_paths_with_meta = keep_imgs_with_meta(img_paths, meta_paths, DIR)
+    
     angles = list(map(get_sun_elevation_azimuth, meta_paths))
-    with open('angles.txt', 'w') as f:
+    with open(os.path.join(DIR,'angles_larger.txt'), 'w') as f:
         for tup in angles:
             f.write('%s %s\n' % tup)
     
     save_blank_water_mask(img_paths_with_meta[0])
 
-    stack_t_series(img_paths_with_meta, "stacked.tif")
+    stack_t_series(img_paths_with_meta, os.path.join(DIR, "stacked_larger.tif"))
     
 

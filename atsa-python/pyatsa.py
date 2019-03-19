@@ -9,6 +9,7 @@ import json
 import scipy.stats as stats
 import statsmodels.formula.api
 from skimage import exposure
+from sklearn.cluster import KMeans
 
 def percentile_rescale(arr, plow=1, phigh=99):
     '''
@@ -41,7 +42,7 @@ def reorder_to_rgb(image):
 ###porting code from original idl written by Xiaolin Zhu
     
 ATSA_DIR="/home/rave/cloud-free-planet/atsa-test-unzipped/planet-data/"
-img_path = os.path.join(ATSA_DIR, "stacked.tif")
+img_path = os.path.join(ATSA_DIR, "stacked_larger.tif")
 img = ski.io.imread(img_path)
 #set the following parameters
 dn_max=10000  #maximum value of DN, e.g. 7-bit data is 127, 8-bit is 255
@@ -192,4 +193,32 @@ def compute_hot_series(t_series, rmin, rmax, n_bin=50):
                     np.moveaxis(reds,2,0), 
                     intercepts_slopes)))
     return hot_t_series, intercepts_slopes
+
+def reassign_labels(class_img, cluster_centers, k=3):
+    """Reassigns mask labels of t series
+    based on magnitude of the cluster centers.
+    This assumes land will always be less than thin
+    cloud which will always be less than thick cloud,
+    in HOT units"""
+    idx = np.argsort(cluster_centers.sum(axis=1))
+    lut = np.zeros_like(idx)
+    lut[idx] = np.arange(k)
+    return lut[class_img]
+
+def fit_predict_reassign(x, km):
+    """returns the reassigned prediction"""
+    model = km.fit(x.reshape((-1,1)))
+    return reassign_labels(model.labels_.reshape(x.shape), model.cluster_centers_)
+
+def create_cloud_masks(hot_t_series):
+    km = KMeans(n_clusters=3, n_init=10, max_iter=100, tol=1e-4, n_jobs=-1, 
+                      verbose=False, random_state=4)
+
+    cloud_masks = np.array(list(map(
+        lambda x: fit_predict_reassign(x, km),
+        hot_t_series
+        )))
+    return cloud_masks
+
 hot_t_series, intercepts_slopes = compute_hot_series(t_series, rmin, rmax)
+cloud_masks = create_cloud_masks(hot_t_series) # this runs very slow since I fit a new kmeans model to each image
