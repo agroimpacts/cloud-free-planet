@@ -1,3 +1,21 @@
+# pyATSA
+
+atsa-python contains working scripts to port the original atsa-idl code written by Zhu and Helmer. But the up to date work is currently happening in notebooks/atsa-python-scratch.ipynb, since porting the code requires a lot of interactive profiling and debugging. 
+
+The code that is so far working well is the calculation of HOT (Haze optimized transform) for each image. The IDL code implements a single kmeans model by sampling pixels across the time series of HOT indices. I've implemented both this sampling approach and an approach that runs a new kmeans model for each image. Profiling this is in the works, tentatively it seems that there is a lot of variation between images in HOT that are causing both approaches to run into different problems, see the github issues. 
+
+Once kmeans is run, the upper threshold from the time series is calculated and the masks are refined. It helps to follow the idl code as a guide, along with the paper. Below are some notes on the IDL code to help follow along.
+
+
+#### notes on IDL code follow the values to determine what conditions to use in python
+
+The mask values are as follows (everything starts as 1 and is updated) and the water mask is 0 value where water, 1 where there is not water
+
+* 3 - background/SLC errors, missing data
+* 2 - cloud (see lines 365 through 378)
+* 1 - clear land (see lines 323 through 331, where idl returns 1 or 0 from ge condition)
+
+
 # Planet downloader scripts
 
 A set of scripts to download a minimal `master_grid` coverage of cloudless planet scenes.
