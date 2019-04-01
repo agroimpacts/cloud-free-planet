@@ -11,34 +11,6 @@ import statsmodels.formula.api
 from skimage import exposure
 from sklearn.cluster import KMeans
 
-def percentile_rescale(arr, plow=1, phigh=99):
-    '''
-    Rescales and applies other exposure functions to improve image vis. 
-    http://scikit-image.org/docs/dev/api/skimage.exposure.html#skimage.exposure.rescale_intensity
-    '''
-    rescaled_arr = np.zeros_like(arr)
-    for i in range(0,arr.shape[-1]):
-        val_range = (np.percentile(arr[:,:,i], plow), np.percentile(arr[:,:,i], phigh))
-        rescaled_channel = exposure.rescale_intensity(arr[:,:,i], val_range)
-        rescaled_arr[:,:,i] = rescaled_channel
-#     rescaled_arr= exposure.adjust_gamma(rescaled_arr, gamma=1) #adjust from 1 either way
-#     rescaled_arr= exposure.adjust_sigmoid(rescaled_arr, cutoff=.50) #adjust from .5 either way 
-    return rescaled_arr
-def normalize(arr):
-    ''' Function to normalize an input array to 0-1 '''
-    arr_max = arr.max()
-    return arr / arr_max
-
-def reorder_to_rgb(image):
-    '''reorders  bands ordered like BGRNIR
-    to blue, red, green for imshow
-    '''
-    blue = normalize(image[:,:,0])
-    green = normalize(image[:,:,1])
-    red = normalize(image[:,:,2])
-    nir = normalize(image[:,:,3])
-    return np.stack([red, green, blue], axis=-1) 
-
 ###porting code from original idl written by Xiaolin Zhu
     
 ATSA_DIR="/home/rave/cloud-free-planet/atsa-test-unzipped/planet-data/"
