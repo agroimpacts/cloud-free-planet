@@ -28,7 +28,7 @@ def save_blank_water_mask(path):
     meta.update(count=1) # update since we are writing a single band
     b1_array, b2_array, b3_array, b4_array = test.read()
     fake_mask = np.ones(b1_array.shape)
-    with rio.open('fake_mask.tif', 'w', **meta) as dst:
+    with rio.open('fake_mask_nowater.tif', 'w', **meta) as dst:
         dst.write(fake_mask.astype('uint16'), 1)
 
 def stack_t_series(paths, stackname):
