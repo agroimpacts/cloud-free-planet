@@ -102,7 +102,7 @@ t_series = np.reshape(img,(img.shape[0],img.shape[1],n_band,int(n_image)), order
 #due to poorer calibration?
 def reject_outliers_by_med(data, m = 2.):
     """
-    Reject outliers based on median deviation (unused currently but might be worth trying out)
+    Reject outliers based on median deviation
     https://stackoverflow.com/questions/11686720/is-there-a-numpy-builtin-to-reject-outliers-from-a-list
     """
     d = np.abs(data - np.median(data))
@@ -118,14 +118,22 @@ def reject_outliers_by_mean(data_red, data_blue, m = 3.):
     return (data_red[abs(data_red - np.mean(data_red)) < m * np.std(data_red)], \
             data_blue[abs(data_red - np.mean(data_red)) < m * np.std(data_red)])
 
-def get_clear_skyline(img, rmin0, rmax, nbins=50):
+def get_histo_labels(img, rmin0, rmax, nbins=50):
     """
-    Computes the clear sky line for a single image using the
-    automatic bin based approach used by Zhen and Elmer 2018.
-    Returns the slope and intercept of the clear sky line.
-    Larger images are easier to compute a clear sky line, 
-    smaller images with more clouds are more difficult and may
-    need to take an assumed slope or both slope and intercept.
+    Takes an image of shape [H, W, Channel], gets blue and red bands,
+    and computes histogram for blue values. then it finds the array indices
+    for each bin of the histogram.
+    
+    Args:
+        img (numpy array): the input image, part of a time series of images
+        rmin0 (int): minimum edge of the histogram (later adjusted based on each image)
+        rmax (int): maximum edge of the histogram
+        nbins (int): number of histogram bins
+        
+    Returns:
+        the array of histogram indices of same shape as a band or (nan, nan)
+        which is later passed to compute hot when nanmean is called.
+    
     """
     # make 3D arrays for blue and red bands to compute clear sky lines
     blue = img[:,:,0]
@@ -140,71 +148,137 @@ def get_clear_skyline(img, rmin0, rmax, nbins=50):
                 blue.flatten(), statistic='mean', 
                 bins=50, range=(int(rmin),int(rmax)))
         
-        histo_numbers_reshaped = np.reshape(numbers, (blue.shape[0],blue.shape[1]))
-        red_means=[]
-        blue_means=[]
-        # don't include 0 values in the mean calculations
-        for i in np.unique(histo_numbers_reshaped):
-            
-            red_vals = red[histo_numbers_reshaped==i]
-            blue_vals = blue[histo_numbers_reshaped==i]
-            # Zhu set this thresh for number of values needed in bin to compute mean
-            if len(blue_vals) > 20: 
-                # before selecting top 20, reject outliers based on 
-                # red values and pair with corresponding blue values as per Zhu code
-                # TO DO have function return indices of the good values or take both as args
-                (red_vals, blue_vals) = reject_outliers_by_mean(red_vals, blue_vals)
-
-                ## added these steps from Zhu code, but not sure if/why they are necessary
-                # they result in fewer values being averaged in each bin sometimes
-                red_vals = sorted(red_vals)
-                blue_vals = sorted(blue_vals)
-                n = 20 # zhu used this hardcoded value
-                select_n = min([n, ceil(.01*len(blue_vals))])
-                red_selected = red_vals[-select_n:]
-                blue_selected = blue_vals[-select_n:]
-                ##
-
-                
-                #finds the highest red values and takes mean
-                red_means.append(
-                    np.mean(
-                        red_vals[-select_n:]
-                    )
-                )
-                blue_means.append(
-                    np.mean(
-                        blue_vals[-select_n:]
-                    )
-                )
-        # we want at least half of our ideal data points to construct the clear sky line
-        if len(np.unique(histo_numbers_reshaped)) > .5 * nbins:
-            
-            #followed structure of this example: https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.OLS.html
-            model = statsmodels.formula.api.quantreg('reds~blues', {'reds':red_means, 'blues':blue_means})
-
-            result = model.fit()
-
-            intercept = result.params[0]
-            slope = result.params[1]
-            # hardcode if slope too low NEED TO TEST
-            if slope < 1.5:
-                slope = 1.5
-                intercept = np.mean(red_means) - slope*np.mean(blue_means)
-
-            return (intercept,slope)
-        # if we don't have even half the ideal amount of bin means...
-        # assume slope and use available data to compute intercept.
-        else: 
-            slope = 1.5
-            intercept = np.mean(red_means)-slope*np.mean(blue_means)
-            return (intercept, slope)
-    else:
-        # we return nan here to signal that we need to use the 
-        # mean slope and intercept for the good clear skylines
-        return (np.nan,np.nan) 
+        histo_labels_reshaped = np.reshape(numbers, (blue.shape[0],blue.shape[1]))
+        return histo_labels_reshaped
     
+    else:
+        # we return None here to signal that we need to use the 
+        # mean slope and intercept for the good clear skylines
+        return np.ones(blue.shape)*np.nan
+    
+def get_bin_means(img, histo_labels_reshaped, n=20):
+    """
+    Takes the same img as get_histo_labels and the histogram index array. 
+    Only computes means for bins with at least n values and only takes the
+    highest n values in each bin to compute the mean. n is hardcoded to 20
+    in Zhu code.
+    
+    Args:
+        img (numpy array): the input image, part of a time series of images
+        histo_labels_reshaped: array of same shape as the img bands
+        
+    Returns:
+        a tuple of two lists, the blue means and the read means
+    """
+    blue = img[:,:,0]
+    red = img[:,:,2]
 
+    red_means=[]
+    blue_means=[]
+    for i in np.unique(histo_labels_reshaped):
+
+        red_vals = red[histo_labels_reshaped==i]
+        blue_vals = blue[histo_labels_reshaped==i]
+        # Zhu set this thresh for number of values needed in bin to compute mean
+        if len(blue_vals) > n: 
+            # before selecting top 20, reject outliers based on 
+            # red values and pair with corresponding blue values as per Zhu code
+            (red_vals, blue_vals) = reject_outliers_by_mean(red_vals, blue_vals)
+
+            ## added these steps from Zhu code, but not sure if/why they are necessary
+            # they result in fewer values being averaged in each bin sometimes
+            red_vals = sorted(red_vals)
+            blue_vals = sorted(blue_vals)
+            select_n = min([n, ceil(.01*len(blue_vals))])
+            red_selected = red_vals[-select_n:]
+            blue_selected = blue_vals[-select_n:]
+            ##
+            #finds the highest red values and takes mean
+            red_means.append(
+                np.mean(
+                    red_vals[-select_n:]
+                )
+            )
+            blue_means.append(
+                np.mean(
+                    blue_vals[-select_n:]
+                )
+            )
+    return (blue_means, red_means)
+    
+def get_intercept_and_slope(blue_means, red_means, histo_labels_reshaped, nbins):
+    """
+    Takes the mean lists, the histogram labels, and nbins and computes the intercept
+    and slope. includes logic for dealing with too few bins and if the slope that
+    is computed is too low.
+    
+    Args:
+        blue_means (list): means of the bins for the blue band
+        red_means (list): means of the bins for the red band
+        histo_labels_reshaped: array of same shape as the img bands
+        
+    Returns:
+        a tuple of two floats, the intercept and the slope.
+    """
+    # we want at least half of our ideal data points to construct the clear sky line
+    if len(np.unique(histo_labels_reshaped)) > .5 * nbins:
+        #followed structure of this example: https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.OLS.html
+        model = statsmodels.formula.api.quantreg('reds~blues', {'reds':red_means, 'blues':blue_means})
+
+        result = model.fit()
+
+        intercept = result.params[0]
+        slope = result.params[1]
+        # hardcode if slope too low
+        if slope < 1.5:
+            slope = 1.5
+            intercept = np.mean(red_means) - slope*np.mean(blue_means)
+
+        return (intercept,slope)
+    # if we don't have even half the ideal amount of bin means...
+    # assume slope and use available data to compute intercept.
+    else: 
+        slope = 1.5
+        intercept = np.mean(red_means)-slope*np.mean(blue_means)
+        return (intercept, slope)
+    
+def get_clear_skyline(img, rmin0, rmax, nbins=50):
+    """
+    Computes the clear sky line for a single image using the
+    automatic bin based approach used by Zhen and Elmer 2018.
+    Returns the slope and intercept of the clear sky line.
+    Larger images are easier to compute a clear sky line, 
+    smaller images with more clouds are more difficult and may
+    need to take an assumed slope or both slope and intercept.
+    This function puts the steps together. 
+    
+    Args:
+        img (numpy array): bgrnir array
+        rmin0 (int): minimum edge of the histogram (later adjusted based on each image)
+        rmax (int): maximum edge of the histogram
+        nbins (int): number of histogram bins
+    
+    Returns:
+        tuple of nan if there are not enough good values to compute 
+        a histogram
+        
+        or
+        
+        a tuple with the intercept and slope of the clear sky line.
+        See get_intercept_and_slope for logic on how intercept and slope
+        is computed with different edge cases
+    """
+
+    histo_labels_reshaped = get_histo_labels(img, rmin0, rmax, nbins)
+    if np.isnan(histo_labels_reshaped).all() == True:
+        return (np.nan, np.nan)
+    
+    blue_means, red_means = get_bin_means(img, histo_labels_reshaped)
+    
+    intercept, slope = get_intercept_and_slope(blue_means, red_means, histo_labels_reshaped, nbins)
+    
+    return (intercept, slope)
+    
 def compute_hot_series(t_series, rmin, rmax, n_bin=50):
     """Haze Optimized Transformation (HOT) test
     Equation 3 (Zhu and Woodcock, 2012)
