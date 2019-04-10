@@ -115,8 +115,8 @@ def reject_outliers_by_mean(data_red, data_blue, m = 3.):
     Reject outliers based on deviation from mean
     This is the method used in Zhu and Elmer 2018
     """
-    return (data_red[abs(data_red - np.mean(data_red)) < m * np.std(data_red)], \
-            data_blue[abs(data_red - np.mean(data_red)) < m * np.std(data_red)])
+    return (data_red[data_red <= np.mean(data_red) + m * np.std(data_red)], \
+            data_blue[data_red <= np.mean(data_red) + m * np.std(data_red)])
 
 def get_histo_labels(img, rmin0, rmax, nbins=50):
     """
@@ -183,25 +183,27 @@ def get_bin_means(img, histo_labels_reshaped, n=20):
         if len(blue_vals) > n: 
             # before selecting top 20, reject outliers based on 
             # red values and pair with corresponding blue values as per Zhu code
-            (red_vals, blue_vals) = reject_outliers_by_mean(red_vals, blue_vals)
+            (red_vals_no_outliers, blue_vals_no_outliers) = reject_outliers_by_mean(red_vals, blue_vals)
 
             ## added these steps from Zhu code, but not sure if/why they are necessary
             # they result in fewer values being averaged in each bin sometimes
-            red_vals = sorted(red_vals)
-            blue_vals = sorted(blue_vals)
+            # need to sort by red and use same sorting for blue to keep pairs together
+            sort_indices = np.argsort(red_vals_no_outliers)
+            red_vals_sorted = red_vals_no_outliers[sort_indices]
+            blue_vals_sorted = blue_vals_no_outliers[sort_indices]
             select_n = min([n, ceil(.01*len(blue_vals))])
-            red_selected = red_vals[-select_n:]
-            blue_selected = blue_vals[-select_n:]
+            red_selected = red_vals_sorted[-select_n:]
+            blue_selected = blue_vals_sorted[-select_n:]
             ##
             #finds the highest red values and takes mean
             red_means.append(
                 np.mean(
-                    red_vals[-select_n:]
+                    red_selected
                 )
             )
             blue_means.append(
                 np.mean(
-                    blue_vals[-select_n:]
+                    blue_selected
                 )
             )
     return (blue_means, red_means)
