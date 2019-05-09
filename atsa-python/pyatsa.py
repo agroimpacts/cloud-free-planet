@@ -175,12 +175,13 @@ def get_bin_means(img, histo_labels_reshaped, n=20):
 
     red_means=[]
     blue_means=[]
-    for i in np.unique(histo_labels_reshaped):
+    # removing last element because for some reason there was an extra bin in the python version compared to idl
+    for i in np.unique(histo_labels_reshaped)[0:-1]:
 
         red_vals = red[histo_labels_reshaped==i]
         blue_vals = blue[histo_labels_reshaped==i]
         # Zhu set this thresh for number of values needed in bin to compute mean
-        if len(blue_vals) > n: 
+        if len(blue_vals) >= n: 
             # before selecting top 20, reject outliers based on 
             # red values and pair with corresponding blue values as per Zhu code
             (red_vals_no_outliers, blue_vals_no_outliers) = reject_outliers_by_mean(red_vals, blue_vals)
@@ -239,6 +240,7 @@ def get_intercept_and_slope(blue_means, red_means, histo_labels_reshaped, nbins)
         return (intercept,slope)
     # if we don't have even half the ideal amount of bin means...
     # assume slope and use available data to compute intercept.
+    # zhu later marks these as 0 in order to recompute slope and intercept from means...
     else: 
         slope = 1.5
         intercept = np.mean(red_means)-slope*np.mean(blue_means)
