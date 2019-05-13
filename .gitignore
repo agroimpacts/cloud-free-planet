@@ -20,4 +20,10 @@ terraform/.terraform
 __pycache__
 notebooks/data
 cfg/master_grid*
-notebooks/.ipynb_checkpoints
+notebooks/*.ipynb_checkpoints
+notebooks/*.txt
+notebooks/*.zip
+notebooks/*.geojson
+*.zip
+notebooks/*.tif
+*.tif
