@@ -6,6 +6,17 @@ The code that is so far working well is the calculation of HOT (Haze optimized t
 
 Once kmeans is run, the upper threshold from the time series is calculated and the masks are refined. It helps to follow the idl code as a guide, along with the paper. Below are some notes on the IDL code to help follow along.
 
+To compare pyatsa to IDL it is necessary to have IDL and ENVI installed. then:
+
+  1. Start the idl ide by calling `idlde` in the terminal
+
+  2. Run `ENVI` in the idlde, isnce ENVI functions are required to open the time series file
+
+  3. run `CD, "<path to directory with ATSA-Planet.pro>"`
+
+  4. Compile the ATSA-Planet.pro file with `.r ATSA-Planet.pro`
+
+  5. Call the idl script with `ATSA-Planet`
 
 #### notes on IDL code follow the values to determine what conditions to use in python
 
