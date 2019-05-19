@@ -13,89 +13,12 @@ from skimage import exposure
 from sklearn.cluster import KMeans
 from skimage import morphology as morph
 from math import ceil
-
-# below are plotting and vis functions
-def percentile_rescale(arr, plow=1, phigh=99):
-    '''
-    Rescales and applies other exposure functions to improve image vis. 
-    http://scikit-image.org/docs/dev/api/skimage.exposure.html#skimage.exposure.rescale_intensity
-    '''
-    rescaled_arr = np.zeros_like(arr)
-    for i in range(0,arr.shape[-1]):
-        val_range = (np.percentile(arr[:,:,i], plow), np.percentile(arr[:,:,i], phigh))
-        rescaled_channel = exposure.rescale_intensity(arr[:,:,i], val_range)
-        rescaled_arr[:,:,i] = rescaled_channel
-#     rescaled_arr= exposure.adjust_gamma(rescaled_arr, gamma=1) #adjust from 1 either way
-#     rescaled_arr= exposure.adjust_sigmoid(rescaled_arr, cutoff=.50) #adjust from .5 either way 
-    return rescaled_arr
-def normalize(arr):
-    ''' Function to normalize an input array to 0-1 '''
-    arr_max = arr.max()
-    return arr / arr_max
-
-def reorder_to_rgb(image):
-    '''reorders  bands ordered like BGRNIR
-    to blue, red, green for imshow
-    '''
-    blue = normalize(image[:,:,0])
-    green = normalize(image[:,:,1])
-    red = normalize(image[:,:,2])
-    nir = normalize(image[:,:,3])
-    return np.stack([red, green, blue], axis=-1) 
-
-def plot_series(series, n, title, save=False):
-    """
-    Plots n number of images in a series with shape
-    [number of images, rows, columns].
-    """
-    i = 0
-    while i < n:
-
-        plt.figure()
-        ski.io.imshow(series[i,:,:])
-        plt.title(title+': image '+str(i))
-        
-        if save ==True:
-            
-            plt.savefig(title+str(series[i,:,:].min())+'_imagemin_'+str(i)+".png")
-        i+=1
+import pyatsa_configs
 
 ###porting code from original idl written by Xiaolin Zhu
-    
 ATSA_DIR="/home/rave/cloud-free-planet/atsa-test-unzipped/"
 img_path = os.path.join(ATSA_DIR, "planet-pyatsa-test/stacked_larger_utm.tif")
-img = ski.io.imread(img_path)
-#set the following parameters
-dn_max=10000  #maximum value of DN, e.g. 7-bit data is 127, 8-bit is 255
-tempfolder=os.path.join(ATSA_DIR, 'temp') # folder for storing intermediate results
-background=0  #DN value of background or missing values, such as SLC-off gaps
-buffer=1    #width of buffer applied to detected cloud and shadow, recommend 1 or 2 
-
-#parameters for HOT caculation and cloud detection
-#------------------------------
-n_band=4     # number of bands of each image
-n_image=img.shape[2]/n_band   # number of images in the time-series
-blue_b=0    # band index of blue band, note: MSS does not have blue, use green as blue
-green_b=1   # band index of green band
-red_b=2     # band index of red band
-nir_b=3     # band index of nir band
-
-A_cloud=0.5 # threshold to identify cloud (mean+A_cloud*sd), recommend 0.5-1.5, smaller values can detect thinner clouds
-maxblue_clearland=dn_max*0.15 # estimated maximum blue band value for clear land surface
-maxnir_clearwater=dn_max*0.05 # estimated maximum nir band value for clear water surface
-rmax = maxblue_clearland # max value for blue band for computing clear line
-rmin = .01*dn_max # min DN value for flue band for computing clear line
-n_bin = 50 # number of bins between rmin and rmax
-
-#parameters for shadow detection
-#------------------------------
-shortest_d=7.0       #shortest distance between shadow and cloud, unit is pixel resolution
-longest_d=50.0  #longest distance between shadow and its corresponding cloud, unit is "pixel",can be set empirically by inspecting images
-B_shadow=1.5   #threshold to identify shadow (mean-B_shadow*sd), recommend 1-3, smaller values can detect lighter shadows
-#------------------------------
-
-#we reshape our images that were stacked on the band axis into a 4D array
-t_series = np.reshape(img,(img.shape[0],img.shape[1],n_band,int(n_image)), order='F')
+configs = pyatsa_configs.ATSA_Configs(img_path, ATSA_DIR)
 
 #Computing the Clear Sky Line for Planet Images in T Series
 #Zhu set to 1.5 if it was less than 1.5 but this might not be a good idea for Planet 
@@ -339,25 +262,6 @@ def reassign_labels(class_img, cluster_centers, k=3):
     lut[idx] = np.arange(k)
     return lut[class_img]
 
-def fit_predict_reassign(x, km):
-    """returns the reassigned prediction for a single image"""
-    model = km.fit(x.reshape((-1,1)))
-    return reassign_labels(model.labels_.reshape(x.shape), model.cluster_centers_)
-
-def create_cloud_masks(hot_t_series):
-    """Runs kmeans with 3 clusters and returns an array
-    with 3 labels, where the cluster with the smallest
-    kmeans center is assigned as land (0), then the next to
-    thin clouds (1), and the next to thick clouds (2)"""
-    km = KMeans(n_clusters=3, n_init=10, max_iter=100, tol=1e-4, n_jobs=-1, 
-                      verbose=False, random_state=4)
-
-    cloud_masks = np.array(list(map(
-        lambda x: fit_predict_reassign(x, km),
-        hot_t_series
-        )))
-    return cloud_masks
-
 def sample_and_kmeans(hot_t_series, hard_hot=3000000, sample_size=1000000):
     """Trains a kmeans model on a sample of the time series
     and runs prediction on the time series.
@@ -419,5 +323,5 @@ def calculate_upper_thresh(hot_t_series, cloud_masks, A_cloud):
     
     return (upper_thresh_arr, hot_potential_clear, hot_potential_cloudy)
 
-hot_t_series, intercepts_slopes = compute_hot_series(t_series, rmin, rmax)
+hot_t_series, intercepts_slopes = compute_hot_series(configs.t_series, configs.rmin, configs.rmax)
 cloud_masks = create_cloud_masks(hot_t_series) # this runs very slow since I fit a new kmeans model to each image

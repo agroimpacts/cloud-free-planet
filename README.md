@@ -16,7 +16,9 @@ To compare pyatsa to IDL it is necessary to have IDL and ENVI installed. then:
 
   4. Compile the ATSA-Planet.pro file with `.r ATSA-Planet.pro`
 
-  5. Call the idl script with `ATSA-Planet`
+  5. Call the idl script with `ATSA` from idlde
+
+The IDL script will save out a file that ends in ".sav" (you need to edit the script to change the output path of this file on your computer). It will contain all the variables and results from the script. The file can be read with `scipy.io.readsav` as a python dictionary where each key is the origianl idl variable name. This will then be used in the pytests to check for correctness (tests currently being written).
 
 #### notes on IDL code follow the values to determine what conditions to use in python
 
