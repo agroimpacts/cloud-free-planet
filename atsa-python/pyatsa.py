@@ -132,6 +132,7 @@ def get_bin_means(img, histo_labels_reshaped, n=20):
             )
     return (blue_means, red_means)
     
+    
 def get_intercept_and_slope(blue_means, red_means, histo_labels_reshaped, nbins):
     """
     Takes the mean lists, the histogram labels, and nbins and computes the intercept
@@ -157,17 +158,13 @@ def get_intercept_and_slope(blue_means, red_means, histo_labels_reshaped, nbins)
         slope = result.params[1]
         # hardcode if slope too low
         if slope < 1.5:
-            slope = 1.5
-            intercept = np.mean(red_means) - slope*np.mean(blue_means)
-
-        return (intercept,slope)
+            return (np.nan,np.nan)
+        return (intercept, slope)
     # if we don't have even half the ideal amount of bin means...
     # assume slope and use available data to compute intercept.
     # zhu later marks these as 0 in order to recompute slope and intercept from means...
     else: 
-        slope = 1.5
-        intercept = np.mean(red_means)-slope*np.mean(blue_means)
-        return (intercept, slope)
+        return (np.nan, np.nan)
     
 def get_clear_skyline(img, rmin0, rmax, nbins=50):
     """
