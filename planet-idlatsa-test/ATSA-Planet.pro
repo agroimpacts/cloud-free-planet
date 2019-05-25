@@ -43,7 +43,7 @@ Pro GetData,ImgData = ImgData,ns = ns,nl = nl,nb = nb,Data_Type = Data_Type,$
         15:ImgData = ULON64ARR(ns,nl,nb)   ;an unsigned 64-bit integer vector or array
     EndCase
     For i = 0,nb-1 Do Begin
-       Dt = Envi_Get_Data(Fid=Fid,dims = dims,pos=i)
+       Dt = Envi_Get_Data(Fid = Fid,dims = dims,pos=i)
        ImgData[*,*,i] = Dt[*,*]
     EndFor
 End
@@ -153,7 +153,7 @@ pro  ATSA
 
 ;set the following parameters
 dn_max=10000  ;maximum value of DN, e.g. 7-bit data is 127, 8-bit is 255
-tempfile='/home/rave/Desktop/temp' ; folder for storing intermediate results
+tempfile='C:\Users\student\Desktop\temp' ; folder for storing intermediate results
 background=0  ;DN value of background or missing values, such as SLC-off gaps
 buffer=1    ;width of buffer applied to detected cloud and shadow, recommend 1 or 2 
 
@@ -174,7 +174,7 @@ maxnir_clearwater=dn_max*0.05; estimated maximum nir band value for clear water 
 shortest_d=7.0       ;shortest distance between shadow and cloud, unit is pixel resolution
 longest_d=50.0  ;longest distance between shadow and its corresponding cloud, unit is "pixel",can be set empirically by inspecting images
 B_shadow=1.5 ;  threshold to identify shadow (mean-B_shadow*sd), recommend 1-3, smaller values can detect lighter shadows
-;--------------
+;------------------------------
 
 
  t0=systime(1)                  ;Initial time
@@ -904,7 +904,7 @@ for i=0,ns-1,1 do begin
   endfor
 endfor
 mask=shadow1
-SAVE, /VARIABLES, FILENAME = "/home/rave/cloud-free-planet/atsa-python/atsa-idl-variables.sav"
+
 print,'Obtain the final cloud and shadow mask!'
 
 ;;output the results
