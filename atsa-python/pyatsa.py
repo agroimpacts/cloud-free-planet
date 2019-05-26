@@ -239,7 +239,7 @@ def compute_hot_series(t_series, rmin, rmax, n_bin=50):
         intercepts_slopes[:,0][np.isnan(intercepts_slopes[:,0])] = np.nanmean(intercepts_slopes[:,0])
     def helper(blue, red, ba):
         b,a = ba
-        return abs(a*blue - (b+red))/np.sqrt(1+a**2)
+        return abs(blue*a - red+b)/np.sqrt(1.0+a**2)
     # map uses the first axis as the axis to step along
     # need to use lambda to use multiple args
     hot_t_series = np.array(list(map(lambda x,y,z: helper(x,y,z), 
@@ -320,5 +320,27 @@ def calculate_upper_thresh(hot_t_series, cloud_masks, A_cloud):
     
     return (upper_thresh_arr, hot_potential_clear, hot_potential_cloudy)
 
+def apply_upper_thresh(t_series, hot_t_series, upper_thresh_arr, cloud_masks, hot_potential_clear, hot_potential_cloudy):
+    """Applies the masking logic to refine the initial cloud
+    masks from k-means using the global threshold and 
+    upper threshold computed from the time series.
+    Returns a time series of refined masks where 2 is cloud and 1 is clear land."""
+    
+    cloud_series_mean_global = np.nanmean(hot_potential_cloudy.flatten(), axis=0)
+    cloud_series_std_global = np.nanstd(hot_potential_cloudy.flatten(), axis=0)
+    global_cloud_thresh = cloud_series_mean_global - 1.0*cloud_series_std_global
+    # 0 is where hot is below upper threshold, 1 is above
+    #testing fix, misse dthat I need to use this thresh here to refine
+    #initial clouds by setting pixels to not cloudy if the HOT values are too low
+    #refine initial cloud
+    refined_masks = np.where(np.logical_and(np.less(hot_t_series, upper_thresh_arr), np.equal(hot_potential_cloudy,2)), 1, 2)
+    # add missed clouds
+    refined_masks = np.where(np.logical_and(np.greater(t_series, hot_t_series, upper_thresh_arr), np.greater(hot_potential_cloudy,dn_max*.1)), 1, 2)
+    
+    global_thresh_arr = np.ones(refined_masks.shape)*global_cloud_thresh
+    
+    refined_masks = np.where(hot_t_series > global_cloud_thresh, 2, refined_masks)
+    
+    return refined_masks
+
 hot_t_series, intercepts_slopes = compute_hot_series(configs.t_series, configs.rmin, configs.rmax)
-cloud_masks = create_cloud_masks(hot_t_series) # this runs very slow since I fit a new kmeans model to each image
