@@ -239,7 +239,7 @@ def compute_hot_series(t_series, rmin, rmax, n_bin=50):
         intercepts_slopes[:,0][np.isnan(intercepts_slopes[:,0])] = np.nanmean(intercepts_slopes[:,0])
     def helper(blue, red, ba):
         b,a = ba
-        return abs(a*blue - (b+red))/np.sqrt(1+a**2)
+        return abs(blue*a - red+b)/np.sqrt(1.0+a**2)
     # map uses the first axis as the axis to step along
     # need to use lambda to use multiple args
     hot_t_series = np.array(list(map(lambda x,y,z: helper(x,y,z), 
@@ -259,7 +259,7 @@ def reassign_labels(class_img, cluster_centers, k=3):
     lut[idx] = np.arange(k)
     return lut[class_img]
 
-def sample_and_kmeans(hot_t_series, hard_hot=3000000, sample_size=1000000):
+def sample_and_kmeans(hot_t_series, sample_size=10000):
     """Trains a kmeans model on a sample of the time series
     and runs prediction on the time series.
     A hard coded threshold for the hot index, hard_hot, is
@@ -267,19 +267,23 @@ def sample_and_kmeans(hot_t_series, hard_hot=3000000, sample_size=1000000):
     throughout the time series. Without it, kmeans is skewed toward
     extremely high HOT values and classifies most of the time series
     as not cloudy."""
-    
-    km = KMeans(n_clusters=3, n_init=50, max_iter=100, tol=1e-4, n_jobs=-1, 
+    # https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html
+    # kmeans centers differ slightly due to the method of initialization.
+    # Zhu used mean and standard deviation fo the systematic sample, we use kmeans++
+    km = KMeans(n_clusters=3, n_init=1, max_iter=50, tol=1e-4, n_jobs=-1, 
                       verbose=False, random_state=4)
 
-    sample_values = np.random.choice(
-        hot_t_series.flatten()[hot_t_series.flatten()<hard_hot], 
-        size=sample_size).reshape(-1,1)
+#     sample_values = np.random.choice(
+#         hot_t_series.flatten()[hot_t_series.flatten()<hard_hot], 
+#         size=sample_size).reshape(-1,1)
+    interval = int(len(hot_t_series.flatten())/sample_size)
+    sample_values = hot_t_series.flatten()[::interval].reshape(-1,1)
     
     fit_result = km.fit(sample_values)
     
     predicted_series = fit_result.predict(hot_t_series.flatten().reshape(-1,1)).reshape(hot_t_series.shape)
     
-    return reassign_labels(predicted_series, fit_result.cluster_centers_, k=3)
+    return reassign_labels(predicted_series, fit_result.cluster_centers_, k=3), fit_result.cluster_centers_
 
 def calculate_upper_thresh(hot_t_series, cloud_masks, A_cloud):
     """Uses temporal refinement as defined by Zhu and Elmer 2018
@@ -320,5 +324,34 @@ def calculate_upper_thresh(hot_t_series, cloud_masks, A_cloud):
     
     return (upper_thresh_arr, hot_potential_clear, hot_potential_cloudy)
 
+def apply_upper_thresh(t_series, hot_t_series, upper_thresh_arr, initial_kmeans_clouds, hot_potential_clear, hot_potential_cloudy, dn_max):
+    """Applies the masking logic to refine the initial cloud
+    masks from k-means using the global threshold and 
+    upper threshold computed from the time series.
+    Returns a time series of refined masks where 2 is cloud and 1 is clear land."""
+    
+    cloud_series_mean_global = np.nanmean(hot_potential_cloudy.flatten(), axis=0)
+    cloud_series_std_global = np.nanstd(hot_potential_cloudy.flatten(), axis=0)
+    global_cloud_thresh = cloud_series_mean_global - 1.0*cloud_series_std_global
+    # 0 is where hot is below upper threshold, 1 is above
+    #testing fix, misse dthat I need to use this thresh here to refine
+    #initial clouds by setting pixels to not cloudy if the HOT values are too low
+    #refine initial cloud
+    initial_kmeans_clouds_binary = np.where(initial_kmeans_clouds > 0, 2 , 1)
+    refined_masks = np.where(np.less(hot_potential_cloudy, upper_thresh_arr), 1, initial_kmeans_clouds_binary)
+    # add missed clouds
+    refined_masks = np.where(np.logical_and(np.greater(hot_potential_clear, upper_thresh_arr), reshape_as_raster(np.greater(t_series[:,:,2,:],dn_max*.1))), 2, refined_masks)
+    
+    global_thresh_arr = np.ones(refined_masks.shape)*global_cloud_thresh
+    
+    refined_masks = np.where(hot_t_series > global_cloud_thresh, 2, refined_masks)
+    
+    return refined_masks
+
 hot_t_series, intercepts_slopes = compute_hot_series(configs.t_series, configs.rmin, configs.rmax)
-cloud_masks = create_cloud_masks(hot_t_series) # this runs very slow since I fit a new kmeans model to each image
+
+initial_kmeans_clouds, kmeans_centers = sample_and_kmeans(hot_t_series, hard_hot=5000, sample_size=10000)
+
+upper_thresh_arr, hot_potential_clear, hot_potential_cloudy = calculate_upper_thresh(hot_t_series, initial_kmeans_clouds, configs.A_cloud)
+
+refined_masks = apply_upper_thresh(configs.t_series, hot_t_series, upper_thresh_arr, initial_kmeans_clouds, hot_potential_clear, hot_potential_cloudy, configs.dn_max)
