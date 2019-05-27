@@ -16,9 +16,10 @@ from math import ceil
 import pyatsa_configs
 
 ###porting code from original idl written by Xiaolin Zhu
-ATSA_DIR="/home/rave/cloud-free-planet/atsa-test-unzipped/"
-img_path = os.path.join(ATSA_DIR, "planet-pyatsa-test/stacked_larger_utm.tif")
-configs = pyatsa_configs.ATSA_Configs(img_path, ATSA_DIR)
+ATSA_DIR="/home/rave/cloud-free-planet/atsa-python/"
+img_path = os.path.join(ATSA_DIR, "stacked_larger_utm.tif")
+angles_path = os.path.join(ATSA_DIR, "angles_larger_utm.txt")
+configs = pyatsa_configs.ATSA_Configs(img_path, angles_path, os.path.join(ATSA_DIR, 'temp'))
 
 #Computing the Clear Sky Line for Planet Images in T Series
 #Zhu set to 1.5 if it was less than 1.5 but this might not be a good idea for Planet 

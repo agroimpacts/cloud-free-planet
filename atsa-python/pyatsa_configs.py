@@ -3,12 +3,13 @@ import skimage.io as skio
 import os
 
 class ATSA_Configs():
-    def __init__(self, image_path, ATSA_DIR):
+    def __init__(self, image_path, angles_path, temp_path):
         self.ATSA_DIR=ATSA_DIR
         self.t_series=skio.imread(image_path)
+        self.angles = np.genfromtxt(angles_path, delimiter=' ')
         #set the following parameters
         self.dn_max=10000  #maximum value of DN, e.g. 7-bit data is 127, 8-bit is 255
-        self.tempfolder=os.path.join(ATSA_DIR, 'temp') # folder for storing intermediate results
+        self.tempfolder= temp_path # folder for storing intermediate results
         self.background=0  #DN value of background or missing values, such as SLC-off gaps
         self.buffer=1    #width of buffer applied to detected cloud and shadow, recommend 1 or 2 
 
@@ -31,7 +32,7 @@ class ATSA_Configs():
         #parameters for shadow detection
         #------------------------------
         self.shortest_d=7.0       #shortest distance between shadow and cloud, unit is pixel resolution
-        self.longest_d=50.0  #longest distance between shadow and its corresponding cloud, unit is "pixel",can be set empirically by inspecting images
+        self.longest_d=90.0  #longest distance between shadow and its corresponding cloud, unit is "pixel",can be set empirically by inspecting images
         self.B_shadow=1.5   #threshold to identify shadow (mean-B_shadow*sd), recommend 1-3, smaller values can detect lighter shadows
         #------------------------------
 

@@ -28,6 +28,9 @@ def configs():
 def idl_variables_results():
     return io.readsav("atsa-idl-variables.sav")
 
+def test_angles():
+    return np.allclose(configs.h_high.reshape(idl_variables_results['h_high'].shape), idl_variables_results['h_high'])
+
 def test_t_series_shape(configs):
     assert len(configs.t_series.shape) == 4 # make sure t_series is 4D
     assert configs.t_series.shape[-1] > 1 # make sure t_series has more than 1 image
