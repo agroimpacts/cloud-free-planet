@@ -94,6 +94,7 @@ Function Compute_HOT,data_blue,data_red,rmin,rmax,n_bin,slop=slop,intercept=inte
      intercept=0
   endelse
   hot_img=abs(data_blue*result[1]-data_red+result[0])/((1.0+result[1]^2))^0.5
+  
   return,hot_img
 End
 
@@ -153,7 +154,7 @@ pro  ATSA
 
 ;set the following parameters
 dn_max=10000  ;maximum value of DN, e.g. 7-bit data is 127, 8-bit is 255
-tempfile='C:\Users\student\Desktop\temp' ; folder for storing intermediate results
+tempfile='/home/rave/temp/' ; folder for storing intermediate results
 background=0  ;DN value of background or missing values, such as SLC-off gaps
 buffer=1    ;width of buffer applied to detected cloud and shadow, recommend 1 or 2 
 
@@ -172,7 +173,7 @@ maxnir_clearwater=dn_max*0.05; estimated maximum nir band value for clear water 
 ;parameters for shadow detection
 ;------------------------------
 shortest_d=7.0       ;shortest distance between shadow and cloud, unit is pixel resolution
-longest_d=50.0  ;longest distance between shadow and its corresponding cloud, unit is "pixel",can be set empirically by inspecting images
+longest_d=90.0  ;longest distance between shadow and its corresponding cloud, unit is "pixel",can be set empirically by inspecting images
 B_shadow=1.5 ;  threshold to identify shadow (mean-B_shadow*sd), recommend 1-3, smaller values can detect lighter shadows
 ;------------------------------
 
@@ -358,7 +359,8 @@ for ib=0,n_image-1, 1 do begin
   mask[*,*,ib]=temp
 endfor
 endif
-
+; added for profiling 
+kmeans_masks = mask
 Th_initial[0]=(center_class[0]+center_class[1])/2.0
 
 ;remove isoloate cloud pixels in initial cloud mask
@@ -483,7 +485,7 @@ endfor
 print,'finish final cloud detection!'
 print, 'time used', floor((systime(1)-t0)/3600), 'h',floor(((systime(1)-t0) mod 3600)/60),'m',(systime(1)-t0) mod 60,'s'
 
-
+; SAVE, /VARIABLES, FILENAME = "/home/rave/cloud-free-planet/atsa-python/idl-cloud-variables.sav"
 ;*********detect shadows***************
 
 ;find possible shadow area
@@ -911,6 +913,7 @@ print,'Obtain the final cloud and shadow mask!'
 FileName =FileName0+'_cloud_mask_ATSA'
 Envi_Write_Envi_File,mask,Out_Name = FileName,Map_info = map_Info
 
+SAVE, /VARIABLES, FILENAME = "/home/rave/cloud-free-planet/atsa-python/idl-shadow-variables.sav"
 
 
 
