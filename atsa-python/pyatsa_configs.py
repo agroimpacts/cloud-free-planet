@@ -4,7 +4,6 @@ import os
 
 class ATSA_Configs():
     def __init__(self, image_path, angles_path, temp_path):
-        self.ATSA_DIR=ATSA_DIR
         self.t_series=skio.imread(image_path)
         self.angles = np.genfromtxt(angles_path, delimiter=' ')
         #set the following parameters
