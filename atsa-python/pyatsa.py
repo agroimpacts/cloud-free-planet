@@ -466,7 +466,6 @@ print("finished cloud masking")
 
 start = time.time()
 
-angles = np.genfromtxt("../atsa-python/angles_larger_utm.txt", delimiter=' ')
 h_high, h_low = cloud_height_min_max(angles, configs.longest_d, configs.shortest_d)
 h_ranges = cloud_height_ranges(h_high, h_low)
 shift_coords = shadow_shift_coords(h_ranges, angles)
