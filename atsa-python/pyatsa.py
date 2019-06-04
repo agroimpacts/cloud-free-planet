@@ -1,25 +1,21 @@
 import numpy as np
-import rasterio as rio
-from rasterio import fill
-import skimage as ski
-import matplotlib.pyplot as plt
 import glob
 import os
 from rasterio.plot import reshape_as_raster, reshape_as_image
-import json
 import scipy.stats as stats
 import statsmodels.formula.api
-from skimage import exposure
 from sklearn.cluster import KMeans
-from skimage import morphology as morph
 from math import ceil
+from skimage.draw import line
+from skimage.morphology import opening, dilation
+os.chdir("/home/rave/tana-crunch/waves/cloud-free-planet/atsa-python")
 import pyatsa_configs
 
 ###porting code from original idl written by Xiaolin Zhu
-ATSA_DIR="/home/rave/cloud-free-planet/atsa-python/"
-img_path = os.path.join(ATSA_DIR, "stacked_larger_utm.tif")
-angles_path = os.path.join(ATSA_DIR, "angles_larger_utm.txt")
-configs = pyatsa_configs.ATSA_Configs(img_path, angles_path, os.path.join(ATSA_DIR, 'temp'))
+ATSA_DIR="/home/rave/tana-crunch/waves/cloud-free-planet/atsa-test-unzipped/"
+img_path = os.path.join(ATSA_DIR, "planet-pyatsa-test/stacked_larger_utm.tif")
+angles_path = os.path.join(ATSA_DIR, "planet-pyatsa-test/angles_larger_utm.txt")
+configs = pyatsa_configs.ATSA_Configs(img_path, angles_path, ATSA_DIR)
 
 #Computing the Clear Sky Line for Planet Images in T Series
 #Zhu set to 1.5 if it was less than 1.5 but this might not be a good idea for Planet 
@@ -157,13 +153,12 @@ def get_intercept_and_slope(blue_means, red_means, histo_labels_reshaped, nbins)
 
         intercept = result.params[0]
         slope = result.params[1]
-        # hardcode if slope too low
+        # mark as mean, later this is filled with mean slope and mean intercept
         if slope < 1.5:
             return (np.nan,np.nan)
         return (intercept, slope)
     # if we don't have even half the ideal amount of bin means...
-    # assume slope and use available data to compute intercept.
-    # zhu later marks these as 0 in order to recompute slope and intercept from means...
+    # mark as mean, later this is filled with mean slope and mean intercept
     else: 
         return (np.nan, np.nan)
     
@@ -260,7 +255,7 @@ def reassign_labels(class_img, cluster_centers, k=3):
     lut[idx] = np.arange(k)
     return lut[class_img]
 
-def sample_and_kmeans(hot_t_series, sample_size=10000):
+def sample_and_kmeans(hot_t_series, hard_hot=6000, sample_size=10000):
     """Trains a kmeans model on a sample of the time series
     and runs prediction on the time series.
     A hard coded threshold for the hot index, hard_hot, is
@@ -317,7 +312,6 @@ def calculate_upper_thresh(hot_t_series, cloud_masks, A_cloud):
     # of all cloudy areas calculated by multiple kmeans models, it is not correct for 
     # the whole t series
     
-    #calcualting with multiple kmeans
     cloud_series_min = np.nanmin(hot_potential_cloudy.flatten(), axis=0)
     
     NRDI = (cloud_series_min - range_arr)/(cloud_series_min + range_arr)
@@ -349,6 +343,112 @@ def apply_upper_thresh(t_series, hot_t_series, upper_thresh_arr, initial_kmeans_
     
     return refined_masks
 
+def cloud_height_min_max(angles, longest_d, shortest_d):
+    """Calculates the range of possible cloud heights using the 
+    scene metadata. The longest distance between a shadow and cloud
+    specified in the config cannot be larger than the number of rows 
+    or columns in the image.
+    
+    Args:
+        angles (numpy array): 1st column is sun elevation, 2nd is azimuth 
+    """
+    angles = angles/180.0*3.1415926
+    h_high=longest_d/(((np.tan(angles[:,0])*np.sin(angles[:,1]))**2+(np.tan(angles[:,0])*np.cos(angles[:,1]))**2)**0.5)
+    h_low=shortest_d/(((np.tan(angles[:,0])*np.sin(angles[:,1]))**2+(np.tan(angles[:,0])*np.cos(angles[:,1]))**2)**0.5)
+    return h_high, h_low
+
+def cloud_height_ranges(h_high, h_low):
+    """
+    Takes two arrays of the max cloud height and minimum cloud height, 
+    returning a list of arrays the same length as the time series 
+    containing the range of cloud heights used to compute the cloud shadow masks
+    """
+    h_range_lengths = np.ceil((h_high-h_low)/3.0)
+    h_ranges = []
+    for i,x in enumerate(h_range_lengths):
+        h_ranges.append(np.arange(x)*3+h_low[i])
+    return h_ranges
+
+def shadow_shift_coords(h_ranges, angles):
+    """
+    Computes the possible minimum and maximum x and y magnitudes and 
+    directions (in a cartesian sense) for shadows for each scene based 
+    on the scene geometry with the sun. Used to determine the direction of the shadow.
+    
+    Args:
+        h_ranges (list of numpy arrays): the ranges of cloud heights for 
+            each scene, same length as time series
+        angles (numpy array): the sun elevation and azimuth angles. 
+            column 0 is sun elevation, 1 is azimuth
+    Returns:
+        The ending x and y direction and magnitude of the 
+            potential shadow relative to the cloud mask
+    """
+    angles = angles/180.0*3.1415926
+    end_x1s = []
+    end_y1s = []
+    for i, heights in enumerate(h_ranges):      
+        end_x1s.append(int(round(-heights[-1]*np.tan(angles[i,0])*np.sin(angles[i,1]))))
+        end_y1s.append(int(round(heights[-1]*np.tan(angles[i,0])*np.cos(angles[i,1]))))
+    return list(zip(end_x1s, end_y1s))
+
+def make_rectangular_struct(shift_coord_pair):
+    """
+    Makes the rectangular array with the line structure for dilation int he cloud shadow direction.
+    Expects the ending x and y coordinate in array index format for the maximal cloud shadow at the
+    maximal cloud height. Array index format means positive y indicates the shadow is south of the cloud, 
+    positive x means the shadow is more east of the cloud. rr and cc are are intermediate arrays that store 
+    the indices of the line. This line will run from the center of the struct to a corner of the array that 
+    is opposite from the direction of the dilation.
+    
+    Args:
+        shift_coord_pair (tuple): Contains the following
+            shift_x (int): The maximum amount of pixels to shift the cloud mask in the x direction
+            shift_y (int): The maximum amount of pixels to shift the cloud mask in the y direction
+    Returns: The struct used by the skimage.morphology.dilation to get the potential shadow mask for a single
+                image.
+        
+    """
+    shift_x, shift_y = shift_coord_pair
+    struct = np.zeros((abs(shift_y)+1, abs(shift_x)+1))
+    
+    if shift_x < 0 and shift_y < 0:
+        rr, cc = line(int(abs(shift_y/2)),int(abs(shift_x/2)), abs(shift_y), abs(shift_x))  
+    elif shift_x < 0 and shift_y > 0:
+        rr, cc = line(int(abs(shift_y/2)),int(abs(shift_x/2)), 0, abs(shift_x))
+    elif shift_x > 0 and shift_y > 0:
+        rr, cc = line(int(abs(shift_y/2)),int(abs(shift_x/2)), 0, 0)   
+    elif shift_x > 0 and shift_y < 0:
+        rr, cc = line(int(abs(shift_y/2)),int(abs(shift_x/2)), abs(shift_y), 0)   
+    struct[rr,cc] = 1
+    # removes columns and rows with only zeros, doesn't seem to have an affect
+    # struct = struct[~np.all(struct == 0, axis=1)]
+    # struct = struct[:, ~np.all(struct == 0, axis=0)]
+    return struct
+
+def potential_shadow(struct, cloud_mask):
+    """
+    Makes the shadow mask from the struct and the cloud mask
+    """
+    d = dilation(cloud_mask==2, selem=struct)
+    d = np.where(d==1, 0, 1)
+    d = np.where(cloud_mask==2, 2, d)
+    return d
+
+def make_potential_shadow_masks(shift_coords, cloud_masks):
+    structs = []
+    
+    for i in shift_coords:
+        structs.append(make_rectangular_struct(i))
+        
+    shadow_masks = list(map(lambda x, y: potential_shadow(x,y), structs, cloud_masks))
+    return np.stack(shadow_masks, axis=0), structs
+
+import time
+start = time.time()
+
+angles = np.genfromtxt("../atsa-python/angles_larger_utm.txt", delimiter=' ')
+
 hot_t_series, intercepts_slopes = compute_hot_series(configs.t_series, configs.rmin, configs.rmax)
 
 initial_kmeans_clouds, kmeans_centers = sample_and_kmeans(hot_t_series, hard_hot=5000, sample_size=10000)
@@ -356,3 +456,20 @@ initial_kmeans_clouds, kmeans_centers = sample_and_kmeans(hot_t_series, hard_hot
 upper_thresh_arr, hot_potential_clear, hot_potential_cloudy = calculate_upper_thresh(hot_t_series, initial_kmeans_clouds, configs.A_cloud)
 
 refined_masks = apply_upper_thresh(configs.t_series, hot_t_series, upper_thresh_arr, initial_kmeans_clouds, hot_potential_clear, hot_potential_cloudy, configs.dn_max)
+
+for i in np.arange(refined_masks.shape[0]):
+    refined_masks[i] = opening(refined_masks[i])
+    refined_masks[i] = dilation(refined_masks[i], np.ones((5,5)))
+
+print("seconds ", time.time()-start)
+print("finished cloud masking")
+
+start = time.time()
+
+h_high, h_low = cloud_height_min_max(angles, configs.longest_d, configs.shortest_d)
+h_ranges = cloud_height_ranges(h_high, h_low)
+shift_coords = shadow_shift_coords(h_ranges, angles)
+potential_shadow_masks, structs = make_potential_shadow_masks(shift_coords, refined_masks)
+
+print("seconds ", time.time()-start)
+print("finished potential shadow masking")
