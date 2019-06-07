@@ -3,12 +3,11 @@ import skimage.io as skio
 import os
 
 class ATSA_Configs():
-    def __init__(self, image_path, angles_path, temp_path):
+    def __init__(self, image_path, angles_path):
         self.t_series=skio.imread(image_path)
         self.angles = np.genfromtxt(angles_path, delimiter=' ')
         #set the following parameters
         self.dn_max=10000  #maximum value of DN, e.g. 7-bit data is 127, 8-bit is 255
-        self.tempfolder= temp_path # folder for storing intermediate results
         self.background=0  #DN value of background or missing values, such as SLC-off gaps
         self.buffer=1    #width of buffer applied to detected cloud and shadow, recommend 1 or 2 
 

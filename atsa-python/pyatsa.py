@@ -1,21 +1,36 @@
 import numpy as np
+import rasterio as rio
+from rasterio import fill
+import skimage as ski
+import matplotlib.pyplot as plt
 import glob
 import os
 from rasterio.plot import reshape_as_raster, reshape_as_image
+import json
 import scipy.stats as stats
 import statsmodels.formula.api
 from sklearn.cluster import KMeans
 from math import ceil
 from skimage.draw import line
-from skimage.morphology import opening, dilation
-os.chdir("/home/rave/tana-crunch/waves/cloud-free-planet/atsa-python")
+from skimage.morphology import dilation, opening
+from skimage.filters import threshold_li
+import skimage.io as skio
+os.chdir("/home/rave/cloud-free-planet/atsa-python")
 import pyatsa_configs
+from multiprocessing.dummy import Pool as ThreadPool
+from multiprocessing import Pool, cpu_count
 
-###porting code from original idl written by Xiaolin Zhu
-ATSA_DIR="/home/rave/tana-crunch/waves/cloud-free-planet/atsa-test-unzipped/"
-img_path = os.path.join(ATSA_DIR, "planet-pyatsa-test/stacked_larger_utm.tif")
-angles_path = os.path.join(ATSA_DIR, "planet-pyatsa-test/angles_larger_utm.txt")
-configs = pyatsa_configs.ATSA_Configs(img_path, angles_path, ATSA_DIR)
+def map_processes(func, args_list):
+    """
+    Set MAX_PROCESSES in preprocess_config.yaml
+    args_sequence is a list of lists of args
+    """
+    processes = cpu_count()-1
+    pool = Pool(processes)
+    results = pool.starmap(func, args_list)
+    pool.close()
+    pool.join()
+    return results
 
 #Computing the Clear Sky Line for Planet Images in T Series
 #Zhu set to 1.5 if it was less than 1.5 but this might not be a good idea for Planet 
@@ -361,7 +376,9 @@ def cloud_height_ranges(h_high, h_low):
     """
     Takes two arrays of the max cloud height and minimum cloud height, 
     returning a list of arrays the same length as the time series 
-    containing the range of cloud heights used to compute the cloud shadow masks
+    containing the range of cloud heights used to compute the cloud shadow masks.
+    
+    Returns: Difference between heighest potential height and lowest, in pixel units.
     """
     h_range_lengths = np.ceil((h_high-h_low)/3.0)
     h_ranges = []
@@ -410,16 +427,16 @@ def make_rectangular_struct(shift_coord_pair):
         
     """
     shift_x, shift_y = shift_coord_pair
-    struct = np.zeros((abs(shift_y)+1, abs(shift_x)+1))
+    struct = np.zeros((abs(shift_y)*2+1, abs(shift_x)*2+1))
     
     if shift_x < 0 and shift_y < 0:
-        rr, cc = line(int(abs(shift_y/2)),int(abs(shift_x/2)), abs(shift_y), abs(shift_x))  
+        rr, cc = line(int(abs(shift_y)),int(abs(shift_x)), abs(shift_y)*2, abs(shift_x)*2)  
     elif shift_x < 0 and shift_y > 0:
-        rr, cc = line(int(abs(shift_y/2)),int(abs(shift_x/2)), 0, abs(shift_x))
+        rr, cc = line(int(abs(shift_y)),int(abs(shift_x)), 0, abs(shift_x)*2)
     elif shift_x > 0 and shift_y > 0:
-        rr, cc = line(int(abs(shift_y/2)),int(abs(shift_x/2)), 0, 0)   
+        rr, cc = line(int(abs(shift_y)),int(abs(shift_x)), 0, 0)   
     elif shift_x > 0 and shift_y < 0:
-        rr, cc = line(int(abs(shift_y/2)),int(abs(shift_x/2)), abs(shift_y), 0)   
+        rr, cc = line(int(abs(shift_y)),int(abs(shift_x)), abs(shift_y)*2, 0)   
     struct[rr,cc] = 1
     # removes columns and rows with only zeros, doesn't seem to have an affect
     # struct = struct[~np.all(struct == 0, axis=1)]
@@ -444,32 +461,163 @@ def make_potential_shadow_masks(shift_coords, cloud_masks):
     shadow_masks = list(map(lambda x, y: potential_shadow(x,y), structs, cloud_masks))
     return np.stack(shadow_masks, axis=0), structs
 
-import time
-start = time.time()
+def make_potential_shadow_masks_multi(shift_coords, cloud_masks):
+    args_list = []
+    
+    for i,coord in enumerate(shift_coords):
+        args_list.append((make_rectangular_struct(coord),cloud_masks[i]))
+        
+    shadow_masks = list(map_processes(potential_shadow, args_list))
+    return np.stack(shadow_masks, axis=0)
 
-angles = np.genfromtxt("../atsa-python/angles_larger_utm.txt", delimiter=' ')
 
-hot_t_series, intercepts_slopes = compute_hot_series(configs.t_series, configs.rmin, configs.rmax)
+def apply_li_threshold_multi(shadow_inds, potential_shadow_masks):
+    args_list = list(zip(shadow_inds,potential_shadow_masks))
+    refined_shadow_masks = list(map_processes(apply_li_threshold, args_list))
+    return np.stack(refined_shadow_masks, axis=0)
 
-initial_kmeans_clouds, kmeans_centers = sample_and_kmeans(hot_t_series, hard_hot=5000, sample_size=10000)
+def min_cloud_nir(masks, t_series):
+    """
+    Gets the nir band of the scene with the minimum amount of cloud. 
+    This will need to be reworked to handle partial scenes so that
+    only full scenes are used.
+    
+    Args:
+        masks (numpy array): a 3D array of masks of shape 
+                        (count, height, width)
+        t_series (numpy array): array of shape (height, width, bands, count) ordered RGBNIR
+    Returns (tuple): the nir band of the scene with the least clouds and the index of this scene in the t series
+    """
+    assert np.unique(masks[0])[-1] == 2
+    cloud_counts = [(i==2).sum() for i in masks]
+    min_index = np.argmin(cloud_counts)
+    return t_series[:,:,3,min_index], min_index  # 3 is NIR
 
-upper_thresh_arr, hot_potential_clear, hot_potential_cloudy = calculate_upper_thresh(hot_t_series, initial_kmeans_clouds, configs.A_cloud)
+def gain_and_bias(potential_shadow_masks, nir, clearest_land_nir, clearest_index, nir_index):
+    """
+    Calculates gain for a single imag ein the time series relative to the clearest land image
+        Args:
+            potential_shadow_masks (numpy array): masks of shape (count, height, width) where 0 is shadow, 1 is clear, 2 is cloud
+            nir (numpy array): nir band of the scene to compute gain and bias for
+            clearest_land_nir: nir band of the clearest scene
+            clearest_index: index for clearest nir band, used for filtering with masks
+            nir_index: index for the other nir band
+        Returns (tuple): (gain, bias)
+    """
+    
+    # index 3 is NIR, 1 in the mask is clear land
+    both_clear = (potential_shadow_masks[clearest_index]==1) & (potential_shadow_masks[nir_index]==1)
+    if both_clear.sum() > 100:
+        clearest = clearest_land_nir[both_clear]
+        nir = nir[both_clear]
+        gain = np.std(clearest)/np.std(nir)
+        bias  = np.mean(clearest) - np.mean(nir) * gain
+    else:
+        gain = 1
+        bias = 0
+    return gain, bias
 
-refined_masks = apply_upper_thresh(configs.t_series, hot_t_series, upper_thresh_arr, initial_kmeans_clouds, hot_potential_clear, hot_potential_cloudy, configs.dn_max)
+def gains_and_biases(potential_shadow_masks, t_series, clear_land_nir, clear_land_index):
+    gains_biases = []
+    for i in np.arange(t_series.shape[-1]):
+        gain, bias = gain_and_bias(potential_shadow_masks, t_series[:,:,3,i], clear_land_nir, clear_land_index, i)
+        gains_biases.append((gain,bias))
+    return gains_biases
 
-for i in np.arange(refined_masks.shape[0]):
-    refined_masks[i] = opening(refined_masks[i])
-    refined_masks[i] = dilation(refined_masks[i], np.ones((5,5)))
+def shadow_index_land(potential_shadow_masks, t_series, gains_biases):
+    """
+    Applies gain and bias to get shadow index from nir for each scene in t series.
+    
+    Returns (numpy array): shape (count, height, width) of the nir band shadow index 
+                where there was previously calculated to be potential shadow
+    """
+    shadow_inds = []
+    for i in np.arange(t_series.shape[-1]):
+        # applies calcualtion only where mask says there is not cloud 
+        # might need to do this differently for water
+        shadow_inds.append(np.where(potential_shadow_masks[i]!=2, t_series[:,:,3,i]*gains_biases[i][0]+gains_biases[i][1], np.nan))
+        
+    return np.stack(shadow_inds)
 
-print("seconds ", time.time()-start)
-print("finished cloud masking")
+def apply_li_threshold(shadow_index, potential_shadow_mask):
+    """
+    Applies a Li threshold to the cloud masked shadow index
+    and subsets this binarized thresholded array to the first 
+    potential shadow mask, refining potential shadow regions.
+    
+    skimage.filters.try_all_threshold showed that Li's threshold was far superior
+    to Otsu and other methods. This replaces IDL's use of Inverse Distance Weighting 
+    to refine the shadow mask before kmeans clustering since it is faster and returns better results.
+    
+    Args:
+        shadow_index (numpy array): output from shadow_index_land for a single scene that has clouds set to NaN
+        potential_shadow_mask (numpy array): the shadow and cloud mask, used to refine the thresholded mask
+    
+    https://www.sciencedirect.com/science/article/pii/003132039390115D?via%3Dihub
+    """
 
-start = time.time()
+    thresh = threshold_li(shadow_index)
 
-h_high, h_low = cloud_height_min_max(angles, configs.longest_d, configs.shortest_d)
-h_ranges = cloud_height_ranges(h_high, h_low)
-shift_coords = shadow_shift_coords(h_ranges, angles)
-potential_shadow_masks, structs = make_potential_shadow_masks(shift_coords, refined_masks)
+    binary = shadow_index > thresh
 
-print("seconds ", time.time()-start)
-print("finished potential shadow masking")
+    binary = np.where(potential_shadow_mask==0, binary, 1)
+
+    return opening(binary)
+
+if __name__== "__main__":
+
+    import time
+    start = time.time()
+
+    ###porting code from original idl written by Xiaolin Zhu
+    path_id = "forest"
+    img_path = "/home/rave/cloud-free-planet/cfg/buffered_stacked/"+ path_id+"_stacked.tif"
+    angles_path = os.path.join("/home/rave/cloud-free-planet/cfg/buffered_angles", path_id+'_angles_larger_utm.txt')
+    result_path = "/home/rave/cloud-free-planet/cfg/atsa_results/" +path_id+"_cloud_and_shadow_masks.tif"
+    configs = pyatsa_configs.ATSA_Configs(img_path, angles_path)
+
+    angles = np.genfromtxt(angles_path, delimiter=' ')
+
+    hot_t_series, intercepts_slopes = compute_hot_series(configs.t_series, configs.rmin, configs.rmax)
+
+    initial_kmeans_clouds, kmeans_centers = sample_and_kmeans(hot_t_series, hard_hot=5000, sample_size=10000)
+
+    upper_thresh_arr, hot_potential_clear, hot_potential_cloudy = calculate_upper_thresh(hot_t_series, initial_kmeans_clouds, configs.A_cloud)
+
+    refined_masks = apply_upper_thresh(configs.t_series, hot_t_series, upper_thresh_arr, initial_kmeans_clouds, hot_potential_clear, hot_potential_cloudy, configs.dn_max)
+
+    # axis 0 must be the image count axis, not height or width
+    # refined_masks = np.apply_along_axis(opening, 0, refined_masks) # removes single pixel clouds
+
+    # refined_masks = np.apply_along_axis(lambda x: dilation(x, selem=np.ones(5,5)), 0, refined_masks)
+
+    for i in np.arange(refined_masks.shape[0]):
+        refined_masks[i] = opening(refined_masks[i])
+        refined_masks[i] = dilation(refined_masks[i], np.ones((5,5)))
+
+    print("seconds ", time.time()-start)
+    print("finished cloud masking")
+
+    start = time.time()
+
+    h_high, h_low = cloud_height_min_max(angles, configs.longest_d, configs.shortest_d)
+    h_ranges = cloud_height_ranges(h_high, h_low)
+    shift_coords = shadow_shift_coords(h_ranges, angles)
+    potential_shadow_masks = make_potential_shadow_masks_multi(shift_coords, refined_masks)
+
+    print("seconds ", time.time()-start)
+    print("finished potential shadow masking")
+
+    start = time.time()
+
+    clearest_land_nir, clearest_land_index = min_cloud_nir(potential_shadow_masks, configs.t_series)
+    gains_biases = gains_and_biases(potential_shadow_masks, configs.t_series, clearest_land_nir, clearest_land_index)
+    shadow_inds = shadow_index_land(potential_shadow_masks, configs.t_series, gains_biases)
+    li_refined_shadow_masks = apply_li_threshold_multi(shadow_inds, potential_shadow_masks)
+
+    cloud_shadow_masks = np.where(li_refined_shadow_masks==0,0,refined_masks) #2 is cloud, 1 is clear land, 0 is shadow
+
+    skio.imsave(result_path,cloud_shadow_masks)
+
+    print("seconds ", time.time()-start)
+    print("finished refined shadow masking")
