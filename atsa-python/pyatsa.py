@@ -570,7 +570,7 @@ if __name__== "__main__":
     start = time.time()
 
     ###porting code from original idl written by Xiaolin Zhu
-    path_id = "forest"
+    path_id = "savanna"
     img_path = "/home/rave/cloud-free-planet/cfg/buffered_stacked/"+ path_id+"_stacked.tif"
     angles_path = os.path.join("/home/rave/cloud-free-planet/cfg/buffered_angles", path_id+'_angles_larger_utm.txt')
     result_path = "/home/rave/cloud-free-planet/cfg/atsa_results/" +path_id+"_cloud_and_shadow_masks.tif"
@@ -592,7 +592,7 @@ if __name__== "__main__":
     # refined_masks = np.apply_along_axis(lambda x: dilation(x, selem=np.ones(5,5)), 0, refined_masks)
 
     for i in np.arange(refined_masks.shape[0]):
-        refined_masks[i] = opening(refined_masks[i])
+        refined_masks[i] = opening(refined_masks[i], np.ones((5,5)))
         refined_masks[i] = dilation(refined_masks[i], np.ones((5,5)))
 
     print("seconds ", time.time()-start)
