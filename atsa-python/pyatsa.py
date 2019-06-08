@@ -350,7 +350,7 @@ def apply_upper_thresh(t_series, hot_t_series, upper_thresh_arr, initial_kmeans_
     initial_kmeans_clouds_binary = np.where(initial_kmeans_clouds > 0, 2 , 1)
     refined_masks = np.where(np.less(hot_potential_cloudy, upper_thresh_arr), 1, initial_kmeans_clouds_binary)
     # add missed clouds
-    refined_masks = np.where(np.logical_and(np.greater(hot_potential_clear, upper_thresh_arr), reshape_as_raster(np.greater(t_series[:,:,2,:],dn_max*.1))), 2, refined_masks)
+    refined_masks = np.where(np.logical_and(np.greater(hot_potential_clear, upper_thresh_arr), reshape_as_raster(np.greater(t_series[:,:,3,:],dn_max*.1))), 2, refined_masks)
     
     global_thresh_arr = np.ones(refined_masks.shape)*global_cloud_thresh
     
