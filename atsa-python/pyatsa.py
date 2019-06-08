@@ -593,6 +593,12 @@ if __name__== "__main__":
 
     for i in np.arange(refined_masks.shape[0]):
         refined_masks[i] = opening(refined_masks[i], np.ones((5,5)))
+    
+        # before dilating we need to check for water. where statement currnetly contains hardcoded value to deal with intermittent water being 
+        # misclassified as cloud due o HOT index not working over water. We can't generate an accurate water mask with Planet alone because
+        # it does not have shortwave infrared. see https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2018RG000598 
+        refined_masks[i] = np.where((configs.t_series[:,:,3,i]<2000)&(refined_masks[i]==2), 1, refined_masks[i])
+    
         refined_masks[i] = dilation(refined_masks[i], np.ones((5,5)))
 
     print("seconds ", time.time()-start)
@@ -615,7 +621,7 @@ if __name__== "__main__":
     shadow_inds = shadow_index_land(potential_shadow_masks, configs.t_series, gains_biases)
     li_refined_shadow_masks = apply_li_threshold_multi(shadow_inds, potential_shadow_masks)
 
-    cloud_shadow_masks = np.where(li_refined_shadow_masks==0,0,refined_masks) #2 is cloud, 1 is clear land, 0 is shadow
+    cloud_shadow_masks = np.where(li_refined_shadow_masks==0, 0, refined_masks) #2 is cloud, 1 is clear land, 0 is shadow
 
     skio.imsave(result_path,cloud_shadow_masks)
 
