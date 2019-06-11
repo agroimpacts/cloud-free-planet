@@ -20,11 +20,11 @@ class ATSA_Configs():
         self.red_b=2     # band index of red band
         self.nir_b=3     # band index of nir band
 
-        self.A_cloud=2.5 # threshold to identify cloud (mean+A_cloud*sd), recommend 0.5-1.5, smaller values can detect thinner clouds
+        self.A_cloud=2.5 # threshold to identify cloud (mean+A_cloud*sd), recommend 0.5-1.5 for Landsat, smaller values can detect thinner clouds
         self.maxblue_clearland=self.dn_max*0.15 # estimated maximum blue band value for clear land surface
         self.maxnir_clearwater=self.dn_max*0.05 # estimated maximum nir band value for clear water surface
         self.rmax = self.maxblue_clearland # max value for blue band for computing clear line
-        self.rmin = .01*self.dn_max # min DN value for flue band for computing clear line
+        self.rmin = .01*self.dn_max # min DN value for blue band for computing clear line
         self.n_bin = 50 # number of bins between rmin and rmax
 
         #parameters for shadow detection
